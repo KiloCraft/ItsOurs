@@ -46,6 +46,10 @@ public abstract class AbstractClaim {
         return this.owner;
     }
 
+    public void setOwner(UUID owner) {
+        this.owner = owner;
+    }
+
     public DimensionType getDimension() {
         return this.dimension;
     }
@@ -68,11 +72,17 @@ public abstract class AbstractClaim {
         return max.subtract(min);
     }
 
-    public void save() {
-        //Needs implementation
+    public boolean contains(BlockPos pos) {
+        return (min.getX() <= pos.getX() && max.getX() >= pos.getX()) && (min.getY() <= pos.getY() && max.getY() >= pos.getY()) && (min.getZ() <= pos.getZ() && max.getZ() >= pos.getZ());
     }
 
     public abstract void canExpand(Direction direction, int amount, Consumer<ExpandResult> result);
+
+    private void expand(Direction direction, int amount) {
+        //TODO: Implement
+    }
+
+    public abstract boolean isSubzone();
 
     public enum ExpandResult {
         MISSING_BLOCKS("You don't have enough blocks.", false),
@@ -82,20 +92,22 @@ public abstract class AbstractClaim {
         SUCCESS();
         private String error = "";
         private boolean success = false;
+
         ExpandResult(String error, boolean success) {
             this.error = error;
             this.success = success;
         }
-        ExpandResult() { }
-        public boolean success() { return this.success; }
-        public String error() { return this.error; }
+
+        ExpandResult() {
+        }
+
+        public boolean success() {
+            return this.success;
+        }
+
+        public String error() {
+            return this.error;
+        }
     }
-
-    private void expand(Direction direction, int amount) {
-        //Still needs implementation
-    }
-
-    public abstract boolean isSubzone();
-
 
 }
