@@ -7,26 +7,18 @@ import net.minecraft.world.dimension.DimensionType;
 
 public interface ClaimPlayer {
 
-    public void setClaimBlocks(int amount);
+    void setLastShow(AbstractClaim claim, BlockPos pos, DimensionType dimension);
 
-    public void addClaimBlocks(int amount);
+    AbstractClaim getLastShowClaim();
 
-    public void removeClaimBlocks(int amount);
+    BlockPos getLastShowPos();
 
-    public int getClaimBlocks();
+    DimensionType getLastShowDimension();
 
-    public void setLastShow(AbstractClaim claim, BlockPos pos, DimensionType dimension);
+    void sendError(Text error);
 
-    public AbstractClaim getLastShowClaim();
+    void sendError(String error);
 
-    public BlockPos getLastShowPos();
-
-    public DimensionType getLastShowDimension();
-
-    public void sendError(Text error);
-
-    public void sendError(String error);
-
-    public void sendMessage(Text text);
+    void sendMessage(Text text);
 
 }

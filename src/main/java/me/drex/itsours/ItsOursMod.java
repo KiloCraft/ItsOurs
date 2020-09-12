@@ -2,6 +2,7 @@ package me.drex.itsours;
 
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.permission.roles.RoleManager;
+import me.drex.itsours.claim.util.BlockManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.nbt.CompoundTag;
@@ -21,6 +22,7 @@ public class ItsOursMod implements ModInitializer {
     public static Logger LOGGER = LogManager.getLogger();
     private ClaimList claimList;
     private RoleManager roleManager;
+    private BlockManager blockManager;
 
     @Override
     public void onInitialize() {
@@ -63,6 +65,7 @@ public class ItsOursMod implements ModInitializer {
             }
             this.claimList = new ClaimList((ListTag) tag.get("claims"));
             this.roleManager = new RoleManager(tag.getCompound("roles"));
+            this.blockManager = new BlockManager(tag.getCompound("blocks"));
         }
     }
 
