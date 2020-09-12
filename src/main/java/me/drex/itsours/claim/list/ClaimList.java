@@ -28,6 +28,10 @@ public class ClaimList {
         byOwner.put(claim.getOwner(), claims);
     }
 
+    public ClaimList(ListTag tag) {
+        fromNBT(tag);
+    }
+
     public void fromNBT(ListTag tag) {
         tag.forEach(claimTag -> {
             Claim claim = new Claim((CompoundTag) claimTag);
