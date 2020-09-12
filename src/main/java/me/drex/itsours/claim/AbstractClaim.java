@@ -7,6 +7,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -20,6 +21,8 @@ public abstract class AbstractClaim {
     private BlockPos min, max, tppos;
     private final DimensionType dimension;
     private List<Subzone> subzoneList = new ArrayList<>();
+    private Date created;
+    private Date lastEdited;
     private PermissionManager permissionManager = new PermissionManager();
 
     public AbstractClaim(String name, UUID owner, BlockPos pos1, BlockPos pos2, DimensionType dimension, @Nullable BlockPos tppos) {

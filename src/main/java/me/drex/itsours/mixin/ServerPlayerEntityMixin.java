@@ -2,6 +2,7 @@ package me.drex.itsours.mixin;
 
 import com.mojang.authlib.GameProfile;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.permission.Role;
 import me.drex.itsours.user.ClaimPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
