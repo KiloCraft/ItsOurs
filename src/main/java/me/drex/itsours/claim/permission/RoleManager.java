@@ -1,11 +1,8 @@
 package me.drex.itsours.claim.permission;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class RoleManager {
@@ -17,7 +14,7 @@ public class RoleManager {
     }
 
     public void fromNBT(CompoundTag tag) {
-        tag.getKeys().forEach(id -> roles.put(id, new Role((CompoundTag) tag.get(id))));
+        tag.getKeys().forEach(id -> roles.put(id, new Role(tag.getCompound(id))));
     }
 
     public CompoundTag toNBT() {
