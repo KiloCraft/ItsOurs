@@ -15,10 +15,10 @@ import java.util.regex.Pattern;
 public abstract class AbstractClaim {
 
     private static final Pattern NAME = Pattern.compile("\\w{3,16}");
-    private String name;
+    private final String name;
     private UUID owner;
     private BlockPos min, max, tppos;
-    private DimensionType dimension;
+    private final DimensionType dimension;
     private List<Subzone> subzoneList = new ArrayList<>();
     private PermissionManager permissionManager = new PermissionManager();
 
