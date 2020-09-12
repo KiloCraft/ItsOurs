@@ -1,4 +1,4 @@
-package me.drex.itsours.claim.permission;
+package me.drex.itsours.claim.permission.roles;
 
 import net.minecraft.nbt.CompoundTag;
 

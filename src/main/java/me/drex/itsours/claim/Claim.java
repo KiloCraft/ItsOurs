@@ -1,16 +1,16 @@
 package me.drex.itsours.claim;
 
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.UUID;
 import java.util.function.Consumer;
 
 public class Claim extends AbstractClaim {
 
-    public Claim(String name, UUID owner, BlockPos pos1, BlockPos pos2, DimensionType dimension, BlockPos tppos) {
-        super(name, owner, pos1, pos2, dimension, tppos);
+    public Claim(String name, UUID owner, BlockPos pos1, BlockPos pos2, ServerWorld world, BlockPos tppos) {
+        super(name, owner, pos1, pos2, world, tppos);
     }
 
     @Override

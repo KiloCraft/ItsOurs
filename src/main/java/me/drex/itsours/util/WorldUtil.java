@@ -1,4 +1,4 @@
-package me.drex.itsours.claim.util;
+package me.drex.itsours.util;
 
 import com.google.common.collect.Lists;
 import com.sun.istack.internal.Nullable;

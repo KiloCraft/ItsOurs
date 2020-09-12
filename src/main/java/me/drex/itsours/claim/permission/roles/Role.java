@@ -1,5 +1,6 @@
-package me.drex.itsours.claim.permission;
+package me.drex.itsours.claim.permission.roles;
 
+import me.drex.itsours.claim.permission.util.PermissionMap;
 import net.minecraft.nbt.CompoundTag;
 
 public class Role {

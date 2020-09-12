@@ -2,7 +2,7 @@ package me.drex.itsours.claim;
 
 import com.sun.istack.internal.Nullable;
 import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.util.WorldUtil;
+import me.drex.itsours.util.WorldUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.world.ServerWorld;

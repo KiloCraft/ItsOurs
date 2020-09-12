@@ -1,4 +1,4 @@
-package me.drex.itsours.claim.permission;
+package me.drex.itsours.claim.permission.util;
 
 import java.util.HashMap;
 
