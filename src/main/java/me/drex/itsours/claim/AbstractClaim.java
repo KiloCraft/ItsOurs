@@ -21,7 +21,7 @@ public abstract class AbstractClaim {
     private static final Pattern NAME = Pattern.compile("\\w{3,16}");
     private String name;
     private UUID owner;
-    private BlockPos min, max, tp;
+    public BlockPos min, max, tp;
     private ServerWorld world;
     private List<Subzone> subzoneList = new ArrayList<>();
     private Date created;
