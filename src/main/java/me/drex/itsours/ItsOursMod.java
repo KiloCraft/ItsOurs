@@ -2,32 +2,39 @@ package me.drex.itsours;
 
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.permission.roles.RoleManager;
-import net.fabricmc.api.ModInitializer;
+import me.drex.itsours.claim.util.BlockManager;
+import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.WorldSavePath;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class ItsOursMod implements ModInitializer {
+public class ItsOursMod implements DedicatedServerModInitializer {
 
     public static MinecraftServer server;
     public static Logger LOGGER = LogManager.getLogger();
+    public static ItsOursMod INSTANCE;
     private ClaimList claimList;
     private RoleManager roleManager;
+    private BlockManager blockManager;
+    private int dataVersion = 1;
 
     @Override
-    public void onInitialize() {
+    public void onInitializeServer() {
         ServerLifecycleEvents.SERVER_STARTING.register(this::onStart);
     }
 
     public void onStart(MinecraftServer server) {
+        INSTANCE = this;
         ItsOursMod.server = server;
         load();
     }
@@ -37,9 +44,8 @@ public class ItsOursMod implements ModInitializer {
     }
 
     public void load() {
-        File data = new File(getDirectory() + "/world/claims.dat");
-        File data_backup = new File(getDirectory() + "/world/claims.dat_old");
-
+        File data = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat").toFile();
+        File data_backup = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat_old").toFile();
         if (!data.exists()) {
             LOGGER.info("Data file not found.");
             this.claimList = new ClaimList(new ListTag());
@@ -63,7 +69,31 @@ public class ItsOursMod implements ModInitializer {
             }
             this.claimList = new ClaimList((ListTag) tag.get("claims"));
             this.roleManager = new RoleManager(tag.getCompound("roles"));
+            this.blockManager = new BlockManager(tag.getCompound("blocks"));
+            this.dataVersion = tag.getInt("dataVersion");
         }
     }
 
+    public void save() {
+        CompoundTag root = new CompoundTag();
+        root.put("claims", claimList.toNBT());
+        root.put("roles", roleManager.toNBT());
+        root.put("blocks", blockManager.toNBT());
+        root.putInt("dataVersion", dataVersion);
+        File data = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat").toFile();
+        File data_backup = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat_old").toFile();
+        //Backup old file
+        if (data.exists()) {
+            LOGGER.info("Creating backup of: " + data.getName() + " (" + data.length() / 1024 + "kb)");
+            if (data_backup.exists()) data_backup.delete();
+            data.renameTo(data_backup);
+        }
+        try {
+            data.createNewFile();
+            NbtIo.writeCompressed(root, new FileOutputStream(data));
+        } catch (IOException e) {
+            LOGGER.error("Could not save " + data.getName(), e);
+        }
+
+    }
 }

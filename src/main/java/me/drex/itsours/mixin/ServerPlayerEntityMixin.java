@@ -27,7 +27,6 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     private BlockPos lastShowPos;
     private DimensionType lastShowDimension;
     private int cooldown = 0;
-    private int claimBlocks = 0;
 
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
@@ -41,24 +40,6 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
         return this.interactionManager.getGameMode() == GameMode.CREATIVE;
     }
 
-
-    @Override
-    public void setClaimBlocks(int amount) {
-        this.claimBlocks = Math.min(0, amount);
-    }
-
-    @Override
-    public void addClaimBlocks(int amount) {
-        this.claimBlocks = Math.min(0, this.claimBlocks+=amount);
-    }
-
-    @Override
-    public void removeClaimBlocks(int amount) {
-        this.addClaimBlocks(-amount);
-    }
-
-    @Override
-    public int getClaimBlocks() { return this.claimBlocks; }
 
     @Override
     public void setLastShow(AbstractClaim claim, BlockPos pos, DimensionType dimension) {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "itsours",
   "version": "${version}",
 
   "name": "ItsOurs",
@@ -9,8 +9,8 @@
     "Drex"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://50kilo.org/",
+    "sources": "https://github.com/KiloCraft/ItsOurs"
   },
 
   "license": "CC0-1.0",
@@ -18,7 +18,7 @@
 
   "environment": "*",
   "entrypoints": {
-    "main": [
+    "server": [
       "me.drex.itsours.ItsOursMod"
     ]
   },
@@ -30,8 +30,5 @@
     "fabricloader": ">=0.7.4",
     "fabric": "*",
     "minecraft": "1.16.x"
-  },
-  "suggests": {
-    "flamingo": "*"
   }
 }
