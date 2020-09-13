@@ -3,6 +3,7 @@ package me.drex.itsours;
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.permission.roles.RoleManager;
 import me.drex.itsours.claim.util.BlockManager;
+import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.nbt.CompoundTag;
@@ -16,7 +17,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class ItsOursMod implements ModInitializer {
+public class ItsOursMod implements DedicatedServerModInitializer {
 
     public static MinecraftServer server;
     public static Logger LOGGER = LogManager.getLogger();
@@ -25,7 +26,7 @@ public class ItsOursMod implements ModInitializer {
     private BlockManager blockManager;
 
     @Override
-    public void onInitialize() {
+    public void onInitializeServer() {
         ServerLifecycleEvents.SERVER_STARTING.register(this::onStart);
     }
 
@@ -68,5 +69,4 @@ public class ItsOursMod implements ModInitializer {
             this.blockManager = new BlockManager(tag.getCompound("blocks"));
         }
     }
-
 }
