@@ -24,4 +24,19 @@ public class BlockManager {
         return tag;
     }
 
+    public int getBlocks(UUID uuid) {
+        if (blocks.containsKey(uuid)) {
+            return blocks.get(uuid);
+        } else {
+            //TODO: Make default configurable
+            blocks.put(uuid, 1000);
+            return getBlocks(uuid);
+        }
+    }
+
+    public void addBlocks(UUID uuid, int amount) {
+        int blocks = getBlocks(uuid);
+        this.blocks.put(uuid, Math.max(0, blocks + amount));
+    }
+
 }

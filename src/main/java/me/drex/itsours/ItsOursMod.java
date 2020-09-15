@@ -26,7 +26,6 @@ public class ItsOursMod implements DedicatedServerModInitializer {
     private ClaimList claimList;
     private RoleManager roleManager;
     private BlockManager blockManager;
-    private int dataVersion = 1;
 
     @Override
     public void onInitializeServer() {
@@ -50,6 +49,7 @@ public class ItsOursMod implements DedicatedServerModInitializer {
             LOGGER.info("Data file not found.");
             this.claimList = new ClaimList(new ListTag());
             this.roleManager = new RoleManager(new CompoundTag());
+            this.blockManager = new BlockManager(new CompoundTag());
         } else {
             CompoundTag tag;
             try {
@@ -70,7 +70,6 @@ public class ItsOursMod implements DedicatedServerModInitializer {
             this.claimList = new ClaimList((ListTag) tag.get("claims"));
             this.roleManager = new RoleManager(tag.getCompound("roles"));
             this.blockManager = new BlockManager(tag.getCompound("blocks"));
-            this.dataVersion = tag.getInt("dataVersion");
         }
     }
 
@@ -79,7 +78,6 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         root.put("claims", claimList.toNBT());
         root.put("roles", roleManager.toNBT());
         root.put("blocks", blockManager.toNBT());
-        root.putInt("dataVersion", dataVersion);
         File data = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat").toFile();
         File data_backup = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat_old").toFile();
         //Backup old file
