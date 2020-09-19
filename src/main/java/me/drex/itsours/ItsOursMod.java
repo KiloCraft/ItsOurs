@@ -94,4 +94,15 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         }
 
     }
+    public RoleManager getRoleManager() {
+        return this.roleManager;
+    }
+
+    public BlockManager getBlockManager() {
+        return this.blockManager;
+    }
+
+    public ClaimList getClaimList() {
+        return this.claimList;
+    }
 }

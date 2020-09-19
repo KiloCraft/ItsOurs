@@ -1,6 +1,8 @@
 package me.drex.itsours.claim;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.sun.istack.internal.Nullable;
+import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.util.WorldUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -13,15 +15,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public abstract class AbstractClaim {
 
     private static final Pattern NAME = Pattern.compile("\\w{3,16}");
+    public BlockPos min, max, tp;
     private String name;
     private UUID owner;
-    public BlockPos min, max, tp;
     private ServerWorld world;
     private List<Subzone> subzoneList = new ArrayList<>();
     private Date created;
@@ -42,7 +43,7 @@ public abstract class AbstractClaim {
         this.max = new BlockPos(mx, my, mz);
         this.world = world;
         this.tp = tp;
-        this.permissionManager = new PermissionManager();
+        this.permissionManager = new PermissionManager(new CompoundTag());
     }
 
     public AbstractClaim(CompoundTag tag) {
@@ -129,37 +130,46 @@ public abstract class AbstractClaim {
         return (min.getX() <= pos.getX() && max.getX() >= pos.getX()) && (min.getY() <= pos.getY() && max.getY() >= pos.getY()) && (min.getZ() <= pos.getZ() && max.getZ() >= pos.getZ());
     }
 
-    public abstract void canExpand(Direction direction, int amount, Consumer<ExpandResult> result);
-
-    private void expand(Direction direction, int amount) {
-        //TODO: Implement
+    public boolean intersects(AbstractClaim claim) {
+        if (!claim.world.equals(this.world)) return false;
+        BlockPos a = min, b = max, c = new BlockPos(max.getX(), min.getY(), min.getZ()), d = new BlockPos(min.getX(), max.getY(), min.getZ()), e = new BlockPos(min.getX(), min.getY(), max.getZ()), f = new BlockPos(max.getX(), max.getY(), min.getZ()), g = new BlockPos(max.getX(), min.getY(), max.getZ()), h = new BlockPos(min.getX(), max.getY(), max.getZ());
+        return claim.contains(a) || claim.contains(b) || claim.contains(c) || claim.contains(d) || claim.contains(e) || claim.contains(f) || claim.contains(g) || claim.contains(h);
     }
 
-    public abstract boolean isSubzone();
+    /**
+     * @param uuid uuid of the player who issued the expansion (this is used to check for claim blocks)
+     * @param direction the direction in which a claim should get expanded
+     * @param amount the amount of blocks the claim should get expanded
+     * @throws CommandSyntaxException if the claim couldn't get expanded
+     * @return amount of claim blocks used
+    * */
+    abstract int expand(UUID uuid, Direction direction, int amount) throws CommandSyntaxException;
 
-    public enum ExpandResult {
-        MISSING_BLOCKS("You don't have enough blocks.", false),
-        OUTSIDE_CLAIM("You can't expand outside of the parent claim.", false),
-        COLLISION("You can't expand into another claim.", false),
-        TOO_SMALL("You can't shrink your claim smaller than 3 blocks", false),
-        SUCCESS();
-        private String error = "";
-        private boolean success = false;
-
-        ExpandResult(String error, boolean success) {
-            this.error = error;
-            this.success = success;
+    public boolean intersects() {
+        for (AbstractClaim value : ItsOursMod.INSTANCE.getClaimList().get()) {
+            if (value.getDepth() == this.getDepth() && !this.equals(value) && (value.intersects(this))) {
+                return true;
+            }
         }
+        return false;
+    }
 
-        ExpandResult() {
+    void expand(Direction direction, int amount) {
+        BlockPos modifier = new BlockPos(direction.getOffsetX() * amount, direction.getOffsetY() * amount, direction.getOffsetZ() * amount);
+        if (modifier.getX() > 0) {
+            max = max.add(modifier.getX(), 0, 0);
+        } else {
+            min = min.add(modifier.getX(), 0, 0);
         }
-
-        public boolean success() {
-            return this.success;
+        if (modifier.getY() > 0) {
+            max = max.add(0, modifier.getY(), 0);
+        } else {
+            min = min.add(0, modifier.getY(), 0);
         }
-
-        public String error() {
-            return this.error;
+        if (modifier.getZ() > 0) {
+            max = max.add(0, 0, modifier.getZ());
+        } else {
+            min = min.add(0, 0, modifier.getZ());
         }
     }
 

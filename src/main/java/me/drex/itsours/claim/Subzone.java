@@ -1,14 +1,16 @@
 package me.drex.itsours.claim;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.sun.istack.internal.Nullable;
+import me.drex.itsours.ItsOursMod;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class Subzone extends AbstractClaim {
 
@@ -25,11 +27,6 @@ public class Subzone extends AbstractClaim {
         this.parent = parent;
     }
 
-    @Override
-    public void canExpand(Direction direction, int amount, Consumer<ExpandResult> result) {
-
-    }
-
     public AbstractClaim getParent() {
         return this.parent;
     }
@@ -39,7 +36,25 @@ public class Subzone extends AbstractClaim {
     }
 
     @Override
-    public boolean isSubzone() {
-        return true;
+    int expand(UUID uuid, Direction direction, int amount) throws CommandSyntaxException {
+        int previousArea = this.getArea();
+        this.expand(direction, amount);
+        int requiredBlocks = this.getArea() - previousArea;
+        if (!this.isInside()) {
+            this.expand(direction, -amount);
+            throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in " + this.getName() + " being outside of " + this.parent.getName())).create();
+        }
+        if (this.intersects()) {
+            this.expand(direction, -amount);
+            throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in hitting another subzone")).create();
+        }
+        ItsOursMod.INSTANCE.getClaimList().update();
+        return requiredBlocks;
     }
+
+    boolean isInside() {
+        BlockPos a = min, b = max, c = new BlockPos(max.getX(), min.getY(), min.getZ()), d = new BlockPos(min.getX(), max.getY(), min.getZ()), e = new BlockPos(min.getX(), min.getY(), max.getZ()), f = new BlockPos(max.getX(), max.getY(), min.getZ()), g = new BlockPos(max.getX(), min.getY(), max.getZ()), h = new BlockPos(min.getX(), max.getY(), max.getZ());
+        return this.parent.contains(a) && this.parent.contains(b) && this.parent.contains(c) && this.parent.contains(d) && this.parent.contains(e) && this.parent.contains(f) && this.parent.contains(g) && this.parent.contains(h);
+    }
+
 }
