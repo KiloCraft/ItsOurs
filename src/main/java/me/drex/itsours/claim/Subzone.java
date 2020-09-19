@@ -1,8 +1,12 @@
 package me.drex.itsours.claim;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.sun.istack.internal.Nullable;
+import me.drex.itsours.ItsOursMod;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
@@ -32,13 +36,19 @@ public class Subzone extends AbstractClaim {
     }
 
     @Override
-    int expand(UUID uuid, Direction direction, int amount) {
+    int expand(UUID uuid, Direction direction, int amount) throws CommandSyntaxException {
         int previousArea = this.getArea();
         this.expand(direction, amount);
         int requiredBlocks = this.getArea() - previousArea;
         if (!this.isInside()) {
-
+            this.expand(direction, -amount);
+            throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in " + this.getName() + " being outside of " + this.parent.getName())).create();
         }
+        if (this.intersects()) {
+            this.expand(direction, -amount);
+            throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in hitting another subzone")).create();
+        }
+        ItsOursMod.INSTANCE.getClaimList().update();
         return requiredBlocks;
     }
 
