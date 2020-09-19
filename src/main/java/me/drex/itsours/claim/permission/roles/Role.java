@@ -19,4 +19,7 @@ public class Role {
         return permissions.toNBT();
     }
 
+    public PermissionMap permissions() {
+        return this.permissions;
+    }
 }

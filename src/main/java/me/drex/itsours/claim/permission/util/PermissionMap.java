@@ -20,8 +20,12 @@ public class PermissionMap extends HashMap<String, Boolean> {
         return tag;
     }
 
-    public boolean hasPermission(String permission) {
-        return this.containsKey(permission) && this.get(permission);
+    public boolean getPermission(String permission) {
+        return this.get(permission);
+    }
+
+    public boolean isPermissionSet(String permission) {
+        return this.containsKey(permission);
     }
 
 }
