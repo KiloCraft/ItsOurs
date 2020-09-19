@@ -57,9 +57,4 @@ public class Claim extends AbstractClaim {
         }
         return false;
     }
-
-    @Override
-    public boolean isSubzone() {
-        return false;
-    }
 }

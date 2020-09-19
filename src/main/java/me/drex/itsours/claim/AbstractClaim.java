@@ -163,8 +163,6 @@ public abstract class AbstractClaim {
         }
     }
 
-    public abstract boolean isSubzone();
-
     public static class Util {
         public static CompoundTag blockPosToNBT(BlockPos pos) {
             CompoundTag tag = new CompoundTag();

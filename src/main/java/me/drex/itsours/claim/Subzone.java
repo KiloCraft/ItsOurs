@@ -41,8 +41,4 @@ public class Subzone extends AbstractClaim {
         return this.parent.contains(a) && this.parent.contains(b) && this.parent.contains(c) && this.parent.contains(d) && this.parent.contains(e) && this.parent.contains(f) && this.parent.contains(g) && this.parent.contains(h);
     }
 
-    @Override
-    public boolean isSubzone() {
-        return true;
-    }
 }
