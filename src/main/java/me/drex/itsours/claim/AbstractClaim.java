@@ -129,39 +129,11 @@ public abstract class AbstractClaim {
         return (min.getX() <= pos.getX() && max.getX() >= pos.getX()) && (min.getY() <= pos.getY() && max.getY() >= pos.getY()) && (min.getZ() <= pos.getZ() && max.getZ() >= pos.getZ());
     }
 
-    public abstract void canExpand(Direction direction, int amount, Consumer<ExpandResult> result);
-
     private void expand(Direction direction, int amount) {
         //TODO: Implement
     }
 
     public abstract boolean isSubzone();
-
-    public enum ExpandResult {
-        MISSING_BLOCKS("You don't have enough blocks.", false),
-        OUTSIDE_CLAIM("You can't expand outside of the parent claim.", false),
-        COLLISION("You can't expand into another claim.", false),
-        TOO_SMALL("You can't shrink your claim smaller than 3 blocks", false),
-        SUCCESS();
-        private String error = "";
-        private boolean success = false;
-
-        ExpandResult(String error, boolean success) {
-            this.error = error;
-            this.success = success;
-        }
-
-        ExpandResult() {
-        }
-
-        public boolean success() {
-            return this.success;
-        }
-
-        public String error() {
-            return this.error;
-        }
-    }
 
     public static class Util {
         public static CompoundTag blockPosToNBT(BlockPos pos) {

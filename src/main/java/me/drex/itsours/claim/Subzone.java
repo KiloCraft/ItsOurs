@@ -25,11 +25,6 @@ public class Subzone extends AbstractClaim {
         this.parent = parent;
     }
 
-    @Override
-    public void canExpand(Direction direction, int amount, Consumer<ExpandResult> result) {
-
-    }
-
     public AbstractClaim getParent() {
         return this.parent;
     }

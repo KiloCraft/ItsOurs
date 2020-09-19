@@ -24,11 +24,6 @@ public class Claim extends AbstractClaim {
     }
 
     @Override
-    public void canExpand(Direction direction, int amount, Consumer<ExpandResult> result) {
-
-    }
-
-    @Override
     public boolean isSubzone() {
         return false;
     }
