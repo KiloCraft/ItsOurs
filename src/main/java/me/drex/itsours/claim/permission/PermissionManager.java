@@ -37,8 +37,27 @@ public class PermissionManager {
     }
 
     public CompoundTag toNBT() {
-        //TODO: Implement
-        return new CompoundTag();
+        CompoundTag tag = new CompoundTag();
+        CompoundTag players = new CompoundTag();
+        CompoundTag playerPermissions = new CompoundTag();
+        playerPermission.forEach((uuid, permissionMap) -> {
+            playerPermissions.put(String.valueOf(uuid), permissionMap.toNBT());
+        });
+        CompoundTag playerRoles = new CompoundTag();
+        roles.forEach((uuid, roleMap) -> {
+            CompoundTag roleTag = new CompoundTag();
+            roleMap.forEach((role, integer) -> {
+                roleTag.putInt(ItsOursMod.INSTANCE.getRoleManager().getRoleID(role), integer);
+            });
+            playerRoles.put(String.valueOf(uuid), roleTag);
+        });
+
+
+        players.put("permissions", playerPermissions);
+        players.put("roles", playerRoles);
+        tag.put("settings", settings.toNBT());
+        tag.put("players", players);
+        return tag;
     }
 
     public void addRole(UUID uuid, Role role, int weight) {
