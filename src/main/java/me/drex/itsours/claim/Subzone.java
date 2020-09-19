@@ -5,10 +5,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class Subzone extends AbstractClaim {
 
@@ -31,6 +29,16 @@ public class Subzone extends AbstractClaim {
 
     public int getDepth() {
         return this.getParent().getDepth() + 1;
+    }
+
+    @Override
+    int expand(UUID uuid, Direction direction, int amount) {
+        return 0;
+    }
+
+    boolean isInside() {
+        BlockPos a = min, b = max, c = new BlockPos(max.getX(), min.getY(), min.getZ()), d = new BlockPos(min.getX(), max.getY(), min.getZ()), e = new BlockPos(min.getX(), min.getY(), max.getZ()), f = new BlockPos(max.getX(), max.getY(), min.getZ()), g = new BlockPos(max.getX(), min.getY(), max.getZ()), h = new BlockPos(min.getX(), max.getY(), max.getZ());
+        return this.parent.contains(a) && this.parent.contains(b) && this.parent.contains(c) && this.parent.contains(d) && this.parent.contains(e) && this.parent.contains(f) && this.parent.contains(g) && this.parent.contains(h);
     }
 
     @Override

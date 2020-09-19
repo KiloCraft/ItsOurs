@@ -80,6 +80,10 @@ public class ClaimList {
         byRegion.put(region, claims);
     }
 
+    public List<AbstractClaim> get() {
+        return this.claimList;
+    }
+
     public List<AbstractClaim> get(UUID owner) {
         return byOwner.get(owner) == null ? new ArrayList<>() : byOwner.get(owner);
     }
