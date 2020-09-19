@@ -48,13 +48,4 @@ public class Claim extends AbstractClaim {
         ItsOursMod.INSTANCE.getClaimList().update();
         return requiredBlocks;
     }
-
-    private boolean intersects() {
-        for (AbstractClaim value : ItsOursMod.INSTANCE.getClaimList().get()) {
-            if (value instanceof Claim && !this.equals(value) && (value.intersects(this))) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

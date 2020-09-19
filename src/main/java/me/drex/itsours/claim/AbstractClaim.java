@@ -2,6 +2,7 @@ package me.drex.itsours.claim;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.sun.istack.internal.Nullable;
+import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.util.WorldUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -143,6 +144,15 @@ public abstract class AbstractClaim {
      * @return amount of claim blocks used
     * */
     abstract int expand(UUID uuid, Direction direction, int amount) throws CommandSyntaxException;
+
+    public boolean intersects() {
+        for (AbstractClaim value : ItsOursMod.INSTANCE.getClaimList().get()) {
+            if (value.getDepth() == this.getDepth() && !this.equals(value) && (value.intersects(this))) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     void expand(Direction direction, int amount) {
         BlockPos modifier = new BlockPos(direction.getOffsetX() * amount, direction.getOffsetY() * amount, direction.getOffsetZ() * amount);

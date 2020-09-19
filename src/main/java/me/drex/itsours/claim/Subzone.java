@@ -33,7 +33,13 @@ public class Subzone extends AbstractClaim {
 
     @Override
     int expand(UUID uuid, Direction direction, int amount) {
-        return 0;
+        int previousArea = this.getArea();
+        this.expand(direction, amount);
+        int requiredBlocks = this.getArea() - previousArea;
+        if (!this.isInside()) {
+
+        }
+        return requiredBlocks;
     }
 
     boolean isInside() {
