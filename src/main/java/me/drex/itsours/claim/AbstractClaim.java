@@ -42,7 +42,7 @@ public abstract class AbstractClaim {
         this.max = new BlockPos(mx, my, mz);
         this.world = world;
         this.tp = tp;
-        this.permissionManager = new PermissionManager();
+        this.permissionManager = new PermissionManager(new CompoundTag());
     }
 
     public AbstractClaim(CompoundTag tag) {

@@ -5,20 +5,18 @@ import net.minecraft.nbt.CompoundTag;
 
 public class Role {
 
-    private final PermissionMap permissions = new PermissionMap();
+    private PermissionMap permissions;
 
     public Role (CompoundTag tag) {
         this.fromNBT(tag);
     }
 
     public void fromNBT(CompoundTag tag) {
-        tag.getKeys().forEach(permission -> permissions.put(permission, tag.getBoolean(permission)));
+        permissions.fromNBT(tag);
     }
 
     public CompoundTag toNBT() {
-        CompoundTag tag = new CompoundTag();
-        permissions.forEach(tag::putBoolean);
-        return tag;
+        return permissions.toNBT();
     }
 
 }

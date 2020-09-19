@@ -94,4 +94,7 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         }
 
     }
+    public RoleManager getRoleManager() {
+        return this.roleManager;
+    }
 }
