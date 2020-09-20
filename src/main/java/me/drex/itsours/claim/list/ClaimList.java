@@ -88,8 +88,17 @@ public class ClaimList {
         return byOwner.get(owner) == null ? new ArrayList<>() : byOwner.get(owner);
     }
 
-    public List<AbstractClaim> get(ServerWorld world, BlockPos pos) {
-        return get(Region.get(pos.getX(), pos.getY())).stream().filter(abstractClaim -> abstractClaim.getWorld().equals(world)).collect(Collectors.toList());
+    public AbstractClaim get(ServerWorld world, BlockPos pos) {
+        List<AbstractClaim> claims = get(Region.get(pos.getX(), pos.getZ())).stream().filter(abstractClaim -> abstractClaim.getWorld().equals(world)).collect(Collectors.toList());
+        for (AbstractClaim claim : claims) {
+            if (claim.contains(pos)) {
+                for (Subzone subzone : claim.getSubzones()) {
+                    if (subzone.contains(pos)) return subzone;
+                }
+                return claim;
+            }
+        }
+        return null;
     }
 
     private List<AbstractClaim> get(Region region) {
