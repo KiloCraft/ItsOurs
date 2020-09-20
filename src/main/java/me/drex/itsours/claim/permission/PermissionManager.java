@@ -19,21 +19,28 @@ public class PermissionManager {
     }
 
     private void fromNBT(CompoundTag tag) {
-        settings.fromNBT(tag.getCompound("settings"));
-        CompoundTag players = tag.getCompound("players");
-        CompoundTag playerPermissions = players.getCompound("permissions");
-        playerPermissions.getKeys().forEach(uuid -> playerPermission.put(UUID.fromString(uuid), new PermissionMap(playerPermissions.getCompound(uuid))));
-        CompoundTag playerRoles = players.getCompound("roles");
-        HashMap<Role, Integer> roleWeight = new HashMap<>();
-        playerRoles.getKeys().forEach(uuid -> {
-            CompoundTag roleTag = playerRoles.getCompound(uuid);
-            roleTag.getKeys().forEach(roleID -> {
-                int weight = roleTag.getInt(roleID);
-                Role role = ItsOursMod.INSTANCE.getRoleManager().get(roleID);
-                roleWeight.put(role, weight);
-            });
-            roles.put(UUID.fromString(uuid), roleWeight);
-        });
+        if (tag.contains("settings")) settings.fromNBT(tag.getCompound("settings"));
+        if (tag.contains("players")) {
+            CompoundTag players = tag.getCompound("players");
+            if (players.contains("permissions")) {
+                CompoundTag playerPermissions = players.getCompound("permissions");
+                playerPermissions.getKeys().forEach(uuid -> playerPermission.put(UUID.fromString(uuid), new PermissionMap(playerPermissions.getCompound(uuid))));
+
+            }
+            if (players.contains("roles")) {
+                CompoundTag playerRoles = players.getCompound("roles");
+                HashMap<Role, Integer> roleWeight = new HashMap<>();
+                playerRoles.getKeys().forEach(uuid -> {
+                    CompoundTag roleTag = playerRoles.getCompound(uuid);
+                    roleTag.getKeys().forEach(roleID -> {
+                        int weight = roleTag.getInt(roleID);
+                        Role role = ItsOursMod.INSTANCE.getRoleManager().get(roleID);
+                        roleWeight.put(role, weight);
+                    });
+                    roles.put(UUID.fromString(uuid), roleWeight);
+                });
+            }
+        }
     }
 
     public CompoundTag toNBT() {
@@ -55,7 +62,7 @@ public class PermissionManager {
 
         players.put("permissions", playerPermissions);
         players.put("roles", playerRoles);
-        tag.put("settings", settings.toNBT());
+        if (settings != null) tag.put("settings", settings.toNBT());
         tag.put("players", players);
         return tag;
     }
