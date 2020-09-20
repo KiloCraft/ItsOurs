@@ -2,7 +2,6 @@ package me.drex.itsours.claim;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import com.sun.istack.internal.Nullable;
 import me.drex.itsours.ItsOursMod;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
@@ -16,13 +15,13 @@ public class Subzone extends AbstractClaim {
 
     final AbstractClaim parent;
 
-    public Subzone(String name, UUID owner, BlockPos min, BlockPos max, ServerWorld world, @Nullable BlockPos tppos, AbstractClaim parent) {
+    public Subzone(String name, UUID owner, BlockPos min, BlockPos max, ServerWorld world, BlockPos tppos, AbstractClaim parent) {
         super(name, owner, min, max, world, tppos);
         //Make sure the parent isnt also in the subzone list (getDepth() would get an infinite loop)
         this.parent = parent;
     }
 
-    public Subzone (CompoundTag tag, AbstractClaim parent) {
+    public Subzone(CompoundTag tag, AbstractClaim parent) {
         super(tag);
         this.parent = parent;
     }

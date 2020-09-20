@@ -7,7 +7,7 @@ public class Role {
 
     private PermissionMap permissions;
 
-    public Role (CompoundTag tag) {
+    public Role(CompoundTag tag) {
         this.fromNBT(tag);
     }
 

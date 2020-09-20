@@ -1,7 +1,6 @@
 package me.drex.itsours.util;
 
 import com.google.common.collect.Lists;
-import com.sun.istack.internal.Nullable;
 import me.drex.itsours.ItsOursMod;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.registry.RegistryKey;

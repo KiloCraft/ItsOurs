@@ -22,7 +22,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerPlayerEntity.class)
 public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer {
 
-    @Shadow @Final public ServerPlayerInteractionManager interactionManager;
+    @Shadow
+    @Final
+    public ServerPlayerInteractionManager interactionManager;
     private AbstractClaim lastShowClaim;
     private BlockPos lastShowPos;
     private DimensionType lastShowDimension;
