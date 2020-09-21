@@ -3,7 +3,9 @@ package me.drex.itsours;
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.permission.roles.RoleManager;
 import me.drex.itsours.claim.util.BlockManager;
+import me.drex.itsours.command.Manager;
 import net.fabricmc.api.DedicatedServerModInitializer;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -30,12 +32,15 @@ public class ItsOursMod implements DedicatedServerModInitializer {
     @Override
     public void onInitializeServer() {
         ServerLifecycleEvents.SERVER_STARTING.register(this::onStart);
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+            Manager.register(dispatcher);
+        });
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> load());
     }
-
+    
     public void onStart(MinecraftServer server) {
         INSTANCE = this;
         ItsOursMod.server = server;
-        load();
     }
 
     public static String getDirectory(){

@@ -1,7 +1,6 @@
 package me.drex.itsours.claim;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.sun.istack.internal.Nullable;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.util.WorldUtil;
@@ -29,7 +28,7 @@ public abstract class AbstractClaim {
     private Date lastEdited;
     private PermissionManager permissionManager;
 
-    public AbstractClaim(String name, UUID owner, BlockPos pos1, BlockPos pos2, ServerWorld world, @Nullable BlockPos tp) {
+    public AbstractClaim(String name, UUID owner, BlockPos pos1, BlockPos pos2, ServerWorld world, BlockPos tp) {
         this.name = name;
         this.owner = owner;
         int x, y, z, mx, my, mz;
@@ -48,7 +47,6 @@ public abstract class AbstractClaim {
 
     public AbstractClaim(CompoundTag tag) {
         fromNBT(tag);
-        //TODO: Add claim and subzones to claim list
     }
 
     public void fromNBT(CompoundTag tag) {
@@ -77,7 +75,9 @@ public abstract class AbstractClaim {
         CompoundTag position = new CompoundTag();
         position.put("min", Util.blockPosToNBT(this.min));
         position.put("max", Util.blockPosToNBT(this.max));
-        position.put("tp", Util.blockPosToNBT(this.tp));
+        if (tp != null) {
+            position.put("tp", Util.blockPosToNBT(this.tp));
+        }
         position.putString("world", WorldUtil.toIdentifier(this.world));
         tag.put("position", position);
         if (!subzoneList.isEmpty()) {
