@@ -143,7 +143,7 @@ public abstract class AbstractClaim {
      * @throws CommandSyntaxException if the claim couldn't get expanded
      * @return amount of claim blocks used
     * */
-    abstract int expand(UUID uuid, Direction direction, int amount) throws CommandSyntaxException;
+    public abstract int expand(UUID uuid, Direction direction, int amount) throws CommandSyntaxException;
 
     public boolean intersects() {
         for (AbstractClaim value : ItsOursMod.INSTANCE.getClaimList().get()) {
