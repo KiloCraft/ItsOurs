@@ -39,6 +39,10 @@ public class Claim extends AbstractClaim {
             this.expand(direction, -amount);
             throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in hitting another claim")).create();
         }
+        if (this.max.getY() > 256 || this.min.getY() < 0) {
+            this.expand(direction, -amount);
+            throw new SimpleCommandExceptionType(new LiteralText("You can't expand outside of the world!")).create();
+        }
         for (Subzone subzone : this.getSubzones()) {
             if (!subzone.isInside()) {
                 this.expand(direction, -amount);
