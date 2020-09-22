@@ -31,7 +31,8 @@ public class ExpandCommand extends Command {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(source.getWorld(), source.getPlayer().getBlockPos());
         int amount = IntegerArgumentType.getInteger(ctx, "distance");
         Direction direction = Direction.getEntityFacingOrder(source.getPlayer())[0];
-        claim.expand(uuid, direction, amount);
+        int blocks = claim.expand(uuid, direction, amount);
+        ItsOursMod.INSTANCE.getBlockManager().addBlocks(uuid, -blocks);
         //TODO: Add feedback
         return amount;
     }
