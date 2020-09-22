@@ -27,7 +27,7 @@ public class Claim extends AbstractClaim {
     }
 
     @Override
-    int expand(UUID uuid, Direction direction, int amount) throws CommandSyntaxException {
+    public int expand(UUID uuid, Direction direction, int amount) throws CommandSyntaxException {
         int previousArea = this.getArea();
         this.expand(direction, amount);
         int requiredBlocks = this.getArea() - previousArea;

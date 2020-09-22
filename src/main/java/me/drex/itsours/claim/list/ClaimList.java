@@ -68,7 +68,9 @@ public class ClaimList {
     public void update() {
         byOwner.clear();
         byRegion.clear();
-        for (AbstractClaim claim : claimList) {
+        ArrayList<AbstractClaim> tempList = new ArrayList<>(claimList);
+        claimList.clear();
+        for (AbstractClaim claim : tempList) {
             this.add(claim);
         }
     }
