@@ -7,6 +7,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.Claim;
+import net.minecraft.block.Blocks;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.math.Direction;
 
@@ -31,8 +33,10 @@ public class ExpandCommand extends Command {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(source.getWorld(), source.getPlayer().getBlockPos());
         int amount = IntegerArgumentType.getInteger(ctx, "distance");
         Direction direction = Direction.getEntityFacingOrder(source.getPlayer())[0];
+        claim.show(source.getPlayer(), null);
         int blocks = claim.expand(uuid, direction, amount);
-        ItsOursMod.INSTANCE.getBlockManager().addBlocks(uuid, -blocks);
+        claim.show(source.getPlayer(), Blocks.GOLD_BLOCK.getDefaultState());
+        if (claim instanceof Claim) ItsOursMod.INSTANCE.getBlockManager().addBlocks(uuid, -blocks);
         //TODO: Add feedback
         return amount;
     }

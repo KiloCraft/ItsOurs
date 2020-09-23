@@ -6,6 +6,7 @@ import me.drex.itsours.user.ClaimPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -27,7 +28,7 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     public ServerPlayerInteractionManager interactionManager;
     private AbstractClaim lastShowClaim;
     private BlockPos lastShowPos;
-    private DimensionType lastShowDimension;
+    private ServerWorld lastShowWorld;
     private int cooldown = 0;
 
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
@@ -44,10 +45,10 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
 
 
     @Override
-    public void setLastShow(AbstractClaim claim, BlockPos pos, DimensionType dimension) {
+    public void setLastShow(AbstractClaim claim, BlockPos pos, ServerWorld world) {
         this.lastShowClaim = claim;
         this.lastShowPos = pos;
-        this.lastShowDimension = dimension;
+        this.lastShowWorld = world;
     }
 
     @Override
@@ -61,8 +62,8 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     }
 
     @Override
-    public DimensionType getLastShowDimension() {
-        return this.lastShowDimension;
+    public ServerWorld getLastShowWorld() {
+        return this.lastShowWorld;
     }
 
     @Override
