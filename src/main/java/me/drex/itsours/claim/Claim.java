@@ -43,6 +43,11 @@ public class Claim extends AbstractClaim {
             this.expand(direction, -amount);
             throw new SimpleCommandExceptionType(new LiteralText("You can't expand outside of the world!")).create();
         }
+        if (max.getX() - min.getX() > 1024 || max.getZ() - min.getZ() > 1024) {
+            this.expand(direction, -amount);
+            throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in exceeding the maximum size of 1024")).create();
+
+        }
         for (Subzone subzone : this.getSubzones()) {
             if (!subzone.isInside()) {
                 this.expand(direction, -amount);
