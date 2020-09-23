@@ -26,8 +26,7 @@ public class InfoCommand extends Command {
     }
 
     public int info(ServerCommandSource source) throws CommandSyntaxException {
-        BlockPos p = source.getPlayer().getBlockPos();
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(source.getWorld(), p);
+        AbstractClaim claim = this.getAndValidateClaim(source.getWorld(), source.getPlayer().getBlockPos());
         if (claim == null) {
             ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("Couldn't find a claim at your position!"));
         } else {

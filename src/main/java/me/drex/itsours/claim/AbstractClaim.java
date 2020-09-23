@@ -145,12 +145,12 @@ public abstract class AbstractClaim {
     }
 
     /**
-     * @param uuid uuid of the player who issued the expansion (this is used to check for claim blocks)
+     * @param uuid      uuid of the player who issued the expansion (this is used to check for claim blocks)
      * @param direction the direction in which a claim should get expanded
-     * @param amount the amount of blocks the claim should get expanded
-     * @throws CommandSyntaxException if the claim couldn't get expanded
+     * @param amount    the amount of blocks the claim should get expanded
      * @return amount of claim blocks used
-    * */
+     * @throws CommandSyntaxException if the claim couldn't get expanded
+     */
     public abstract int expand(UUID uuid, Direction direction, int amount) throws CommandSyntaxException;
 
     public boolean intersects() {
@@ -163,6 +163,10 @@ public abstract class AbstractClaim {
     }
 
     void expand(Direction direction, int amount) {
+        if (amount < 0) {
+            shrink(direction, -amount);
+            return;
+        }
         BlockPos modifier = new BlockPos(direction.getOffsetX() * amount, direction.getOffsetY() * amount, direction.getOffsetZ() * amount);
         if (modifier.getX() > 0) {
             max = max.add(modifier.getX(), 0, 0);
