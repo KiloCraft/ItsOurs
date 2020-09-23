@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
+import net.minecraft.block.Blocks;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.math.Direction;
 
@@ -31,7 +32,6 @@ public class ExpandCommand extends Command {
             LiteralArgumentBuilder<ServerCommandSource> shrink = LiteralArgumentBuilder.literal("shrink");
             shrink.then(amount);
             literal.then(shrink);
-
         }
 
 
@@ -40,7 +40,7 @@ public class ExpandCommand extends Command {
     public int expand(CommandContext<ServerCommandSource> ctx, boolean expand) throws CommandSyntaxException {
         ServerCommandSource source = ctx.getSource();
         UUID uuid = source.getPlayer().getUuid();
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(source.getWorld(), source.getPlayer().getBlockPos());
+        AbstractClaim claim = this.getAndValidateClaim(source.getWorld(), source.getPlayer().getBlockPos());
         int amount = IntegerArgumentType.getInteger(ctx, "distance");
         amount *= expand ? 1 : -1;
         Direction direction = Direction.getEntityFacingOrder(source.getPlayer())[0];
