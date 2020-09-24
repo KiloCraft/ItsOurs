@@ -34,7 +34,6 @@ public abstract class AbstractClaim {
     private Date created;
     private Date lastEdited;
     private PermissionManager permissionManager;
-    private List<ServerPlayerEntity> watchingPlayers = new ArrayList<>();
 
     public AbstractClaim(String name, UUID owner, BlockPos pos1, BlockPos pos2, ServerWorld world, BlockPos tp) {
         this.name = name;
@@ -205,11 +204,6 @@ public abstract class AbstractClaim {
     }
 
     public void show(ServerPlayerEntity player, BlockState blockState) {
-        if (blockState == null) {
-            watchingPlayers.remove(player);
-        } else {
-            watchingPlayers.add(player);
-        }
         int y = ((ClaimPlayer)player).getLastShowPos().getY();
         for (int i = min.getX(); i < max.getX(); i++) {
             sendBlockPacket(player, new BlockPos(getPosOnGround(new BlockPos(i, y, min.getZ()), player.getEntityWorld())).down(), blockState);
@@ -226,7 +220,8 @@ public abstract class AbstractClaim {
     }
 
     private void sendBlockPacket(ServerPlayerEntity player, BlockPos pos, BlockState state) {
-        BlockUpdateS2CPacket packet = new BlockUpdateS2CPacket(pos, state);
+        BlockUpdateS2CPacket packet;
+        packet = state == null ? new BlockUpdateS2CPacket(player.getEntityWorld(), pos) : new BlockUpdateS2CPacket(pos, state);
         player.networkHandler.sendPacket(packet);
     }
 

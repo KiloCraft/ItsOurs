@@ -22,7 +22,7 @@ public class ShowCommand extends Command {
         AbstractClaim claim = this.getAndValidateClaim(source.getWorld(), source.getPlayer().getBlockPos());
         ServerPlayerEntity player = source.getPlayer();
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
-        claimPlayer.getLastShowClaim().show(player, null);
+        if (claimPlayer.getLastShowClaim() != null) claimPlayer.getLastShowClaim().show(player, null);
         claimPlayer.setLastShow(claim, source.getPlayer().getBlockPos(), source.getWorld());
         claim.show(player, Blocks.GOLD_BLOCK.getDefaultState());
         return 1;

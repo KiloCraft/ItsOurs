@@ -51,6 +51,10 @@ public class Subzone extends AbstractClaim {
             this.expand(direction, -amount);
             throw new SimpleCommandExceptionType(new LiteralText("You can't expand outside of the world!")).create();
         }
+        if (max.getX() < min.getX() || max.getY() < min.getY() || max.getZ() < min.getZ()) {
+            this.expand(direction, -amount);
+            throw new SimpleCommandExceptionType(new LiteralText("You can't shrink your claim that much")).create();
+        }
         ItsOursMod.INSTANCE.getClaimList().update();
         return requiredBlocks;
     }
