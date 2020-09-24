@@ -47,6 +47,10 @@ public class Subzone extends AbstractClaim {
             this.expand(direction, -amount);
             throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in hitting another subzone")).create();
         }
+        if (this.max.getY() > 256 || this.min.getY() < 0) {
+            this.expand(direction, -amount);
+            throw new SimpleCommandExceptionType(new LiteralText("You can't expand outside of the world!")).create();
+        }
         ItsOursMod.INSTANCE.getClaimList().update();
         return requiredBlocks;
     }
