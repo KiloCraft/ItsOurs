@@ -32,12 +32,7 @@ public class Claim extends AbstractClaim {
     @Override
     public int expand(UUID uuid, Direction direction, int amount) throws CommandSyntaxException {
         int previousArea = this.getArea();
-        for (ServerPlayerEntity player : ItsOursMod.server.getPlayerManager().getPlayerList()) {
-            ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            if (claimPlayer.getLastShowClaim() == this) {
-                this.show(player, null);
-            }
-        }
+        this.show(null);
         this.expand(direction, amount);
         int requiredBlocks = this.getArea() - previousArea;
         if (ItsOursMod.INSTANCE.getBlockManager().getBlocks(uuid) < requiredBlocks) {
@@ -66,12 +61,7 @@ public class Claim extends AbstractClaim {
                 throw new SimpleCommandExceptionType(new LiteralText("Shrinking would result in " + subzone.getName() + " being outside of " + this.getName())).create();
             }
         }
-        for (ServerPlayerEntity player : ItsOursMod.server.getPlayerManager().getPlayerList()) {
-            ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            if (claimPlayer.getLastShowClaim() == this) {
-                this.show(player, Blocks.GOLD_BLOCK.getDefaultState());
-            }
-        }
+        this.show(Blocks.GOLD_BLOCK.getDefaultState());
         ItsOursMod.INSTANCE.getClaimList().update();
         return requiredBlocks;
     }

@@ -3,6 +3,7 @@ package me.drex.itsours.claim;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOursMod;
+import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -37,6 +38,7 @@ public class Subzone extends AbstractClaim {
     @Override
     public int expand(UUID uuid, Direction direction, int amount) throws CommandSyntaxException {
         int previousArea = this.getArea();
+        this.show(null);
         this.expand(direction, amount);
         int requiredBlocks = this.getArea() - previousArea;
         if (!this.isInside()) {
@@ -55,6 +57,7 @@ public class Subzone extends AbstractClaim {
             this.expand(direction, -amount);
             throw new SimpleCommandExceptionType(new LiteralText("You can't shrink your claim that much")).create();
         }
+        this.show(Blocks.DIAMOND_BLOCK.getDefaultState());
         ItsOursMod.INSTANCE.getClaimList().update();
         return requiredBlocks;
     }

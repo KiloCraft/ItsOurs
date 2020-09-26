@@ -6,6 +6,7 @@ import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.WorldUtil;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
@@ -200,6 +201,15 @@ public abstract class AbstractClaim {
             min = min.add(0, 0, -modifier.getZ());
         } else {
             max = max.add(0, 0, -modifier.getZ());
+        }
+    }
+
+    public void show(BlockState blockState) {
+        for (ServerPlayerEntity player : ItsOursMod.server.getPlayerManager().getPlayerList()) {
+            ClaimPlayer claimPlayer = (ClaimPlayer) player;
+            if (claimPlayer.getLastShowClaim() == this) {
+                this.show(player, blockState);
+            }
         }
     }
 
