@@ -39,4 +39,8 @@ public class BlockManager {
         this.blocks.put(uuid, Math.max(0, blocks + amount));
     }
 
+    public void setBlocks(UUID uuid, int amount) {
+        this.blocks.put(uuid, amount);
+    }
+
 }
