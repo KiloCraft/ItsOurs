@@ -3,18 +3,26 @@ package me.drex.itsours.claim;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.WorldUtil;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
+
+import static me.drex.itsours.claim.AbstractClaim.Util.getPosOnGround;
 
 public abstract class AbstractClaim {
 
@@ -196,6 +204,37 @@ public abstract class AbstractClaim {
         }
     }
 
+    public void show(BlockState blockState) {
+        for (ServerPlayerEntity player : ItsOursMod.server.getPlayerManager().getPlayerList()) {
+            ClaimPlayer claimPlayer = (ClaimPlayer) player;
+            if (claimPlayer.getLastShowClaim() == this) {
+                this.show(player, blockState);
+            }
+        }
+    }
+
+    public void show(ServerPlayerEntity player, BlockState blockState) {
+        int y = ((ClaimPlayer)player).getLastShowPos().getY();
+        for (int i = min.getX(); i < max.getX(); i++) {
+            sendBlockPacket(player, new BlockPos(getPosOnGround(new BlockPos(i, y, min.getZ()), player.getEntityWorld())).down(), blockState);
+        }
+        for (int i = min.getZ(); i < max.getZ(); i++) {
+            sendBlockPacket(player, new BlockPos(getPosOnGround(new BlockPos(max.getX(), y, i), player.getEntityWorld())).down(), blockState);
+        }
+        for (int i = max.getX(); i > min.getX(); i--) {
+            sendBlockPacket(player, new BlockPos(getPosOnGround(new BlockPos(i, y, max.getZ()), player.getEntityWorld())).down(), blockState);
+        }
+        for (int i = max.getZ(); i > min.getZ(); i--) {
+            sendBlockPacket(player, new BlockPos(getPosOnGround(new BlockPos(min.getX(), y, i), player.getEntityWorld())).down(), blockState);
+        }
+    }
+
+    private void sendBlockPacket(ServerPlayerEntity player, BlockPos pos, BlockState state) {
+        BlockUpdateS2CPacket packet;
+        packet = state == null ? new BlockUpdateS2CPacket(player.getEntityWorld(), pos) : new BlockUpdateS2CPacket(pos, state);
+        player.networkHandler.sendPacket(packet);
+    }
+
     public static class Util {
         public static CompoundTag blockPosToNBT(BlockPos pos) {
             CompoundTag tag = new CompoundTag();
@@ -207,6 +246,19 @@ public abstract class AbstractClaim {
 
         public static BlockPos blockPosFromNBT(CompoundTag tag) {
             return new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
+        }
+
+        public static BlockPos getPosOnGround(BlockPos pos, World world) {
+            BlockPos blockPos = new BlockPos(pos.getX(), pos.getY() + 10, pos.getZ());
+
+            do {
+                blockPos = blockPos.down();
+                if (blockPos.getY() < 1) {
+                    return pos;
+                }
+            } while (!world.getBlockState(blockPos).isFullCube(world, pos));
+
+            return blockPos.up();
         }
     }
 
