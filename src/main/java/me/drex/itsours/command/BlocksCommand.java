@@ -23,6 +23,7 @@ public class BlocksCommand extends Command {
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             player.executes(ctx -> checkOther(ctx.getSource(), ArgumentUtil.getGameProfile(ctx, "player")));
             LiteralArgumentBuilder<ServerCommandSource> check = LiteralArgumentBuilder.literal("check");
+            check.requires(src -> this.hasPermission(src, "itsours.blocks.check"));
             check.then(player);
             blocks.then(check);
         }
@@ -31,6 +32,7 @@ public class BlocksCommand extends Command {
             amount.executes(ctx -> set(ctx.getSource(), ArgumentUtil.getGameProfile(ctx, "player"), IntegerArgumentType.getInteger(ctx, "amount")));
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             LiteralArgumentBuilder<ServerCommandSource> set = LiteralArgumentBuilder.literal("set");
+            set.requires(src -> this.hasPermission(src, "itsours.blocks.set"));
             player.then(amount);
             set.then(player);
             blocks.then(set);
@@ -40,6 +42,7 @@ public class BlocksCommand extends Command {
             amount.executes(ctx -> add(ctx.getSource(), ArgumentUtil.getGameProfile(ctx, "player"), IntegerArgumentType.getInteger(ctx, "amount")));
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             LiteralArgumentBuilder<ServerCommandSource> add = LiteralArgumentBuilder.literal("add");
+            add.requires(src -> this.hasPermission(src, "itsours.blocks.add"));
             player.then(amount);
             add.then(player);
             blocks.then(add);
