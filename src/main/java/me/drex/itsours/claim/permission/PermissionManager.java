@@ -10,7 +10,7 @@ import java.util.*;
 public class PermissionManager {
 
     //Default claim permissions for players without specified permissions
-    public PermissionMap settings;
+    public PermissionMap settings = new PermissionMap(new CompoundTag());
     public HashMap<UUID, PermissionMap> playerPermission = new HashMap<>();
     public HashMap<UUID, HashMap<Role, Integer>> roles = new HashMap<>();
 
@@ -69,6 +69,7 @@ public class PermissionManager {
 
     public void addRole(UUID uuid, Role role, int weight) {
         HashMap<Role, Integer> roleWeight = this.roles.get(uuid);
+        if (roleWeight == null) roleWeight = new HashMap<>();
         roleWeight.put(role, weight);
         this.roles.put(uuid, roleWeight);
     }
@@ -81,8 +82,10 @@ public class PermissionManager {
 
     public List<Role> getRolesByWeight(UUID uuid) {
         List<Role> rolesByWeight = new ArrayList<>();
-        HashMap<Role, Integer> sortedRoles = sort(roles.get(uuid));
-        sortedRoles.forEach((role, integer) -> rolesByWeight.add(role));
+        if (roles.get(uuid) != null) {
+            HashMap<Role, Integer> sortedRoles = sort(roles.get(uuid));
+            sortedRoles.forEach((role, integer) -> rolesByWeight.add(role));
+        }
         return rolesByWeight;
     }
 
@@ -96,10 +99,23 @@ public class PermissionManager {
                 value = role.permissions().getPermission(permission);
             }
         }
-        if (playerPermission.get(uuid).isPermissionSet(permission)) {
+        if (this.isPlayerPermissionSet(uuid, permission)) {
             value = playerPermission.get(uuid).getPermission(permission);
         }
         return value;
+    }
+
+    public boolean isPlayerPermissionSet(UUID uuid, String permission) {
+        return playerPermission.get(uuid) != null && playerPermission.get(uuid).isPermissionSet(permission);
+    }
+
+    public void setPlayerPermission(UUID uuid, String permission, boolean value) {
+        PermissionMap pm = playerPermission.get(uuid);
+        if (pm == null) {
+            pm = new PermissionMap(new CompoundTag());
+            playerPermission.put(uuid, pm);
+        }
+        pm.setPermission(permission, value);
     }
 
     public HashMap<Role, Integer> sort(HashMap<Role, Integer> hashMap) {
