@@ -22,48 +22,54 @@ public class PermissionManager {
         if (tag.contains("settings")) settings.fromNBT(tag.getCompound("settings"));
         if (tag.contains("players")) {
             CompoundTag players = tag.getCompound("players");
-            if (players.contains("permissions")) {
-                CompoundTag playerPermissions = players.getCompound("permissions");
-                playerPermissions.getKeys().forEach(uuid -> playerPermission.put(UUID.fromString(uuid), new PermissionMap(playerPermissions.getCompound(uuid))));
-
-            }
-            if (players.contains("roles")) {
-                CompoundTag playerRoles = players.getCompound("roles");
-                HashMap<Role, Integer> roleWeight = new HashMap<>();
-                playerRoles.getKeys().forEach(uuid -> {
-                    CompoundTag roleTag = playerRoles.getCompound(uuid);
+            players.getKeys().forEach(uuid -> {
+                CompoundTag player = players.getCompound(uuid);
+                if (player.contains("permission")) playerPermission.put(UUID.fromString(uuid), new PermissionMap(player.getCompound("permission")));
+                if (player.contains("role")) {
+                    CompoundTag roleTag = player.getCompound("role");
+                    HashMap<Role, Integer> roleWeight = new HashMap<>();
                     roleTag.getKeys().forEach(roleID -> {
                         int weight = roleTag.getInt(roleID);
                         Role role = ItsOursMod.INSTANCE.getRoleManager().get(roleID);
                         roleWeight.put(role, weight);
                     });
                     roles.put(UUID.fromString(uuid), roleWeight);
-                });
-            }
+                }
+            });
         }
     }
 
     public CompoundTag toNBT() {
         CompoundTag tag = new CompoundTag();
-        CompoundTag players = new CompoundTag();
-        CompoundTag playerPermissions = new CompoundTag();
-        playerPermission.forEach((uuid, permissionMap) -> {
-            playerPermissions.put(String.valueOf(uuid), permissionMap.toNBT());
-        });
-        CompoundTag playerRoles = new CompoundTag();
-        roles.forEach((uuid, roleMap) -> {
-            CompoundTag roleTag = new CompoundTag();
-            roleMap.forEach((role, integer) -> {
-                roleTag.putInt(ItsOursMod.INSTANCE.getRoleManager().getRoleID(role), integer);
-            });
-            playerRoles.put(String.valueOf(uuid), roleTag);
-        });
+        try {
+            CompoundTag players = new CompoundTag();
 
+            List<UUID> uuidSet = new ArrayList<>();
+            uuidSet.addAll(playerPermission.keySet());
+            uuidSet.addAll(roles.keySet());
+            for (UUID uuid : uuidSet) {
+                CompoundTag player = new CompoundTag();
+                PermissionMap pm = playerPermission.get(uuid);
+                if (pm != null) {
+                    player.put("permission", pm.toNBT());
+                }
+                HashMap<Role, Integer> roleMap = roles.get(uuid);
+                if (roleMap != null) {
+                    CompoundTag roleTag = new CompoundTag();
+                    roleMap.forEach((role, integer) -> {
+                        roleTag.putInt(ItsOursMod.INSTANCE.getRoleManager().getRoleID(role), integer);
+                    });
+                    player.put("role", roleTag);
+                }
+                players.put(uuid.toString(), player);
+            }
 
-        players.put("permissions", playerPermissions);
-        players.put("roles", playerRoles);
-        if (settings != null) tag.put("settings", settings.toNBT());
-        tag.put("players", players);
+            if (!settings.isEmpty()) tag.put("settings", settings.toNBT());
+            tag.put("players", players);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return tag;
     }
 
