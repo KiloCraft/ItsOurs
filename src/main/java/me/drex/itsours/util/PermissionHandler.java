@@ -40,7 +40,7 @@ public class PermissionHandler {
         return src.hasPermissionLevel(opLevel);
     }
 
-        private boolean checkPresent() {
+    private boolean checkPresent() {
         try {
             LuckPermsProvider.get();
             return true;

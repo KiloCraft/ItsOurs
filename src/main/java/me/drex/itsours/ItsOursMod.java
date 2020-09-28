@@ -31,6 +31,10 @@ public class ItsOursMod implements DedicatedServerModInitializer {
     private BlockManager blockManager;
     private PermissionHandler permissionHandler;
 
+    public static String getDirectory() {
+        return System.getProperty("user.dir");
+    }
+
     @Override
     public void onInitializeServer() {
         ServerLifecycleEvents.SERVER_STARTING.register(this::onStart);
@@ -39,14 +43,10 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         });
         ServerLifecycleEvents.SERVER_STARTED.register(server -> load());
     }
-    
+
     public void onStart(MinecraftServer server) {
         INSTANCE = this;
         ItsOursMod.server = server;
-    }
-
-    public static String getDirectory(){
-        return System.getProperty("user.dir");
     }
 
     public void load() {
@@ -102,6 +102,7 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         }
 
     }
+
     public RoleManager getRoleManager() {
         return this.roleManager;
     }
