@@ -22,6 +22,7 @@ public class CreateCommand extends Command {
         BlockPos min = new BlockPos(p.getX() - 3, 1, p.getZ() - 3);
         BlockPos max = new BlockPos(p.getX() + 3, 256, p.getZ() + 3);
         Claim claim = new Claim(source.getPlayer().getEntityName(), source.getPlayer().getUuid(), min, max, source.getWorld(), null);
+        //TODO: Check if claim is allowed at that position
         ItsOursMod.INSTANCE.getClaimList().add(claim);
         ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("Claim created!"));
         return 1;

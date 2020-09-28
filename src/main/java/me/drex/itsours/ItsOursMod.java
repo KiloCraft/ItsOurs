@@ -4,6 +4,7 @@ import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.permission.roles.RoleManager;
 import me.drex.itsours.claim.util.BlockManager;
 import me.drex.itsours.command.Manager;
+import me.drex.itsours.util.PermissionHandler;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -28,6 +29,11 @@ public class ItsOursMod implements DedicatedServerModInitializer {
     private ClaimList claimList;
     private RoleManager roleManager;
     private BlockManager blockManager;
+    private PermissionHandler permissionHandler;
+
+    public static String getDirectory() {
+        return System.getProperty("user.dir");
+    }
 
     @Override
     public void onInitializeServer() {
@@ -37,14 +43,10 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         });
         ServerLifecycleEvents.SERVER_STARTED.register(server -> load());
     }
-    
+
     public void onStart(MinecraftServer server) {
         INSTANCE = this;
         ItsOursMod.server = server;
-    }
-
-    public static String getDirectory(){
-        return System.getProperty("user.dir");
     }
 
     public void load() {
@@ -76,6 +78,7 @@ public class ItsOursMod implements DedicatedServerModInitializer {
             this.roleManager = new RoleManager(tag.getCompound("roles"));
             this.blockManager = new BlockManager(tag.getCompound("blocks"));
         }
+        this.permissionHandler = new PermissionHandler();
     }
 
     public void save() {
@@ -99,6 +102,7 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         }
 
     }
+
     public RoleManager getRoleManager() {
         return this.roleManager;
     }
@@ -110,4 +114,9 @@ public class ItsOursMod implements DedicatedServerModInitializer {
     public ClaimList getClaimList() {
         return this.claimList;
     }
+
+    public PermissionHandler getPermissionHandler() {
+        return this.permissionHandler;
+    }
+
 }
