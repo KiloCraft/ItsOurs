@@ -41,35 +41,30 @@ public class PermissionManager {
 
     public CompoundTag toNBT() {
         CompoundTag tag = new CompoundTag();
-        try {
-            CompoundTag players = new CompoundTag();
+        CompoundTag players = new CompoundTag();
 
-            List<UUID> uuidSet = new ArrayList<>();
-            uuidSet.addAll(playerPermission.keySet());
-            uuidSet.addAll(roles.keySet());
-            for (UUID uuid : uuidSet) {
-                CompoundTag player = new CompoundTag();
-                PermissionMap pm = playerPermission.get(uuid);
-                if (pm != null) {
-                    player.put("permission", pm.toNBT());
-                }
-                HashMap<Role, Integer> roleMap = roles.get(uuid);
-                if (roleMap != null) {
-                    CompoundTag roleTag = new CompoundTag();
-                    roleMap.forEach((role, integer) -> {
-                        roleTag.putInt(ItsOursMod.INSTANCE.getRoleManager().getRoleID(role), integer);
-                    });
-                    player.put("role", roleTag);
-                }
-                players.put(uuid.toString(), player);
+        List<UUID> uuidSet = new ArrayList<>();
+        uuidSet.addAll(playerPermission.keySet());
+        uuidSet.addAll(roles.keySet());
+        for (UUID uuid : uuidSet) {
+            CompoundTag player = new CompoundTag();
+            PermissionMap pm = playerPermission.get(uuid);
+            if (pm != null) {
+                player.put("permission", pm.toNBT());
             }
-
-            if (!settings.isEmpty()) tag.put("settings", settings.toNBT());
-            tag.put("players", players);
-        } catch (Exception e) {
-            e.printStackTrace();
+            HashMap<Role, Integer> roleMap = roles.get(uuid);
+            if (roleMap != null) {
+                CompoundTag roleTag = new CompoundTag();
+                roleMap.forEach((role, integer) -> {
+                    roleTag.putInt(ItsOursMod.INSTANCE.getRoleManager().getRoleID(role), integer);
+                });
+                player.put("role", roleTag);
+            }
+            players.put(uuid.toString(), player);
         }
 
+        if (!settings.isEmpty()) tag.put("settings", settings.toNBT());
+        tag.put("players", players);
         return tag;
     }
 
