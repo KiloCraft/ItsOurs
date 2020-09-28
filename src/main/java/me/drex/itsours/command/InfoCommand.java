@@ -2,8 +2,8 @@ package me.drex.itsours.command;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.WorldUtil;
@@ -20,49 +20,47 @@ import java.util.UUID;
 public class InfoCommand extends Command {
 
     public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+        RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
+        claim.executes(ctx -> info(ctx.getSource(), getClaim(ctx)));
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("info");
-        command.executes(context -> info(context.getSource()));
+        command.executes(ctx -> info(ctx.getSource(), this.getAndValidateClaim(ctx.getSource().getWorld(), ctx.getSource().getPlayer().getBlockPos())));
+        command.then(claim);
         literal.then(command);
     }
 
-    public int info(ServerCommandSource source) throws CommandSyntaxException {
-        AbstractClaim claim = this.getAndValidateClaim(source.getWorld(), source.getPlayer().getBlockPos());
-        if (claim == null) {
-            ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("Couldn't find a claim at your position!"));
-        } else {
-            UUID ownerUUID = claim.getOwner();
-            String ownerName = "";
-            GameProfile owner = source.getMinecraftServer().getUserCache().getByUuid(ownerUUID);
-            if (owner != null && owner.isComplete()) {
-                ownerName = owner.getName();
-            }
-            BlockPos size = claim.getSize();
-
-            MutableText text = new LiteralText("\n");
-            text.append(new LiteralText("Claim Info: ").formatted(Formatting.GOLD))
-                    .append(new LiteralText("\n"))
-                    .append(newInfoLine("Name", new LiteralText(claim.getName()).formatted(Formatting.WHITE)))
-                    .append(newInfoLine("Owner", ownerName.equals("") ?
-                            new LiteralText(ownerUUID.toString()).formatted(Formatting.RED, Formatting.ITALIC).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, claim.getOwner().toString()))) :
-                            new LiteralText(ownerName).formatted(Formatting.GOLD)))
-                    .append(newInfoLine("Size", new LiteralText(size.getX() + " x " + size.getY() + " x " + size.getZ()).formatted(Formatting.GREEN)))
-                    .append(new LiteralText("").append(new LiteralText("* Flags:").formatted(Formatting.YELLOW))
-                            .append(new LiteralText(" ...")).append(new LiteralText("\n")));
-            //TODO: List flags
-
-            MutableText pos = new LiteralText("");
-            Text min = newPosLine(claim.min, Formatting.AQUA, Formatting.DARK_AQUA);
-            Text max = newPosLine(claim.max, Formatting.LIGHT_PURPLE, Formatting.DARK_PURPLE);
-
-
-            pos.append(newInfoLine("Position", new LiteralText("")
-                    .append(new LiteralText("Min ").formatted(Formatting.WHITE).append(min))
-                    .append(new LiteralText(" "))
-                    .append(new LiteralText("Max ").formatted(Formatting.WHITE).append(max))));
-            text.append(pos);
-            text.append(newInfoLine("Dimension", new LiteralText(WorldUtil.toIdentifier(claim.getWorld()))));
-            ((ClaimPlayer) source.getPlayer()).sendMessage(text);
+    public int info(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
+        UUID ownerUUID = claim.getOwner();
+        String ownerName = "";
+        GameProfile owner = source.getMinecraftServer().getUserCache().getByUuid(ownerUUID);
+        if (owner != null && owner.isComplete()) {
+            ownerName = owner.getName();
         }
+        BlockPos size = claim.getSize();
+
+        MutableText text = new LiteralText("\n");
+        text.append(new LiteralText("Claim Info: ").formatted(Formatting.GOLD))
+                .append(new LiteralText("\n"))
+                .append(newInfoLine("Name", new LiteralText(claim.getName()).formatted(Formatting.WHITE)))
+                .append(newInfoLine("Owner", ownerName.equals("") ?
+                        new LiteralText(ownerUUID.toString()).formatted(Formatting.RED, Formatting.ITALIC).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, claim.getOwner().toString()))) :
+                        new LiteralText(ownerName).formatted(Formatting.GOLD)))
+                .append(newInfoLine("Size", new LiteralText(size.getX() + " x " + size.getY() + " x " + size.getZ()).formatted(Formatting.GREEN)))
+                .append(new LiteralText("").append(new LiteralText("* Flags:").formatted(Formatting.YELLOW))
+                        .append(new LiteralText(" ...")).append(new LiteralText("\n")));
+        //TODO: List flags
+
+        MutableText pos = new LiteralText("");
+        Text min = newPosLine(claim.min, Formatting.AQUA, Formatting.DARK_AQUA);
+        Text max = newPosLine(claim.max, Formatting.LIGHT_PURPLE, Formatting.DARK_PURPLE);
+
+
+        pos.append(newInfoLine("Position", new LiteralText("")
+                .append(new LiteralText("Min ").formatted(Formatting.WHITE).append(min))
+                .append(new LiteralText(" "))
+                .append(new LiteralText("Max ").formatted(Formatting.WHITE).append(max))));
+        text.append(pos);
+        text.append(newInfoLine("Dimension", new LiteralText(WorldUtil.toIdentifier(claim.getWorld()))));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(text);
 
         return 1;
     }

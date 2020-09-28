@@ -6,7 +6,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
-import me.drex.itsours.command.util.ArgumentUtil;
 import me.drex.itsours.user.ClaimPlayer;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -16,12 +15,11 @@ import net.minecraft.util.Formatting;
 public class BlocksCommand extends Command {
 
     public void register(LiteralArgumentBuilder<ServerCommandSource> command) {
-        //TODO: Check if player has permission to execute the commands
         LiteralArgumentBuilder<ServerCommandSource> blocks = LiteralArgumentBuilder.literal("blocks");
         blocks.executes(context -> check(context.getSource()));
         {
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
-            player.executes(ctx -> checkOther(ctx.getSource(), ArgumentUtil.getGameProfile(ctx, "player")));
+            player.executes(ctx -> checkOther(ctx.getSource(), Command.getGameProfile(ctx, "player")));
             LiteralArgumentBuilder<ServerCommandSource> check = LiteralArgumentBuilder.literal("check");
             check.requires(src -> this.hasPermission(src, "itsours.blocks.check"));
             check.then(player);
@@ -29,7 +27,7 @@ public class BlocksCommand extends Command {
         }
         {
             RequiredArgumentBuilder<ServerCommandSource, Integer> amount = RequiredArgumentBuilder.argument("amount", IntegerArgumentType.integer());
-            amount.executes(ctx -> set(ctx.getSource(), ArgumentUtil.getGameProfile(ctx, "player"), IntegerArgumentType.getInteger(ctx, "amount")));
+            amount.executes(ctx -> set(ctx.getSource(), Command.getGameProfile(ctx, "player"), IntegerArgumentType.getInteger(ctx, "amount")));
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             LiteralArgumentBuilder<ServerCommandSource> set = LiteralArgumentBuilder.literal("set");
             set.requires(src -> this.hasPermission(src, "itsours.blocks.set"));
@@ -39,7 +37,7 @@ public class BlocksCommand extends Command {
         }
         {
             RequiredArgumentBuilder<ServerCommandSource, Integer> amount = RequiredArgumentBuilder.argument("amount", IntegerArgumentType.integer());
-            amount.executes(ctx -> add(ctx.getSource(), ArgumentUtil.getGameProfile(ctx, "player"), IntegerArgumentType.getInteger(ctx, "amount")));
+            amount.executes(ctx -> add(ctx.getSource(), Command.getGameProfile(ctx, "player"), IntegerArgumentType.getInteger(ctx, "amount")));
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             LiteralArgumentBuilder<ServerCommandSource> add = LiteralArgumentBuilder.literal("add");
             add.requires(src -> this.hasPermission(src, "itsours.blocks.add"));

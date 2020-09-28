@@ -124,6 +124,10 @@ public abstract class AbstractClaim {
         this.subzoneList.add(subzone);
     }
 
+    public void removeSubzone(Subzone subzone) {
+        this.subzoneList.remove(subzone);
+    }
+
     public abstract int getDepth();
 
     public int getArea() {

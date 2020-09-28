@@ -75,6 +75,11 @@ public class ClaimList {
         }
     }
 
+    public void remove(AbstractClaim claim) {
+        claimList.remove(claim);
+        update();
+    }
+
     private void addRegion(Region region, AbstractClaim claim) {
         List<AbstractClaim> claims = byRegion.get(region);
         claims = claims == null ? new ArrayList<>() : claims;

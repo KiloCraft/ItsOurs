@@ -12,6 +12,8 @@ public class Manager {
         new CreateCommand().register(main);
         new ExpandCommand().register(main);
         new InfoCommand().register(main);
+        new ListCommand().register(main);
+        new RemoveCommand().register(main);
         new ShowCommand().register(main);
 
 
