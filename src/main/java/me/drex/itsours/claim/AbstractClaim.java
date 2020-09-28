@@ -128,6 +128,14 @@ public abstract class AbstractClaim {
         this.subzoneList.remove(subzone);
     }
 
+    public boolean hasPermission(UUID uuid, String permission) {
+        return this.permissionManager.hasPermission(uuid, permission);
+    }
+
+    public PermissionManager getPermissionManager() {
+        return this.permissionManager;
+    }
+
     public abstract int getDepth();
 
     public int getArea() {
