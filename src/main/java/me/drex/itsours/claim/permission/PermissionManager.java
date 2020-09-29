@@ -1,5 +1,6 @@
 package me.drex.itsours.claim.permission;
 
+import com.google.common.collect.Maps;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.claim.permission.util.PermissionMap;
@@ -104,6 +105,14 @@ public class PermissionManager {
             value = playerPermission.get(uuid).getPermission(permission);
         }
         return value;
+    }
+
+    public boolean hasRole(UUID uuid, Role role) {
+        Map<Role, Integer> map = this.roles.get(uuid);
+        if (map == null) {
+            return false;
+        }
+        return map.containsKey(role);
     }
 
     public boolean isPlayerPermissionSet(UUID uuid, String permission) {
