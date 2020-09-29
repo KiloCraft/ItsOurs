@@ -40,6 +40,7 @@ public class RolesCommand extends Command {
             value.executes(ctx -> setPermission(ctx.getSource(), StringArgumentType.getString(ctx, "name"), StringArgumentType.getString(ctx, "perm"), BoolArgumentType.getBool(ctx, "value")));
             RequiredArgumentBuilder<ServerCommandSource, String> perm = RequiredArgumentBuilder.argument("perm", StringArgumentType.word());
             RequiredArgumentBuilder<ServerCommandSource, String> name = RequiredArgumentBuilder.argument("name", StringArgumentType.word());
+            name.executes(ctx -> listPermission(ctx.getSource(), StringArgumentType.getString(ctx, "name")));
             LiteralArgumentBuilder<ServerCommandSource> permission = LiteralArgumentBuilder.literal("permission");
             perm.then(value);
             name.then(perm);
@@ -75,5 +76,13 @@ public class RolesCommand extends Command {
                 .append(new LiteralText(" to ").formatted(Formatting.YELLOW)).append(format(value))));
         return 1;
     }
+
+    public int listPermission(ServerCommandSource source, String name) throws CommandSyntaxException {
+        if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name)) throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
+        Role role = ItsOursMod.INSTANCE.getRoleManager().get(name);
+        ((ClaimPlayer)source.getPlayer()).sendMessage(new LiteralText(name).formatted(Formatting.YELLOW).append("\n").append(role.permissions().toText()));
+        return 1;
+    }
+
 
 }
