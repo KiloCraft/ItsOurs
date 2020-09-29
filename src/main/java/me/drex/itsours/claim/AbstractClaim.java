@@ -95,7 +95,7 @@ public abstract class AbstractClaim {
             });
             tag.put("subzones", list);
         }
-        tag.put("permission", this.permissionManager.toNBT());
+        tag.put("permissions", this.permissionManager.toNBT());
         return tag;
     }
 
