@@ -11,8 +11,12 @@ import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.user.ClaimPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.HoverEvent;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.util.Formatting;
+
+import java.util.Map;
 
 import static me.drex.itsours.util.TextUtil.format;
 
@@ -20,7 +24,7 @@ public class RolesCommand extends Command {
 
     public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("roles");
-
+        command.executes(ctx -> listRoles(ctx.getSource()));
         {
             RequiredArgumentBuilder<ServerCommandSource, String> name = RequiredArgumentBuilder.argument("name", StringArgumentType.word());
             name.executes(ctx -> addRole(ctx.getSource(), StringArgumentType.getString(ctx, "name")));
@@ -81,6 +85,16 @@ public class RolesCommand extends Command {
         if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name)) throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
         Role role = ItsOursMod.INSTANCE.getRoleManager().get(name);
         ((ClaimPlayer)source.getPlayer()).sendMessage(new LiteralText(name).formatted(Formatting.YELLOW).append("\n").append(role.permissions().toText()));
+        return 1;
+    }
+    public int listRoles(ServerCommandSource source) throws CommandSyntaxException {
+        MutableText text = new LiteralText("Roles:\n").formatted(Formatting.GOLD);
+        for (Map.Entry<String, Role> entry : ItsOursMod.INSTANCE.getRoleManager().entrySet()) {
+            String name = entry.getKey();
+            Role role = entry.getValue();
+            text.append(new LiteralText(name).formatted(Formatting.YELLOW).styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, role.permissions().toText())))).append(" ");
+        }
+        ((ClaimPlayer) source.getPlayer()).sendMessage(text);
         return 1;
     }
 
