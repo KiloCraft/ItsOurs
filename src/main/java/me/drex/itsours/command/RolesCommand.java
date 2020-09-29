@@ -29,7 +29,7 @@ public class RolesCommand extends Command {
             command.then(add);
         }
         {
-            RequiredArgumentBuilder<ServerCommandSource, String> name = RequiredArgumentBuilder.argument("name", StringArgumentType.word());
+            RequiredArgumentBuilder<ServerCommandSource, String> name = roleArgument();
             name.executes(ctx -> removeRole(ctx.getSource(), StringArgumentType.getString(ctx, "name")));
             LiteralArgumentBuilder<ServerCommandSource> remove = LiteralArgumentBuilder.literal("remove");
             remove.then(name);
@@ -39,7 +39,7 @@ public class RolesCommand extends Command {
             RequiredArgumentBuilder<ServerCommandSource, Boolean> value = RequiredArgumentBuilder.argument("value", BoolArgumentType.bool());
             value.executes(ctx -> setPermission(ctx.getSource(), StringArgumentType.getString(ctx, "name"), StringArgumentType.getString(ctx, "perm"), BoolArgumentType.getBool(ctx, "value")));
             RequiredArgumentBuilder<ServerCommandSource, String> perm = RequiredArgumentBuilder.argument("perm", StringArgumentType.word());
-            RequiredArgumentBuilder<ServerCommandSource, String> name = RequiredArgumentBuilder.argument("name", StringArgumentType.word());
+            RequiredArgumentBuilder<ServerCommandSource, String> name = roleArgument();
             name.executes(ctx -> listPermission(ctx.getSource(), StringArgumentType.getString(ctx, "name")));
             LiteralArgumentBuilder<ServerCommandSource> permission = LiteralArgumentBuilder.literal("permission");
             perm.then(value);

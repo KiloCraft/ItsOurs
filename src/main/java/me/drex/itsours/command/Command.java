@@ -82,6 +82,16 @@ public abstract class Command {
         return argument("claim", word()).suggests(CLAIM_PROVIDER);
     }
 
+    public RequiredArgumentBuilder<ServerCommandSource, String> roleArgument() {
+        return argument("name", word()).suggests(ROLE_PROVIDER);
+    }
+
+    public final SuggestionProvider<ServerCommandSource> ROLE_PROVIDER = (source, builder) -> {
+        List<String> names = new ArrayList<>();
+        ItsOursMod.INSTANCE.getRoleManager().forEach((roleID, role) -> names.add(roleID));
+        return CommandSource.suggestMatching(names, builder);
+    };
+
     public final SuggestionProvider<ServerCommandSource> CLAIM_PROVIDER = (source, builder) -> {
         UUID uuid = source.getSource().getPlayer().getUuid();
         ServerPlayerEntity player = source.getSource().getPlayer();
