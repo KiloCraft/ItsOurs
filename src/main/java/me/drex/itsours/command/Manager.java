@@ -13,7 +13,10 @@ public class Manager {
         new ExpandCommand().register(main);
         new InfoCommand().register(main);
         new ListCommand().register(main);
+        new PermissionCommand().register(main);
         new RemoveCommand().register(main);
+        new RoleCommand().register(main);
+        new RolesCommand().register(main);
         new ShowCommand().register(main);
 
 

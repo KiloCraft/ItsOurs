@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class RoleManager extends HashMap<String, Role> {
 
     public RoleManager(CompoundTag tag) {
-
+        fromNBT(tag);
     }
 
     public void fromNBT(CompoundTag tag) {

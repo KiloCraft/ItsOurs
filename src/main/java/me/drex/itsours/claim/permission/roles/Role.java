@@ -5,7 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 
 public class Role {
 
-    private PermissionMap permissions;
+    private final PermissionMap permissions = new PermissionMap(new CompoundTag());
 
     public Role(CompoundTag tag) {
         this.fromNBT(tag);

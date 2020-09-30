@@ -74,8 +74,8 @@ public class ItsOursMod implements DedicatedServerModInitializer {
                     throw new RuntimeException("Could not load backup - Crashing server to save data.");
                 }
             }
-            this.claimList = new ClaimList((ListTag) tag.get("claims"));
             this.roleManager = new RoleManager(tag.getCompound("roles"));
+            this.claimList = new ClaimList((ListTag) tag.get("claims"));
             this.blockManager = new BlockManager(tag.getCompound("blocks"));
         }
         this.permissionHandler = new PermissionHandler();

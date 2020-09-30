@@ -95,7 +95,7 @@ public abstract class AbstractClaim {
             });
             tag.put("subzones", list);
         }
-        tag.put("permission", this.permissionManager.toNBT());
+        tag.put("permissions", this.permissionManager.toNBT());
         return tag;
     }
 
@@ -126,6 +126,14 @@ public abstract class AbstractClaim {
 
     public void removeSubzone(Subzone subzone) {
         this.subzoneList.remove(subzone);
+    }
+
+    public boolean hasPermission(UUID uuid, String permission) {
+        return this.permissionManager.hasPermission(uuid, permission);
+    }
+
+    public PermissionManager getPermissionManager() {
+        return this.permissionManager;
     }
 
     public abstract int getDepth();
