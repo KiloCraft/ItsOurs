@@ -29,7 +29,7 @@ public class RemoveCommand extends Command {
 
     public int requestRemove(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
        validate(source, claim);
-       if (source.getPlayer().getUuid().toString().equals(claim.getOwner().toString())) {
+       if (!source.getPlayer().getUuid().toString().equals(claim.getOwner().toString())) {
            ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("WARNING: This is not your claim...").formatted(Formatting.DARK_RED).formatted(Formatting.BOLD));
        }
         ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("Are you sure you want to delete the claim \"" + claim.getName() + "\"? ").formatted(Formatting.RED)
