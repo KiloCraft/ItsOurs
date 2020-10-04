@@ -26,7 +26,7 @@ import static me.drex.itsours.claim.AbstractClaim.Util.getPosOnGround;
 
 public abstract class AbstractClaim {
 
-    private static final Pattern NAME = Pattern.compile("\\w{3,16}");
+    public static final Pattern NAME = Pattern.compile("\\w{3,16}");
     public BlockPos min, max, tp;
     private String name;
     private UUID owner;
@@ -103,6 +103,8 @@ public abstract class AbstractClaim {
     public String getName() {
         return this.name;
     }
+
+    public abstract String getFullName();
 
     public UUID getOwner() {
         return this.owner;

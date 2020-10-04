@@ -31,6 +31,11 @@ public class Subzone extends AbstractClaim {
         return this.parent;
     }
 
+    @Override
+    public String getFullName() {
+        return parent.getFullName() + "." + getName();
+    }
+
     public int getDepth() {
         return this.getParent().getDepth() + 1;
     }
