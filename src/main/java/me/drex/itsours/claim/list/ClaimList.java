@@ -108,6 +108,17 @@ public class ClaimList {
         return null;
     }
 
+    public AbstractClaim get(String name) {
+        for (AbstractClaim claim : claimList) {
+            if (claim.getFullName().equals(name)) return claim;
+        }
+        return null;
+    }
+
+    public boolean contains(String name) {
+        return get(name) != null;
+    }
+
     private List<AbstractClaim> get(Region region) {
         return byRegion.get(region) == null ? new ArrayList<>() : byRegion.get(region);
     }

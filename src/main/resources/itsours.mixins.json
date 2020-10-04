@@ -6,7 +6,8 @@
   "mixins": [
     "EntityMixin",
     "LevelStorageSessionMixin",
-    "ServerPlayerEntityMixin"
+    "ServerPlayerEntityMixin",
+    "ServerPlayerInteractionManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

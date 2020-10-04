@@ -9,6 +9,7 @@ import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
@@ -21,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayerEntity.class)
-public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer {
+public class ServerPlayerEntityMixin extends  PlayerEntity implements ClaimPlayer {
 
     @Shadow
     @Final
@@ -30,6 +31,7 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     private BlockPos lastShowPos;
     private ServerWorld lastShowWorld;
     private int cooldown = 0;
+    public Pair<BlockPos, BlockPos> positions = new Pair<>(null, null);
 
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
@@ -64,6 +66,31 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     @Override
     public ServerWorld getLastShowWorld() {
         return this.lastShowWorld;
+    }
+
+    @Override
+    public boolean arePositionsSet() {
+        return positions.getLeft() != null && positions.getRight() != null;
+    }
+
+    @Override
+    public void setLeftPosition(BlockPos pos) {
+        positions = new Pair<>(pos, positions.getRight());
+    }
+
+    @Override
+    public void setRightPosition(BlockPos pos) {
+        positions = new Pair<>(positions.getLeft(), pos);
+    }
+
+    @Override
+    public BlockPos getRightPosition() {
+        return positions.getRight();
+    }
+
+    @Override
+    public BlockPos getLeftPosition() {
+        return positions.getLeft();
     }
 
     @Override
