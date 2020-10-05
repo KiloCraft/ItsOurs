@@ -241,6 +241,9 @@ public abstract class AbstractClaim {
         for (int i = max.getZ(); i > min.getZ(); i--) {
             sendBlockPacket(player, new BlockPos(getPosOnGround(new BlockPos(min.getX(), y, i), player.getEntityWorld())).down(), blockState);
         }
+        for (Subzone subzone : this.getSubzones()) {
+            subzone.show(player, blockState);
+        }
     }
 
     private void sendBlockPacket(ServerPlayerEntity player, BlockPos pos, BlockState state) {

@@ -12,19 +12,25 @@ import net.minecraft.server.network.ServerPlayerEntity;
 public class ShowCommand extends Command {
 
     public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
-        LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("show");
-        command.executes(this::show);
-        literal.then(command);
+        {
+            LiteralArgumentBuilder<ServerCommandSource> show = LiteralArgumentBuilder.literal("show");
+            show.executes(ctx -> show(ctx.getSource(), true));
+            literal.then(show);
+        }
+        {
+            LiteralArgumentBuilder<ServerCommandSource> hide = LiteralArgumentBuilder.literal("hide");
+            hide.executes(ctx -> show(ctx.getSource(), false));
+            literal.then(hide);
+        }
     }
 
-    public int show(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        ServerCommandSource source = ctx.getSource();
+    public int show(ServerCommandSource source, boolean show) throws CommandSyntaxException {
         AbstractClaim claim = this.getAndValidateClaim(source.getWorld(), source.getPlayer().getBlockPos());
         ServerPlayerEntity player = source.getPlayer();
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         if (claimPlayer.getLastShowClaim() != null) claimPlayer.getLastShowClaim().show(player, null);
         claimPlayer.setLastShow(claim, source.getPlayer().getBlockPos(), source.getWorld());
-        claim.show(player, Blocks.GOLD_BLOCK.getDefaultState());
+        claim.show(player, show ? Blocks.GOLD_BLOCK.getDefaultState() : null);
         return 1;
     }
 
