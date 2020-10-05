@@ -3,6 +3,7 @@ package me.drex.itsours.claim.permission;
 import com.google.common.collect.Maps;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.roles.Role;
+import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.claim.permission.util.PermissionMap;
 import net.minecraft.nbt.CompoundTag;
 
@@ -92,19 +93,25 @@ public class PermissionManager {
     }
 
     public boolean hasPermission(UUID uuid, String permission) {
-        boolean value = false;
+        //TODO: Check if player has parent permission
+        Permission.Value value = Permission.Value.UNSET;
+//        boolean value = false;
         if (settings.isPermissionSet(permission)) {
-            value = settings.getPermission(permission);
+            value = Permission.Value.of(settings.getPermission(permission));
         }
         for (Role role : this.getRolesByWeight(uuid)) {
             if (role.permissions().isPermissionSet(permission)) {
-                value = role.permissions().getPermission(permission);
+                value = Permission.Value.of(role.permissions().getPermission(permission));
             }
         }
         if (this.isPlayerPermissionSet(uuid, permission)) {
-            value = playerPermission.get(uuid).getPermission(permission);
+            value = Permission.Value.of(playerPermission.get(uuid).getPermission(permission));
         }
-        return value;
+        if (value == Permission.Value.UNSET && permission.contains(".")) {
+            String[] node = permission.split("\\.");
+            return hasPermission(uuid, permission.substring(0, (permission.length() - (node[node.length-1]).length() + 1)));
+        }
+        return value.value;
     }
 
     public boolean hasRole(UUID uuid, Role role) {
@@ -126,6 +133,13 @@ public class PermissionManager {
             playerPermission.put(uuid, pm);
         }
         pm.setPermission(permission, value);
+    }
+
+    public void resetPlayerPermission(UUID uuid, String permission) {
+        PermissionMap pm = playerPermission.get(uuid);
+        if (pm != null) {
+            pm.resetPermission(permission);
+        }
     }
 
     public HashMap<Role, Integer> sort(HashMap<Role, Integer> hashMap) {

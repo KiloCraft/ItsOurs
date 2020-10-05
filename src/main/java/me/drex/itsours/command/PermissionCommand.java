@@ -46,6 +46,16 @@ public class PermissionCommand extends Command {
             set.then(player);
             claim.then(set);
         }
+        {
+            //TODO: Add proper suggestion
+            RequiredArgumentBuilder<ServerCommandSource, String> permission = RequiredArgumentBuilder.argument("perm", StringArgumentType.word());
+            permission.executes(ctx -> resetPermission(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), StringArgumentType.getString(ctx, "perm")));
+            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
+            LiteralArgumentBuilder<ServerCommandSource> reset = LiteralArgumentBuilder.literal("reset");
+            player.then(permission);
+            reset.then(player);
+            claim.then(reset);
+        }
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("permission");
         command.then(claim);
         literal.then(command);
@@ -80,6 +90,15 @@ public class PermissionCommand extends Command {
                 .append(permission).formatted(Formatting.GOLD)
                 .append(" for ").formatted(Formatting.YELLOW)
                 .append(target.getName()).formatted(Formatting.GOLD).append(" to ").formatted(Formatting.YELLOW).append(format(value)));
+        return 0;
+    }
+
+    public int resetPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission) throws CommandSyntaxException {
+        claim.getPermissionManager().resetPlayerPermission(target.getId(), permission);
+        ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("Reset permission ").formatted(Formatting.YELLOW)
+                .append(permission).formatted(Formatting.GOLD)
+                .append(" for ").formatted(Formatting.YELLOW)
+                .append(target.getName()));
         return 0;
     }
 

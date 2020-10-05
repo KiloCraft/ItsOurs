@@ -34,6 +34,10 @@ public class PermissionMap extends HashMap<String, Boolean> {
         this.put(permission, value);
     }
 
+    public void resetPermission(String permission) {
+        this.remove(permission);
+    }
+
     public boolean isPermissionSet(String permission) {
         return this.containsKey(permission);
     }
