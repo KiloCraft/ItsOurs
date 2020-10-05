@@ -93,9 +93,7 @@ public class PermissionManager {
     }
 
     public boolean hasPermission(UUID uuid, String permission) {
-        //TODO: Check if player has parent permission
         Permission.Value value = Permission.Value.UNSET;
-//        boolean value = false;
         if (settings.isPermissionSet(permission)) {
             value = Permission.Value.of(settings.getPermission(permission));
         }
@@ -109,7 +107,7 @@ public class PermissionManager {
         }
         if (value == Permission.Value.UNSET && permission.contains(".")) {
             String[] node = permission.split("\\.");
-            return hasPermission(uuid, permission.substring(0, (permission.length() - (node[node.length-1]).length() + 1)));
+            return hasPermission(uuid, permission.substring(0, (permission.length() - (node[node.length-1]).length() - 1)));
         }
         return value.value;
     }
