@@ -26,7 +26,7 @@ import static me.drex.itsours.claim.AbstractClaim.Util.getPosOnGround;
 
 public abstract class AbstractClaim {
 
-    private static final Pattern NAME = Pattern.compile("\\w{3,16}");
+    public static final Pattern NAME = Pattern.compile("\\w{3,16}");
     public BlockPos min, max, tp;
     private String name;
     private UUID owner;
@@ -104,6 +104,8 @@ public abstract class AbstractClaim {
         return this.name;
     }
 
+    public abstract String getFullName();
+
     public UUID getOwner() {
         return this.owner;
     }
@@ -167,7 +169,7 @@ public abstract class AbstractClaim {
 
     public boolean intersects() {
         for (AbstractClaim value : ItsOursMod.INSTANCE.getClaimList().get()) {
-            if (value.getDepth() == this.getDepth() && !this.equals(value) && (value.intersects(this))) {
+            if (value.getDepth() == this.getDepth() && !this.equals(value) && (this.intersects(value))) {
                 return true;
             }
         }

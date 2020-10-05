@@ -16,6 +16,16 @@ public interface ClaimPlayer {
 
     ServerWorld getLastShowWorld();
 
+    boolean arePositionsSet();
+
+    void setLeftPosition(BlockPos pos);
+
+    void setRightPosition(BlockPos pos);
+
+    BlockPos getRightPosition();
+
+    BlockPos getLeftPosition();
+
     void sendError(Text error);
 
     void sendError(String error);

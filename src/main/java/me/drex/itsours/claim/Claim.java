@@ -25,6 +25,11 @@ public class Claim extends AbstractClaim {
     }
 
     @Override
+    public String getFullName() {
+        return getName();
+    }
+
+    @Override
     public int getDepth() {
         return 0;
     }
