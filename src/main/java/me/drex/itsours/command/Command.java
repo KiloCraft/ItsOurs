@@ -12,6 +12,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
+import me.drex.itsours.claim.Subzone;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
@@ -20,10 +21,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -72,10 +70,39 @@ public abstract class Command {
 
     public AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         String name = StringArgumentType.getString(ctx, "claim");
-        for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get()) {
-            if (claim.getName().equals(name)) return claim;
+        if (name.contains(".")) {
+            String[] names = name.split("\\.");
+            System.out.println(Arrays.toString(names));
+            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get()) {
+                if (claim.getName().equals(names[0])) {
+                    Subzone subzone = getClaim(claim, name);
+                    if (subzone != null) return subzone;
+                }
+            }
+        } else {
+            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get()) {
+                if (claim.getName().equals(name)) return claim;
+            }
         }
         throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim with that name")).create();
+    }
+
+    private Subzone getClaim(AbstractClaim claim, String name) {
+        String[] names = name.split("\\.");
+        for (Subzone subzone : claim.getSubzones()) {
+            if (subzone.getDepth() > names.length) {
+                return null;
+            }
+            if (subzone.getName().equals(names[subzone.getDepth()])) {
+                if (subzone.getDepth() == names.length - 1) {
+                    return subzone;
+                }
+                else {
+                    return getClaim(subzone, name);
+                }
+            }
+        }
+        return null;
     }
 
     public RequiredArgumentBuilder<ServerCommandSource, String> claimArgument() {
