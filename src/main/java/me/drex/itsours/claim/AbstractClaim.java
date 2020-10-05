@@ -169,7 +169,7 @@ public abstract class AbstractClaim {
 
     public boolean intersects() {
         for (AbstractClaim value : ItsOursMod.INSTANCE.getClaimList().get()) {
-            if (value.getDepth() == this.getDepth() && !this.equals(value) && (value.intersects(this))) {
+            if (value.getDepth() == this.getDepth() && !this.equals(value) && (this.intersects(value))) {
                 return true;
             }
         }

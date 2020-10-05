@@ -39,9 +39,9 @@ public abstract class EntityMixin {
                     Text message = null;
                     if (pclaim != null && claim == null) {
                         //TODO: Make configurable
-                        message = new LiteralText("You left " + pclaim.getName()).formatted(Formatting.YELLOW);
+                        message = new LiteralText("You left " + pclaim.getFullName()).formatted(Formatting.YELLOW);
                     } else if (claim != null) {
-                        message = new LiteralText("Welcome to " + claim.getName()).formatted(Formatting.YELLOW);
+                        message = new LiteralText("Welcome to " + claim.getFullName()).formatted(Formatting.YELLOW);
                     }
 
                     if (message != null && !message.equals("")) {

@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
+import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.user.ClaimPlayer;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.command.ServerCommandSource;
@@ -35,19 +36,23 @@ public class CreateCommand extends Command {
             max = new BlockPos(max.getX(), 256, max.getZ());
             if (!AbstractClaim.NAME.matcher(name).matches()) throw new SimpleCommandExceptionType(new LiteralText("Claim name is to long or contains invalid characters")).create();
             if (ItsOursMod.INSTANCE.getClaimList().contains(name)) throw new SimpleCommandExceptionType(new LiteralText("Claim name is already taken")).create();
-            Claim claim = new Claim(name, source.getPlayer().getUuid(), min, max, source.getWorld(), null);
+            AbstractClaim claim = new Claim(name, source.getPlayer().getUuid(), min, max, source.getWorld(), null);
             if (claim.intersects()) {
+                AbstractClaim parent = ItsOursMod.INSTANCE.getClaimList().get(source.getWorld(), min);
+                if (parent != null && parent.contains(max)) {
+                    claim = new Subzone(name, source.getPlayer().getUuid(), min, max, source.getWorld(), null, parent);
+                }
                 //check if claim is completely inside on another one => create subzone
                 //check for name again
 
             } else {
                 if (ItsOursMod.INSTANCE.getBlockManager().getBlocks(source.getPlayer().getUuid()) < claim.getArea()) throw new SimpleCommandExceptionType(new LiteralText("You don't have enough claim blocks")).create();
                 ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("Claim created!").formatted(Formatting.GREEN));
-                if (claimPlayer.getLastShowClaim() != null) claimPlayer.getLastShowClaim().show(source.getPlayer(), null);
-                claimPlayer.setLastShow(claim, source.getPlayer().getBlockPos(), source.getWorld());
-                claim.show(source.getPlayer(), Blocks.GOLD_BLOCK.getDefaultState());
-                ItsOursMod.INSTANCE.getClaimList().add(claim);
             }
+            if (claimPlayer.getLastShowClaim() != null) claimPlayer.getLastShowClaim().show(source.getPlayer(), null);
+            claimPlayer.setLastShow(claim, source.getPlayer().getBlockPos(), source.getWorld());
+            ItsOursMod.INSTANCE.getClaimList().add(claim);
+            claim.show(source.getPlayer(), Blocks.GOLD_BLOCK.getDefaultState());
 
 
             //reset positions

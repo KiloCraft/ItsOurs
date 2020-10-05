@@ -20,6 +20,7 @@ public class Subzone extends AbstractClaim {
         super(name, owner, min, max, world, tppos);
         //Make sure the parent isnt also in the subzone list (getDepth() would get an infinite loop)
         this.parent = parent;
+        this.parent.addSubzone(this);
     }
 
     public Subzone(CompoundTag tag, AbstractClaim parent) {
