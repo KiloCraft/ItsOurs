@@ -59,10 +59,12 @@ public class ClaimList {
         byOwner.put(claim.getOwner(), claims);
 
         //Map a list of claims to their region
-        this.addRegion(Region.get(claim.min.getX(), claim.min.getZ()), claim);
-        this.addRegion(Region.get(claim.min.getX(), claim.max.getZ()), claim);
-        this.addRegion(Region.get(claim.max.getX(), claim.min.getZ()), claim);
-        this.addRegion(Region.get(claim.max.getX(), claim.max.getZ()), claim);
+        if (claim instanceof Claim) {
+            this.addRegion(Region.get(claim.min.getX(), claim.min.getZ()), claim);
+            this.addRegion(Region.get(claim.min.getX(), claim.max.getZ()), claim);
+            this.addRegion(Region.get(claim.max.getX(), claim.min.getZ()), claim);
+            this.addRegion(Region.get(claim.max.getX(), claim.max.getZ()), claim);
+        }
     }
 
     public void update() {
@@ -99,13 +101,17 @@ public class ClaimList {
         List<AbstractClaim> claims = get(Region.get(pos.getX(), pos.getZ())).stream().filter(abstractClaim -> abstractClaim.getWorld().equals(world)).collect(Collectors.toList());
         for (AbstractClaim claim : claims) {
             if (claim.contains(pos)) {
-                for (Subzone subzone : claim.getSubzones()) {
-                    if (subzone.contains(pos)) return subzone;
-                }
-                return claim;
+                return getDeepestClaim(claim, pos);
             }
         }
         return null;
+    }
+
+    private AbstractClaim getDeepestClaim(AbstractClaim claim, BlockPos pos) {
+        for (Subzone subzone : claim.getSubzones()) {
+            if (subzone.contains(pos)) return getDeepestClaim(subzone, pos);
+        }
+        return claim;
     }
 
     public AbstractClaim get(String name) {
