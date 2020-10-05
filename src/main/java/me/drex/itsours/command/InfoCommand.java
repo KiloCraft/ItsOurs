@@ -45,6 +45,7 @@ public class InfoCommand extends Command {
                         new LiteralText(ownerUUID.toString()).formatted(Formatting.RED, Formatting.ITALIC).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, claim.getOwner().toString()))) :
                         new LiteralText(ownerName).formatted(Formatting.GOLD)))
                 .append(newInfoLine("Size", new LiteralText(size.getX() + " x " + size.getY() + " x " + size.getZ()).formatted(Formatting.GREEN)))
+                .append(newInfoLine("Depth", new LiteralText(String.valueOf(claim.getDepth())).formatted(Formatting.GREEN)))
                 .append(new LiteralText("").append(new LiteralText("* Flags:").formatted(Formatting.YELLOW))
                         .append(new LiteralText(" ...")).append(new LiteralText("\n")));
         //TODO: List flags
