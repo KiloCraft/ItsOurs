@@ -13,8 +13,8 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.user.ClaimPlayer;
+import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.GameProfileArgumentType;
-import net.minecraft.server.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
-import static me.drex.itsours.util.TextUtil.format;
 import static net.minecraft.server.command.CommandManager.argument;
 
 
