@@ -18,6 +18,7 @@ import net.minecraft.util.math.BlockPos;
 
 public class CreateCommand extends Command {
 
+
     public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         RequiredArgumentBuilder<ServerCommandSource, String> name = RequiredArgumentBuilder.argument("name", StringArgumentType.word());
         name.executes(ctx -> create(ctx.getSource(), StringArgumentType.getString(ctx, "name")));
@@ -34,19 +35,25 @@ public class CreateCommand extends Command {
             min = new BlockPos(min.getX(), 1, min.getZ());
             BlockPos max = new BlockPos(claimPlayer.getRightPosition());
             max = new BlockPos(max.getX(), 256, max.getZ());
-            if (!AbstractClaim.NAME.matcher(name).matches()) throw new SimpleCommandExceptionType(new LiteralText("Claim name is to long or contains invalid characters")).create();
-            if (ItsOursMod.INSTANCE.getClaimList().contains(name)) throw new SimpleCommandExceptionType(new LiteralText("Claim name is already taken")).create();
+            if (!AbstractClaim.NAME.matcher(name).matches())
+                throw new SimpleCommandExceptionType(new LiteralText("Claim name is to long or contains invalid characters")).create();
             AbstractClaim claim = new Claim(name, source.getPlayer().getUuid(), min, max, source.getWorld(), null);
             if (claim.intersects()) {
                 AbstractClaim parent = ItsOursMod.INSTANCE.getClaimList().get(source.getWorld(), min);
                 if (parent != null && parent.contains(max)) {
+                    for (Subzone subzone : parent.getSubzones()) {
+                        if (subzone.getName().equals(name))
+                            throw new SimpleCommandExceptionType(new LiteralText("Claim name is already taken")).create();
+                    }
                     claim = new Subzone(name, source.getPlayer().getUuid(), min, max, source.getWorld(), null, parent);
+                } else {
+                    throw new SimpleCommandExceptionType(new LiteralText("Claim couldn't be created, because it would overlap with another claim")).create();
                 }
-                //check if claim is completely inside on another one => create subzone
-                //check for name again
-
             } else {
-                if (ItsOursMod.INSTANCE.getBlockManager().getBlocks(source.getPlayer().getUuid()) < claim.getArea()) throw new SimpleCommandExceptionType(new LiteralText("You don't have enough claim blocks")).create();
+                if (ItsOursMod.INSTANCE.getBlockManager().getBlocks(source.getPlayer().getUuid()) < claim.getArea())
+                    throw new SimpleCommandExceptionType(new LiteralText("You don't have enough claim blocks")).create();
+                if (ItsOursMod.INSTANCE.getClaimList().contains(name))
+                    throw new SimpleCommandExceptionType(new LiteralText("Claim name is already taken")).create();
                 ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("Claim created!").formatted(Formatting.GREEN));
             }
             if (claimPlayer.getLastShowClaim() != null) claimPlayer.getLastShowClaim().show(source.getPlayer(), null);
