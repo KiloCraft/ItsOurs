@@ -7,11 +7,9 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.CommandSource;
@@ -30,6 +28,35 @@ import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.server.command.CommandManager.argument;
 
 public abstract class Command {
+
+    public final SuggestionProvider<ServerCommandSource> ROLE_PROVIDER = (source, builder) -> {
+        List<String> names = new ArrayList<>();
+        ItsOursMod.INSTANCE.getRoleManager().forEach((roleID, role) -> names.add(roleID));
+        return CommandSource.suggestMatching(names, builder);
+    };
+    public final SuggestionProvider<ServerCommandSource> CLAIM_PROVIDER = (source, builder) -> {
+        UUID uuid = source.getSource().getPlayer().getUuid();
+        ServerPlayerEntity player = source.getSource().getPlayer();
+        List<String> names = new ArrayList<>();
+        AbstractClaim current = ItsOursMod.INSTANCE.getClaimList().get(player.getServerWorld(), player.getBlockPos());
+        if (current != null) names.add(current.getName());
+        if (uuid != null) {
+            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get(uuid)) {
+                names.add(claim.getName());
+                addSubzones(claim, builder.getRemaining(), names);
+            }
+        }
+        return CommandSource.suggestMatching(names, builder);
+    };
+
+    private void addSubzones(AbstractClaim claim, String input, List<String> names) {
+        if (input.startsWith(claim.getFullName())) {
+            for (Subzone subzone : claim.getSubzones()) {
+                names.add(subzone.getFullName());
+                addSubzones(subzone, input, names);
+            }
+        }
+    }
 
     //TODO: Look at this again, maybe there is a better approach to this
     public static GameProfile getGameProfile(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
@@ -60,7 +87,8 @@ public abstract class Command {
 
     AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(world, pos);
-        if (claim == null) throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim at your position!")).create();
+        if (claim == null)
+            throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim at your position!")).create();
         return claim;
     }
 
@@ -72,7 +100,6 @@ public abstract class Command {
         String name = StringArgumentType.getString(ctx, "claim");
         if (name.contains(".")) {
             String[] names = name.split("\\.");
-            System.out.println(Arrays.toString(names));
             for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get()) {
                 if (claim.getName().equals(names[0])) {
                     Subzone subzone = getClaim(claim, name);
@@ -96,8 +123,7 @@ public abstract class Command {
             if (subzone.getName().equals(names[subzone.getDepth()])) {
                 if (subzone.getDepth() == names.length - 1) {
                     return subzone;
-                }
-                else {
+                } else {
                     return getClaim(subzone, name);
                 }
             }
@@ -112,28 +138,6 @@ public abstract class Command {
     public RequiredArgumentBuilder<ServerCommandSource, String> roleArgument() {
         return argument("name", word()).suggests(ROLE_PROVIDER);
     }
-
-    public final SuggestionProvider<ServerCommandSource> ROLE_PROVIDER = (source, builder) -> {
-        List<String> names = new ArrayList<>();
-        ItsOursMod.INSTANCE.getRoleManager().forEach((roleID, role) -> names.add(roleID));
-        return CommandSource.suggestMatching(names, builder);
-    };
-
-    public final SuggestionProvider<ServerCommandSource> CLAIM_PROVIDER = (source, builder) -> {
-        UUID uuid = source.getSource().getPlayer().getUuid();
-        ServerPlayerEntity player = source.getSource().getPlayer();
-        List<String> names = new ArrayList<>();
-        AbstractClaim current = ItsOursMod.INSTANCE.getClaimList().get(player.getServerWorld(), player.getBlockPos());
-        if (current != null) names.add(current.getName());
-        if (uuid != null) {
-            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get(uuid)) {
-                names.add(claim.getName());
-            }
-        }
-        return CommandSource.suggestMatching(names, builder);
-    };
-
-
 
 
 }
