@@ -11,6 +11,7 @@ public class Manager {
         new BlocksCommand().register(main);
         new CreateCommand().register(main);
         new ExpandCommand().register(main);
+        new FlyCommand().register(main);
         new InfoCommand().register(main);
         new ListCommand().register(main);
         new PermissionCommand().register(main);
