@@ -1,5 +1,6 @@
 package me.drex.itsours.claim.list;
 
+import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
@@ -114,15 +115,49 @@ public class ClaimList {
         return claim;
     }
 
-    public AbstractClaim get(String name) {
+    public Claim getMainClaim(String name) {
         for (AbstractClaim claim : claimList) {
-            if (claim.getFullName().equals(name)) return claim;
+            if (claim.getFullName().equals(name) && claim instanceof Claim) return (Claim) claim;
+        }
+        return null;
+    }
+
+    public AbstractClaim get(String name) {
+        if (name.contains(".")) {
+            String[] names = name.split("\\.");
+            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get()) {
+                if (claim.getName().equals(names[0])) {
+                    Subzone subzone = getSubzone(claim, name);
+                    if (subzone != null) return subzone;
+                }
+            }
+        } else {
+            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get()) {
+                if (claim.getName().equals(name)) return claim;
+            }
+        }
+        return null;
+    }
+
+    private Subzone getSubzone(AbstractClaim claim, String name) {
+        String[] names = name.split("\\.");
+        for (Subzone subzone : claim.getSubzones()) {
+            if (subzone.getDepth() > names.length) {
+                return null;
+            }
+            if (subzone.getName().equals(names[subzone.getDepth()])) {
+                if (subzone.getDepth() == names.length - 1) {
+                    return subzone;
+                } else {
+                    return getSubzone(subzone, name);
+                }
+            }
         }
         return null;
     }
 
     public boolean contains(String name) {
-        return get(name) != null;
+        return getMainClaim(name) != null;
     }
 
     private List<AbstractClaim> get(Region region) {

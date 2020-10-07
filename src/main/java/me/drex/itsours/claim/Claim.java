@@ -3,10 +3,8 @@ package me.drex.itsours.claim;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOursMod;
-import me.drex.itsours.user.ClaimPlayer;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
@@ -37,7 +35,7 @@ public class Claim extends AbstractClaim {
     @Override
     public int expand(UUID uuid, Direction direction, int amount) throws CommandSyntaxException {
         int previousArea = this.getArea();
-        this.show(null);
+        this.show(false);
         this.expand(direction, amount);
         int requiredBlocks = this.getArea() - previousArea;
         if (ItsOursMod.INSTANCE.getBlockManager().getBlocks(uuid) < requiredBlocks) {
@@ -66,18 +64,10 @@ public class Claim extends AbstractClaim {
                 throw new SimpleCommandExceptionType(new LiteralText("Shrinking would result in " + subzone.getName() + " being outside of " + this.getName())).create();
             }
         }
-        this.show(Blocks.GOLD_BLOCK.getDefaultState());
+        this.show(true);
         ItsOursMod.INSTANCE.getClaimList().update();
         return requiredBlocks;
     }
 
-    private void undoExpand(Direction direction, int amount) {
-        this.expand(direction, -amount);
-        for (ServerPlayerEntity player : ItsOursMod.server.getPlayerManager().getPlayerList()) {
-            ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            if (claimPlayer.getLastShowClaim() == this) {
-                this.show(player, Blocks.GOLD_BLOCK.getDefaultState());
-            }
-        }
-    }
+
 }

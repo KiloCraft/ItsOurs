@@ -49,7 +49,7 @@ public class RemoveCommand extends Command {
         if (claim instanceof Claim) {
             ItsOursMod.INSTANCE.getBlockManager().addBlocks(claim.getOwner(), claim.getArea());
         }
-        claim.show(null);
+        claim.show(false);
         //recursively remove all subzones
         removeSubzones(claim);
         ItsOursMod.INSTANCE.getClaimList().remove(claim);
