@@ -44,26 +44,32 @@ public class Subzone extends AbstractClaim {
     @Override
     public int expand(UUID uuid, Direction direction, int amount) throws CommandSyntaxException {
         int previousArea = this.getArea();
-        this.show(null);
+        this.show(false);
         this.expand(direction, amount);
         int requiredBlocks = this.getArea() - previousArea;
         if (!this.isInside()) {
-            this.expand(direction, -amount);
+            this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in " + this.getName() + " being outside of " + this.parent.getName())).create();
         }
         if (this.intersects()) {
-            this.expand(direction, -amount);
+            this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in hitting another subzone")).create();
         }
         if (this.max.getY() > 256 || this.min.getY() < 0) {
-            this.expand(direction, -amount);
+            this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("You can't expand outside of the world!")).create();
         }
         if (max.getX() < min.getX() || max.getY() < min.getY() || max.getZ() < min.getZ()) {
-            this.expand(direction, -amount);
+            this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("You can't shrink your claim that much")).create();
         }
-        this.show(Blocks.DIAMOND_BLOCK.getDefaultState());
+        for (Subzone subzone : this.getSubzones()) {
+            if (!subzone.isInside()) {
+                this.undoExpand(direction, amount);
+                throw new SimpleCommandExceptionType(new LiteralText("Shrinking would result in " + subzone.getName() + " being outside of " + this.getName())).create();
+            }
+        }
+        this.show(true);
         ItsOursMod.INSTANCE.getClaimList().update();
         return requiredBlocks;
     }

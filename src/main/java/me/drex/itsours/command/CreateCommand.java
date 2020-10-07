@@ -56,10 +56,10 @@ public class CreateCommand extends Command {
                     throw new SimpleCommandExceptionType(new LiteralText("Claim name is already taken")).create();
                 ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("Claim created!").formatted(Formatting.GREEN));
             }
-            if (claimPlayer.getLastShowClaim() != null) claimPlayer.getLastShowClaim().show(source.getPlayer(), null);
+            if (claimPlayer.getLastShowClaim() != null) claimPlayer.getLastShowClaim().show(source.getPlayer(), false);
             claimPlayer.setLastShow(claim, source.getPlayer().getBlockPos(), source.getWorld());
             ItsOursMod.INSTANCE.getClaimList().add(claim);
-            claim.show(source.getPlayer(), Blocks.GOLD_BLOCK.getDefaultState());
+            claim.show(source.getPlayer(), true);
 
 
             //reset positions

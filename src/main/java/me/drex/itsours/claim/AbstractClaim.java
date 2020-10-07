@@ -1,10 +1,12 @@
 package me.drex.itsours.claim;
 
+import com.google.common.collect.Lists;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.WorldUtil;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundTag;
@@ -27,6 +29,7 @@ import static me.drex.itsours.claim.AbstractClaim.Util.getPosOnGround;
 public abstract class AbstractClaim {
 
     public static final Pattern NAME = Pattern.compile("\\w{3,16}");
+    private static Block[] showBlocks = {Blocks.GOLD_BLOCK, Blocks.DIAMOND_BLOCK, Blocks.EMERALD_BLOCK, Blocks.REDSTONE_BLOCK, Blocks.LAPIS_BLOCK};
     public BlockPos min, max, tp;
     private String name;
     private UUID owner;
@@ -167,6 +170,16 @@ public abstract class AbstractClaim {
      */
     public abstract int expand(UUID uuid, Direction direction, int amount) throws CommandSyntaxException;
 
+    void undoExpand(Direction direction, int amount) {
+        this.expand(direction, -amount);
+        for (ServerPlayerEntity player : ItsOursMod.server.getPlayerManager().getPlayerList()) {
+            ClaimPlayer claimPlayer = (ClaimPlayer) player;
+            if (claimPlayer.getLastShowClaim() == this) {
+                this.show(player, true);
+            }
+        }
+    }
+
     public boolean intersects() {
         for (AbstractClaim value : ItsOursMod.INSTANCE.getClaimList().get()) {
             if (value.getDepth() == this.getDepth() && !this.equals(value) && (this.intersects(value))) {
@@ -218,16 +231,17 @@ public abstract class AbstractClaim {
         }
     }
 
-    public void show(BlockState blockState) {
+    public void show(boolean show) {
         for (ServerPlayerEntity player : ItsOursMod.server.getPlayerManager().getPlayerList()) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
             if (claimPlayer.getLastShowClaim() == this) {
-                this.show(player, blockState);
+                this.show(player, show);
             }
         }
     }
 
-    public void show(ServerPlayerEntity player, BlockState blockState) {
+    public void show(ServerPlayerEntity player, boolean show) {
+        BlockState blockState = show ? showBlocks[Math.min(this.getDepth(), showBlocks.length-1)].getDefaultState() : null;
         int y = ((ClaimPlayer)player).getLastShowPos().getY();
         for (int i = min.getX(); i < max.getX(); i++) {
             sendBlockPacket(player, new BlockPos(getPosOnGround(new BlockPos(i, y, min.getZ()), player.getEntityWorld())).down(), blockState);
@@ -242,7 +256,7 @@ public abstract class AbstractClaim {
             sendBlockPacket(player, new BlockPos(getPosOnGround(new BlockPos(min.getX(), y, i), player.getEntityWorld())).down(), blockState);
         }
         for (Subzone subzone : this.getSubzones()) {
-            subzone.show(player, blockState);
+            subzone.show(player, show);
         }
     }
 
