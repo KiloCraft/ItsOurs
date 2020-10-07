@@ -97,37 +97,9 @@ public abstract class Command {
 
     public AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         String name = StringArgumentType.getString(ctx, "claim");
-        if (name.contains(".")) {
-            String[] names = name.split("\\.");
-            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get()) {
-                if (claim.getName().equals(names[0])) {
-                    Subzone subzone = getClaim(claim, name);
-                    if (subzone != null) return subzone;
-                }
-            }
-        } else {
-            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get()) {
-                if (claim.getName().equals(name)) return claim;
-            }
-        }
+        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(name);
+        if (claim != null) return claim;
         throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim with that name")).create();
-    }
-
-    private Subzone getClaim(AbstractClaim claim, String name) {
-        String[] names = name.split("\\.");
-        for (Subzone subzone : claim.getSubzones()) {
-            if (subzone.getDepth() > names.length) {
-                return null;
-            }
-            if (subzone.getName().equals(names[subzone.getDepth()])) {
-                if (subzone.getDepth() == names.length - 1) {
-                    return subzone;
-                } else {
-                    return getClaim(subzone, name);
-                }
-            }
-        }
-        return null;
     }
 
     public RequiredArgumentBuilder<ServerCommandSource, String> claimArgument() {
