@@ -102,6 +102,9 @@ public abstract class AbstractClaim {
         return tag;
     }
 
+    public static boolean isNameValid(String name) {
+        return NAME.matcher(name).matches();
+    }
 
     public String getName() {
         return this.name;
