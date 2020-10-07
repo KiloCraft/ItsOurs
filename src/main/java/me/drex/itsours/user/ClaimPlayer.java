@@ -32,4 +32,13 @@ public interface ClaimPlayer {
 
     void sendMessage(Text text);
 
+    void toggleFlight();
+
+    boolean flightEnabled();
+
+    void cacheFlight(boolean value);
+
+    boolean getFlightCache();
+
+
 }

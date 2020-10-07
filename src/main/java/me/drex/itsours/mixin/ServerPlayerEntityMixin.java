@@ -31,6 +31,8 @@ public class ServerPlayerEntityMixin extends  PlayerEntity implements ClaimPlaye
     private BlockPos lastShowPos;
     private ServerWorld lastShowWorld;
     private int cooldown = 0;
+    private boolean flight = false;
+    private boolean cachedFlight = false;
     public Pair<BlockPos, BlockPos> positions = new Pair<>(null, null);
 
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
@@ -114,6 +116,26 @@ public class ServerPlayerEntityMixin extends  PlayerEntity implements ClaimPlaye
     @Override
     public void sendMessage(Text message) {
         this.sendMessage(message, false);
+    }
+
+    @Override
+    public void toggleFlight() {
+        flight = !flight;
+    }
+
+    @Override
+    public boolean flightEnabled() {
+        return flight;
+    }
+
+    @Override
+    public void cacheFlight(boolean value) {
+        cachedFlight = value;
+    }
+
+    @Override
+    public boolean getFlightCache() {
+        return cachedFlight;
     }
 
     @Inject(method = "tick", at = @At(value = "HEAD"))
