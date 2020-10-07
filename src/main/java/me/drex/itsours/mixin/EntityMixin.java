@@ -2,6 +2,7 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.user.ClaimPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -36,15 +37,23 @@ public abstract class EntityMixin {
             AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
             if (pclaim != claim && player instanceof ServerPlayerEntity) {
                 if (player.networkHandler != null) {
+                    ClaimPlayer claimPlayer = (ClaimPlayer) player;
                     Text message = null;
                     if (pclaim != null && claim == null) {
                         //TODO: Make configurable
+                        player.abilities.allowFlying = claimPlayer.getFlightCache();
+                        if (player.abilities.flying && !claimPlayer.getFlightCache()) player.abilities.flying = false;
+                        player.sendAbilitiesUpdate();
                         message = new LiteralText("You left " + pclaim.getFullName()).formatted(Formatting.YELLOW);
                     } else if (claim != null) {
+                        if (pclaim == null) claimPlayer.cacheFlight(player.abilities.allowFlying);
+                        player.abilities.flying = claimPlayer.flightEnabled();
+                        player.abilities.allowFlying = claimPlayer.flightEnabled();
+                        player.sendAbilitiesUpdate();
                         message = new LiteralText("Welcome to " + claim.getFullName()).formatted(Formatting.YELLOW);
                     }
 
-                    if (message != null && !message.equals("")) {
+                    if (message != null) {
                         player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.ACTIONBAR, message, -1, 20, -1));
                     }
                 }
