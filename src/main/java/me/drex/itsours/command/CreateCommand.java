@@ -10,6 +10,7 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.user.ClaimPlayer;
+import net.minecraft.block.Block;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Formatting;
@@ -66,6 +67,8 @@ public class CreateCommand extends Command {
             claimPlayer.setRightPosition(null);
             return 1;
         } else {
+            Block.getBlockFromItem()
+            claimPlayer.sendMessage(new LiteralText("You need to select the corners of your claim with a golden shovel (left- / rightclick)").formatted(Formatting.RED));
             return 0;
         }
 

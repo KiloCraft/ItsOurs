@@ -27,7 +27,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ServerPlayerInteractionManager.class)
 public class ServerPlayerInteractionManagerMixin {
 
-    @Shadow public ServerPlayerEntity player;
+    @Shadow
+    public ServerPlayerEntity player;
 
     @Inject(method = "interactBlock", at = @At("HEAD"))
     private void onInteract(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
@@ -37,6 +38,16 @@ public class ServerPlayerInteractionManagerMixin {
             claimPlayer.sendMessage(new LiteralText("Position #2 set to " + pos.getX() + " " + pos.getZ()).formatted(Formatting.GREEN));
             claimPlayer.setRightPosition(pos);
             onClaimAddCorner();
+        }
+        //TODO: Make sure the chest was actually placed
+        if (stack.getItem() == Items.CHEST && ItsOursMod.INSTANCE.getClaimList().get(player.getUuid()).isEmpty()) {
+            claimPlayer.sendMessage(new LiteralText("This " + stack.getName().getString().toLowerCase() + " is not protected, click this message to create a claim, to protect it").formatted(Formatting.GOLD)
+                    .styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/claim create"))));
+            BlockPos blockPos = hitResult.getBlockPos().offset(hitResult.getSide());
+            if (!claimPlayer.arePositionsSet()) {
+                claimPlayer.setRightPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
+                claimPlayer.setLeftPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
+            }
         }
     }
 
