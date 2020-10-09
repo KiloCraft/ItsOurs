@@ -67,7 +67,6 @@ public class CreateCommand extends Command {
             claimPlayer.setRightPosition(null);
             return 1;
         } else {
-            Block.getBlockFromItem()
             claimPlayer.sendMessage(new LiteralText("You need to select the corners of your claim with a golden shovel (left- / rightclick)").formatted(Formatting.RED));
             return 0;
         }

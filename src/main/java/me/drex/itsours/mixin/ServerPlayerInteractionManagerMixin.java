@@ -2,6 +2,7 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.util.TextComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
@@ -55,7 +56,7 @@ public class ServerPlayerInteractionManagerMixin {
     private void onMine(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         if (player.inventory.getMainHandStack().getItem() == Items.GOLDEN_SHOVEL && !isSame(claimPlayer.getLeftPosition(), pos)) {
-            claimPlayer.sendMessage(new LiteralText("Position #1 set to " + pos.getX() + " " + pos.getZ()).formatted(Formatting.GREEN));
+            claimPlayer.sendMessage(TextComponent.of("<gradient:red:yellow> Position #1 set to " + pos.getX() + " " + pos.getZ()));
             claimPlayer.setLeftPosition(pos);
             onClaimAddCorner();
         }

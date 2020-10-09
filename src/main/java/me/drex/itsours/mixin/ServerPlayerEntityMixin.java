@@ -3,6 +3,8 @@ package me.drex.itsours.mixin;
 import com.mojang.authlib.GameProfile;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.util.TextComponent;
+import net.kyori.adventure.text.Component;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
@@ -116,6 +118,11 @@ public class ServerPlayerEntityMixin extends  PlayerEntity implements ClaimPlaye
     @Override
     public void sendMessage(Text message) {
         this.sendMessage(message, false);
+    }
+
+    @Override
+    public void sendMessage(Component component) {
+        this.sendMessage(TextComponent.from(component), false);
     }
 
     @Override
