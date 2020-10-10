@@ -3,22 +3,14 @@ package me.drex.itsours.mixin;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
-import me.drex.itsours.util.TextComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -30,8 +22,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.awt.*;
 
 @Mixin(ServerPlayerInteractionManager.class)
 public class ServerPlayerInteractionManagerMixin {
@@ -48,15 +38,6 @@ public class ServerPlayerInteractionManagerMixin {
             claimPlayer.setRightPosition(pos);
             onClaimAddCorner();
         }
-        //TODO: Make sure the chest was actually placed
-//        if (stack.getItem() == Items.CHEST && ItsOursMod.INSTANCE.getClaimList().get(player.getUuid()).isEmpty()) {
-//            claimPlayer.sendMessage(Component.text("This " + stack.getName().getString().toLowerCase() + " is not protected, click this message to create a claim, to protect it").color(Color.ORANGE).clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim create")));
-//            BlockPos blockPos = hitResult.getBlockPos().offset(hitResult.getSide());
-//            if (!claimPlayer.arePositionsSet()) {
-//                claimPlayer.setRightPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
-//                claimPlayer.setLeftPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
-//            }
-//        }
     }
 
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"))
