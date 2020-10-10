@@ -3,6 +3,7 @@ package me.drex.itsours.mixin;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.util.WorldUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -10,6 +11,8 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -40,6 +43,7 @@ public abstract class EntityMixin {
                     ClaimPlayer claimPlayer = (ClaimPlayer) player;
                     Text message = null;
                     if (pclaim != null && claim == null) {
+                        message = new LiteralText("You left " + pclaim.getFullName()).formatted(Formatting.YELLOW);
                         //TODO: Make configurable
                         boolean cachedFlying = player.abilities.flying;
                         //update abilities for respective gamemode
@@ -49,8 +53,12 @@ public abstract class EntityMixin {
                             player.abilities.flying = cachedFlying;
                             player.abilities.allowFlying = true;
                         }
+                        if (cachedFlying && !player.abilities.flying) {
+                            BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
+                            if (pos.getY() + 3 < player.getY())
+                            player.teleport((ServerWorld) WorldUtil.DEFAULT_WORLD, player.getX(), pos.getY(), player.getZ(), player.yaw, player.pitch);
+                        }
                         player.sendAbilitiesUpdate();
-                        message = new LiteralText("You left " + pclaim.getFullName()).formatted(Formatting.YELLOW);
                     } else if (claim != null) {
                         if (pclaim == null) claimPlayer.cacheFlight(player.abilities.allowFlying);
                         boolean cachedFlying = player.abilities.flying;
@@ -70,6 +78,18 @@ public abstract class EntityMixin {
                 }
             }
         }
+    }
+
+    public BlockPos getPosOnGround(BlockPos pos, World world) {
+        BlockPos blockPos = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
+        do {
+            blockPos = blockPos.down();
+            if (blockPos.getY() < 1) {
+                return pos;
+            }
+        } while (world.getBlockState(blockPos).isAir());
+
+        return blockPos.up();
     }
 
 }
