@@ -49,14 +49,14 @@ public class ServerPlayerInteractionManagerMixin {
             onClaimAddCorner();
         }
         //TODO: Make sure the chest was actually placed
-        if (stack.getItem() == Items.CHEST && ItsOursMod.INSTANCE.getClaimList().get(player.getUuid()).isEmpty()) {
-            claimPlayer.sendMessage(Component.text("This " + stack.getName().getString().toLowerCase() + " is not protected, click this message to create a claim, to protect it").color(Color.ORANGE).clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim create")));
-            BlockPos blockPos = hitResult.getBlockPos().offset(hitResult.getSide());
-            if (!claimPlayer.arePositionsSet()) {
-                claimPlayer.setRightPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
-                claimPlayer.setLeftPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
-            }
-        }
+//        if (stack.getItem() == Items.CHEST && ItsOursMod.INSTANCE.getClaimList().get(player.getUuid()).isEmpty()) {
+//            claimPlayer.sendMessage(Component.text("This " + stack.getName().getString().toLowerCase() + " is not protected, click this message to create a claim, to protect it").color(Color.ORANGE).clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim create")));
+//            BlockPos blockPos = hitResult.getBlockPos().offset(hitResult.getSide());
+//            if (!claimPlayer.arePositionsSet()) {
+//                claimPlayer.setRightPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
+//                claimPlayer.setLeftPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
+//            }
+//        }
     }
 
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"))
