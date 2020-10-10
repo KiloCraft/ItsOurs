@@ -12,9 +12,12 @@ import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.util.Color;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.HoverEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.util.Formatting;
@@ -68,55 +71,56 @@ public class PermissionCommand extends Command {
         //TODO: Check if excutor is allowed to check
         boolean value = claim.hasPermission(target.getId(), permission);
         String perm = permission;
-        MutableText hover = new LiteralText("");
+        TextComponent.Builder hover = Component.text();
         hover.append(checkPermission(claim.getPermissionManager(), target, permission));
         while (permission.contains(".")) {
             String[] node = permission.split("\\.");
             permission = permission.substring(0, (permission.length() - (node[node.length-1]).length() - 1));
-            hover.append("\n");
+            hover.append(Component.text("\n"));
             hover.append(checkPermission(claim.getPermissionManager(), target, permission));
         }
-        ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText(target.getName() + " (").formatted(Formatting.YELLOW)
-                .append(new LiteralText(perm).formatted(Formatting.GOLD))
-                .append(new LiteralText("): ").formatted(Formatting.YELLOW)
-                .append(format(value)).styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover)))));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text(target.getName() + " (").color(Color.YELLOW)
+                .append(Component.text(perm).color(Color.ORANGE))
+                .append(Component.text("): ").color(Color.YELLOW))
+                .append(format(value).style(style -> style.hoverEvent(HoverEvent.showText(hover.build())))));
         return 1;
     }
 
-    public MutableText checkPermission(PermissionManager pm, GameProfile target, String permission) {
-        MutableText hover = new LiteralText(permission + ":").formatted(Formatting.LIGHT_PURPLE)
-                .append(new LiteralText("\n -Settings: ")
-                .formatted(Formatting.YELLOW)
-                .append(pm.settings.isPermissionSet(permission) ? format(pm.settings.getPermission(permission)) : new LiteralText("unset").formatted(Formatting.GRAY)));
+    public Component checkPermission(PermissionManager pm, GameProfile target, String permission) {
+        TextComponent.Builder hover = Component.text()
+                .append(Component.text(permission + ":").color(Color.PINK))
+                .append(Component.text("\n -Settings: ").color(Color.YELLOW))
+                .append(pm.settings.isPermissionSet(permission) ? format(pm.settings.getPermission(permission)) : Component.text("unset").color(Color.GRAY));
 
-        MutableText roles = new LiteralText("\n -Roles: ").formatted(Formatting.YELLOW);
+        TextComponent.Builder roles = Component.text().content("\n -Roles: ").color(Color.YELLOW);
         for (Role role : pm.getRolesByWeight(target.getId())) {
-            roles.append(new LiteralText("\n  *" + ItsOursMod.INSTANCE.getRoleManager().getRoleID(role) + " (").formatted(Formatting.YELLOW))
-                    .append(new LiteralText(String.valueOf(pm.roles.get(target.getId()).get(role))).formatted(Formatting.GOLD)
-                            .append(new LiteralText( "): ").formatted(Formatting.YELLOW))
-                            .append(role.permissions().isPermissionSet(permission) ? format(role.permissions().getPermission(permission)) : new LiteralText("unset").formatted(Formatting.GRAY)));
+            roles.append(Component.text("\n  *" + ItsOursMod.INSTANCE.getRoleManager().getRoleID(role) + " (").color(Color.YELLOW))
+            .append(Component.text(String.valueOf(pm.roles.get(target.getId()).get(role))).color(Color.ORANGE))
+            .append(Component.text("): ").color(Color.YELLOW))
+            .append(role.permissions().isPermissionSet(permission) ? format(role.permissions().getPermission(permission)) : Component.text("unset").color(Color.GRAY));
         }
+
         hover.append(roles);
 
-        hover.append(new LiteralText("\n -Permissions: ").formatted(Formatting.YELLOW).append(pm.isPlayerPermissionSet(target.getId(), permission) ? format(pm.playerPermission.get(target.getId()).getPermission(permission)) : new LiteralText("unset").formatted(Formatting.GRAY)));
-        return hover;
+        hover.append(Component.text("\n -Permissions: ").color(Color.YELLOW)
+            .append(pm.isPlayerPermissionSet(target.getId(), permission) ? format(pm.playerPermission.get(target.getId()).getPermission(permission)) : Component.text("unset").color(Color.GRAY)));
+        return hover.build();
     }
-
     public int setPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission, boolean value) throws CommandSyntaxException {
         claim.getPermissionManager().setPlayerPermission(target.getId(), permission, value);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("Set permission ").formatted(Formatting.YELLOW)
-                .append(permission).formatted(Formatting.GOLD)
-                .append(" for ").formatted(Formatting.YELLOW)
-                .append(target.getName()).formatted(Formatting.GOLD).append(" to ").formatted(Formatting.YELLOW).append(format(value)));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set permission ").color(Color.YELLOW)
+                .append(Component.text(permission)).color(Color.ORANGE)
+                .append(Component.text(" for ")).color(Color.YELLOW)
+                .append(Component.text(target.getName())).color(Color.ORANGE).append(Component.text(" to ")).color(Color.YELLOW).append(format(value)));
         return 0;
     }
 
     public int resetPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission) throws CommandSyntaxException {
         claim.getPermissionManager().resetPlayerPermission(target.getId(), permission);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("Reset permission ").formatted(Formatting.YELLOW)
-                .append(permission).formatted(Formatting.GOLD)
-                .append(" for ").formatted(Formatting.YELLOW)
-                .append(target.getName()));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Reset permission ").color(Color.YELLOW)
+                .append(Component.text(permission)).color(Color.ORANGE)
+                .append(Component.text(" for ")).color(Color.YELLOW)
+                .append(Component.text(target.getName())));
         return 0;
     }
 

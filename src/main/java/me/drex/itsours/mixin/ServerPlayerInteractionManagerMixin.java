@@ -5,6 +5,7 @@ import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import me.drex.itsours.util.TextComponentUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -30,6 +31,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.awt.*;
+
 @Mixin(ServerPlayerInteractionManager.class)
 public class ServerPlayerInteractionManagerMixin {
 
@@ -47,8 +50,7 @@ public class ServerPlayerInteractionManagerMixin {
         }
         //TODO: Make sure the chest was actually placed
         if (stack.getItem() == Items.CHEST && ItsOursMod.INSTANCE.getClaimList().get(player.getUuid()).isEmpty()) {
-            claimPlayer.sendMessage(new LiteralText("This " + stack.getName().getString().toLowerCase() + " is not protected, click this message to create a claim, to protect it").formatted(Formatting.GOLD)
-                    .styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/claim create"))));
+            claimPlayer.sendMessage(Component.text("This " + stack.getName().getString().toLowerCase() + " is not protected, click this message to create a claim, to protect it").color(Color.ORANGE).clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim create")));
             BlockPos blockPos = hitResult.getBlockPos().offset(hitResult.getSide());
             if (!claimPlayer.arePositionsSet()) {
                 claimPlayer.setRightPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
@@ -70,13 +72,13 @@ public class ServerPlayerInteractionManagerMixin {
     public void onClaimAddCorner() {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         if (claimPlayer.arePositionsSet()) {
-            MutableText text = new LiteralText("Area Selected. Click to create your claim!").formatted(Formatting.GOLD);
+            TextComponent.Builder builder =  Component.text().content("Area Selected. Click to create your claim!").color(Color.ORANGE);
             if (ItsOursMod.INSTANCE.getClaimList().get(player.getUuid()).isEmpty()) {
-                text.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/claim create " + player.getEntityName())));
+                builder.clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim create " + player.getEntityName()));
             } else {
-                text.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/claim create <name>")));
+                builder.clickEvent(net.kyori.adventure.text.event.ClickEvent.suggestCommand("/claim create name"));
             }
-            claimPlayer.sendMessage(text);
+            claimPlayer.sendMessage(builder.build());
         }
     }
 

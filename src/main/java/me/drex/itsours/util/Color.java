@@ -34,4 +34,8 @@ public class Color implements TextColor {
     public int value() {
         return this.value;
     }
+
+    public String stringValue() {
+        return "#" + Integer.toHexString(this.value);
+    }
 }

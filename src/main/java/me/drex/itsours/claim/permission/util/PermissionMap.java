@@ -1,5 +1,8 @@
 package me.drex.itsours.claim.permission.util;
 
+import me.drex.itsours.util.Color;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
@@ -42,14 +45,12 @@ public class PermissionMap extends HashMap<String, Boolean> {
         return this.containsKey(permission);
     }
 
-    public Text toText() {
-        boolean color = false;
-        MutableText text = new LiteralText("");
+    public Component toText() {
+        TextComponent.Builder text = Component.text();
         for (Entry<String, Boolean> entry : this.entrySet()) {
-            text.append(new LiteralText(entry.getKey()).formatted(entry.getValue() ? color ? Formatting.DARK_GREEN : Formatting.GREEN : color ? Formatting.DARK_RED : Formatting.RED)).append(" ");
-            color = !color;
+            text.append(Component.text(entry.getKey()).color(entry.getValue() ? Color.LIGHT_GREEN : Color.RED).append(Component.text(" ")));
         }
-        return text;
+        return text.build();
     }
 
 }

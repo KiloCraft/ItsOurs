@@ -7,9 +7,12 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.util.Color;
+import net.kyori.adventure.text.Component;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 public class BlocksCommand extends Command {
@@ -50,25 +53,25 @@ public class BlocksCommand extends Command {
 
     public int check(ServerCommandSource source) throws CommandSyntaxException {
         int blocks = ItsOursMod.INSTANCE.getBlockManager().getBlocks(source.getPlayer().getUuid());
-        ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("You have " + blocks + " blocks left").formatted(Formatting.GREEN));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("You have " + blocks + " blocks left").color(Color.LIGHT_GREEN));
         return blocks;
     }
 
     public int checkOther(ServerCommandSource source, GameProfile gameProfile) throws CommandSyntaxException {
         int blocks = ItsOursMod.INSTANCE.getBlockManager().getBlocks(gameProfile.getId());
-        ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText(gameProfile.getName() + " has " + blocks + " blocks left").formatted(Formatting.GREEN));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text(gameProfile.getName() + " has " + blocks + " blocks left").color(Color.LIGHT_GREEN));
         return blocks;
     }
 
     public int set(ServerCommandSource source, GameProfile gameProfile, int amount) throws CommandSyntaxException {
         ItsOursMod.INSTANCE.getBlockManager().setBlocks(gameProfile.getId(), amount);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("Set " + gameProfile.getName() + "'s claim blocks to " + amount).formatted(Formatting.GREEN));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set " + gameProfile.getName() + "'s claim blocks to " + amount).color(Color.LIGHT_GREEN));
         return amount;
     }
 
     public int add(ServerCommandSource source, GameProfile gameProfile, int amount) throws CommandSyntaxException {
         ItsOursMod.INSTANCE.getBlockManager().addBlocks(gameProfile.getId(), amount);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText((amount > 0 ? ("Added " + amount) : ("Removed " + -amount)) + " claim block(s) " + (amount > 0 ? "to " : "from ") + gameProfile.getName()).formatted(Formatting.GREEN));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text((amount > 0 ? ("Added " + amount) : ("Removed " + -amount)) + " claim block(s) " + (amount > 0 ? "to " : "from ") + gameProfile.getName()).color(Color.LIGHT_GREEN));
         return amount;
     }
 

@@ -9,6 +9,10 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.util.Color;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.LiteralText;
@@ -30,13 +34,10 @@ public class RemoveCommand extends Command {
     public int requestRemove(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
        validate(source, claim);
        if (!source.getPlayer().getUuid().toString().equals(claim.getOwner().toString())) {
-           ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("WARNING: This is not your claim...").formatted(Formatting.DARK_RED).formatted(Formatting.BOLD));
+           ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("WARNING: This is not your claim...").color(Color.RED).decorate(TextDecoration.BOLD));
        }
-        ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("Are you sure you want to delete the claim \"" + claim.getName() + "\"? ").formatted(Formatting.RED)
-                .append(new LiteralText("[I'M SURE]").styled(style -> style
-                        .withColor(Formatting.DARK_RED)
-                        .withBold(true)
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/claim remove " + claim.getName() + " confirm")))));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Are you sure you want to delete the claim \"" + claim.getName() + "\"? ").color(Color.RED)
+                .append(Component.text("[I'M SURE]").clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim remove " + claim.getName() + " confirm")).decorate(TextDecoration.BOLD).color(Color.RED)));
        return 0;
     }
 
@@ -53,7 +54,7 @@ public class RemoveCommand extends Command {
         //recursively remove all subzones
         removeSubzones(claim);
         ItsOursMod.INSTANCE.getClaimList().remove(claim);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("Deleted the claim \"" + claim.getName() + "\" ").formatted(Formatting.GREEN));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Deleted the claim \"" + claim.getName() + "\" ").color(Color.LIGHT_GREEN));
 
         return 0;
     }
