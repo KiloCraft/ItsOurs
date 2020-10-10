@@ -10,6 +10,9 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.util.Color;
+import me.drex.itsours.util.TextComponentUtil;
+import net.kyori.adventure.text.Component;
 import net.minecraft.block.Block;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.LiteralText;
@@ -36,7 +39,7 @@ public class CreateCommand extends Command {
             BlockPos max = new BlockPos(claimPlayer.getRightPosition());
             max = new BlockPos(max.getX(), 256, max.getZ());
             if (!AbstractClaim.isNameValid(name))
-                throw new SimpleCommandExceptionType(new LiteralText("Claim name is to long or contains invalid characters")).create();
+                throw new SimpleCommandExceptionType(TextComponentUtil.from(Component.text("Claim name is to long or contains invalid characters").color(Color.RED))).create();
             AbstractClaim claim = new Claim(name, source.getPlayer().getUuid(), min, max, source.getWorld(), null);
             if (claim.intersects()) {
                 AbstractClaim parent = ItsOursMod.INSTANCE.getClaimList().get(source.getWorld(), min);

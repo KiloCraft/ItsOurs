@@ -2,7 +2,12 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.util.TextComponent;
+import me.drex.itsours.util.Color;
+import me.drex.itsours.util.TextComponentUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
@@ -36,7 +41,7 @@ public class ServerPlayerInteractionManagerMixin {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         BlockPos pos = hitResult.getBlockPos();
         if (stack.getItem() == Items.GOLDEN_SHOVEL && !isSame(claimPlayer.getRightPosition(), pos)) {
-            claimPlayer.sendMessage(new LiteralText("Position #2 set to " + pos.getX() + " " + pos.getZ()).formatted(Formatting.GREEN));
+            claimPlayer.sendMessage(Component.text("Position #2 set to " + pos.getX() + " " + pos.getZ()).color(Color.LIGHT_GREEN));
             claimPlayer.setRightPosition(pos);
             onClaimAddCorner();
         }
@@ -56,7 +61,7 @@ public class ServerPlayerInteractionManagerMixin {
     private void onMine(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         if (player.inventory.getMainHandStack().getItem() == Items.GOLDEN_SHOVEL && !isSame(claimPlayer.getLeftPosition(), pos)) {
-            claimPlayer.sendMessage(TextComponent.of("<gradient:red:yellow> Position #1 set to " + pos.getX() + " " + pos.getZ()));
+            claimPlayer.sendMessage(Component.text("Position #1 set to " + pos.getX() + " " + pos.getZ()).color(Color.LIGHT_GREEN));
             claimPlayer.setLeftPosition(pos);
             onClaimAddCorner();
         }

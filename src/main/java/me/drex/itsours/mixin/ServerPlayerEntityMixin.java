@@ -3,7 +3,7 @@ package me.drex.itsours.mixin;
 import com.mojang.authlib.GameProfile;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.util.TextComponent;
+import me.drex.itsours.util.TextComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -15,7 +15,6 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -122,7 +121,7 @@ public class ServerPlayerEntityMixin extends  PlayerEntity implements ClaimPlaye
 
     @Override
     public void sendMessage(Component component) {
-        this.sendMessage(TextComponent.from(component), false);
+        this.sendMessage(TextComponentUtil.from(component), false);
     }
 
     @Override

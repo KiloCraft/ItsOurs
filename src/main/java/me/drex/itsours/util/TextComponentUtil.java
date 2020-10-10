@@ -5,7 +5,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.text.Text;
 
-public class TextComponent {
+public class TextComponentUtil {
 
     public static Text from(final Component component) {
         return Text.Serializer.fromJson(GsonComponentSerializer.gson().serialize(component));
