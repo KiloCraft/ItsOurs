@@ -22,7 +22,13 @@ public class FlyCommand extends Command {
         ServerPlayerEntity player = source.getPlayer();
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         claimPlayer.toggleFlight();
-        if (ItsOursMod.INSTANCE.getClaimList().get(player.getServerWorld(), player.getBlockPos()) != null) player.abilities.allowFlying = claimPlayer.flightEnabled();
+        if (ItsOursMod.INSTANCE.getClaimList().get(player.getServerWorld(), player.getBlockPos()) != null) {
+            player.interactionManager.getGameMode().setAbilities(player.abilities);
+            if (claimPlayer.flightEnabled()) {
+                player.abilities.allowFlying = true;
+            }
+            player.sendAbilitiesUpdate();
+        }
         claimPlayer.sendMessage(Component.text("Claim flight " + (claimPlayer.flightEnabled() ? "enabled" : "disabled")).color(claimPlayer.flightEnabled() ? Color.LIGHT_GREEN : Color.RED));
         return 1;
     }

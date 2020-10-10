@@ -41,14 +41,25 @@ public abstract class EntityMixin {
                     Text message = null;
                     if (pclaim != null && claim == null) {
                         //TODO: Make configurable
-                        player.abilities.allowFlying = claimPlayer.getFlightCache();
-                        if (player.abilities.flying && !claimPlayer.getFlightCache()) player.abilities.flying = false;
+                        boolean cachedFlying = player.abilities.flying;
+                        //update abilities for respective gamemode
+                        player.interactionManager.getGameMode().setAbilities(player.abilities);
+                        //check if the player was flying before they entered the claim
+                        if (claimPlayer.getFlightCache()) {
+                            player.abilities.flying = cachedFlying;
+                            player.abilities.allowFlying = true;
+                        }
                         player.sendAbilitiesUpdate();
                         message = new LiteralText("You left " + pclaim.getFullName()).formatted(Formatting.YELLOW);
                     } else if (claim != null) {
                         if (pclaim == null) claimPlayer.cacheFlight(player.abilities.allowFlying);
-                        player.abilities.flying = claimPlayer.flightEnabled();
-                        player.abilities.allowFlying = claimPlayer.flightEnabled();
+                        boolean cachedFlying = player.abilities.flying;
+                        //update abilities for respective gamemode
+                        player.interactionManager.getGameMode().setAbilities(player.abilities);
+                        //enable flying if player enabled it
+                        if (!player.abilities.allowFlying) player.abilities.allowFlying = claimPlayer.flightEnabled();
+                        //set the flight state to what it was before entering
+                        if (player.abilities.allowFlying) player.abilities.flying = cachedFlying;
                         player.sendAbilitiesUpdate();
                         message = new LiteralText("Welcome to " + claim.getFullName()).formatted(Formatting.YELLOW);
                     }
