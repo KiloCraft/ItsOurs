@@ -9,6 +9,10 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.util.Color;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.*;
@@ -31,27 +35,27 @@ public class ListCommand extends Command {
     public int list(ServerCommandSource source, GameProfile target) throws CommandSyntaxException {
         List<AbstractClaim> claims = ItsOursMod.INSTANCE.getClaimList().get(target.getId());
         if (claims.isEmpty()) {
-            ((ClaimPlayer) source.getPlayer()).sendMessage(new LiteralText("No claims").formatted(Formatting.RED));
+            ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("No claims").color(Color.RED));
             return 0;
         }
-        MutableText text = new LiteralText("Claims (" + target.getName() + ") \n").formatted(Formatting.GOLD);
+        TextComponent.Builder builder = Component.text().content("Claims (" + target.getName() + ") \n").color(Color.ORANGE);
         boolean color = false;
         boolean color2 = false;
         for (AbstractClaim claim : claims) {
             if (claim instanceof Claim) {
-                MutableText hover = new LiteralText("");
+                TextComponent.Builder hover = Component.text();
                 if (!claim.getSubzones().isEmpty()) {
-                    hover.append("Subzones: \n").formatted(Formatting.BLUE);
+                    hover.append(Component.text("Subzones: \n").color(Color.LIGHT_BLUE));
                     for (Subzone subzone : claim.getSubzones()) {
-                        hover.append(new LiteralText(subzone.getName() + " ").formatted(color2 ? Formatting.LIGHT_PURPLE : Formatting.DARK_PURPLE));
+                        hover.append(Component.text(subzone.getName() + " ").color(color2 ? Color.PURPLE : Color.DARK_PURPLE));
                         color2 = !color2;
                     }
                 }
-                text.append(new LiteralText(claim.getName() + " ").formatted(color ? Formatting.AQUA : Formatting.DARK_AQUA).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/claim info " + claim.getName())).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover))));
+                builder.append(Component.text(claim.getName() + " ").color(color ? Color.AQUA : Color.BLUE)).clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim info " + claim.getName())).style((style) -> style.hoverEvent(HoverEvent.showText(hover.build())));
                 color = !color;
             }
         }
-        ((ClaimPlayer) source.getPlayer()).sendMessage(text);
+        ((ClaimPlayer) source.getPlayer()).sendMessage(builder.build());
         return claims.size();
     }
 }

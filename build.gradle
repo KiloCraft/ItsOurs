@@ -1,14 +1,23 @@
 plugins {
 	id 'fabric-loom' version '0.4-SNAPSHOT'
 	id 'maven-publish'
+    id "com.github.johnrengelman.shadow" version "5.2.0"
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version
 group = project.maven_group
+version = "${project.mod_version}-${project.minecraft_version}"
+String jarpath = "${project.buildDir}/libs/${project.archivesBaseName}-${project.version}"
+
+// Shadow stuff
+configurations {
+    dev
+    compile.extendsFrom shade
+    modCompile.extendsFrom modShade
+}
 
 repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
@@ -27,6 +36,24 @@ dependencies {
     compile "net.kyori:adventure-text-serializer-gson:${project.kyori_adventure_version}"
 }
 
+// Tasks
+shadowJar {
+    enabled = true
+    // Only shadow implementation/modImplementation
+    configurations = [project.configurations.shade]
+    classifier = "dev"
+}
+
+task remapShadowJar(type: net.fabricmc.loom.task.RemapJarTask, dependsOn: shadowJar) {
+    afterEvaluate {
+        input = file("${jarpath}-dev.jar")
+        archiveName = "${project.name}-${project.version}.jar"
+        addNestedDependencies = true
+        remapAccessWidener = true
+    }
+}
+
+
 processResources {
 	inputs.property "version", project.version
 
@@ -39,6 +66,9 @@ processResources {
 		exclude "fabric.mod.json"
 	}
 }
+
+build.dependsOn(shadowJar, remapShadowJar)
+
 
 // ensure that the encoding is set to UTF-8, no matter what the system default is
 // this fixes some edge cases with special characters not displaying correctly

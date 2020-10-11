@@ -6,13 +6,14 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.util.Color;
+import me.drex.itsours.util.TextComponentUtil;
 import me.drex.itsours.util.WorldUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.TextColor;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.UUID;
@@ -37,49 +38,39 @@ public class InfoCommand extends Command {
         }
         BlockPos size = claim.getSize();
 
-        MutableText text = new LiteralText("\n");
-        text.append(new LiteralText("Claim Info: ").formatted(Formatting.GOLD))
-                .append(new LiteralText("\n"))
-                .append(newInfoLine("Name", new LiteralText(claim.getName()).formatted(Formatting.WHITE)))
-                .append(newInfoLine("Owner", ownerName.equals("") ?
-                        new LiteralText(ownerUUID.toString()).formatted(Formatting.RED, Formatting.ITALIC).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, claim.getOwner().toString()))) :
-                        new LiteralText(ownerName).formatted(Formatting.GOLD)))
-                .append(newInfoLine("Size", new LiteralText(size.getX() + " x " + size.getY() + " x " + size.getZ()).formatted(Formatting.GREEN)))
-                .append(newInfoLine("Depth", new LiteralText(String.valueOf(claim.getDepth())).formatted(Formatting.GREEN)))
-                .append(new LiteralText("").append(new LiteralText("* Flags:").formatted(Formatting.YELLOW))
-                        .append(new LiteralText(" ...")).append(new LiteralText("\n")));
+        TextComponent text = Component.text("\n")
+            .append(Component.text("Claim Info: \n").color(Color.ORANGE))
+            .append(newInfoLine("Name", Component.text(claim.getName()).color(Color.WHITE)))
+            .append(newInfoLine("Owner", ownerName.equals("") ?
+                Component.text(ownerUUID.toString()).color(Color.RED).clickEvent(net.kyori.adventure.text.event.ClickEvent.copyToClipboard(claim.getOwner().toString())) :
+                TextComponentUtil.of("<gradient:" + Color.RED.stringValue() + ":" + Color.ORANGE.stringValue() + ">" + ownerName, false).append(Component.text("\n"))
+            .append(newInfoLine("Size", Component.text(size.getX() + " x " + size.getY() + " x " + size.getZ()).color(Color.LIGHT_GREEN)))
+            .append(newInfoLine("Depth", Component.text(String.valueOf(claim.getDepth())).color(Color.DARK_GREEN)))
+            .append(newInfoLine("Flags", Component.text(". . . ").color(Color.GRAY).style(style -> style.hoverEvent(HoverEvent.showText(Component.text("not yet implemented"))))))
+            .append(newInfoLine("Position",
+                Component.text("Min ").color(Color.WHITE).append(newPosLine(claim.min, Color.AQUA, Color.BLUE)),
+                Component.text(" Max ").color(Color.WHITE).append(newPosLine(claim.max, Color.PURPLE, Color.DARK_PURPLE))))
+            .append(newInfoLine("Dimension", Component.text(WorldUtil.toIdentifier(claim.getWorld())).color(Color.GREEN)))));
         //TODO: List flags
-
-        MutableText pos = new LiteralText("");
-        Text min = newPosLine(claim.min, Formatting.AQUA, Formatting.DARK_AQUA);
-        Text max = newPosLine(claim.max, Formatting.LIGHT_PURPLE, Formatting.DARK_PURPLE);
-
-
-        pos.append(newInfoLine("Position", new LiteralText("")
-                .append(new LiteralText("Min ").formatted(Formatting.WHITE).append(min))
-                .append(new LiteralText(" "))
-                .append(new LiteralText("Max ").formatted(Formatting.WHITE).append(max))));
-        text.append(pos);
-        text.append(newInfoLine("Dimension", new LiteralText(WorldUtil.toIdentifier(claim.getWorld()))));
         ((ClaimPlayer) source.getPlayer()).sendMessage(text);
 
         return 1;
     }
 
-    private MutableText newPosLine(BlockPos pos, Formatting form1, Formatting form2) {
-        return new LiteralText("")
-                .append(new LiteralText(String.valueOf(pos.getX())).formatted(form1))
-                .append(new LiteralText(" "))
-                .append(new LiteralText(String.valueOf(pos.getY())).formatted(form2))
-                .append(new LiteralText(" "))
-                .append(new LiteralText(String.valueOf(pos.getZ())).formatted(form1));
+    private Component newPosLine(BlockPos pos, TextColor color1, TextColor color2) {
+        return Component.text("")
+                .append(Component.text(String.valueOf(pos.getX())).color(color1))
+                .append(Component.text(" "))
+                .append(Component.text(String.valueOf(pos.getY())).color(color2))
+                .append(Component.text(" "))
+                .append(Component.text(String.valueOf(pos.getZ())).color(color1));
     }
 
-    private MutableText newInfoLine(String title, Text... text) {
-        MutableText message = new LiteralText("").append(new LiteralText("* " + title + ": ").formatted(Formatting.YELLOW));
-        for (Text t : text) {
-            message.append(t);
+    private Component newInfoLine(String title, Component... text) {
+        TextComponent.Builder builder = Component.text().content("* " + title + ": ").color(Color.YELLOW);
+        for (Component t : text) {
+            builder.append(t);
         }
-        return message.append(new LiteralText("\n"));
+        return builder.append(Component.text("\n")).build();
     }
 }

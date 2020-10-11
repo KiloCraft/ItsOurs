@@ -4,6 +4,7 @@
   "package": "me.drex.itsours.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "BlockItemMixin",
     "EntityMixin",
     "LevelStorageSessionMixin",
     "ServerPlayerEntityMixin",

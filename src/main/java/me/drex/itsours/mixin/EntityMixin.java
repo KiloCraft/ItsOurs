@@ -3,6 +3,7 @@ package me.drex.itsours.mixin;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.util.WorldUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -10,6 +11,8 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -40,15 +43,31 @@ public abstract class EntityMixin {
                     ClaimPlayer claimPlayer = (ClaimPlayer) player;
                     Text message = null;
                     if (pclaim != null && claim == null) {
-                        //TODO: Make configurable
-                        player.abilities.allowFlying = claimPlayer.getFlightCache();
-                        if (player.abilities.flying && !claimPlayer.getFlightCache()) player.abilities.flying = false;
-                        player.sendAbilitiesUpdate();
                         message = new LiteralText("You left " + pclaim.getFullName()).formatted(Formatting.YELLOW);
+                        //TODO: Make configurable
+                        boolean cachedFlying = player.abilities.flying;
+                        //update abilities for respective gamemode
+                        player.interactionManager.getGameMode().setAbilities(player.abilities);
+                        //check if the player was flying before they entered the claim
+                        if (claimPlayer.getFlightCache()) {
+                            player.abilities.flying = cachedFlying;
+                            player.abilities.allowFlying = true;
+                        }
+                        if (cachedFlying && !player.abilities.flying) {
+                            BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
+                            if (pos.getY() + 3 < player.getY())
+                            player.teleport((ServerWorld) WorldUtil.DEFAULT_WORLD, player.getX(), pos.getY(), player.getZ(), player.yaw, player.pitch);
+                        }
+                        player.sendAbilitiesUpdate();
                     } else if (claim != null) {
                         if (pclaim == null) claimPlayer.cacheFlight(player.abilities.allowFlying);
-                        player.abilities.flying = claimPlayer.flightEnabled();
-                        player.abilities.allowFlying = claimPlayer.flightEnabled();
+                        boolean cachedFlying = player.abilities.flying;
+                        //update abilities for respective gamemode
+                        player.interactionManager.getGameMode().setAbilities(player.abilities);
+                        //enable flying if player enabled it
+                        if (!player.abilities.allowFlying) player.abilities.allowFlying = claimPlayer.flightEnabled();
+                        //set the flight state to what it was before entering
+                        if (player.abilities.allowFlying) player.abilities.flying = cachedFlying;
                         player.sendAbilitiesUpdate();
                         message = new LiteralText("Welcome to " + claim.getFullName()).formatted(Formatting.YELLOW);
                     }
@@ -59,6 +78,18 @@ public abstract class EntityMixin {
                 }
             }
         }
+    }
+
+    public BlockPos getPosOnGround(BlockPos pos, World world) {
+        BlockPos blockPos = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
+        do {
+            blockPos = blockPos.down();
+            if (blockPos.getY() < 1) {
+                return pos;
+            }
+        } while (world.getBlockState(blockPos).isAir());
+
+        return blockPos.up();
     }
 
 }

@@ -9,6 +9,7 @@ public class Manager {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         LiteralArgumentBuilder<ServerCommandSource> main = LiteralArgumentBuilder.literal("claim");
         new BlocksCommand().register(main);
+        new ColorCommand().register(main);
         new CreateCommand().register(main);
         new ExpandCommand().register(main);
         new FlyCommand().register(main);

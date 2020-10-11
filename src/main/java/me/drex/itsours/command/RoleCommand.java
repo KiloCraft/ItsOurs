@@ -13,6 +13,9 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.util.Color;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -68,9 +71,9 @@ public class RoleCommand extends Command {
         if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name)) throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
         Role role = ItsOursMod.INSTANCE.getRoleManager().get(name);
         claim.getPermissionManager().addRole(target.getId(), role, weight);
-        ((ClaimPlayer)source.getPlayer()).sendMessage(new LiteralText("Added ").formatted(Formatting.YELLOW)
-                .append(new LiteralText(name).formatted(Formatting.GOLD)).append(new LiteralText(" to ").formatted(Formatting.YELLOW))
-                .append(new LiteralText(target.getName()).formatted(Formatting.GOLD)));
+        ((ClaimPlayer)source.getPlayer()).sendMessage(Component.text("Added ").color(Color.YELLOW)
+                .append(Component.text(name).color(Color.ORANGE)).append(Component.text(" to ").color(Color.YELLOW))
+                .append(Component.text(target.getName()).color(Color.ORANGE)));
         return 1;
     }
 
@@ -79,20 +82,20 @@ public class RoleCommand extends Command {
         Role role = ItsOursMod.INSTANCE.getRoleManager().get(name);
         if (!claim.getPermissionManager().hasRole(target.getId(), role)) throw new SimpleCommandExceptionType(new LiteralText(target.getName() + " doesn't have a role with that name")).create();
         claim.getPermissionManager().removeRole(target.getId(), role);
-        ((ClaimPlayer)source.getPlayer()).sendMessage(new LiteralText("Removed ").formatted(Formatting.YELLOW)
-                .append(new LiteralText(name).formatted(Formatting.GOLD)).append(new LiteralText(" from ").formatted(Formatting.YELLOW))
-                .append(new LiteralText(target.getName()).formatted(Formatting.GOLD)));
+        ((ClaimPlayer)source.getPlayer()).sendMessage(Component.text("Removed ").color(Color.YELLOW)
+                .append(Component.text(name).color(Color.ORANGE)).append(Component.text(" from ").color(Color.YELLOW))
+                .append(Component.text(target.getName()).color(Color.ORANGE)));
         return 1;
     }
 
     public int listRoles(ServerCommandSource source, AbstractClaim claim, GameProfile target) throws CommandSyntaxException {
-        MutableText text = new LiteralText("Roles (").formatted(Formatting.YELLOW).append(new LiteralText(target.getName()).formatted(Formatting.GOLD).append(new LiteralText("):\n").formatted(Formatting.YELLOW)));
+        TextComponent.Builder builder = Component.text().content("Roles (").color(Color.YELLOW).append(Component.text(target.getName()).color(Color.ORANGE).append(Component.text("):\n").color(Color.YELLOW)));
         PermissionManager pm = claim.getPermissionManager();
-        pm.getRolesByWeight(target.getId()).forEach(role -> text
-            .append(new LiteralText( ItsOursMod.INSTANCE.getRoleManager().getRoleID(role) + " (").formatted(Formatting.YELLOW))
-            .append(new LiteralText(String.valueOf(pm.roles.get(target.getId()).get(role))).formatted(Formatting.GOLD))
-            .append(new LiteralText(")").formatted(Formatting.YELLOW).append(" ")));
-        ((ClaimPlayer)source.getPlayer()).sendMessage(text);
+        pm.getRolesByWeight(target.getId()).forEach(role ->
+            builder.append(Component.text(ItsOursMod.INSTANCE.getRoleManager().getRoleID(role) + " (").color(Color.YELLOW))
+            .append(Component.text(String.valueOf(pm.roles.get(target.getId()).get(role))).color(Color.ORANGE))
+            .append(Component.text(") ").color(Color.YELLOW)));
+        ((ClaimPlayer)source.getPlayer()).sendMessage(builder.build());
         return 1;
     }
 
