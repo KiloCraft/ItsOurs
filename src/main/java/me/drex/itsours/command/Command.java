@@ -10,6 +10,9 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Subzone;
+import me.drex.itsours.claim.permission.util.Group;
+import me.drex.itsours.claim.permission.util.Permission;
+import me.drex.itsours.claim.permission.util.node.AbstractNode;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -54,6 +57,25 @@ public abstract class Command {
                 names.add(subzone.getFullName());
                 addSubzones(subzone, input, names);
             }
+        }
+    }
+
+    public final SuggestionProvider<ServerCommandSource> PERMISSION_PROVIDER = (source, builder) -> {
+        List<String> permissions = new ArrayList<>();
+        for (Permission permission : Permission.permissions) {
+            permissions.add(permission.id);
+            if (builder.getRemaining().startsWith(permission.id)) {
+                addNodes(permission.id, permission.groups, 0, builder.getRemaining(), permissions);
+            }
+        }
+        return CommandSource.suggestMatching(permissions, builder);
+    };
+
+    private void addNodes(String parent, Group[] groups, int i, String input, List<String> permissions) {
+        for (AbstractNode node : groups[i].list) {
+            String s = parent + "." + node.getID();
+            permissions.add(s);
+            if (input.startsWith(s) && i + 1 < groups.length) addNodes(s, groups, i + 1, input, permissions);
         }
     }
 
@@ -108,6 +130,10 @@ public abstract class Command {
 
     public RequiredArgumentBuilder<ServerCommandSource, String> roleArgument() {
         return argument("name", word()).suggests(ROLE_PROVIDER);
+    }
+
+    public RequiredArgumentBuilder<ServerCommandSource, String> permissionArgument() {
+        return argument("perm", word()).suggests(PERMISSION_PROVIDER);
     }
 
 

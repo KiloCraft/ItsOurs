@@ -32,7 +32,7 @@ public class PermissionCommand extends Command {
         RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
         {
             //TODO: Add proper suggestion
-            RequiredArgumentBuilder<ServerCommandSource, String> permission = RequiredArgumentBuilder.argument("perm", StringArgumentType.word());
+            RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();/*RequiredArgumentBuilder.argument("perm", StringArgumentType.word());*/
             permission.executes(ctx -> checkPlayer(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), StringArgumentType.getString(ctx, "perm")));
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             LiteralArgumentBuilder<ServerCommandSource> check = LiteralArgumentBuilder.literal("check");
@@ -44,7 +44,7 @@ public class PermissionCommand extends Command {
             //TODO: Add proper suggestion
             RequiredArgumentBuilder<ServerCommandSource, Boolean> value = RequiredArgumentBuilder.argument("value", BoolArgumentType.bool());
             value.executes(ctx -> setPermission(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), StringArgumentType.getString(ctx, "perm"), BoolArgumentType.getBool(ctx, "value")));
-            RequiredArgumentBuilder<ServerCommandSource, String> permission = RequiredArgumentBuilder.argument("perm", StringArgumentType.word());
+            RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();/*RequiredArgumentBuilder.argument("perm", StringArgumentType.word());*/
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             LiteralArgumentBuilder<ServerCommandSource> set = LiteralArgumentBuilder.literal("set");
             permission.then(value);
@@ -54,7 +54,7 @@ public class PermissionCommand extends Command {
         }
         {
             //TODO: Add proper suggestion
-            RequiredArgumentBuilder<ServerCommandSource, String> permission = RequiredArgumentBuilder.argument("perm", StringArgumentType.word());
+            RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();/*RequiredArgumentBuilder.argument("perm", StringArgumentType.word());*/
             permission.executes(ctx -> resetPermission(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), StringArgumentType.getString(ctx, "perm")));
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             LiteralArgumentBuilder<ServerCommandSource> reset = LiteralArgumentBuilder.literal("reset");
@@ -67,22 +67,27 @@ public class PermissionCommand extends Command {
         literal.then(command);
     }
 
-    public int checkPlayer(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission) throws CommandSyntaxException {
-        //TODO: Check if excutor is allowed to check
-        boolean value = claim.hasPermission(target.getId(), permission);
-        String perm = permission;
-        TextComponent.Builder hover = Component.text();
-        hover.append(checkPermission(claim.getPermissionManager(), target, permission));
-        while (permission.contains(".")) {
-            String[] node = permission.split("\\.");
-            permission = permission.substring(0, (permission.length() - (node[node.length-1]).length() - 1));
-            hover.append(Component.text("\n"));
+    public int checkPlayer(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission) {
+        try {
+            //TODO: Check if excutor is allowed to check
+            boolean value = claim.hasPermission(target.getId(), permission);
+            String perm = permission;
+            TextComponent.Builder hover = Component.text();
             hover.append(checkPermission(claim.getPermissionManager(), target, permission));
+            while (permission.contains(".")) {
+                String[] node = permission.split("\\.");
+                permission = permission.substring(0, (permission.length() - (node[node.length-1]).length() - 1));
+                hover.append(Component.text("\n"));
+                hover.append(checkPermission(claim.getPermissionManager(), target, permission));
+            }
+            ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text(target.getName() + " (").color(Color.YELLOW)
+                    .append(Component.text(perm).color(Color.ORANGE))
+                    .append(Component.text("): ").color(Color.YELLOW))
+                    .append(format(value).style(style -> style.hoverEvent(HoverEvent.showText(hover.build())))));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text(target.getName() + " (").color(Color.YELLOW)
-                .append(Component.text(perm).color(Color.ORANGE))
-                .append(Component.text("): ").color(Color.YELLOW))
-                .append(format(value).style(style -> style.hoverEvent(HoverEvent.showText(hover.build())))));
+
         return 1;
     }
 
