@@ -8,20 +8,17 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.roles.Role;
+import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.HoverEvent;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.util.Formatting;
 
 import java.util.Map;
 
-import static me.drex.itsours.util.TextUtil.format;
 
 public class RolesCommand extends Command {
 
@@ -59,38 +56,43 @@ public class RolesCommand extends Command {
     }
 
     public int addRole(ServerCommandSource source, String name) throws CommandSyntaxException {
-        if (ItsOursMod.INSTANCE.getRoleManager().containsKey(name)) throw new SimpleCommandExceptionType(new LiteralText("A role with that name already exists")).create();
+        if (ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
+            throw new SimpleCommandExceptionType(new LiteralText("A role with that name already exists")).create();
         ItsOursMod.INSTANCE.getRoleManager().put(name, new Role(new CompoundTag()));
-        ((ClaimPlayer)source.getPlayer()).sendMessage(Component.text("Role ").color(Color.YELLOW)
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Role ").color(Color.YELLOW)
                 .append(Component.text(name).color(Color.ORANGE).append(Component.text(" has been added").color(Color.YELLOW))));
 
         return 1;
     }
 
     public int removeRole(ServerCommandSource source, String name) throws CommandSyntaxException {
-        if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name)) throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
+        if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
+            throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
         ItsOursMod.INSTANCE.getRoleManager().remove(name);
-        ((ClaimPlayer)source.getPlayer()).sendMessage(Component.text("Role ").color(Color.YELLOW).append(Component.text(name).color(Color.ORANGE).append(Component.text(" has been removed").color(Color.YELLOW))));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Role ").color(Color.YELLOW).append(Component.text(name).color(Color.ORANGE).append(Component.text(" has been removed").color(Color.YELLOW))));
         return 1;
     }
 
     public int setPermission(ServerCommandSource source, String name, String permission, boolean value) throws CommandSyntaxException {
-        if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name)) throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
+        if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
+            throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
         Role role = ItsOursMod.INSTANCE.getRoleManager().get(name);
         role.permissions().setPermission(permission, value);
-        ((ClaimPlayer)source.getPlayer()).sendMessage(Component.text("Set ").color(Color.YELLOW)
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set ").color(Color.YELLOW)
                 .append(Component.text(permission).color(Color.ORANGE)).append(Component.text(" for ").color(Color.YELLOW))
                 .append(Component.text(name).color(Color.ORANGE)
-                .append(Component.text(" to ").color(Color.YELLOW)).append(format(value))));
+                        .append(Component.text(" to ").color(Color.YELLOW)).append(Permission.Value.of(value).format())));
         return 1;
     }
 
     public int listPermission(ServerCommandSource source, String name) throws CommandSyntaxException {
-        if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name)) throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
+        if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
+            throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
         Role role = ItsOursMod.INSTANCE.getRoleManager().get(name);
-        ((ClaimPlayer)source.getPlayer()).sendMessage(Component.text(name).color(Color.YELLOW).append(Component.text("\n")).append(role.permissions().toText()));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text(name).color(Color.YELLOW).append(Component.text("\n")).append(role.permissions().toText()));
         return 1;
     }
+
     public int listRoles(ServerCommandSource source) throws CommandSyntaxException {
         TextComponent.Builder builder = Component.text().content("Roles:\n").color(Color.ORANGE);
         for (Map.Entry<String, Role> entry : ItsOursMod.INSTANCE.getRoleManager().entrySet()) {

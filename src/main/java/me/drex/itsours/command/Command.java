@@ -21,7 +21,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -50,16 +53,7 @@ public abstract class Command {
         }
         return CommandSource.suggestMatching(names, builder);
     };
-
-    private void addSubzones(AbstractClaim claim, String input, List<String> names) {
-        if (input.startsWith(claim.getFullName())) {
-            for (Subzone subzone : claim.getSubzones()) {
-                names.add(subzone.getFullName());
-                addSubzones(subzone, input, names);
-            }
-        }
-    }
-
+    //TODO: Validate permissions
     public final SuggestionProvider<ServerCommandSource> PERMISSION_PROVIDER = (source, builder) -> {
         List<String> permissions = new ArrayList<>();
         for (Permission permission : Permission.permissions) {
@@ -70,14 +64,6 @@ public abstract class Command {
         }
         return CommandSource.suggestMatching(permissions, builder);
     };
-
-    private void addNodes(String parent, Group[] groups, int i, String input, List<String> permissions) {
-        for (AbstractNode node : groups[i].list) {
-            String s = parent + "." + node.getID();
-            permissions.add(s);
-            if (input.startsWith(s) && i + 1 < groups.length) addNodes(s, groups, i + 1, input, permissions);
-        }
-    }
 
     //TODO: Look at this again, maybe there is a better approach to this
     public static GameProfile getGameProfile(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
@@ -104,6 +90,23 @@ public abstract class Command {
         }
         if (exception.get() != null) throw new SimpleCommandExceptionType(new LiteralText(exception.get())).create();
         return profile;
+    }
+
+    private void addSubzones(AbstractClaim claim, String input, List<String> names) {
+        if (input.startsWith(claim.getFullName())) {
+            for (Subzone subzone : claim.getSubzones()) {
+                names.add(subzone.getFullName());
+                addSubzones(subzone, input, names);
+            }
+        }
+    }
+
+    private void addNodes(String parent, Group[] groups, int i, String input, List<String> permissions) {
+        for (AbstractNode node : groups[i].list) {
+            String s = parent + "." + node.getID();
+            permissions.add(s);
+            if (input.startsWith(s) && i + 1 < groups.length) addNodes(s, groups, i + 1, input, permissions);
+        }
     }
 
     AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
