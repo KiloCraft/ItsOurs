@@ -27,7 +27,7 @@ public interface ClaimPlayer {
 
     BlockPos getLeftPosition();
 
-    void sendError(Text error);
+    void sendError(Component component);
 
     void sendError(String error);
 
