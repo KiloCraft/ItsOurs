@@ -1,5 +1,6 @@
 package me.drex.itsours.claim.permission;
 
+import com.google.common.collect.Maps;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.claim.permission.util.Permission;
@@ -11,12 +12,9 @@ import java.util.*;
 import static me.drex.itsours.claim.permission.util.Permission.Value.UNSET;
 
 public class PermissionManager {
-
-
-    //Default claim permissions for players without specified permissions
     public PermissionMap settings = new PermissionMap(new CompoundTag());
-    public HashMap<UUID, PermissionMap> playerPermission = new HashMap<>();
-    public HashMap<UUID, HashMap<Role, Integer>> roles = new HashMap<>();
+    public HashMap<UUID, PermissionMap> playerPermission = Maps.newHashMap();
+    public HashMap<UUID, HashMap<Role, Integer>> roles = Maps.newHashMap();
 
     public PermissionManager(CompoundTag tag) {
         fromNBT(tag);

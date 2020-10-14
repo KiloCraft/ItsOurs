@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tag.BlockTags;
 import net.minecraft.util.WorldSavePath;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

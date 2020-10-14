@@ -1,7 +1,6 @@
 package me.drex.itsours.claim.permission.util.node;
 
 public class GroupNode extends AbstractNode{
-
     private final String id;
     private final String[] permissions;
 

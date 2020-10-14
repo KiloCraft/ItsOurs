@@ -57,7 +57,7 @@ public class Permission {
         return Registry.BLOCK.getId(block).getPath();
     }
 
-    public static String toString(EntityType entityType) {
+    public static String toString(EntityType<?> entityType) {
         return Registry.ENTITY_TYPE.getId(entityType).getPath();
     }
 
