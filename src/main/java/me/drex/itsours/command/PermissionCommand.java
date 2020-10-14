@@ -30,7 +30,7 @@ public class PermissionCommand extends Command {
         {
             //TODO: Add proper suggestion
             RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();
-            permission.executes(ctx -> checkPlayer(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), StringArgumentType.getString(ctx, "perm")));
+            permission.executes(ctx -> checkPlayer(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), getPermission(ctx)));
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             LiteralArgumentBuilder<ServerCommandSource> check = LiteralArgumentBuilder.literal("check");
             player.then(permission);
@@ -40,7 +40,7 @@ public class PermissionCommand extends Command {
         {
             //TODO: Add proper suggestion
             RequiredArgumentBuilder<ServerCommandSource, Boolean> value = RequiredArgumentBuilder.argument("value", BoolArgumentType.bool());
-            value.executes(ctx -> setPermission(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), StringArgumentType.getString(ctx, "perm"), BoolArgumentType.getBool(ctx, "value")));
+            value.executes(ctx -> setPermission(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), getPermission(ctx), BoolArgumentType.getBool(ctx, "value")));
             RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             LiteralArgumentBuilder<ServerCommandSource> set = LiteralArgumentBuilder.literal("set");
@@ -52,7 +52,7 @@ public class PermissionCommand extends Command {
         {
             //TODO: Add proper suggestion
             RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();
-            permission.executes(ctx -> resetPermission(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), StringArgumentType.getString(ctx, "perm")));
+            permission.executes(ctx -> resetPermission(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), getPermission(ctx)));
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             LiteralArgumentBuilder<ServerCommandSource> reset = LiteralArgumentBuilder.literal("reset");
             player.then(permission);

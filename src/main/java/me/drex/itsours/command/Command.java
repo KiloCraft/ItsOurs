@@ -127,6 +127,12 @@ public abstract class Command {
         throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim with that name")).create();
     }
 
+    public String getPermission(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        String permission = StringArgumentType.getString(ctx, "perm");
+        if (!Permission.isValid(permission)) throw new SimpleCommandExceptionType(new LiteralText("Invalid permission")).create();
+        return permission;
+    }
+
     public RequiredArgumentBuilder<ServerCommandSource, String> claimArgument() {
         return argument("claim", word()).suggests(CLAIM_PROVIDER);
     }

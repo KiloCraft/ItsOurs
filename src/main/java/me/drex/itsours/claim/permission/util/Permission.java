@@ -11,11 +11,13 @@ import net.minecraft.util.registry.Registry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class Permission {
 
-    public static final Permission PLACE = new Permission("place", Group.BLOCK);
+    public static final Pattern PERMISSION = Pattern.compile("[\\w]+(\\.[\\w]+)?");
     public static List<Permission> permissions = new ArrayList<>();
+    public static Permission PLACE = new Permission("place", Group.BLOCK);
     public final String id;
     public final Group[] groups;
 
@@ -25,18 +27,19 @@ public class Permission {
         this.groups = groups;
     }
 
-    public static boolean isValid(String perm) {
-        String[] nodes = perm.split("\\.");
-        for (Permission permission : Permission.permissions) {
-            if (perm.startsWith(permission.id)) {
-                for (int i = 0; i < nodes.length - 2; i++) {
-                    for (AbstractNode abstractNode : permission.groups[i].list) {
-                        if (!abstractNode.contains(nodes[i + 2])) {
-                            return false;
-                        }
-                    }
-                }
+    public static boolean isValid(String permission) {
+        if (!PERMISSION.matcher(permission).matches()) return false;
+        String[] nodes = permission.split("\\.");
+        boolean[] b = new boolean[nodes.length - 1];
+        Permission p = Permission.getPermission(permission);
+        if (p == null) return false;
+        for (int i = 0; i < nodes.length - 1; i++) {
+            for (AbstractNode abstractNode : p.groups[i].list) {
+                if (abstractNode.getID().equals(nodes[i + 1])) b[i] = true;
             }
+        }
+        for (boolean val : b) {
+            if (!val) return false;
         }
         return true;
     }
