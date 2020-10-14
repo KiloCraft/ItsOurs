@@ -105,9 +105,11 @@ public class PermissionManager {
             if (v2 != UNSET)
                 value = v2;
         }
-        Permission.Value v3 = playerPermission.get(uuid).getPermission(permission);
-        if (v3 != UNSET)
-            value = v3;
+        if (playerPermission.get(uuid) != null) {
+            Permission.Value v3 = playerPermission.get(uuid).getPermission(permission);
+            if (v3 != UNSET)
+                value = v3;
+        }
         if (value == UNSET && permission.contains(".")) {
             String[] node = permission.split("\\.");
             return hasPermission(uuid, permission.substring(0, (permission.length() - (node[node.length - 1]).length() - 1)));
