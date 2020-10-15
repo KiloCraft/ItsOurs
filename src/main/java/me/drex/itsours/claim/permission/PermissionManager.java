@@ -93,7 +93,7 @@ public class PermissionManager {
         return rolesByWeight;
     }
 
-    public boolean hasPermission(UUID uuid, String permission) {
+    public Permission.Value hasPermission(UUID uuid, String permission) {
         Permission.Value value = UNSET;
         Permission.Value v1 = settings.getPermission(permission);
         if (v1 != UNSET)
@@ -112,7 +112,7 @@ public class PermissionManager {
             String[] node = permission.split("\\.");
             return hasPermission(uuid, permission.substring(0, (permission.length() - (node[node.length - 1]).length() - 1)));
         }
-        return value.value;
+        return value;
     }
 
     public boolean hasRole(UUID uuid, Role role) {

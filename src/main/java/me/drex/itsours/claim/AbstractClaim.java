@@ -137,7 +137,7 @@ public abstract class AbstractClaim {
     }
 
     public boolean hasPermission(UUID uuid, String permission) {
-        return this.permissionManager.hasPermission(uuid, permission);
+        return this.permissionManager.hasPermission(uuid, permission).value;
     }
 
     public PermissionManager getPermissionManager() {
