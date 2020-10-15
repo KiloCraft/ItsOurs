@@ -10,6 +10,9 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Subzone;
+import me.drex.itsours.claim.permission.util.Group;
+import me.drex.itsours.claim.permission.util.Permission;
+import me.drex.itsours.claim.permission.util.node.AbstractNode;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -18,7 +21,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -47,15 +53,17 @@ public abstract class Command {
         }
         return CommandSource.suggestMatching(names, builder);
     };
-
-    private void addSubzones(AbstractClaim claim, String input, List<String> names) {
-        if (input.startsWith(claim.getFullName())) {
-            for (Subzone subzone : claim.getSubzones()) {
-                names.add(subzone.getFullName());
-                addSubzones(subzone, input, names);
+    //TODO: Validate permissions
+    public final SuggestionProvider<ServerCommandSource> PERMISSION_PROVIDER = (source, builder) -> {
+        List<String> permissions = new ArrayList<>();
+        for (Permission permission : Permission.permissions) {
+            permissions.add(permission.id);
+            if (builder.getRemaining().startsWith(permission.id)) {
+                addNodes(permission.id, permission.groups, 0, builder.getRemaining(), permissions);
             }
         }
-    }
+        return CommandSource.suggestMatching(permissions, builder);
+    };
 
     //TODO: Look at this again, maybe there is a better approach to this
     public static GameProfile getGameProfile(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
@@ -84,6 +92,23 @@ public abstract class Command {
         return profile;
     }
 
+    private void addSubzones(AbstractClaim claim, String input, List<String> names) {
+        if (input.startsWith(claim.getFullName())) {
+            for (Subzone subzone : claim.getSubzones()) {
+                names.add(subzone.getFullName());
+                addSubzones(subzone, input, names);
+            }
+        }
+    }
+
+    private void addNodes(String parent, Group[] groups, int i, String input, List<String> permissions) {
+        for (AbstractNode node : groups[i].list) {
+            String s = parent + "." + node.getID();
+            permissions.add(s);
+            if (input.startsWith(s) && i + 1 < groups.length) addNodes(s, groups, i + 1, input, permissions);
+        }
+    }
+
     AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(world, pos);
         if (claim == null)
@@ -102,12 +127,22 @@ public abstract class Command {
         throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim with that name")).create();
     }
 
+    public String getPermission(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        String permission = StringArgumentType.getString(ctx, "perm");
+        if (!Permission.isValid(permission)) throw new SimpleCommandExceptionType(new LiteralText("Invalid permission")).create();
+        return permission;
+    }
+
     public RequiredArgumentBuilder<ServerCommandSource, String> claimArgument() {
         return argument("claim", word()).suggests(CLAIM_PROVIDER);
     }
 
     public RequiredArgumentBuilder<ServerCommandSource, String> roleArgument() {
         return argument("name", word()).suggests(ROLE_PROVIDER);
+    }
+
+    public RequiredArgumentBuilder<ServerCommandSource, String> permissionArgument() {
+        return argument("perm", word()).suggests(PERMISSION_PROVIDER);
     }
 
 

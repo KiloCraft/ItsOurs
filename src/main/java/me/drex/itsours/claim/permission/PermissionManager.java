@@ -9,12 +9,12 @@ import net.minecraft.nbt.CompoundTag;
 
 import java.util.*;
 
-public class PermissionManager {
+import static me.drex.itsours.claim.permission.util.Permission.Value.UNSET;
 
-    //Default claim permissions for players without specified permissions
+public class PermissionManager {
     public PermissionMap settings = new PermissionMap(new CompoundTag());
-    public HashMap<UUID, PermissionMap> playerPermission = new HashMap<>();
-    public HashMap<UUID, HashMap<Role, Integer>> roles = new HashMap<>();
+    public HashMap<UUID, PermissionMap> playerPermission = Maps.newHashMap();
+    public HashMap<UUID, HashMap<Role, Integer>> roles = Maps.newHashMap();
 
     public PermissionManager(CompoundTag tag) {
         fromNBT(tag);
@@ -26,7 +26,8 @@ public class PermissionManager {
             CompoundTag players = tag.getCompound("players");
             players.getKeys().forEach(uuid -> {
                 CompoundTag player = players.getCompound(uuid);
-                if (player.contains("permission")) playerPermission.put(UUID.fromString(uuid), new PermissionMap(player.getCompound("permission")));
+                if (player.contains("permission"))
+                    playerPermission.put(UUID.fromString(uuid), new PermissionMap(player.getCompound("permission")));
                 if (player.contains("role")) {
                     CompoundTag roleTag = player.getCompound("role");
                     HashMap<Role, Integer> roleWeight = new HashMap<>();
@@ -92,24 +93,26 @@ public class PermissionManager {
         return rolesByWeight;
     }
 
-    public boolean hasPermission(UUID uuid, String permission) {
-        Permission.Value value = Permission.Value.UNSET;
-        if (settings.isPermissionSet(permission)) {
-            value = Permission.Value.of(settings.getPermission(permission));
-        }
+    public Permission.Value hasPermission(UUID uuid, String permission) {
+        Permission.Value value = UNSET;
+        Permission.Value v1 = settings.getPermission(permission);
+        if (v1 != UNSET)
+            value = v1;
         for (Role role : this.getRolesByWeight(uuid)) {
-            if (role.permissions().isPermissionSet(permission)) {
-                value = Permission.Value.of(role.permissions().getPermission(permission));
-            }
+            Permission.Value v2 = role.permissions().getPermission(permission);
+            if (v2 != UNSET)
+                value = v2;
         }
-        if (this.isPlayerPermissionSet(uuid, permission)) {
-            value = Permission.Value.of(playerPermission.get(uuid).getPermission(permission));
+        if (playerPermission.get(uuid) != null) {
+            Permission.Value v3 = playerPermission.get(uuid).getPermission(permission);
+            if (v3 != UNSET)
+                value = v3;
         }
-        if (value == Permission.Value.UNSET && permission.contains(".")) {
+        if (value == UNSET && permission.contains(".")) {
             String[] node = permission.split("\\.");
-            return hasPermission(uuid, permission.substring(0, (permission.length() - (node[node.length-1]).length() - 1)));
+            return hasPermission(uuid, permission.substring(0, (permission.length() - (node[node.length - 1]).length() - 1)));
         }
-        return value.value;
+        return value;
     }
 
     public boolean hasRole(UUID uuid, Role role) {
@@ -118,10 +121,6 @@ public class PermissionManager {
             return false;
         }
         return map.containsKey(role);
-    }
-
-    public boolean isPlayerPermissionSet(UUID uuid, String permission) {
-        return playerPermission.get(uuid) != null && playerPermission.get(uuid).isPermissionSet(permission);
     }
 
     public void setPlayerPermission(UUID uuid, String permission, boolean value) {

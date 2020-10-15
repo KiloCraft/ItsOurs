@@ -106,9 +106,9 @@ public class ServerPlayerEntityMixin extends  PlayerEntity implements ClaimPlaye
     }
 
     @Override
-    public void sendError(Text error) {
+    public void sendError(Component error) {
         if (cooldown == 0) {
-            this.sendMessage(error, false);
+            this.sendMessage(error);
             //TODO: Make configurable
             cooldown = 20;
         }

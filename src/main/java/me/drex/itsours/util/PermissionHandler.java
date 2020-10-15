@@ -10,7 +10,6 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class PermissionHandler {
-
     private boolean present;
 
     public PermissionHandler() {

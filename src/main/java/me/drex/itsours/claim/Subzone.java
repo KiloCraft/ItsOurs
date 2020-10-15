@@ -3,6 +3,7 @@ package me.drex.itsours.claim;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.claim.permission.util.Permission;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
@@ -35,6 +36,15 @@ public class Subzone extends AbstractClaim {
     @Override
     public String getFullName() {
         return parent.getFullName() + "." + getName();
+    }
+
+    @Override
+    public boolean hasPermission(UUID uuid, String permission) {
+        Permission.Value value = this.getPermissionManager().hasPermission(uuid, permission);
+        if (value == Permission.Value.UNSET) {
+            return parent.hasPermission(uuid, permission);
+        }
+        return value.value;
     }
 
     public int getDepth() {
