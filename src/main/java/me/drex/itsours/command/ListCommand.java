@@ -51,7 +51,7 @@ public class ListCommand extends Command {
                         color2 = !color2;
                     }
                 }
-                builder.append(Component.text(claim.getName() + " ").color(color ? Color.AQUA : Color.BLUE)).clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim info " + claim.getName())).style((style) -> style.hoverEvent(HoverEvent.showText(hover.build())));
+                builder.append(Component.text(claim.getName() + " ").color(color ? Color.AQUA : Color.BLUE).clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim info " + claim.getName())).style((style) -> style.hoverEvent(HoverEvent.showText(hover.build()))));
                 color = !color;
             }
         }
