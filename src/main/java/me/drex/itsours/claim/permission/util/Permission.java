@@ -18,6 +18,7 @@ public class Permission {
     public static final Pattern PERMISSION = Pattern.compile("[\\w]+(\\.[\\w]+)?");
     public static List<Permission> permissions = new ArrayList<>();
     public static Permission PLACE = new Permission("place", Group.BLOCK);
+    public static Permission MINE = new Permission("mine", Group.BLOCK);
     public final String id;
     public final Group[] groups;
 
