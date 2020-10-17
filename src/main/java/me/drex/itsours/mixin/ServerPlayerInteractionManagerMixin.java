@@ -2,11 +2,14 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.permission.util.Group;
 import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
@@ -79,13 +82,25 @@ public class ServerPlayerInteractionManagerMixin {
     @Redirect(method = "tryBreakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isBlockBreakingRestricted(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/GameMode;)Z"))
     private boolean ItsOurs$onBlockBreak(ServerPlayerEntity playerEntity, World world, BlockPos pos, GameMode gameMode) {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, pos);
-        if (claim == null) return this.player.isBlockBreakingRestricted(world, pos, gameMode);
+        if (claim == null) return playerEntity.isBlockBreakingRestricted(world, pos, gameMode);
         if (!claim.hasPermission(playerEntity.getUuid(), "mine." + Permission.toString(this.world.getBlockState(pos).getBlock()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
             claimPlayer.sendError(Component.text("You can't break that block here.").color(Color.RED));
             return true;
         }
-        return this.player.isBlockBreakingRestricted(world, pos, gameMode);
+        return playerEntity.isBlockBreakingRestricted(world, pos, gameMode);
+    }
+
+    @Redirect(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onUse(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
+    private ActionResult ItsOurs$onBlockInteract(BlockState blockState, World world, PlayerEntity playerEntity, Hand hand, BlockHitResult hit) {
+        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
+        if (claim == null || !Group.filter(blockState.getBlock(), Group.INTERACT_FILTER)) return blockState.onUse(world, playerEntity, hand, hit);
+        if (!claim.hasPermission(playerEntity.getUuid(), "interact_block." + Permission.toString(blockState.getBlock()))) {
+            ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
+            claimPlayer.sendError(Component.text("You can't interact with that block here.").color(Color.RED));
+            return ActionResult.FAIL;
+        }
+        return blockState.onUse(world, playerEntity, hand, hit);
     }
 
 
