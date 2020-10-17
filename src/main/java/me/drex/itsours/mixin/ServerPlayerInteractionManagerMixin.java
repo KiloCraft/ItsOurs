@@ -11,6 +11,7 @@ import net.kyori.adventure.text.TextComponent;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -94,7 +95,7 @@ public class ServerPlayerInteractionManagerMixin {
     @Redirect(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onUse(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
     private ActionResult ItsOurs$onBlockInteract(BlockState blockState, World world, PlayerEntity playerEntity, Hand hand, BlockHitResult hit) {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
-        if (claim == null || !Group.filter(blockState.getBlock(), Group.INTERACT_FILTER)) return blockState.onUse(world, playerEntity, hand, hit);
+        if (claim == null || !Group.filter(blockState.getBlock(), Group.INTERACT_BLOCK_FILTER)) return blockState.onUse(world, playerEntity, hand, hit);
         if (!claim.hasPermission(playerEntity.getUuid(), "interact_block." + Permission.toString(blockState.getBlock()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
             claimPlayer.sendError(Component.text("You can't interact with that block here.").color(Color.RED));
@@ -103,5 +104,16 @@ public class ServerPlayerInteractionManagerMixin {
         return blockState.onUse(world, playerEntity, hand, hit);
     }
 
+    @Redirect(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;useOnBlock(Lnet/minecraft/item/ItemUsageContext;)Lnet/minecraft/util/ActionResult;"))
+    private ActionResult ItsOurs$onUseOnBlock(ItemStack itemStack, ItemUsageContext context) {
+        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
+        if (claim == null || !Group.filter(itemStack.getItem(), Group.USE_ON_BLOCK_FILTER)) return itemStack.useOnBlock(context);
+        if (!claim.hasPermission(context.getPlayer().getUuid(), "use_on_block." + Permission.toString(itemStack.getItem()))) {
+            ClaimPlayer claimPlayer = (ClaimPlayer) context.getPlayer();
+            claimPlayer.sendError(Component.text("You can't use that item here.").color(Color.RED));
+            return ActionResult.FAIL;
+        }
+        return itemStack.useOnBlock(context);
+    }
 
 }

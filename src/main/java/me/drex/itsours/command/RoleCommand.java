@@ -110,7 +110,7 @@ public class RoleCommand extends Command {
             Role role = entry.getValue();
             AbstractClaim claim = getClaim(source);
             GameProfile profile = getGameProfile(source, "player");
-            if (claim != null && profile != null && claim.getPermissionManager().hasRole(profile.getId(), role)) names.add(roleID);
+            if (profile != null && claim.getPermissionManager().hasRole(profile.getId(), role)) names.add(roleID);
         }
         return CommandSource.suggestMatching(names, builder);
     };
