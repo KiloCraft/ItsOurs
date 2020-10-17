@@ -21,10 +21,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -63,6 +60,11 @@ public abstract class Command {
             }
         }
         return CommandSource.suggestMatching(permissions, builder);
+    };
+
+    public final SuggestionProvider<ServerCommandSource> PERMISSION_VALUE_PROVIDER = (source, builder) -> {
+        List<String> values = Arrays.asList("true", "false", "unset");
+        return CommandSource.suggestMatching(values, builder);
     };
 
     //TODO: Look at this again, maybe there is a better approach to this
@@ -133,6 +135,14 @@ public abstract class Command {
         return permission;
     }
 
+    public Permission.Value getPermissionValue(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        String value = StringArgumentType.getString(ctx, "value");
+        for (Permission.Value val : Permission.Value.values()) {
+            if (val.name.equalsIgnoreCase(value)) return val;
+        }
+        throw new SimpleCommandExceptionType(new LiteralText("Invalid permission value")).create();
+    }
+
     public RequiredArgumentBuilder<ServerCommandSource, String> claimArgument() {
         return argument("claim", word()).suggests(CLAIM_PROVIDER);
     }
@@ -143,6 +153,10 @@ public abstract class Command {
 
     public RequiredArgumentBuilder<ServerCommandSource, String> permissionArgument() {
         return argument("perm", word()).suggests(PERMISSION_PROVIDER);
+    }
+
+    public RequiredArgumentBuilder<ServerCommandSource, String> permissionValueArgument() {
+        return argument("value", word()).suggests(PERMISSION_VALUE_PROVIDER);
     }
 
 

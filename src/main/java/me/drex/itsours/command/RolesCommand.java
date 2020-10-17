@@ -40,9 +40,9 @@ public class RolesCommand extends Command {
             command.then(remove);
         }
         {
-            RequiredArgumentBuilder<ServerCommandSource, Boolean> value = RequiredArgumentBuilder.argument("value", BoolArgumentType.bool());
-            value.executes(ctx -> setPermission(ctx.getSource(), StringArgumentType.getString(ctx, "name"), StringArgumentType.getString(ctx, "perm"), BoolArgumentType.getBool(ctx, "value")));
-            RequiredArgumentBuilder<ServerCommandSource, String> perm = RequiredArgumentBuilder.argument("perm", StringArgumentType.word());
+            RequiredArgumentBuilder<ServerCommandSource, String> value = permissionValueArgument();
+            value.executes(ctx -> setPermission(ctx.getSource(), StringArgumentType.getString(ctx, "name"), getPermission(ctx), getPermissionValue(ctx)));
+            RequiredArgumentBuilder<ServerCommandSource, String> perm = permissionArgument();
             RequiredArgumentBuilder<ServerCommandSource, String> name = roleArgument();
             name.executes(ctx -> listPermission(ctx.getSource(), StringArgumentType.getString(ctx, "name")));
             LiteralArgumentBuilder<ServerCommandSource> permission = LiteralArgumentBuilder.literal("permission");
@@ -73,7 +73,7 @@ public class RolesCommand extends Command {
         return 1;
     }
 
-    public int setPermission(ServerCommandSource source, String name, String permission, boolean value) throws CommandSyntaxException {
+    public int setPermission(ServerCommandSource source, String name, String permission, Permission.Value value) throws CommandSyntaxException {
         if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
             throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
         Role role = ItsOursMod.INSTANCE.getRoleManager().get(name);
@@ -81,7 +81,7 @@ public class RolesCommand extends Command {
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set ").color(Color.YELLOW)
                 .append(Component.text(permission).color(Color.ORANGE)).append(Component.text(" for ").color(Color.YELLOW))
                 .append(Component.text(name).color(Color.ORANGE)
-                        .append(Component.text(" to ").color(Color.YELLOW)).append(Permission.Value.of(value).format())));
+                        .append(Component.text(" to ").color(Color.YELLOW)).append(value.format())));
         return 1;
     }
 

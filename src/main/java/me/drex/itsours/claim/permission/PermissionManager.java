@@ -123,7 +123,7 @@ public class PermissionManager {
         return map.containsKey(role);
     }
 
-    public void setPlayerPermission(UUID uuid, String permission, boolean value) {
+    public void setPlayerPermission(UUID uuid, String permission, Permission.Value value) {
         PermissionMap pm = playerPermission.get(uuid);
         if (pm == null) {
             pm = new PermissionMap(new CompoundTag());

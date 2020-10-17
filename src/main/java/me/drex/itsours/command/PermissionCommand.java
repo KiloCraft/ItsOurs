@@ -28,7 +28,6 @@ public class PermissionCommand extends Command {
     public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
         {
-            //TODO: Add proper suggestion
             RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();
             permission.executes(ctx -> checkPlayer(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), getPermission(ctx)));
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
@@ -38,9 +37,8 @@ public class PermissionCommand extends Command {
             claim.then(check);
         }
         {
-            //TODO: Add proper suggestion
-            RequiredArgumentBuilder<ServerCommandSource, Boolean> value = RequiredArgumentBuilder.argument("value", BoolArgumentType.bool());
-            value.executes(ctx -> setPermission(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), getPermission(ctx), BoolArgumentType.getBool(ctx, "value")));
+            RequiredArgumentBuilder<ServerCommandSource, String> value = permissionValueArgument();
+            value.executes(ctx -> setPermission(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), getPermission(ctx), getPermissionValue(ctx)));
             RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             LiteralArgumentBuilder<ServerCommandSource> set = LiteralArgumentBuilder.literal("set");
@@ -48,16 +46,6 @@ public class PermissionCommand extends Command {
             player.then(permission);
             set.then(player);
             claim.then(set);
-        }
-        {
-            //TODO: Add proper suggestion
-            RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();
-            permission.executes(ctx -> resetPermission(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), getPermission(ctx)));
-            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
-            LiteralArgumentBuilder<ServerCommandSource> reset = LiteralArgumentBuilder.literal("reset");
-            player.then(permission);
-            reset.then(player);
-            claim.then(reset);
         }
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("permission");
         command.then(claim);
@@ -116,12 +104,12 @@ public class PermissionCommand extends Command {
         }
     }
 
-    public int setPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission, boolean value) throws CommandSyntaxException {
+    public int setPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission, Permission.Value value) throws CommandSyntaxException {
         claim.getPermissionManager().setPlayerPermission(target.getId(), permission, value);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set permission ").color(Color.YELLOW)
                 .append(Component.text(permission)).color(Color.ORANGE)
                 .append(Component.text(" for ")).color(Color.YELLOW)
-                .append(Component.text(target.getName())).color(Color.ORANGE).append(Component.text(" to ")).color(Color.YELLOW).append(Permission.Value.of(value).format()));
+                .append(Component.text(target.getName())).color(Color.ORANGE).append(Component.text(" to ")).color(Color.YELLOW).append(value.format()));
         return 0;
     }
 
