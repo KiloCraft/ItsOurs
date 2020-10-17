@@ -67,7 +67,8 @@ public class RolesCommand extends Command {
 
     public int removeRole(ServerCommandSource source, String name) throws CommandSyntaxException {
         if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
-            throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
+        throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
+        if (name.equals("default") || name.equals("trusted")) throw new SimpleCommandExceptionType(new LiteralText("You can't remove that role")).create();
         ItsOursMod.INSTANCE.getRoleManager().remove(name);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Role ").color(Color.YELLOW).append(Component.text(name).color(Color.ORANGE).append(Component.text(" has been removed").color(Color.YELLOW))));
         return 1;

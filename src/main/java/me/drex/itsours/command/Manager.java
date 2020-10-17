@@ -20,6 +20,7 @@ public class Manager {
         new RoleCommand().register(main);
         new RolesCommand().register(main);
         new ShowCommand().register(main);
+        new TrustCommand().register(main);
 
 
         dispatcher.register(main);

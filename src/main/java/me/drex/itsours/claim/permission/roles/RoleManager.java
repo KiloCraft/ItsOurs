@@ -13,6 +13,12 @@ public class RoleManager extends HashMap<String, Role> {
 
     public void fromNBT(CompoundTag tag) {
         tag.getKeys().forEach(id -> this.put(id, new Role(tag.getCompound(id))));
+        if (!this.containsKey("trusted")) {
+            this.put("trusted", new Role(new CompoundTag()));
+        }
+        if (!this.containsKey("default")) {
+            this.put("default", new Role(new CompoundTag()));
+        }
     }
 
     public CompoundTag toNBT() {
@@ -22,13 +28,10 @@ public class RoleManager extends HashMap<String, Role> {
     }
 
     public String getRoleID(Role role) {
-        AtomicReference<String> roleID = new AtomicReference<>();
-        this.forEach((id, role1) -> {
-            if (role1.equals(role)) {
-                roleID.set(id);
-            }
-        });
-        return roleID.get();
+        for (Entry<String, Role> entry : entrySet()) {
+            if (role.equals(entry.getValue())) return entry.getKey();
+        }
+        return null;
     }
 
 }

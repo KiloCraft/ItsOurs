@@ -20,6 +20,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 
@@ -82,11 +83,11 @@ public class PermissionCommand extends Command {
         appendOptionally(hover, permission, reference.get());
 
         TextComponent.Builder roles = Component.text().content("\n -Roles: ").color(Color.YELLOW);
-        for (Role role : pm.getRolesByWeight(target.getId())) {
-            roles.append(Component.text("\n  *" + ItsOursMod.INSTANCE.getRoleManager().getRoleID(role) + " (").color(Color.YELLOW))
-                    .append(Component.text(String.valueOf(pm.roles.get(target.getId()).get(role))).color(Color.ORANGE))
+        for (Map.Entry<Role, Integer> entry : pm.getRolesByWeight(target.getId()).entrySet()) {
+            roles.append(Component.text("\n  *" + ItsOursMod.INSTANCE.getRoleManager().getRoleID(entry.getKey()) + " (").color(Color.YELLOW))
+                    .append(Component.text(String.valueOf(entry.getValue())).color(Color.ORANGE))
                     .append(Component.text("): ").color(Color.YELLOW))
-                    .append(role.permissions().getPermission(permission, reference::set).format());
+                    .append(entry.getKey().permissions().getPermission(permission, reference::set).format());
             appendOptionally(roles, permission, reference.get());
         }
 
