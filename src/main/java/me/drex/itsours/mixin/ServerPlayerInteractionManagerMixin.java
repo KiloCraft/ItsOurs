@@ -19,6 +19,7 @@ import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -38,7 +39,8 @@ public class ServerPlayerInteractionManagerMixin {
     @Shadow
     public ServerPlayerEntity player;
 
-    @Shadow public ServerWorld world;
+    @Shadow
+    public ServerWorld world;
 
     @Inject(method = "interactBlock", at = @At("HEAD"))
     private void ItsOurs$onRightClickOnBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
@@ -62,11 +64,10 @@ public class ServerPlayerInteractionManagerMixin {
     }
 
 
-
     public void onClaimAddCorner() {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         if (claimPlayer.arePositionsSet()) {
-            TextComponent.Builder builder =  Component.text().content("Area Selected. Click to create your claim!").color(Color.ORANGE);
+            TextComponent.Builder builder = Component.text().content("Area Selected. Click to create your claim!").color(Color.ORANGE);
             if (ItsOursMod.INSTANCE.getClaimList().get(player.getUuid()).isEmpty()) {
                 builder.clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim create " + player.getEntityName()));
             } else {
@@ -95,7 +96,8 @@ public class ServerPlayerInteractionManagerMixin {
     @Redirect(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onUse(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
     private ActionResult ItsOurs$onBlockInteract(BlockState blockState, World world, PlayerEntity playerEntity, Hand hand, BlockHitResult hit) {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
-        if (claim == null || !Group.filter(blockState.getBlock(), Group.INTERACT_BLOCK_FILTER)) return blockState.onUse(world, playerEntity, hand, hit);
+        if (claim == null || !Group.filter(blockState.getBlock(), Group.INTERACT_BLOCK_FILTER))
+            return blockState.onUse(world, playerEntity, hand, hit);
         if (!claim.hasPermission(playerEntity.getUuid(), "interact_block." + Permission.toString(blockState.getBlock()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
             claimPlayer.sendError(Component.text("You can't interact with that block here.").color(Color.RED));
@@ -107,7 +109,8 @@ public class ServerPlayerInteractionManagerMixin {
     @Redirect(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;useOnBlock(Lnet/minecraft/item/ItemUsageContext;)Lnet/minecraft/util/ActionResult;"))
     private ActionResult ItsOurs$onUseOnBlock(ItemStack itemStack, ItemUsageContext context) {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
-        if (claim == null || !Group.filter(itemStack.getItem(), Group.USE_ON_BLOCK_FILTER)) return itemStack.useOnBlock(context);
+        if (claim == null || !Group.filter(itemStack.getItem(), Group.USE_ON_BLOCK_FILTER))
+            return itemStack.useOnBlock(context);
         if (!claim.hasPermission(context.getPlayer().getUuid(), "use_on_block." + Permission.toString(itemStack.getItem()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) context.getPlayer();
             claimPlayer.sendError(Component.text("You can't use that item here.").color(Color.RED));
@@ -116,4 +119,16 @@ public class ServerPlayerInteractionManagerMixin {
         return itemStack.useOnBlock(context);
     }
 
+    @Redirect(method = "interactItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;"))
+    private TypedActionResult<ItemStack> ItsOurs$onItemUse(ItemStack itemStack, World world, PlayerEntity user, Hand hand) {
+        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, user.getBlockPos());
+        if (claim == null || !Group.filter(itemStack.getItem(), Group.USE_ITEM_FILTER))
+            return itemStack.use(world, user, hand);
+        if (!claim.hasPermission(user.getUuid(), "use_item." + Permission.toString(itemStack.getItem()))) {
+            ClaimPlayer claimPlayer = (ClaimPlayer) user;
+            claimPlayer.sendError(Component.text("You can't use that item here.").color(Color.RED));
+            return TypedActionResult.fail(itemStack);
+        }
+        return itemStack.use(world, user, hand);
+    }
 }

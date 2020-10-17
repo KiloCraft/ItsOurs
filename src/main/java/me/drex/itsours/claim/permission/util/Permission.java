@@ -21,6 +21,7 @@ public class Permission {
     public static Permission MINE = new Permission("mine", Group.BLOCK);
     public static Permission INTERACT_BLOCK = new Permission("interact_block", Group.INTERACTABLE_BLOCKS);
     public static Permission USE_ON_BLOCK = new Permission("use_on_block", Group.USE_ON_BLOCKS);
+    public static Permission USE_ITEM = new Permission("use_item", Group.USE_ITEM);
     public final String id;
     public final Group[] groups;
 
