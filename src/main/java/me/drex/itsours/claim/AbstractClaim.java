@@ -1,11 +1,13 @@
 package me.drex.itsours.claim;
 
-import com.google.common.collect.Lists;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.util.Color;
 import me.drex.itsours.util.WorldUtil;
+import net.kyori.adventure.text.Component;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -18,10 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static me.drex.itsours.claim.AbstractClaim.Util.getPosOnGround;
@@ -58,6 +57,10 @@ public abstract class AbstractClaim {
 
     public AbstractClaim(CompoundTag tag) {
         fromNBT(tag);
+    }
+
+    public static boolean isNameValid(String name) {
+        return NAME.matcher(name).matches();
     }
 
     public void fromNBT(CompoundTag tag) {
@@ -102,10 +105,6 @@ public abstract class AbstractClaim {
         return tag;
     }
 
-    public static boolean isNameValid(String name) {
-        return NAME.matcher(name).matches();
-    }
-
     public String getName() {
         return this.name;
     }
@@ -137,7 +136,19 @@ public abstract class AbstractClaim {
     }
 
     public boolean hasPermission(UUID uuid, String permission) {
-        return this.permissionManager.hasPermission(uuid, permission).value;
+        Permission.Value value = this.permissionManager.hasPermission(uuid, permission);
+        sendDebug(uuid, permission, value);
+        return value.value;
+    }
+
+    void sendDebug(UUID uuid, String permission, Permission.Value value) {
+        ServerPlayerEntity playerEntity = ItsOursMod.server.getPlayerManager().getPlayer(this.getOwner());
+        if (playerEntity != null)
+            ((ClaimPlayer) playerEntity)
+                    .sendActionbar(Component.text(this.getFullName() + ": ").color(Color.RED)
+                            .append(Component.text(Objects.requireNonNull(ItsOursMod.server.getPlayerManager().getPlayer(uuid)).getEntityName() + " ").color(Color.BLUE))
+                            .append(Component.text(permission + " ").color(Color.DARK_PURPLE))
+                            .append(value.format()));
     }
 
     public PermissionManager getPermissionManager() {
@@ -244,8 +255,8 @@ public abstract class AbstractClaim {
     }
 
     public void show(ServerPlayerEntity player, boolean show) {
-        BlockState blockState = show ? showBlocks[Math.min(this.getDepth(), showBlocks.length-1)].getDefaultState() : null;
-        int y = ((ClaimPlayer)player).getLastShowPos().getY();
+        BlockState blockState = show ? showBlocks[Math.min(this.getDepth(), showBlocks.length - 1)].getDefaultState() : null;
+        int y = ((ClaimPlayer) player).getLastShowPos().getY();
         for (int i = min.getX(); i < max.getX(); i++) {
             sendBlockPacket(player, new BlockPos(getPosOnGround(new BlockPos(i, y, min.getZ()), player.getEntityWorld())).down(), blockState);
         }

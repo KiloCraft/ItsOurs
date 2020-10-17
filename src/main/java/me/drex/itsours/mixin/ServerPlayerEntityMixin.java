@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayerEntity.class)
-public class ServerPlayerEntityMixin extends  PlayerEntity implements ClaimPlayer {
+public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer {
 
     @Shadow
     @Final
@@ -33,6 +33,7 @@ public class ServerPlayerEntityMixin extends  PlayerEntity implements ClaimPlaye
     private ServerWorld lastShowWorld;
     private int cooldown = 0;
     private boolean flight = false;
+    private boolean debug = false;
     private boolean cachedFlight = false;
     public Pair<BlockPos, BlockPos> positions = new Pair<>(null, null);
 
@@ -125,6 +126,11 @@ public class ServerPlayerEntityMixin extends  PlayerEntity implements ClaimPlaye
     }
 
     @Override
+    public void sendActionbar(Component component) {
+        this.sendMessage(TextComponentUtil.from(component), true);
+    }
+
+    @Override
     public void toggleFlight() {
         flight = !flight;
     }
@@ -132,6 +138,16 @@ public class ServerPlayerEntityMixin extends  PlayerEntity implements ClaimPlaye
     @Override
     public boolean flightEnabled() {
         return flight;
+    }
+
+    @Override
+    public void toggleDebug() {
+        debug = !debug;
+    }
+
+    @Override
+    public boolean debugEnabled() {
+        return debug;
     }
 
     @Override

@@ -4,13 +4,18 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.util.Permission;
+import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.util.Color;
+import net.kyori.adventure.text.Component;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class Subzone extends AbstractClaim {
@@ -44,6 +49,7 @@ public class Subzone extends AbstractClaim {
         if (value == Permission.Value.UNSET) {
             return parent.hasPermission(uuid, permission);
         }
+        sendDebug(uuid, permission, value);
         return value.value;
     }
 

@@ -11,6 +11,7 @@ public class Manager {
         BlocksCommand.register(main);
         ColorCommand.register(main);
         CreateCommand.register(main);
+        DebugCommand.register(main);
         ExpandCommand.register(main);
         FlyCommand.register(main);
         InfoCommand.register(main);
