@@ -62,10 +62,7 @@ public abstract class Command {
         return CommandSource.suggestMatching(permissions, builder);
     };
 
-    public static final SuggestionProvider<ServerCommandSource> PERMISSION_VALUE_PROVIDER = (source, builder) -> {
-        List<String> values = Arrays.asList("true", "false", "unset");
-        return CommandSource.suggestMatching(values, builder);
-    };
+    public static final SuggestionProvider<ServerCommandSource> PERMISSION_VALUE_PROVIDER = (source, builder) -> CommandSource.suggestMatching(Arrays.asList("true", "false", "unset"), builder);
 
     //TODO: Look at this again, maybe there is a better approach to this
     public static GameProfile getGameProfile(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
