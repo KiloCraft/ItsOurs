@@ -22,9 +22,9 @@ import java.util.List;
 
 public class ListCommand extends Command {
 
-    public void register(LiteralArgumentBuilder<ServerCommandSource> command) {
+    public static void register(LiteralArgumentBuilder<ServerCommandSource> command) {
         RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
-        player.requires(src -> this.hasPermission(src, "itsours.list"));
+        player.requires(src -> hasPermission(src, "itsours.list"));
         player.executes(ctx -> list(ctx.getSource(), Command.getGameProfile(ctx, "player")));
         LiteralArgumentBuilder<ServerCommandSource> list = LiteralArgumentBuilder.literal("list");
         list.executes(ctx -> list(ctx.getSource(), ctx.getSource().getPlayer().getGameProfile()));
@@ -32,7 +32,7 @@ public class ListCommand extends Command {
         command.then(list);
     }
 
-    public int list(ServerCommandSource source, GameProfile target) throws CommandSyntaxException {
+    public static int list(ServerCommandSource source, GameProfile target) throws CommandSyntaxException {
         List<AbstractClaim> claims = ItsOursMod.INSTANCE.getClaimList().get(target.getId());
         if (claims.isEmpty()) {
             ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("No claims").color(Color.RED));
@@ -51,7 +51,7 @@ public class ListCommand extends Command {
                         color2 = !color2;
                     }
                 }
-                builder.append(Component.text(claim.getName() + " ").color(color ? Color.AQUA : Color.BLUE)).clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim info " + claim.getName())).style((style) -> style.hoverEvent(HoverEvent.showText(hover.build())));
+                builder.append(Component.text(claim.getName() + " ").color(color ? Color.AQUA : Color.BLUE).clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim info " + claim.getName())).style((style) -> style.hoverEvent(HoverEvent.showText(hover.build()))));
                 color = !color;
             }
         }

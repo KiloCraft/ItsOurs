@@ -26,6 +26,7 @@ import net.minecraft.util.Formatting;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.server.command.CommandManager.argument;
@@ -33,7 +34,9 @@ import static net.minecraft.server.command.CommandManager.argument;
 
 public class RoleCommand extends Command {
 
-    public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+
+    //TODO: Check if the executor is allowed to do this
+    public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
         {
             RequiredArgumentBuilder<ServerCommandSource, Integer> weight = RequiredArgumentBuilder.argument("weight", IntegerArgumentType.integer(1));
@@ -67,7 +70,7 @@ public class RoleCommand extends Command {
         literal.then(command);
     }
 
-    public int addRole(ServerCommandSource source, AbstractClaim claim, GameProfile target, String name, int weight) throws CommandSyntaxException {
+    public static int addRole(ServerCommandSource source, AbstractClaim claim, GameProfile target, String name, int weight) throws CommandSyntaxException {
         if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name)) throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
         Role role = ItsOursMod.INSTANCE.getRoleManager().get(name);
         claim.getPermissionManager().addRole(target.getId(), role, weight);
@@ -77,7 +80,7 @@ public class RoleCommand extends Command {
         return 1;
     }
 
-    public int removeRole(ServerCommandSource source, AbstractClaim claim, GameProfile target, String name) throws CommandSyntaxException {
+    public static int removeRole(ServerCommandSource source, AbstractClaim claim, GameProfile target, String name) throws CommandSyntaxException {
         if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name)) throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
         Role role = ItsOursMod.INSTANCE.getRoleManager().get(name);
         if (!claim.getPermissionManager().hasRole(target.getId(), role)) throw new SimpleCommandExceptionType(new LiteralText(target.getName() + " doesn't have a role with that name")).create();
@@ -88,25 +91,26 @@ public class RoleCommand extends Command {
         return 1;
     }
 
-    public int listRoles(ServerCommandSource source, AbstractClaim claim, GameProfile target) throws CommandSyntaxException {
+    public static int listRoles(ServerCommandSource source, AbstractClaim claim, GameProfile target) throws CommandSyntaxException {
         TextComponent.Builder builder = Component.text().content("Roles (").color(Color.YELLOW).append(Component.text(target.getName()).color(Color.ORANGE).append(Component.text("):\n").color(Color.YELLOW)));
         PermissionManager pm = claim.getPermissionManager();
-        pm.getRolesByWeight(target.getId()).forEach(role ->
-            builder.append(Component.text(ItsOursMod.INSTANCE.getRoleManager().getRoleID(role) + " (").color(Color.YELLOW))
-            .append(Component.text(String.valueOf(pm.roles.get(target.getId()).get(role))).color(Color.ORANGE))
-            .append(Component.text(") ").color(Color.YELLOW)));
+        for (Map.Entry<Role, Integer> entry : pm.getRolesByWeight(target.getId()).entrySet()) {
+            builder.append(Component.text(ItsOursMod.INSTANCE.getRoleManager().getRoleID(entry.getKey()) + " (").color(Color.YELLOW))
+            .append(Component.text(String.valueOf(entry.getValue())).color(Color.ORANGE))
+            .append(Component.text(") ").color(Color.YELLOW));
+        }
         ((ClaimPlayer)source.getPlayer()).sendMessage(builder.build());
         return 1;
     }
 
-    public final SuggestionProvider<ServerCommandSource> OWNED_ROLES_PROVIDER = (source, builder) -> {
+    public static final SuggestionProvider<ServerCommandSource> OWNED_ROLES_PROVIDER = (source, builder) -> {
         List<String> names = new ArrayList<>();
         for (Map.Entry<String, Role> entry : ItsOursMod.INSTANCE.getRoleManager().entrySet()) {
             String roleID = entry.getKey();
             Role role = entry.getValue();
             AbstractClaim claim = getClaim(source);
             GameProfile profile = getGameProfile(source, "player");
-            if (claim != null && profile != null && claim.getPermissionManager().hasRole(profile.getId(), role)) names.add(roleID);
+            if (profile != null && claim.getPermissionManager().hasRole(profile.getId(), role)) names.add(roleID);
         }
         return CommandSource.suggestMatching(names, builder);
     };

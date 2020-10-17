@@ -20,15 +20,15 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 
 public class PermissionCommand extends Command {
 
-    public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
         {
-            //TODO: Add proper suggestion
             RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();
             permission.executes(ctx -> checkPlayer(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), getPermission(ctx)));
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
@@ -38,9 +38,8 @@ public class PermissionCommand extends Command {
             claim.then(check);
         }
         {
-            //TODO: Add proper suggestion
-            RequiredArgumentBuilder<ServerCommandSource, Boolean> value = RequiredArgumentBuilder.argument("value", BoolArgumentType.bool());
-            value.executes(ctx -> setPermission(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), getPermission(ctx), BoolArgumentType.getBool(ctx, "value")));
+            RequiredArgumentBuilder<ServerCommandSource, String> value = permissionValueArgument();
+            value.executes(ctx -> setPermission(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), getPermission(ctx), getPermissionValue(ctx)));
             RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             LiteralArgumentBuilder<ServerCommandSource> set = LiteralArgumentBuilder.literal("set");
@@ -49,22 +48,12 @@ public class PermissionCommand extends Command {
             set.then(player);
             claim.then(set);
         }
-        {
-            //TODO: Add proper suggestion
-            RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();
-            permission.executes(ctx -> resetPermission(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), getPermission(ctx)));
-            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
-            LiteralArgumentBuilder<ServerCommandSource> reset = LiteralArgumentBuilder.literal("reset");
-            player.then(permission);
-            reset.then(player);
-            claim.then(reset);
-        }
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("permission");
         command.then(claim);
         literal.then(command);
     }
 
-    public int checkPlayer(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission) throws CommandSyntaxException {
+    public static int checkPlayer(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission) throws CommandSyntaxException {
         //TODO: Check if excutor is allowed to check
         boolean value = claim.getPermissionManager().hasPermission(target.getId(), permission).value;
         String perm = permission;
@@ -85,7 +74,7 @@ public class PermissionCommand extends Command {
     return 1;
     }
 
-    public Component checkPermission(PermissionManager pm, GameProfile target, String permission) {
+    public static Component checkPermission(PermissionManager pm, GameProfile target, String permission) {
         AtomicReference<String> reference = new AtomicReference<>();
         TextComponent.Builder hover = Component.text()
                 .append(Component.text(permission + ":").color(Color.PINK))
@@ -94,11 +83,11 @@ public class PermissionCommand extends Command {
         appendOptionally(hover, permission, reference.get());
 
         TextComponent.Builder roles = Component.text().content("\n -Roles: ").color(Color.YELLOW);
-        for (Role role : pm.getRolesByWeight(target.getId())) {
-            roles.append(Component.text("\n  *" + ItsOursMod.INSTANCE.getRoleManager().getRoleID(role) + " (").color(Color.YELLOW))
-                    .append(Component.text(String.valueOf(pm.roles.get(target.getId()).get(role))).color(Color.ORANGE))
+        for (Map.Entry<Role, Integer> entry : pm.getRolesByWeight(target.getId()).entrySet()) {
+            roles.append(Component.text("\n  *" + ItsOursMod.INSTANCE.getRoleManager().getRoleID(entry.getKey()) + " (").color(Color.YELLOW))
+                    .append(Component.text(String.valueOf(entry.getValue())).color(Color.ORANGE))
                     .append(Component.text("): ").color(Color.YELLOW))
-                    .append(role.permissions().getPermission(permission, reference::set).format());
+                    .append(entry.getKey().permissions().getPermission(permission, reference::set).format());
             appendOptionally(roles, permission, reference.get());
         }
 
@@ -110,27 +99,18 @@ public class PermissionCommand extends Command {
         return hover.build();
     }
 
-    private void appendOptionally(TextComponent.Builder builder, String permission, String permission2) {
+    private static void appendOptionally(TextComponent.Builder builder, String permission, String permission2) {
         if (!permission.equals(permission2) && permission2 != null) {
             builder.append(Component.text(" (" + permission2 + ")").color(Color.WHITE).decorate(TextDecoration.ITALIC));
         }
     }
 
-    public int setPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission, boolean value) throws CommandSyntaxException {
+    public static int setPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission, Permission.Value value) throws CommandSyntaxException {
         claim.getPermissionManager().setPlayerPermission(target.getId(), permission, value);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set permission ").color(Color.YELLOW)
                 .append(Component.text(permission)).color(Color.ORANGE)
                 .append(Component.text(" for ")).color(Color.YELLOW)
-                .append(Component.text(target.getName())).color(Color.ORANGE).append(Component.text(" to ")).color(Color.YELLOW).append(Permission.Value.of(value).format()));
-        return 0;
-    }
-
-    public int resetPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission) throws CommandSyntaxException {
-        claim.getPermissionManager().resetPlayerPermission(target.getId(), permission);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Reset permission ").color(Color.YELLOW)
-                .append(Component.text(permission)).color(Color.ORANGE)
-                .append(Component.text(" for ")).color(Color.YELLOW)
-                .append(Component.text(target.getName())));
+                .append(Component.text(target.getName())).color(Color.ORANGE).append(Component.text(" to ")).color(Color.YELLOW).append(value.format()));
         return 0;
     }
 

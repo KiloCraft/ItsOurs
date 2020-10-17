@@ -11,14 +11,14 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 public class FlyCommand extends Command {
 
-    public void register(LiteralArgumentBuilder<ServerCommandSource> command) {
+    public static void register(LiteralArgumentBuilder<ServerCommandSource> command) {
         LiteralArgumentBuilder<ServerCommandSource> fly = LiteralArgumentBuilder.literal("fly");
         fly.requires(src -> hasPermission(src, "itsours.fly"));
         fly.executes(ctx -> toggleFlight(ctx.getSource()));
         command.then(fly);
     }
 
-    public int toggleFlight(ServerCommandSource source) throws CommandSyntaxException {
+    public static int toggleFlight(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayer();
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         claimPlayer.toggleFlight();

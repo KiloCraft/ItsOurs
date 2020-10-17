@@ -34,10 +34,6 @@ public abstract class BlockItemMixin extends Item {
     @Shadow
     public abstract Block getBlock();
 
-    @Inject(method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;", at = @At(value = "HEAD"))
-    private void ItsOurs$checkPlace(ItemPlacementContext context, CallbackInfoReturnable<ActionResult> cir) {
-    }
-
     @Redirect(method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemPlacementContext;canPlace()Z"))
     private boolean ItsOurs$checkCanPlace(ItemPlacementContext context) {
         if (context.getPlayer() == null) return context.canPlace();
@@ -60,7 +56,7 @@ public abstract class BlockItemMixin extends Item {
         if (block instanceof BlockWithEntity || block == Blocks.CRAFTING_TABLE) {
             PlayerEntity playerEntity = context.getPlayer();
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
-            if (claimPlayer != null) {
+            if (claimPlayer != null && ItsOursMod.INSTANCE.getClaimList().get(playerEntity.getUuid()).isEmpty()) {
                 TextComponent.Builder textComponent = Component.text().content("This " + this.getDefaultStack().getName().getString().toLowerCase() + " is not protected,").color(Color.YELLOW).append(Component.text(" click this ").color(Color.ORANGE)).append(Component.text("message to create a claim, to protect it").color(Color.YELLOW));
                 textComponent.clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim create"));
                 claimPlayer.sendMessage(textComponent.build());

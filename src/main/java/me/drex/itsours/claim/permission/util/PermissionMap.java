@@ -71,8 +71,9 @@ public class PermissionMap extends HashMap<String, Boolean> {
         return s.substring(0, s.length() - 1);
     }
 
-    public void setPermission(String permission, boolean value) {
-        this.put(permission, value);
+    public void setPermission(String permission, Permission.Value value) {
+        if (value == Permission.Value.UNSET) this.remove(permission);
+        else this.put(permission, value.value);
     }
 
     public void resetPermission(String permission) {

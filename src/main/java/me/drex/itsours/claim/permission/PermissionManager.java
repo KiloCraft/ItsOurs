@@ -84,13 +84,11 @@ public class PermissionManager {
         this.roles.put(uuid, roleWeight);
     }
 
-    public List<Role> getRolesByWeight(UUID uuid) {
-        List<Role> rolesByWeight = new ArrayList<>();
-        if (roles.get(uuid) != null) {
-            HashMap<Role, Integer> sortedRoles = sort(roles.get(uuid));
-            sortedRoles.forEach((role, integer) -> rolesByWeight.add(role));
-        }
-        return rolesByWeight;
+    public HashMap<Role, Integer> getRolesByWeight(UUID uuid) {
+        HashMap<Role, Integer> sortedRoles;
+        roles.computeIfAbsent(uuid, k -> new HashMap<>());
+        sortedRoles = sort(roles.get(uuid));
+        return sortedRoles;
     }
 
     public Permission.Value hasPermission(UUID uuid, String permission) {
@@ -98,7 +96,7 @@ public class PermissionManager {
         Permission.Value v1 = settings.getPermission(permission);
         if (v1 != UNSET)
             value = v1;
-        for (Role role : this.getRolesByWeight(uuid)) {
+        for (Role role : this.getRolesByWeight(uuid).keySet()) {
             Permission.Value v2 = role.permissions().getPermission(permission);
             if (v2 != UNSET)
                 value = v2;
@@ -123,7 +121,7 @@ public class PermissionManager {
         return map.containsKey(role);
     }
 
-    public void setPlayerPermission(UUID uuid, String permission, boolean value) {
+    public void setPlayerPermission(UUID uuid, String permission, Permission.Value value) {
         PermissionMap pm = playerPermission.get(uuid);
         if (pm == null) {
             pm = new PermissionMap(new CompoundTag());
@@ -139,10 +137,11 @@ public class PermissionManager {
         }
     }
 
-    public HashMap<Role, Integer> sort(HashMap<Role, Integer> hashMap) {
+    private HashMap<Role, Integer> sort(HashMap<Role, Integer> hashMap) {
         List<Map.Entry<Role, Integer>> list = new LinkedList<>(hashMap.entrySet());
         list.sort(Map.Entry.comparingByValue());
         HashMap<Role, Integer> temp = new LinkedHashMap<>();
+        temp.put(ItsOursMod.INSTANCE.getRoleManager().get("default"), -1);
         for (Map.Entry<Role, Integer> aa : list) {
             temp.put(aa.getKey(), aa.getValue());
         }

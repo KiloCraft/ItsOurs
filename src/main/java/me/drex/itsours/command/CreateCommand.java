@@ -22,7 +22,7 @@ import net.minecraft.util.math.BlockPos;
 public class CreateCommand extends Command {
 
 
-    public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         RequiredArgumentBuilder<ServerCommandSource, String> name = RequiredArgumentBuilder.argument("name", StringArgumentType.word());
         name.executes(ctx -> create(ctx.getSource(), StringArgumentType.getString(ctx, "name")));
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("create");
@@ -31,7 +31,7 @@ public class CreateCommand extends Command {
         literal.then(command);
     }
 
-    public int create(ServerCommandSource source, String name) throws CommandSyntaxException {
+    public static int create(ServerCommandSource source, String name) throws CommandSyntaxException {
         ClaimPlayer claimPlayer = (ClaimPlayer) source.getPlayer();
         if (claimPlayer.arePositionsSet()) {
             BlockPos min = new BlockPos(claimPlayer.getLeftPosition());
