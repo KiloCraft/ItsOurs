@@ -10,7 +10,7 @@ import net.minecraft.server.command.ServerCommandSource;
 
 public class TrustCommand extends Command {
 
-    public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         {
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             player.executes(ctx -> execute(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), true));
@@ -33,7 +33,7 @@ public class TrustCommand extends Command {
         }
     }
 
-    public int execute(ServerCommandSource source, AbstractClaim claim, GameProfile target, boolean trust) throws CommandSyntaxException {
+    public static int execute(ServerCommandSource source, AbstractClaim claim, GameProfile target, boolean trust) throws CommandSyntaxException {
         if (trust) {
             RoleCommand.addRole(source, claim, target, "trusted", 0);
         } else {

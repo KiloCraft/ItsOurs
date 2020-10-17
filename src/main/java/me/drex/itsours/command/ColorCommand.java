@@ -10,13 +10,13 @@ import net.minecraft.server.command.ServerCommandSource;
 
 public class ColorCommand extends Command {
 
-    public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("colors");
         command.executes(ctx -> showColors(ctx.getSource()));
         literal.then(command);
     }
 
-    public int showColors(ServerCommandSource source) throws CommandSyntaxException {
+    public static int showColors(ServerCommandSource source) throws CommandSyntaxException {
         TextComponent.Builder textComponent = Component.text().content("ItsOurs Color Palette:\n\n").color(Color.GRAY);
         for (Color color : Color.COLORS) {
             textComponent.append(Component.text(color.name.toUpperCase() + " ").color(color));

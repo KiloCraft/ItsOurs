@@ -20,16 +20,16 @@ import java.util.UUID;
 
 public class InfoCommand extends Command {
 
-    public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
         claim.executes(ctx -> info(ctx.getSource(), getClaim(ctx)));
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("info");
-        command.executes(ctx -> info(ctx.getSource(), this.getAndValidateClaim(ctx.getSource().getWorld(), ctx.getSource().getPlayer().getBlockPos())));
+        command.executes(ctx -> info(ctx.getSource(), getAndValidateClaim(ctx.getSource().getWorld(), ctx.getSource().getPlayer().getBlockPos())));
         command.then(claim);
         literal.then(command);
     }
 
-    public int info(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
+    public static int info(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
         UUID ownerUUID = claim.getOwner();
         String ownerName = "";
         GameProfile owner = source.getMinecraftServer().getUserCache().getByUuid(ownerUUID);
@@ -57,7 +57,7 @@ public class InfoCommand extends Command {
         return 1;
     }
 
-    private Component newPosLine(BlockPos pos, TextColor color1, TextColor color2) {
+    private static Component newPosLine(BlockPos pos, TextColor color1, TextColor color2) {
         return Component.text("")
                 .append(Component.text(String.valueOf(pos.getX())).color(color1))
                 .append(Component.text(" "))
@@ -66,7 +66,7 @@ public class InfoCommand extends Command {
                 .append(Component.text(String.valueOf(pos.getZ())).color(color1));
     }
 
-    private Component newInfoLine(String title, Component... text) {
+    private static Component newInfoLine(String title, Component... text) {
         TextComponent.Builder builder = Component.text().content("* " + title + ": ").color(Color.YELLOW);
         for (Component t : text) {
             builder.append(t);

@@ -18,7 +18,7 @@ import static net.minecraft.server.command.CommandManager.argument;
 
 public class ExpandCommand extends Command {
 
-    public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         {
             RequiredArgumentBuilder<ServerCommandSource, Integer> amount = argument("distance", IntegerArgumentType.integer(1));
             amount.executes(ctx -> expand(ctx, true));
@@ -37,10 +37,10 @@ public class ExpandCommand extends Command {
 
     }
 
-    public int expand(CommandContext<ServerCommandSource> ctx, boolean expand) throws CommandSyntaxException {
+    public static int expand(CommandContext<ServerCommandSource> ctx, boolean expand) throws CommandSyntaxException {
         ServerCommandSource source = ctx.getSource();
         UUID uuid = source.getPlayer().getUuid();
-        AbstractClaim claim = this.getAndValidateClaim(source.getWorld(), source.getPlayer().getBlockPos());
+        AbstractClaim claim = getAndValidateClaim(source.getWorld(), source.getPlayer().getBlockPos());
         int amount = IntegerArgumentType.getInteger(ctx, "distance");
         amount *= expand ? 1 : -1;
         Direction direction = Direction.getEntityFacingOrder(source.getPlayer())[0];

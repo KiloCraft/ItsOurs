@@ -36,7 +36,7 @@ public class RoleCommand extends Command {
 
 
     //TODO: Check if the executor is allowed to do this
-    public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
         {
             RequiredArgumentBuilder<ServerCommandSource, Integer> weight = RequiredArgumentBuilder.argument("weight", IntegerArgumentType.integer(1));
@@ -91,7 +91,7 @@ public class RoleCommand extends Command {
         return 1;
     }
 
-    public int listRoles(ServerCommandSource source, AbstractClaim claim, GameProfile target) throws CommandSyntaxException {
+    public static int listRoles(ServerCommandSource source, AbstractClaim claim, GameProfile target) throws CommandSyntaxException {
         TextComponent.Builder builder = Component.text().content("Roles (").color(Color.YELLOW).append(Component.text(target.getName()).color(Color.ORANGE).append(Component.text("):\n").color(Color.YELLOW)));
         PermissionManager pm = claim.getPermissionManager();
         for (Map.Entry<Role, Integer> entry : pm.getRolesByWeight(target.getId()).entrySet()) {
@@ -103,7 +103,7 @@ public class RoleCommand extends Command {
         return 1;
     }
 
-    public final SuggestionProvider<ServerCommandSource> OWNED_ROLES_PROVIDER = (source, builder) -> {
+    public static final SuggestionProvider<ServerCommandSource> OWNED_ROLES_PROVIDER = (source, builder) -> {
         List<String> names = new ArrayList<>();
         for (Map.Entry<String, Role> entry : ItsOursMod.INSTANCE.getRoleManager().entrySet()) {
             String roleID = entry.getKey();

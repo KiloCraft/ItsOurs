@@ -20,7 +20,7 @@ import net.minecraft.util.Formatting;
 
 public class RemoveCommand extends Command {
 
-    public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         LiteralArgumentBuilder<ServerCommandSource> confirm = LiteralArgumentBuilder.literal("confirm");
         confirm.executes(ctx -> remove(ctx.getSource(), getClaim(ctx)));
         RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
@@ -31,7 +31,7 @@ public class RemoveCommand extends Command {
         literal.then(command);
     }
 
-    public int requestRemove(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
+    public static int requestRemove(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
        validate(source, claim);
        if (!source.getPlayer().getUuid().toString().equals(claim.getOwner().toString())) {
            ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("WARNING: This is not your claim...").color(Color.RED).decorate(TextDecoration.BOLD));
@@ -41,7 +41,7 @@ public class RemoveCommand extends Command {
        return 0;
     }
 
-    public int remove(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
+    public static int remove(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
         validate(source, claim);
         //Remove claim from it's parents subzone list, so the garbage collector can remove the claim
         if (claim instanceof Subzone) {
@@ -59,14 +59,15 @@ public class RemoveCommand extends Command {
         return 0;
     }
 
-    public void removeSubzones(AbstractClaim claim) {
+    public static void removeSubzones(AbstractClaim claim) {
         for (Subzone subzone : claim.getSubzones()) {
             if (!subzone.getSubzones().isEmpty()) removeSubzones(subzone);
             ItsOursMod.INSTANCE.getClaimList().remove(subzone);
         }
     }
 
-    public void validate(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
+    //TODO
+    public static void validate(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
         if (source.getPlayer().getUuid() != claim.getOwner() && !hasPermission(source, "itsours.remove")) {
             throw new SimpleCommandExceptionType(new LiteralText("You can't delete that claim")).create();
         }

@@ -11,7 +11,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 public class ShowCommand extends Command {
 
-    public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         {
             LiteralArgumentBuilder<ServerCommandSource> show = LiteralArgumentBuilder.literal("show");
             show.executes(ctx -> show(ctx.getSource(), true));
@@ -24,8 +24,8 @@ public class ShowCommand extends Command {
         }
     }
 
-    public int show(ServerCommandSource source, boolean show) throws CommandSyntaxException {
-        AbstractClaim claim = this.getAndValidateClaim(source.getWorld(), source.getPlayer().getBlockPos());
+    public static int show(ServerCommandSource source, boolean show) throws CommandSyntaxException {
+        AbstractClaim claim = getAndValidateClaim(source.getWorld(), source.getPlayer().getBlockPos());
         ServerPlayerEntity player = source.getPlayer();
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         if (claimPlayer.getLastShowClaim() != null) claimPlayer.getLastShowClaim().show(player, false);

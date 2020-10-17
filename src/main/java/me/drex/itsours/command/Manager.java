@@ -8,19 +8,19 @@ public class Manager {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         LiteralArgumentBuilder<ServerCommandSource> main = LiteralArgumentBuilder.literal("claim");
-        new BlocksCommand().register(main);
-        new ColorCommand().register(main);
-        new CreateCommand().register(main);
-        new ExpandCommand().register(main);
-        new FlyCommand().register(main);
-        new InfoCommand().register(main);
-        new ListCommand().register(main);
-        new PermissionCommand().register(main);
-        new RemoveCommand().register(main);
-        new RoleCommand().register(main);
-        new RolesCommand().register(main);
-        new ShowCommand().register(main);
-        new TrustCommand().register(main);
+        BlocksCommand.register(main);
+        ColorCommand.register(main);
+        CreateCommand.register(main);
+        ExpandCommand.register(main);
+        FlyCommand.register(main);
+        InfoCommand.register(main);
+        ListCommand.register(main);
+        PermissionCommand.register(main);
+        RemoveCommand.register(main);
+        RoleCommand.register(main);
+        RolesCommand.register(main);
+        ShowCommand.register(main);
+        TrustCommand.register(main);
 
 
         dispatcher.register(main);

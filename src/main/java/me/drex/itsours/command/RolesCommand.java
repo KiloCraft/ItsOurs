@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class RolesCommand extends Command {
 
-    public void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("roles");
         command.executes(ctx -> listRoles(ctx.getSource()));
         {
@@ -55,7 +55,7 @@ public class RolesCommand extends Command {
         literal.then(command);
     }
 
-    public int addRole(ServerCommandSource source, String name) throws CommandSyntaxException {
+    public static int addRole(ServerCommandSource source, String name) throws CommandSyntaxException {
         if (ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
             throw new SimpleCommandExceptionType(new LiteralText("A role with that name already exists")).create();
         ItsOursMod.INSTANCE.getRoleManager().put(name, new Role(new CompoundTag()));
@@ -65,7 +65,7 @@ public class RolesCommand extends Command {
         return 1;
     }
 
-    public int removeRole(ServerCommandSource source, String name) throws CommandSyntaxException {
+    public static int removeRole(ServerCommandSource source, String name) throws CommandSyntaxException {
         if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
         throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
         if (name.equals("default") || name.equals("trusted")) throw new SimpleCommandExceptionType(new LiteralText("You can't remove that role")).create();
@@ -74,7 +74,7 @@ public class RolesCommand extends Command {
         return 1;
     }
 
-    public int setPermission(ServerCommandSource source, String name, String permission, Permission.Value value) throws CommandSyntaxException {
+    public static int setPermission(ServerCommandSource source, String name, String permission, Permission.Value value) throws CommandSyntaxException {
         if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
             throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
         Role role = ItsOursMod.INSTANCE.getRoleManager().get(name);
@@ -86,7 +86,7 @@ public class RolesCommand extends Command {
         return 1;
     }
 
-    public int listPermission(ServerCommandSource source, String name) throws CommandSyntaxException {
+    public static int listPermission(ServerCommandSource source, String name) throws CommandSyntaxException {
         if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
             throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
         Role role = ItsOursMod.INSTANCE.getRoleManager().get(name);
@@ -94,7 +94,7 @@ public class RolesCommand extends Command {
         return 1;
     }
 
-    public int listRoles(ServerCommandSource source) throws CommandSyntaxException {
+    public static int listRoles(ServerCommandSource source) throws CommandSyntaxException {
         TextComponent.Builder builder = Component.text().content("Roles:\n").color(Color.ORANGE);
         for (Map.Entry<String, Role> entry : ItsOursMod.INSTANCE.getRoleManager().entrySet()) {
             String name = entry.getKey();

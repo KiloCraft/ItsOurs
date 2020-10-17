@@ -31,12 +31,12 @@ import static net.minecraft.server.command.CommandManager.argument;
 
 public abstract class Command {
 
-    public final SuggestionProvider<ServerCommandSource> ROLE_PROVIDER = (source, builder) -> {
+    public static final SuggestionProvider<ServerCommandSource> ROLE_PROVIDER = (source, builder) -> {
         List<String> names = new ArrayList<>();
         ItsOursMod.INSTANCE.getRoleManager().forEach((roleID, role) -> names.add(roleID));
         return CommandSource.suggestMatching(names, builder);
     };
-    public final SuggestionProvider<ServerCommandSource> CLAIM_PROVIDER = (source, builder) -> {
+    public static final SuggestionProvider<ServerCommandSource> CLAIM_PROVIDER = (source, builder) -> {
         UUID uuid = source.getSource().getPlayer().getUuid();
         ServerPlayerEntity player = source.getSource().getPlayer();
         List<String> names = new ArrayList<>();
@@ -51,7 +51,7 @@ public abstract class Command {
         return CommandSource.suggestMatching(names, builder);
     };
     //TODO: Validate permissions
-    public final SuggestionProvider<ServerCommandSource> PERMISSION_PROVIDER = (source, builder) -> {
+    public static final SuggestionProvider<ServerCommandSource> PERMISSION_PROVIDER = (source, builder) -> {
         List<String> permissions = new ArrayList<>();
         for (Permission permission : Permission.permissions) {
             permissions.add(permission.id);
@@ -62,7 +62,7 @@ public abstract class Command {
         return CommandSource.suggestMatching(permissions, builder);
     };
 
-    public final SuggestionProvider<ServerCommandSource> PERMISSION_VALUE_PROVIDER = (source, builder) -> {
+    public static final SuggestionProvider<ServerCommandSource> PERMISSION_VALUE_PROVIDER = (source, builder) -> {
         List<String> values = Arrays.asList("true", "false", "unset");
         return CommandSource.suggestMatching(values, builder);
     };
@@ -94,7 +94,7 @@ public abstract class Command {
         return profile;
     }
 
-    private void addSubzones(AbstractClaim claim, String input, List<String> names) {
+    private static void addSubzones(AbstractClaim claim, String input, List<String> names) {
         if (input.startsWith(claim.getFullName())) {
             for (Subzone subzone : claim.getSubzones()) {
                 names.add(subzone.getFullName());
@@ -103,7 +103,7 @@ public abstract class Command {
         }
     }
 
-    private void addNodes(String parent, Group[] groups, int i, String input, List<String> permissions) {
+    private static void addNodes(String parent, Group[] groups, int i, String input, List<String> permissions) {
         for (AbstractNode node : groups[i].list) {
             String s = parent + "." + node.getID();
             permissions.add(s);
@@ -111,31 +111,31 @@ public abstract class Command {
         }
     }
 
-    AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
+    static AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(world, pos);
         if (claim == null)
             throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim at your position!")).create();
         return claim;
     }
 
-    boolean hasPermission(ServerCommandSource src, String permission) {
+    static boolean hasPermission(ServerCommandSource src, String permission) {
         return ItsOursMod.INSTANCE.getPermissionHandler().hasPermission(src, permission, 2);
     }
 
-    public AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    public static AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         String name = StringArgumentType.getString(ctx, "claim");
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(name);
         if (claim != null) return claim;
         throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim with that name")).create();
     }
 
-    public String getPermission(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    public static String getPermission(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         String permission = StringArgumentType.getString(ctx, "perm");
         if (!Permission.isValid(permission)) throw new SimpleCommandExceptionType(new LiteralText("Invalid permission")).create();
         return permission;
     }
 
-    public Permission.Value getPermissionValue(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    public static Permission.Value getPermissionValue(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         String value = StringArgumentType.getString(ctx, "value");
         for (Permission.Value val : Permission.Value.values()) {
             if (val.name.equalsIgnoreCase(value)) return val;
@@ -143,19 +143,19 @@ public abstract class Command {
         throw new SimpleCommandExceptionType(new LiteralText("Invalid permission value")).create();
     }
 
-    public RequiredArgumentBuilder<ServerCommandSource, String> claimArgument() {
+    public static RequiredArgumentBuilder<ServerCommandSource, String> claimArgument() {
         return argument("claim", word()).suggests(CLAIM_PROVIDER);
     }
 
-    public RequiredArgumentBuilder<ServerCommandSource, String> roleArgument() {
+    public static RequiredArgumentBuilder<ServerCommandSource, String> roleArgument() {
         return argument("name", word()).suggests(ROLE_PROVIDER);
     }
 
-    public RequiredArgumentBuilder<ServerCommandSource, String> permissionArgument() {
+    public static RequiredArgumentBuilder<ServerCommandSource, String> permissionArgument() {
         return argument("perm", word()).suggests(PERMISSION_PROVIDER);
     }
 
-    public RequiredArgumentBuilder<ServerCommandSource, String> permissionValueArgument() {
+    public static RequiredArgumentBuilder<ServerCommandSource, String> permissionValueArgument() {
         return argument("value", word()).suggests(PERMISSION_VALUE_PROVIDER);
     }
 
