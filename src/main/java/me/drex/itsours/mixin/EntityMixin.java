@@ -12,7 +12,9 @@ import net.minecraft.block.AbstractButtonBlock;
 import net.minecraft.block.AbstractPressurePlateBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.item.Item;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -105,13 +107,18 @@ public abstract class EntityMixin {
     @Redirect(method = "checkBlockCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V"))
     private void ItsOus$onBlockCollision(BlockState blockState, World world, BlockPos pos, Entity entity) {
         ServerPlayerEntity playerEntity = null;
-        if (entity instanceof ProjectileEntity && blockState.getBlock() instanceof AbstractButtonBlock) {
+        if (entity instanceof ProjectileEntity && (blockState.getBlock() instanceof AbstractButtonBlock || blockState.getBlock() instanceof AbstractPressurePlateBlock)) {
             ProjectileEntity projectileEntity = (ProjectileEntity) entity;
             if (projectileEntity.getOwner() != null && projectileEntity.getOwner() instanceof ServerPlayerEntity) {
                 playerEntity = (ServerPlayerEntity) projectileEntity.getOwner();
             }
         } else if (entity instanceof ServerPlayerEntity && blockState.getBlock() instanceof AbstractPressurePlateBlock) {
             playerEntity = (ServerPlayerEntity) entity;
+        } else if (entity instanceof ItemEntity && blockState.getBlock() instanceof AbstractPressurePlateBlock) {
+            ItemEntity item = (ItemEntity) entity;
+            if (item.getThrower() != null) {
+                playerEntity = ItsOursMod.server.getPlayerManager().getPlayer(item.getOwner());
+            }
         }
         if (playerEntity == null) {
             blockState.onEntityCollision(world, pos, entity);
