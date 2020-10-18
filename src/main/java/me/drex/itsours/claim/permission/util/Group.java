@@ -26,7 +26,7 @@ public class Group {
     public static final Group INTERACTABLE_BLOCKS = create(Registry.BLOCK, BlockTags.getRequiredTags(), INTERACT_BLOCK_FILTER);
     public static final Group USE_ON_BLOCKS = create(Registry.ITEM, ItemTags.getRequiredTags(), USE_ON_BLOCK_FILTER);
     public static final Group USE_ITEM = create(Registry.ITEM, ItemTags.getRequiredTags(), USE_ITEM_FILTER);
-    public static final Group ENTITIES = create(Registry.ENTITY_TYPE, EntityTypeTags.getRequiredTags());
+    public static final Group ENTITY = create(Registry.ENTITY_TYPE, EntityTypeTags.getRequiredTags());
     public static final Group ITEMS = create(Registry.ITEM, ItemTags.getRequiredTags());
     public final List<AbstractNode> list;
 

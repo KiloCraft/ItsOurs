@@ -9,6 +9,7 @@
     "BucketItemMixin",
     "EntityMixin",
     "LevelStorageSessionMixin",
+    "PlayerEntityMixin",
     "ServerPlayerEntityMixin",
     "ServerPlayerInteractionManagerMixin"
   ],
