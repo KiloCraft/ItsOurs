@@ -66,7 +66,7 @@ public class InfoCommand extends Command {
                 .append(Component.text(String.valueOf(pos.getZ())).color(color1));
     }
 
-    private static Component newInfoLine(String title, Component... text) {
+    public static Component newInfoLine(String title, Component... text) {
         TextComponent.Builder builder = Component.text().content("* " + title + ": ").color(Color.YELLOW);
         for (Component t : text) {
             builder.append(t);

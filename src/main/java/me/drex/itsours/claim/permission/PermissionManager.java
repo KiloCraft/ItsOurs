@@ -130,6 +130,14 @@ public class PermissionManager {
         pm.setPermission(permission, value);
     }
 
+    public PermissionMap getPlayerPermission(UUID uuid) {
+        PermissionMap pm = playerPermission.get(uuid);
+        if (pm == null) {
+            pm = new PermissionMap(new CompoundTag());
+        }
+        return pm;
+    }
+
     public void resetPlayerPermission(UUID uuid, String permission) {
         PermissionMap pm = playerPermission.get(uuid);
         if (pm != null) {
