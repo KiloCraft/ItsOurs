@@ -141,6 +141,10 @@ public abstract class AbstractClaim {
         return value.value;
     }
 
+    public boolean getSetting(String setting) {
+        return this.permissionManager.settings.getPermission(setting).value;
+    }
+
     void sendDebug(UUID uuid, String permission, Permission.Value value) {
         ServerPlayerEntity playerEntity = ItsOursMod.server.getPlayerManager().getPlayer(this.getOwner());
         if (playerEntity != null && ((ClaimPlayer)playerEntity).debugEnabled())

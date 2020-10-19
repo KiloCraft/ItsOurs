@@ -53,6 +53,15 @@ public class Subzone extends AbstractClaim {
         return value.value;
     }
 
+    @Override
+    public boolean getSetting(String setting) {
+        Permission.Value value = this.getPermissionManager().settings.getPermission(setting);
+        if (value == Permission.Value.UNSET) {
+            return parent.getSetting(setting);
+        }
+        return value.value;
+    }
+
     public int getDepth() {
         return this.getParent().getDepth() + 1;
     }
