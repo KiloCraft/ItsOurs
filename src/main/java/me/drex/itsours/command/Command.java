@@ -132,6 +132,12 @@ public abstract class Command {
         return permission;
     }
 
+    public static String getSetting(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        String permission = StringArgumentType.getString(ctx, "setting");
+        if (!Permission.isValid(permission)) throw new SimpleCommandExceptionType(new LiteralText("Invalid setting")).create();
+        return permission;
+    }
+
     public static Permission.Value getPermissionValue(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         String value = StringArgumentType.getString(ctx, "value");
         for (Permission.Value val : Permission.Value.values()) {
@@ -151,6 +157,11 @@ public abstract class Command {
     public static RequiredArgumentBuilder<ServerCommandSource, String> permissionArgument() {
         return argument("perm", word()).suggests(PERMISSION_PROVIDER);
     }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, String> settingArgument() {
+        return argument("setting", word()).suggests(PERMISSION_PROVIDER);
+    }
+
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> permissionValueArgument() {
         return argument("value", word()).suggests(PERMISSION_VALUE_PROVIDER);

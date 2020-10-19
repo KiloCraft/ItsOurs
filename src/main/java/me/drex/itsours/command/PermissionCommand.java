@@ -101,7 +101,7 @@ public class PermissionCommand extends Command {
         return hover.build();
     }
 
-    private static void appendOptionally(TextComponent.Builder builder, String permission, String permission2) {
+    static void appendOptionally(TextComponent.Builder builder, String permission, String permission2) {
         if (!permission.equals(permission2) && permission2 != null) {
             builder.append(Component.text(" (" + permission2 + ")").color(Color.WHITE).decorate(TextDecoration.ITALIC));
         }
