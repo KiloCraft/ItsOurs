@@ -26,7 +26,7 @@ public class ServerPlayNetworkHandlerMixin {
         if (claim == null)
             return entity.interactAt(player, vec3d, hand);
         if (!claim.hasPermission(player.getUuid(), "interact_entity." + Permission.toString(entity.getType()))) {
-            ClaimPlayer claimPlayer = (ClaimPlayer) this;
+            ClaimPlayer claimPlayer = (ClaimPlayer) player;
             claimPlayer.sendError(Component.text("You can't interact with that entity here.").color(Color.RED));
             return ActionResult.FAIL;
         }
