@@ -23,6 +23,7 @@ public class Permission {
     public static final Permission USE_ON_BLOCK = new Permission("use_on_block", Group.USE_ON_BLOCKS);
     public static final Permission USE_ITEM = new Permission("use_item", Group.USE_ITEM);
     public static final Permission DAMAGE_ENTITY = new Permission("damage_entity", Group.ENTITY);
+    public static final Permission INTERACT_ENTITY = new Permission("interact_entity", Group.ENTITY);
     public final String id;
     public final Group[] groups;
 

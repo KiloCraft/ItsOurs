@@ -11,7 +11,8 @@
     "LevelStorageSessionMixin",
     "PlayerEntityMixin",
     "ServerPlayerEntityMixin",
-    "ServerPlayerInteractionManagerMixin"
+    "ServerPlayerInteractionManagerMixin",
+    "ServerPlayNetworkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
