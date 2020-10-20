@@ -28,10 +28,15 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;isAttackable()Z"))
     private boolean ItsOurs$onDamage(Entity entity) {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) entity.getEntityWorld(), entity.getBlockPos());
-        if (claim == null)
+        ClaimPlayer claimPlayer = (ClaimPlayer) this;
+        if (claim == null) {
             return entity.isAttackable();
+        }
+        if (!claim.getSetting("pvp") && entity instanceof PlayerEntity) {
+            claimPlayer.sendError(Component.text("You can't pvp here.").color(Color.RED));
+            return false;
+        }
         if (!claim.hasPermission(this.getUuid(), "damage_entity." + Permission.toString(entity.getType()))) {
-            ClaimPlayer claimPlayer = (ClaimPlayer) this;
             claimPlayer.sendError(Component.text("You can't damage that entity here.").color(Color.RED));
             return false;
         }
