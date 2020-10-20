@@ -24,6 +24,7 @@ public class Permission {
     public static final Permission USE_ITEM = new Permission("use_item", Group.USE_ITEM);
     public static final Permission DAMAGE_ENTITY = new Permission("damage_entity", Group.ENTITY);
     public static final Permission INTERACT_ENTITY = new Permission("interact_entity", Group.ENTITY);
+    public static final Setting PVP = new Setting("pvp");
     public final String id;
     public final Group[] groups;
 
@@ -38,7 +39,7 @@ public class Permission {
         String[] nodes = permission.split("\\.");
         boolean[] b = new boolean[nodes.length - 1];
         Permission p = Permission.getPermission(permission);
-        if (p == null) return false;
+        if (p == null || (p instanceof Setting)) return false;
         for (int i = 0; i < nodes.length - 1; i++) {
             for (AbstractNode abstractNode : p.groups[i].list) {
                 if (abstractNode.getID().equals(nodes[i + 1])) b[i] = true;
@@ -52,7 +53,7 @@ public class Permission {
 
     public static Permission getPermission(String perm) {
         for (Permission permission : Permission.permissions) {
-            if (perm.startsWith(permission.id)) {
+            if (perm.split("\\.")[0].equals(permission.id)) {
                 return permission;
             }
         }

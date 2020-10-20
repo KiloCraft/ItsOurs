@@ -23,7 +23,7 @@ public class SettingCommand extends Command {
         }
         {
             RequiredArgumentBuilder<ServerCommandSource, String> value = permissionValueArgument();
-            value.executes(ctx -> setSetting(ctx.getSource(), getClaim(ctx), getSetting(ctx), getPermissionValue(ctx)))
+            value.executes(ctx -> setSetting(ctx.getSource(), getClaim(ctx), getSetting(ctx), getPermissionValue(ctx)));
             RequiredArgumentBuilder<ServerCommandSource, String> setting = settingArgument();
             LiteralArgumentBuilder<ServerCommandSource> set = LiteralArgumentBuilder.literal("set");
             setting.then(value);
