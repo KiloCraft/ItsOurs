@@ -12,7 +12,8 @@
     "PlayerEntityMixin",
     "ServerPlayerEntityMixin",
     "ServerPlayerInteractionManagerMixin",
-    "ServerPlayNetworkHandlerMixin"
+    "ServerPlayNetworkHandlerMixin",
+    "SpawnRestrictionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

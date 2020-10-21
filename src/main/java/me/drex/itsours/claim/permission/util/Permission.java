@@ -25,6 +25,7 @@ public class Permission {
     public static final Permission DAMAGE_ENTITY = new Permission("damage_entity", Group.ENTITY);
     public static final Permission INTERACT_ENTITY = new Permission("interact_entity", Group.ENTITY);
     public static final Setting PVP = new Setting("pvp");
+    public static final Setting MOBSPAWN = new Setting("mobspawn");
     public final String id;
     public final Group[] groups;
 
