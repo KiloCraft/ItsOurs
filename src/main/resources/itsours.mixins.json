@@ -5,10 +5,15 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "BlockItemMixin",
+    "BoatItemMixin",
+    "BucketItemMixin",
     "EntityMixin",
     "LevelStorageSessionMixin",
+    "PlayerEntityMixin",
     "ServerPlayerEntityMixin",
-    "ServerPlayerInteractionManagerMixin"
+    "ServerPlayerInteractionManagerMixin",
+    "ServerPlayNetworkHandlerMixin",
+    "SpawnRestrictionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

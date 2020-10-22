@@ -35,9 +35,15 @@ public interface ClaimPlayer {
 
     void sendMessage(Component component);
 
+    void sendActionbar(Component component);
+
     void toggleFlight();
 
     boolean flightEnabled();
+
+    void toggleDebug();
+
+    boolean debugEnabled();
 
     void cacheFlight(boolean value);
 

@@ -15,6 +15,7 @@ import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -32,6 +33,7 @@ public class PermissionCommand extends Command {
             RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();
             permission.executes(ctx -> checkPlayer(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), getPermission(ctx)));
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
+            player.executes(ctx -> listPermission(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player")));
             LiteralArgumentBuilder<ServerCommandSource> check = LiteralArgumentBuilder.literal("check");
             player.then(permission);
             check.then(player);
@@ -99,7 +101,7 @@ public class PermissionCommand extends Command {
         return hover.build();
     }
 
-    private static void appendOptionally(TextComponent.Builder builder, String permission, String permission2) {
+    static void appendOptionally(TextComponent.Builder builder, String permission, String permission2) {
         if (!permission.equals(permission2) && permission2 != null) {
             builder.append(Component.text(" (" + permission2 + ")").color(Color.WHITE).decorate(TextDecoration.ITALIC));
         }
@@ -111,6 +113,25 @@ public class PermissionCommand extends Command {
                 .append(Component.text(permission)).color(Color.ORANGE)
                 .append(Component.text(" for ")).color(Color.YELLOW)
                 .append(Component.text(target.getName())).color(Color.ORANGE).append(Component.text(" to ")).color(Color.YELLOW).append(value.format()));
+        return 0;
+    }
+
+    public static int listPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target) throws CommandSyntaxException {
+        TextComponent.Builder roleBuilder = Component.text();
+        for (Map.Entry<Role, Integer> entry : claim.getPermissionManager().getRolesByWeight(target.getId()).entrySet()) {
+            roleBuilder.append(Component.text(ItsOursMod.INSTANCE.getRoleManager().getRoleID(entry.getKey()) + " (").color(Color.YELLOW))
+                    .append(Component.text(String.valueOf(entry.getValue())).color(Color.ORANGE))
+                    .append(Component.text(") ").color(Color.YELLOW));
+        }
+
+        TextComponent.Builder builder = Component.text().content("Player Info (").color(Color.ORANGE)
+                .append(Component.text(target.getName()).color(Color.RED))
+                .append(Component.text(")\n").color(Color.ORANGE))
+                .append(InfoCommand.newInfoLine("Claim", Component.text(claim.getFullName()).color(Color.WHITE).clickEvent(ClickEvent.runCommand("/claim info " + claim.getFullName()))))
+                .append(InfoCommand.newInfoLine("Roles", roleBuilder.build().clickEvent(ClickEvent.runCommand("/claim role " + claim.getFullName() + " list " + target.getName()))))
+                .append(InfoCommand.newInfoLine("Permissions", claim.getPermissionManager().getPlayerPermission(target.getId()).toText()));
+
+        ((ClaimPlayer) source.getPlayer()).sendMessage(builder.build());
         return 0;
     }
 

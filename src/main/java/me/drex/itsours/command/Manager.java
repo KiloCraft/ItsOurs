@@ -11,6 +11,7 @@ public class Manager {
         BlocksCommand.register(main);
         ColorCommand.register(main);
         CreateCommand.register(main);
+        DebugCommand.register(main);
         ExpandCommand.register(main);
         FlyCommand.register(main);
         InfoCommand.register(main);
@@ -19,6 +20,7 @@ public class Manager {
         RemoveCommand.register(main);
         RoleCommand.register(main);
         RolesCommand.register(main);
+        SettingCommand.register(main);
         ShowCommand.register(main);
         TrustCommand.register(main);
 

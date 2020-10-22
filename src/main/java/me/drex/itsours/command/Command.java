@@ -12,6 +12,7 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.claim.permission.util.Group;
 import me.drex.itsours.claim.permission.util.Permission;
+import me.drex.itsours.claim.permission.util.Setting;
 import me.drex.itsours.claim.permission.util.node.AbstractNode;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -50,16 +51,27 @@ public abstract class Command {
         }
         return CommandSource.suggestMatching(names, builder);
     };
-    //TODO: Validate permissions
+
     public static final SuggestionProvider<ServerCommandSource> PERMISSION_PROVIDER = (source, builder) -> {
         List<String> permissions = new ArrayList<>();
         for (Permission permission : Permission.permissions) {
             permissions.add(permission.id);
-            if (builder.getRemaining().startsWith(permission.id)) {
+            if (builder.getRemaining().startsWith(permission.id) && permission.groups.length > 0) {
                 addNodes(permission.id, permission.groups, 0, builder.getRemaining(), permissions);
             }
         }
         return CommandSource.suggestMatching(permissions, builder);
+    };
+
+    public static final SuggestionProvider<ServerCommandSource> SETTING_PROVIDER = (source, builder) -> {
+        List<String> settings = new ArrayList<>();
+        for (Permission setting : Permission.permissions) {
+            settings.add(setting.id);
+            if (builder.getRemaining().startsWith(setting.id) && setting.groups.length > 0) {
+                addNodes(setting.id, setting.groups, 0, builder.getRemaining(), settings);
+            }
+        }
+        return CommandSource.suggestMatching(settings, builder);
     };
 
     public static final SuggestionProvider<ServerCommandSource> PERMISSION_VALUE_PROVIDER = (source, builder) -> CommandSource.suggestMatching(Arrays.asList("true", "false", "unset"), builder);
@@ -132,6 +144,12 @@ public abstract class Command {
         return permission;
     }
 
+    public static String getSetting(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        String permission = StringArgumentType.getString(ctx, "setting");
+        if (!Setting.isValid(permission)) throw new SimpleCommandExceptionType(new LiteralText("Invalid setting")).create();
+        return permission;
+    }
+
     public static Permission.Value getPermissionValue(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         String value = StringArgumentType.getString(ctx, "value");
         for (Permission.Value val : Permission.Value.values()) {
@@ -151,6 +169,11 @@ public abstract class Command {
     public static RequiredArgumentBuilder<ServerCommandSource, String> permissionArgument() {
         return argument("perm", word()).suggests(PERMISSION_PROVIDER);
     }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, String> settingArgument() {
+        return argument("setting", word()).suggests(SETTING_PROVIDER);
+    }
+
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> permissionValueArgument() {
         return argument("value", word()).suggests(PERMISSION_VALUE_PROVIDER);
