@@ -13,6 +13,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -54,6 +55,16 @@ public abstract class PlayerEntityMixin extends LivingEntity {
             return ActionResult.FAIL;
         }
         return entity.interact(player, hand);
+    }
+
+    @Redirect(method = "dropInventory", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/GameRules;getBoolean(Lnet/minecraft/world/GameRules$Key;)Z"))
+    public boolean ItsOurs$onDropInventory(GameRules gameRules, GameRules.Key<GameRules.BooleanRule> rule) {
+        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) this.getEntityWorld(), this.getBlockPos());
+        if (claim != null) {
+            return !claim.getSetting("drop_inventory");
+        } else {
+            return gameRules.getBoolean(rule);
+        }
     }
 
 }
