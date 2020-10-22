@@ -10,6 +10,7 @@
     "EntityMixin",
     "LevelStorageSessionMixin",
     "PlayerEntityMixin",
+    "ProjectileEntityMixin",
     "ServerPlayerEntityMixin",
     "ServerPlayerInteractionManagerMixin",
     "ServerPlayNetworkHandlerMixin",
