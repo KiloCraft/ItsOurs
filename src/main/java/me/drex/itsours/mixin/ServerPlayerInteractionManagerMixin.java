@@ -83,7 +83,7 @@ public class ServerPlayerInteractionManagerMixin {
     private boolean ItsOurs$onBlockBreak(ServerPlayerEntity playerEntity, World world, BlockPos pos, GameMode gameMode) {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, pos);
         if (claim == null) return playerEntity.isBlockBreakingRestricted(world, pos, gameMode);
-        if (!claim.hasPermission(playerEntity.getUuid(), "mine." + Permission.toString(this.world.getBlockState(pos).getBlock()))) {
+        if (!claim.hasPermission(playerEntity.getUuid(), "mine." + Permission.toString(this.world.getBlockState(pos).getBlock()) + "." + Permission.toString(playerEntity.getMainHandStack().getItem()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
             claimPlayer.sendError(Component.text("You can't break that block here.").color(Color.RED));
             return true;
@@ -109,7 +109,7 @@ public class ServerPlayerInteractionManagerMixin {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
         if (claim == null || !Group.filter(itemStack.getItem(), Group.USE_ON_BLOCK_FILTER))
             return itemStack.useOnBlock(context);
-        if (!claim.hasPermission(context.getPlayer().getUuid(), "use_on_block." + Permission.toString(itemStack.getItem()))) {
+        if (!claim.hasPermission(context.getPlayer().getUuid(), "use_on_block." + Permission.toString(itemStack.getItem()) + "." + Permission.toString(context.getWorld().getBlockState(context.getBlockPos()).getBlock()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) context.getPlayer();
             claimPlayer.sendError(Component.text("You can't use that item here.").color(Color.RED));
             return ActionResult.FAIL;
