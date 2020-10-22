@@ -78,7 +78,6 @@ public class ItsOursMod implements DedicatedServerModInitializer {
             }
             this.roleManager = new RoleManager(tag.getCompound("roles"));
             this.claimList = new ClaimList((ListTag) tag.get("claims"));
-            this.blockManager = new BlockManager(tag.getCompound("blocks"));
             this.playerList = new PlayerList(tag.getCompound("players"));
         }
         this.permissionHandler = new PermissionHandler();
