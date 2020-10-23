@@ -8,6 +8,7 @@ import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -28,18 +29,21 @@ public abstract class ProjectileEntityMixin extends Entity {
     }
 
     @Redirect(method = "onCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/ProjectileEntity;onEntityHit(Lnet/minecraft/util/hit/EntityHitResult;)V"))
-    public void ItsOurs$onCollision(ProjectileEntity projectileEntity, EntityHitResult entityHitResult) {
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) entityHitResult.getEntity().getEntityWorld(), entityHitResult.getEntity().getBlockPos());
-        if (claim == null && projectileEntity.getOwner() instanceof ServerPlayerEntity) {
-            this.onEntityHit(entityHitResult);
+    public void itsours$onCollision(ProjectileEntity entity, EntityHitResult hitResult) {
+        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) hitResult.getEntity().getEntityWorld(), hitResult.getEntity().getBlockPos());
+        if (claim == null || !(entity.getOwner() instanceof ServerPlayerEntity)) {
+            this.onEntityHit(hitResult);
             return;
         }
-        if (!claim.hasPermission(projectileEntity.getOwner().getUuid(), "damage_entity." + Permission.toString(entityHitResult.getEntity().getType()))) {
-            ClaimPlayer claimPlayer = (ClaimPlayer) projectileEntity.getOwner();
+        if (!claim.hasPermission(entity.getOwner().getUuid(), "damage_entity." + Permission.toString(hitResult.getEntity().getType()))) {
+            ClaimPlayer claimPlayer = (ClaimPlayer) entity.getOwner();
             claimPlayer.sendError(Component.text("You can't damage that entity here.").color(Color.RED));
+            if (entity instanceof PersistentProjectileEntity) {
+                if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill();
+            }
             return;
         }
-        this.onEntityHit(entityHitResult);
+        this.onEntityHit(hitResult);
     }
 
 }

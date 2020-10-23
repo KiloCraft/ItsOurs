@@ -25,7 +25,7 @@ public class BucketItemMixin extends Item {
     }
 
     @Redirect(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/BucketItem;raycast(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/RaycastContext$FluidHandling;)Lnet/minecraft/util/hit/BlockHitResult;"))
-    private BlockHitResult ItsOurs$onBucketUse(World world, PlayerEntity player, RaycastContext.FluidHandling fluidHandling) {
+    private BlockHitResult itsours$onBucketUse(World world, PlayerEntity player, RaycastContext.FluidHandling fluidHandling) {
         BlockHitResult hit = Item.raycast(world, player, fluidHandling);
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
         if (claim == null)

@@ -104,7 +104,7 @@ public abstract class EntityMixin {
     }
 
     @Redirect(method = "checkBlockCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V"))
-    private void ItsOus$onBlockCollision(BlockState blockState, World world, BlockPos pos, Entity entity) {
+    private void itsours$onBlockCollision(BlockState blockState, World world, BlockPos pos, Entity entity) {
         ServerPlayerEntity playerEntity = null;
         if (entity instanceof ProjectileEntity && (blockState.getBlock() instanceof AbstractButtonBlock || blockState.getBlock() instanceof AbstractPressurePlateBlock)) {
             ProjectileEntity projectileEntity = (ProjectileEntity) entity;
@@ -137,7 +137,7 @@ public abstract class EntityMixin {
     }
 
     @Inject(method = "toTag", at = @At(value = "HEAD"))
-    public void ItsOurs$onEntityToTag(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
+    public void itsours$onEntityToTag(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
         if ((Object) this instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
             ItsOursMod.INSTANCE.getPlayerList().put(player.getUuid(), ((ClaimPlayer)player).toNBT());
@@ -145,7 +145,7 @@ public abstract class EntityMixin {
     }
 
     @Inject(method = "fromTag", at = @At(value = "RETURN"))
-    public void ItsOurs$onEntityFromTag(CompoundTag tag, CallbackInfo ci) {
+    public void itsours$onEntityFromTag(CompoundTag tag, CallbackInfo ci) {
         if ((Object) this instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
             ((ClaimPlayer)player).fromNBT(ItsOursMod.INSTANCE.getPlayerList().getTags(player.getUuid()));
