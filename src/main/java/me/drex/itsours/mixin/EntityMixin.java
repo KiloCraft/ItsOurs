@@ -13,6 +13,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -26,6 +27,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin {
@@ -58,7 +60,7 @@ public abstract class EntityMixin {
                         //update abilities for respective gamemode
                         player.interactionManager.getGameMode().setAbilities(player.abilities);
                         //check if the player was flying before they entered the claim
-                        if (claimPlayer.getFlightCache()) {
+                        if ((boolean) claimPlayer.getSetting("cachedFlight", false)) {
                             player.abilities.flying = cachedFlying;
                             player.abilities.allowFlying = true;
                         }
@@ -69,12 +71,12 @@ public abstract class EntityMixin {
                         }
                         player.sendAbilitiesUpdate();
                     } else if (claim != null) {
-                        if (pclaim == null) claimPlayer.cacheFlight(player.abilities.allowFlying);
+                        if (pclaim == null) claimPlayer.setSetting("cachedFlight", player.abilities.allowFlying);
                         boolean cachedFlying = player.abilities.flying;
                         //update abilities for respective gamemode
                         player.interactionManager.getGameMode().setAbilities(player.abilities);
                         //enable flying if player enabled it
-                        if (!player.abilities.allowFlying) player.abilities.allowFlying = claimPlayer.flightEnabled();
+                        if (!player.abilities.allowFlying) player.abilities.allowFlying = (boolean) claimPlayer.getSetting("flight", false);
                         //set the flight state to what it was before entering
                         if (player.abilities.allowFlying) player.abilities.flying = cachedFlying;
                         player.sendAbilitiesUpdate();
@@ -102,7 +104,7 @@ public abstract class EntityMixin {
     }
 
     @Redirect(method = "checkBlockCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V"))
-    private void ItsOus$onBlockCollision(BlockState blockState, World world, BlockPos pos, Entity entity) {
+    private void itsours$onBlockCollision(BlockState blockState, World world, BlockPos pos, Entity entity) {
         ServerPlayerEntity playerEntity = null;
         if (entity instanceof ProjectileEntity && (blockState.getBlock() instanceof AbstractButtonBlock || blockState.getBlock() instanceof AbstractPressurePlateBlock)) {
             ProjectileEntity projectileEntity = (ProjectileEntity) entity;
@@ -132,6 +134,22 @@ public abstract class EntityMixin {
             return;
         }
         blockState.onEntityCollision(world, pos, entity);
+    }
+
+    @Inject(method = "toTag", at = @At(value = "HEAD"))
+    public void itsours$onEntityToTag(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
+        if ((Object) this instanceof ServerPlayerEntity) {
+            ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
+            ItsOursMod.INSTANCE.getPlayerList().put(player.getUuid(), ((ClaimPlayer)player).toNBT());
+        }
+    }
+
+    @Inject(method = "fromTag", at = @At(value = "RETURN"))
+    public void itsours$onEntityFromTag(CompoundTag tag, CallbackInfo ci) {
+        if ((Object) this instanceof ServerPlayerEntity) {
+            ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
+            ((ClaimPlayer)player).fromNBT(ItsOursMod.INSTANCE.getPlayerList().getTags(player.getUuid()));
+        }
     }
 
 

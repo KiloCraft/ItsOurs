@@ -52,25 +52,26 @@ public class BlocksCommand extends Command {
     }
 
     public static int check(ServerCommandSource source) throws CommandSyntaxException {
-        int blocks = ItsOursMod.INSTANCE.getBlockManager().getBlocks(source.getPlayer().getUuid());
+        int blocks = (int) ((ClaimPlayer)source.getPlayer()).getSetting("blocks", 1000);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("You have " + blocks + " blocks left").color(Color.LIGHT_GREEN));
         return blocks;
     }
 
     public static int checkOther(ServerCommandSource source, GameProfile gameProfile) throws CommandSyntaxException {
-        int blocks = ItsOursMod.INSTANCE.getBlockManager().getBlocks(gameProfile.getId());
+        int blocks = (int) ItsOursMod.INSTANCE.getPlayerList().get(gameProfile.getId(), "blocks", 1000);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text(gameProfile.getName() + " has " + blocks + " blocks left").color(Color.LIGHT_GREEN));
         return blocks;
     }
 
     public static int set(ServerCommandSource source, GameProfile gameProfile, int amount) throws CommandSyntaxException {
-        ItsOursMod.INSTANCE.getBlockManager().setBlocks(gameProfile.getId(), amount);
+        ItsOursMod.INSTANCE.getPlayerList().set(gameProfile.getId(), "blocks", amount);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set " + gameProfile.getName() + "'s claim blocks to " + amount).color(Color.LIGHT_GREEN));
         return amount;
     }
 
     public static int add(ServerCommandSource source, GameProfile gameProfile, int amount) throws CommandSyntaxException {
-        ItsOursMod.INSTANCE.getBlockManager().addBlocks(gameProfile.getId(), amount);
+        int blocks = (int) ItsOursMod.INSTANCE.getPlayerList().get(gameProfile.getId(), "blocks", 1000);
+        ItsOursMod.INSTANCE.getPlayerList().set(gameProfile.getId(), "blocks", Math.max(0, blocks + amount));
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text((amount > 0 ? ("Added " + amount) : ("Removed " + -amount)) + " claim block(s) " + (amount > 0 ? "to " : "from ") + gameProfile.getName()).color(Color.LIGHT_GREEN));
         return amount;
     }

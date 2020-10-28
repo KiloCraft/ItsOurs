@@ -58,6 +58,7 @@ public class PermissionCommand extends Command {
     public static int checkPlayer(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission) throws CommandSyntaxException {
         //TODO: Check if excutor is allowed to check
         boolean value = claim.getPermissionManager().hasPermission(target.getId(), permission).value;
+        boolean value2 = claim.hasPermission(target.getId(), permission);
         String perm = permission;
         TextComponent.Builder hover = Component.text();
         hover.append(checkPermission(claim.getPermissionManager(), target, permission));
@@ -67,7 +68,6 @@ public class PermissionCommand extends Command {
             hover.append(Component.text("\n"));
             hover.append(checkPermission(claim.getPermissionManager(), target, permission));
         }
-        boolean value2 = claim.hasPermission(target.getId(), permission);
         if (value != value2) hover.append(Component.text("\n*Note: The actual value is ").color(Color.RED).append(Permission.Value.of(value2).format()).append(Component.text(", because of a parent claim.").color(Color.RED)));
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text(target.getName() + " (").color(Color.YELLOW)
                 .append(Component.text(perm).color(Color.ORANGE))

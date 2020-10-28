@@ -27,7 +27,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;isAttackable()Z"))
-    private boolean ItsOurs$onDamage(Entity entity) {
+    private boolean itsours$onDamage(Entity entity) {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) entity.getEntityWorld(), entity.getBlockPos());
         ClaimPlayer claimPlayer = (ClaimPlayer) this;
         if (claim == null) {
@@ -45,7 +45,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @Redirect(method = "interact", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;interact(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;"))
-    private ActionResult ItsOurs$onInteractEntity(Entity entity, PlayerEntity player, Hand hand) {
+    private ActionResult itsours$onInteractEntity(Entity entity, PlayerEntity player, Hand hand) {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) entity.getEntityWorld(), entity.getBlockPos());
         if (claim == null)
             return entity.interact(player, hand);
@@ -58,7 +58,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @Redirect(method = "dropInventory", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/GameRules;getBoolean(Lnet/minecraft/world/GameRules$Key;)Z"))
-    public boolean ItsOurs$onDropInventory(GameRules gameRules, GameRules.Key<GameRules.BooleanRule> rule) {
+    public boolean itsours$onDropInventory(GameRules gameRules, GameRules.Key<GameRules.BooleanRule> rule) {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) this.getEntityWorld(), this.getBlockPos());
         if (claim != null) {
             return !claim.getSetting("drop_inventory");

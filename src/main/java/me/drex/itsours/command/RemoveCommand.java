@@ -48,7 +48,8 @@ public class RemoveCommand extends Command {
             ((Subzone) claim).getParent().removeSubzone((Subzone) claim);
         }
         if (claim instanceof Claim) {
-            ItsOursMod.INSTANCE.getBlockManager().addBlocks(claim.getOwner(), claim.getArea());
+            int blocks = (int) ItsOursMod.INSTANCE.getPlayerList().get(claim.getOwner(), "blocks", 1000);
+            ItsOursMod.INSTANCE.getPlayerList().set(claim.getOwner(), "blocks", Math.max(0, blocks + claim.getArea()));
         }
         claim.show(false);
         //recursively remove all subzones
