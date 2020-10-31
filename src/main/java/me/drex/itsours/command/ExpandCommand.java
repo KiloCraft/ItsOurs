@@ -41,6 +41,7 @@ public class ExpandCommand extends Command {
         ServerCommandSource source = ctx.getSource();
         UUID uuid = source.getPlayer().getUuid();
         AbstractClaim claim = getAndValidateClaim(source.getWorld(), source.getPlayer().getBlockPos());
+        validatePermission(claim, uuid, "modify.size");
         int amount = IntegerArgumentType.getInteger(ctx, "distance");
         amount *= expand ? 1 : -1;
         Direction direction = Direction.getEntityFacingOrder(source.getPlayer())[0];

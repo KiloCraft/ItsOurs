@@ -24,6 +24,7 @@ public class Permission {
     public static final Permission USE_ITEM = new Permission("use_item", Group.USE_ITEM);
     public static final Permission DAMAGE_ENTITY = new Permission("damage_entity", Group.ENTITY);
     public static final Permission INTERACT_ENTITY = new Permission("interact_entity", Group.ENTITY);
+    public static final Permission MODIFY = new Permission("modify", Group.MODIFY);
     public static final Setting PVP = new Setting("pvp");
     public static final Setting MOBSPAWN = new Setting("mobspawn");
     public static final Setting DROP_INVENTORY = new Setting("drop_inventory");

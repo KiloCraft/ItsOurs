@@ -35,8 +35,10 @@ public class TrustCommand extends Command {
 
     public static int execute(ServerCommandSource source, AbstractClaim claim, GameProfile target, boolean trust) throws CommandSyntaxException {
         if (trust) {
+            validatePermission(claim, source.getPlayer().getUuid(), "modify.trust");
             RoleCommand.addRole(source, claim, target, "trusted", 0);
         } else {
+            validatePermission(claim, source.getPlayer().getUuid(), "modify.distrust");
             RoleCommand.removeRole(source, claim, target, "trusted");
         }
         return 1;

@@ -60,10 +60,8 @@ public abstract class BlockItemMixin extends Item {
                 TextComponent.Builder textComponent = Component.text().content("This " + this.getDefaultStack().getName().getString().toLowerCase() + " is not protected,").color(Color.YELLOW).append(Component.text(" click this ").color(Color.ORANGE)).append(Component.text("message to create a claim, to protect it").color(Color.YELLOW));
                 textComponent.clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim create"));
                 claimPlayer.sendMessage(textComponent.build());
-                if (!claimPlayer.arePositionsSet()) {
-                    claimPlayer.setRightPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
-                    claimPlayer.setLeftPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
-                }
+                claimPlayer.setRightPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
+                claimPlayer.setLeftPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
             }
         }
     }

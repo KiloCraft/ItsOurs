@@ -15,6 +15,7 @@ import net.minecraft.util.registry.Registry;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -28,6 +29,7 @@ public class Group {
     public static final Group USE_ITEM = create(Registry.ITEM, ItemTags.getRequiredTags(), USE_ITEM_FILTER);
     public static final Group ENTITY = create(Registry.ENTITY_TYPE, EntityTypeTags.getRequiredTags());
     public static final Group ITEMS = create(Registry.ITEM, ItemTags.getRequiredTags());
+    public static final Group MODIFY = create("trust", "distrust", "size", "permission", "setting", "subzone");
     public final List<AbstractNode> list;
 
     public Group(final List<AbstractNode> list) {
@@ -60,6 +62,14 @@ public class Group {
                             "%s does not contain entry %s", registry.toString(), entry.toString()
                     ).getPath()
             ));
+        }
+        return new Group(nodes);
+    }
+
+    public static Group create(String... entries) {
+        final List<AbstractNode> nodes = Lists.newArrayList();
+        for (String entry : entries) {
+            nodes.add(new SingleNode(entry));
         }
         return new Group(nodes);
     }

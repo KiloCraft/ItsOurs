@@ -36,6 +36,7 @@ public class SettingCommand extends Command {
     }
 
     public static int checkSetting(ServerCommandSource source, AbstractClaim claim, String setting) throws CommandSyntaxException {
+        validatePermission(claim, source.getPlayer().getUuid(), "modify.setting");
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Setting (").color(Color.ORANGE)
                 .append(Component.text(setting).color(Color.YELLOW))
                 .append(Component.text("): ").color(Color.ORANGE))
@@ -44,6 +45,7 @@ public class SettingCommand extends Command {
     }
 
     public static int setSetting(ServerCommandSource source, AbstractClaim claim, String setting, Permission.Value value) throws CommandSyntaxException {
+        validatePermission(claim, source.getPlayer().getUuid(), "modify.setting");
         claim.getPermissionManager().settings.setPermission(setting, value);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set setting ").color(Color.YELLOW)
                 .append(Component.text(setting)).color(Color.ORANGE)

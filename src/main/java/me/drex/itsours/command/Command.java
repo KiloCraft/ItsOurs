@@ -131,6 +131,11 @@ public abstract class Command {
         return ItsOursMod.INSTANCE.getPermissionHandler().hasPermission(src, permission, 2);
     }
 
+    static void validatePermission(AbstractClaim claim, UUID uuid, String permission) throws CommandSyntaxException {
+        if (!claim.hasPermission(uuid, permission))
+        throw new SimpleCommandExceptionType(new LiteralText("You don't have permission to do that")).create();
+    }
+
     public static AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         String name = StringArgumentType.getString(ctx, "claim");
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(name);

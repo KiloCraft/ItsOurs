@@ -43,6 +43,7 @@ public class CreateCommand extends Command {
             AbstractClaim claim = new Claim(name, source.getPlayer().getUuid(), min, max, source.getWorld(), null);
             if (claim.intersects()) {
                 AbstractClaim parent = ItsOursMod.INSTANCE.getClaimList().get(source.getWorld(), min);
+                validatePermission(parent, source.getPlayer().getUuid(), "modify.subzone");
                 if (parent != null && parent.contains(max)) {
                     for (Subzone subzone : parent.getSubzones()) {
                         if (subzone.getName().equals(name))
