@@ -20,6 +20,7 @@ public class SpawnRestrictionMixin {
 
     @Inject(method = "canSpawn", at = @At("HEAD"), cancellable = true)
     private static <T extends Entity> void canSpawnInClaim(EntityType<T> type, ServerWorldAccess serverWorldAccess, SpawnReason spawnReason, BlockPos pos, Random random, CallbackInfoReturnable<Boolean> cir) {
+        if (ItsOursMod.INSTANCE == null || ItsOursMod.INSTANCE.getClaimList() == null) return;
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(serverWorldAccess.toServerWorld(), pos);
         if (claim != null && !claim.getSetting("mobspawn")) {
             cir.setReturnValue(false);
