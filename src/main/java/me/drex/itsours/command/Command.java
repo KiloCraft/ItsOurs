@@ -55,6 +55,7 @@ public abstract class Command {
     public static final SuggestionProvider<ServerCommandSource> PERMISSION_PROVIDER = (source, builder) -> {
         List<String> permissions = new ArrayList<>();
         for (Permission permission : Permission.permissions) {
+            if (permission instanceof Setting) continue;
             permissions.add(permission.id);
             if (builder.getRemaining().startsWith(permission.id) && permission.groups.length > 0) {
                 addNodes(permission.id, permission.groups, 0, builder.getRemaining(), permissions);

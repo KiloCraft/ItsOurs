@@ -51,7 +51,6 @@ public class InfoCommand extends Command {
                 Component.text("Min ").color(Color.WHITE).append(newPosLine(claim.min, Color.AQUA, Color.BLUE)),
                 Component.text(" Max ").color(Color.WHITE).append(newPosLine(claim.max, Color.PURPLE, Color.DARK_PURPLE))))
             .append(newInfoLine("Dimension", Component.text(WorldUtil.toIdentifier(claim.getWorld())).color(Color.GREEN)))));
-        //TODO: List flags
         ((ClaimPlayer) source.getPlayer()).sendMessage(text);
 
         return 1;
