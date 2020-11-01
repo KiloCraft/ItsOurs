@@ -41,7 +41,7 @@ public class ServerPlayerInteractionManagerMixin {
     public ServerWorld world;
 
     @Inject(method = "interactBlock", at = @At("HEAD"))
-    private void ItsOurs$onRightClickOnBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
+    private void itsours$onRightClickOnBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         BlockPos pos = hitResult.getBlockPos();
         if (stack.getItem() == Items.GOLDEN_SHOVEL && !isSame(claimPlayer.getRightPosition(), pos)) {
@@ -52,7 +52,7 @@ public class ServerPlayerInteractionManagerMixin {
     }
 
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"))
-    private void ItsOurs$onLeftClickOnBlock(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
+    private void itsours$onLeftClickOnBlock(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         if (player.inventory.getMainHandStack().getItem() == Items.GOLDEN_SHOVEL && !isSame(claimPlayer.getLeftPosition(), pos)) {
             claimPlayer.sendMessage(Component.text("Position #1 set to " + pos.getX() + " " + pos.getZ()).color(Color.LIGHT_GREEN));
@@ -80,10 +80,10 @@ public class ServerPlayerInteractionManagerMixin {
     }
 
     @Redirect(method = "tryBreakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isBlockBreakingRestricted(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/GameMode;)Z"))
-    private boolean ItsOurs$onBlockBreak(ServerPlayerEntity playerEntity, World world, BlockPos pos, GameMode gameMode) {
+    private boolean itsours$onBlockBreak(ServerPlayerEntity playerEntity, World world, BlockPos pos, GameMode gameMode) {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, pos);
         if (claim == null) return playerEntity.isBlockBreakingRestricted(world, pos, gameMode);
-        if (!claim.hasPermission(playerEntity.getUuid(), "mine." + Permission.toString(this.world.getBlockState(pos).getBlock()))) {
+        if (!claim.hasPermission(playerEntity.getUuid(), "mine." + Permission.toString(this.world.getBlockState(pos).getBlock()) + "." + Permission.toString(playerEntity.getMainHandStack().getItem()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
             claimPlayer.sendError(Component.text("You can't break that block here.").color(Color.RED));
             return true;
@@ -92,7 +92,7 @@ public class ServerPlayerInteractionManagerMixin {
     }
 
     @Redirect(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onUse(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
-    private ActionResult ItsOurs$onBlockInteract(BlockState blockState, World world, PlayerEntity playerEntity, Hand hand, BlockHitResult hit) {
+    private ActionResult itsours$onBlockInteract(BlockState blockState, World world, PlayerEntity playerEntity, Hand hand, BlockHitResult hit) {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
         if (claim == null || !Group.filter(blockState.getBlock(), Group.INTERACT_BLOCK_FILTER))
             return blockState.onUse(world, playerEntity, hand, hit);
@@ -105,11 +105,11 @@ public class ServerPlayerInteractionManagerMixin {
     }
 
     @Redirect(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;useOnBlock(Lnet/minecraft/item/ItemUsageContext;)Lnet/minecraft/util/ActionResult;"))
-    private ActionResult ItsOurs$onUseOnBlock(ItemStack itemStack, ItemUsageContext context) {
+    private ActionResult itsours$onUseOnBlock(ItemStack itemStack, ItemUsageContext context) {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
         if (claim == null || !Group.filter(itemStack.getItem(), Group.USE_ON_BLOCK_FILTER))
             return itemStack.useOnBlock(context);
-        if (!claim.hasPermission(context.getPlayer().getUuid(), "use_on_block." + Permission.toString(itemStack.getItem()))) {
+        if (!claim.hasPermission(context.getPlayer().getUuid(), "use_on_block." + Permission.toString(itemStack.getItem()) + "." + Permission.toString(context.getWorld().getBlockState(context.getBlockPos()).getBlock()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) context.getPlayer();
             claimPlayer.sendError(Component.text("You can't use that item here.").color(Color.RED));
             return ActionResult.FAIL;
@@ -118,7 +118,7 @@ public class ServerPlayerInteractionManagerMixin {
     }
     
     @Redirect(method = "interactItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;"))
-    private TypedActionResult<ItemStack> ItsOurs$onItemUse(ItemStack itemStack, World world, PlayerEntity user, Hand hand) {
+    private TypedActionResult<ItemStack> itsours$onItemUse(ItemStack itemStack, World world, PlayerEntity user, Hand hand) {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, user.getBlockPos());
         if (claim == null || !Group.filter(itemStack.getItem(), Group.USE_ITEM_FILTER))
             return itemStack.use(world, user, hand);

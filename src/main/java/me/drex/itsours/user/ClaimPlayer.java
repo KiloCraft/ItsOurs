@@ -2,10 +2,15 @@ package me.drex.itsours.user;
 
 import me.drex.itsours.claim.AbstractClaim;
 import net.kyori.adventure.text.Component;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.dimension.DimensionType;
+
+import java.util.HashMap;
+import java.util.UUID;
 
 public interface ClaimPlayer {
 
@@ -37,17 +42,12 @@ public interface ClaimPlayer {
 
     void sendActionbar(Component component);
 
-    void toggleFlight();
+    void fromNBT(CompoundTag tag);
 
-    boolean flightEnabled();
+    CompoundTag toNBT();
 
-    void toggleDebug();
+    Object getSetting(String key, Object defaultValue);
 
-    boolean debugEnabled();
-
-    void cacheFlight(boolean value);
-
-    boolean getFlightCache();
-
+    void setSetting(String key, Object value);
 
 }

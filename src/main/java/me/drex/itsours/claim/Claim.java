@@ -38,7 +38,7 @@ public class Claim extends AbstractClaim {
         this.show(false);
         this.expand(direction, amount);
         int requiredBlocks = this.getArea() - previousArea;
-        if (ItsOursMod.INSTANCE.getBlockManager().getBlocks(uuid) < requiredBlocks) {
+        if ((int)ItsOursMod.INSTANCE.getPlayerList().get(uuid, "blocks", 1000) < requiredBlocks) {
             this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("You don't have enough claim blocks!")).create();
         }

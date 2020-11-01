@@ -19,8 +19,9 @@ public class DebugCommand extends Command {
     public static int toggleDebug(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayer();
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
-        claimPlayer.toggleDebug();
-        claimPlayer.sendMessage(Component.text("Claim debug " + (claimPlayer.debugEnabled() ? "enabled" : "disabled")).color(claimPlayer.debugEnabled() ? Color.LIGHT_GREEN : Color.RED));
+        boolean newVal = !(boolean)claimPlayer.getSetting("debug", false);
+        claimPlayer.setSetting("debug", newVal);
+        claimPlayer.sendMessage(Component.text("Claim debug " + (newVal ? "enabled" : "disabled")).color((newVal ? Color.LIGHT_GREEN : Color.RED)));
         return 1;
     }
 

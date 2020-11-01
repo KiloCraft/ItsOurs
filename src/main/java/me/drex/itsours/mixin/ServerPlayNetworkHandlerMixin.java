@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public class ServerPlayNetworkHandlerMixin {
 
     @Redirect(method = "onPlayerInteractEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;interactAt(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;"))
-    public ActionResult ItsOurs$onInteractAtEntity(Entity entity, PlayerEntity player, Vec3d vec3d, Hand hand) {
+    public ActionResult itsours$onInteractAtEntity(Entity entity, PlayerEntity player, Vec3d vec3d, Hand hand) {
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) entity.getEntityWorld(), entity.getBlockPos());
         if (claim == null)
             return entity.interactAt(player, vec3d, hand);

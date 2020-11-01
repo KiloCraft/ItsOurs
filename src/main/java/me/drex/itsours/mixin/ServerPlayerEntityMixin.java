@@ -3,9 +3,11 @@ package me.drex.itsours.mixin;
 import com.mojang.authlib.GameProfile;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.util.TextComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
@@ -20,8 +22,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Mixin(ServerPlayerEntity.class)
 public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer {
@@ -29,6 +33,8 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     @Shadow
     @Final
     public ServerPlayerInteractionManager interactionManager;
+    public Pair<BlockPos, BlockPos> positions = new Pair<>(null, null);
+    public HashMap<String, Object> settings = new HashMap<>();
     private AbstractClaim lastShowClaim;
     private BlockPos lastShowPos;
     private ServerWorld lastShowWorld;
@@ -36,7 +42,6 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     private boolean flight = false;
     private boolean debug = false;
     private boolean cachedFlight = false;
-    public Pair<BlockPos, BlockPos> positions = new Pair<>(null, null);
 
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
@@ -79,8 +84,8 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     }
 
     @Override
-    public void setLeftPosition(BlockPos pos) {
-        positions = new Pair<>(pos, positions.getRight());
+    public BlockPos getRightPosition() {
+        return positions.getRight();
     }
 
     @Override
@@ -89,13 +94,13 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     }
 
     @Override
-    public BlockPos getRightPosition() {
-        return positions.getRight();
+    public BlockPos getLeftPosition() {
+        return positions.getLeft();
     }
 
     @Override
-    public BlockPos getLeftPosition() {
-        return positions.getLeft();
+    public void setLeftPosition(BlockPos pos) {
+        positions = new Pair<>(pos, positions.getRight());
     }
 
     @Override
@@ -132,33 +137,28 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     }
 
     @Override
-    public void toggleFlight() {
-        flight = !flight;
+    public Object getSetting(String key, Object defaultValue) {
+        return this.settings.getOrDefault(key, defaultValue);
     }
 
     @Override
-    public boolean flightEnabled() {
-        return flight;
+    public void setSetting(String key, Object value) {
+        this.settings.put(key, value);
     }
 
-    @Override
-    public void toggleDebug() {
-        debug = !debug;
+    public void fromNBT(CompoundTag tag) {
+        for (String key : tag.getKeys()) {
+            Object o = PlayerList.get(key, tag);
+            if (o != null) this.settings.put(key, o);
+        }
     }
 
-    @Override
-    public boolean debugEnabled() {
-        return debug;
-    }
-
-    @Override
-    public void cacheFlight(boolean value) {
-        cachedFlight = value;
-    }
-
-    @Override
-    public boolean getFlightCache() {
-        return cachedFlight;
+    public CompoundTag toNBT() {
+        CompoundTag tag = new CompoundTag();
+        for (Map.Entry<String, Object> entry : this.settings.entrySet()) {
+            PlayerList.set(entry.getKey(), tag, entry.getValue());
+        }
+        return tag;
     }
 
     @Inject(method = "tick", at = @At(value = "HEAD"))

@@ -46,7 +46,7 @@ public class InfoCommand extends Command {
                 TextComponentUtil.of("<gradient:" + Color.RED.stringValue() + ":" + Color.ORANGE.stringValue() + ">" + ownerName, false).append(Component.text("\n"))
             .append(newInfoLine("Size", Component.text(size.getX() + " x " + size.getY() + " x " + size.getZ()).color(Color.LIGHT_GREEN)))
             .append(newInfoLine("Depth", Component.text(String.valueOf(claim.getDepth())).color(Color.DARK_GREEN)))
-            .append(newInfoLine("Flags", Component.text(". . . ").color(Color.GRAY).style(style -> style.hoverEvent(HoverEvent.showText(Component.text("not yet implemented"))))))
+            .append(newInfoLine("Flags", claim.getPermissionManager().settings.toText()))
             .append(newInfoLine("Position",
                 Component.text("Min ").color(Color.WHITE).append(newPosLine(claim.min, Color.AQUA, Color.BLUE)),
                 Component.text(" Max ").color(Color.WHITE).append(newPosLine(claim.max, Color.PURPLE, Color.DARK_PURPLE))))

@@ -10,17 +10,18 @@ import net.minecraft.item.Item;
 import net.minecraft.util.registry.Registry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
 public class Permission {
 
-    public static final Pattern PERMISSION = Pattern.compile("[\\w]+(\\.[\\w]+)?");
+    public static final Pattern PERMISSION = Pattern.compile("[\\w]+(\\.[\\w]+)*");
     public static final List<Permission> permissions = new ArrayList<>();
     public static final Permission PLACE = new Permission("place", Group.BLOCK);
-    public static final Permission MINE = new Permission("mine", Group.BLOCK);
+    public static final Permission MINE = new Permission("mine", Group.BLOCK, Group.ITEMS);
     public static final Permission INTERACT_BLOCK = new Permission("interact_block", Group.INTERACTABLE_BLOCKS);
-    public static final Permission USE_ON_BLOCK = new Permission("use_on_block", Group.USE_ON_BLOCKS);
+    public static final Permission USE_ON_BLOCK = new Permission("use_on_block", Group.USE_ON_BLOCKS, Group.BLOCK);
     public static final Permission USE_ITEM = new Permission("use_item", Group.USE_ITEM);
     public static final Permission DAMAGE_ENTITY = new Permission("damage_entity", Group.ENTITY);
     public static final Permission INTERACT_ENTITY = new Permission("interact_entity", Group.ENTITY);
@@ -45,7 +46,10 @@ public class Permission {
         if (p == null || (p instanceof Setting)) return false;
         for (int i = 0; i < nodes.length - 1; i++) {
             for (AbstractNode abstractNode : p.groups[i].list) {
-                if (abstractNode.getID().equals(nodes[i + 1])) b[i] = true;
+                if (abstractNode.getID().equals(nodes[i + 1])) {
+                    b[i] = true;
+                    break;
+                }
             }
         }
         for (boolean val : b) {

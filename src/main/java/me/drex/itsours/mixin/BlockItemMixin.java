@@ -35,7 +35,7 @@ public abstract class BlockItemMixin extends Item {
     public abstract Block getBlock();
 
     @Redirect(method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemPlacementContext;canPlace()Z"))
-    private boolean ItsOurs$checkCanPlace(ItemPlacementContext context) {
+    private boolean itsours$checkCanPlace(ItemPlacementContext context) {
         if (context.getPlayer() == null) return context.canPlace();
         AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
         if (claim == null) return context.canPlace();
@@ -49,7 +49,7 @@ public abstract class BlockItemMixin extends Item {
 
 
     @Inject(method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;onPlaced(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;)V"))
-    private void ItsOurs$placeBlock(ItemPlacementContext context, CallbackInfoReturnable<ActionResult> cir) {
+    private void itsours$placeBlock(ItemPlacementContext context, CallbackInfoReturnable<ActionResult> cir) {
         if (context.getPlayer() == null) return;
         Block block = this.getBlock();
         BlockPos blockPos = context.getBlockPos();

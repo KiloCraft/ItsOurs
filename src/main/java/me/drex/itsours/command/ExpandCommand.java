@@ -42,14 +42,17 @@ public class ExpandCommand extends Command {
         UUID uuid = source.getPlayer().getUuid();
         AbstractClaim claim = getAndValidateClaim(source.getWorld(), source.getPlayer().getBlockPos());
         validatePermission(claim, uuid, "modify.size");
-        int amount = IntegerArgumentType.getInteger(ctx, "distance");
-        amount *= expand ? 1 : -1;
+        int distance = IntegerArgumentType.getInteger(ctx, "distance");
+        distance *= expand ? 1 : -1;
         Direction direction = Direction.getEntityFacingOrder(source.getPlayer())[0];
         claim.show(source.getPlayer(), false);
-        int blocks = claim.expand(uuid, direction, amount);
+        int amount = claim.expand(uuid, direction, distance);
         claim.show(source.getPlayer(), true);
-        if (claim instanceof Claim) ItsOursMod.INSTANCE.getBlockManager().addBlocks(uuid, -blocks);
+        if (claim instanceof Claim) {
+            int blocks = (int) ItsOursMod.INSTANCE.getPlayerList().get(uuid, "blocks", 1000);
+            ItsOursMod.INSTANCE.getPlayerList().set(uuid, "blocks", Math.max(0, blocks + amount));
+        }
         //TODO: Add feedback
-        return amount;
+        return distance;
     }
 }

@@ -4,6 +4,7 @@ import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.permission.roles.RoleManager;
 import me.drex.itsours.claim.util.BlockManager;
 import me.drex.itsours.command.Manager;
+import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.util.PermissionHandler;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
@@ -29,7 +30,7 @@ public class ItsOursMod implements DedicatedServerModInitializer {
     public static ItsOursMod INSTANCE;
     private ClaimList claimList;
     private RoleManager roleManager;
-    private BlockManager blockManager;
+    private PlayerList playerList;
     private PermissionHandler permissionHandler;
 
     public static String getDirectory() {
@@ -57,7 +58,7 @@ public class ItsOursMod implements DedicatedServerModInitializer {
             LOGGER.info("Data file not found.");
             this.claimList = new ClaimList(new ListTag());
             this.roleManager = new RoleManager(new CompoundTag());
-            this.blockManager = new BlockManager(new CompoundTag());
+            this.playerList = new PlayerList(new CompoundTag());
         } else {
             CompoundTag tag;
             try {
@@ -77,7 +78,7 @@ public class ItsOursMod implements DedicatedServerModInitializer {
             }
             this.roleManager = new RoleManager(tag.getCompound("roles"));
             this.claimList = new ClaimList((ListTag) tag.get("claims"));
-            this.blockManager = new BlockManager(tag.getCompound("blocks"));
+            this.playerList = new PlayerList(tag.getCompound("players"));
         }
         this.permissionHandler = new PermissionHandler();
     }
@@ -86,7 +87,7 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         CompoundTag root = new CompoundTag();
         root.put("claims", claimList.toNBT());
         root.put("roles", roleManager.toNBT());
-        root.put("blocks", blockManager.toNBT());
+        root.put("players", playerList.toNBT());
         File data = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat").toFile();
         File data_backup = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat_old").toFile();
         //Backup old file
@@ -108,12 +109,12 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         return this.roleManager;
     }
 
-    public BlockManager getBlockManager() {
-        return this.blockManager;
-    }
-
     public ClaimList getClaimList() {
         return this.claimList;
+    }
+
+    public PlayerList getPlayerList() {
+        return this.playerList;
     }
 
     public PermissionHandler getPermissionHandler() {

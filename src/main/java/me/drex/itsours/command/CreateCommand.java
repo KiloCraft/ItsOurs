@@ -13,10 +13,7 @@ import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import me.drex.itsours.util.TextComponentUtil;
 import net.kyori.adventure.text.Component;
-import net.minecraft.block.Block;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 
 public class CreateCommand extends Command {
@@ -54,7 +51,7 @@ public class CreateCommand extends Command {
                     throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim couldn't be created, because it would overlap with another claim")).create();
                 }
             } else {
-                if (ItsOursMod.INSTANCE.getBlockManager().getBlocks(source.getPlayer().getUuid()) < claim.getArea())
+                if ((int) ((ClaimPlayer) source.getPlayer()).getSetting("blocks", 1000) < claim.getArea())
                     throw new SimpleCommandExceptionType(TextComponentUtil.error("You don't have enough claim blocks")).create();
                 if (ItsOursMod.INSTANCE.getClaimList().contains(name))
                     throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is already taken")).create();

@@ -21,15 +21,16 @@ public class FlyCommand extends Command {
     public static int toggleFlight(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayer();
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
-        claimPlayer.toggleFlight();
+        boolean newVal = !(boolean)claimPlayer.getSetting("flight", false);
+        claimPlayer.setSetting("flight", newVal);
         if (ItsOursMod.INSTANCE.getClaimList().get(player.getServerWorld(), player.getBlockPos()) != null) {
             player.interactionManager.getGameMode().setAbilities(player.abilities);
-            if (claimPlayer.flightEnabled()) {
+            if (newVal) {
                 player.abilities.allowFlying = true;
             }
             player.sendAbilitiesUpdate();
         }
-        claimPlayer.sendMessage(Component.text("Claim flight " + (claimPlayer.flightEnabled() ? "enabled" : "disabled")).color(claimPlayer.flightEnabled() ? Color.LIGHT_GREEN : Color.RED));
+        claimPlayer.sendMessage(Component.text("Claim flight " + (newVal ? "enabled" : "disabled")).color(newVal ? Color.LIGHT_GREEN : Color.RED));
         return 1;
     }
 
