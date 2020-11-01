@@ -136,6 +136,7 @@ public abstract class AbstractClaim {
     }
 
     public boolean hasPermission(UUID uuid, String permission) {
+        if (uuid.equals(owner)) return true;
         Permission.Value value = this.permissionManager.hasPermission(uuid, permission);
         sendDebug(uuid, permission, value);
         return value.value;

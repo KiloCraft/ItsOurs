@@ -58,7 +58,7 @@ public class PermissionCommand extends Command {
     public static int checkPlayer(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission) throws CommandSyntaxException {
         //TODO: Check if excutor is allowed to check
         boolean value = claim.getPermissionManager().hasPermission(target.getId(), permission).value;
-        boolean value2 = claim.hasPermission(target.getId(), permission);
+
         String perm = permission;
         TextComponent.Builder hover = Component.text();
         hover.append(checkPermission(claim.getPermissionManager(), target, permission));
@@ -68,11 +68,20 @@ public class PermissionCommand extends Command {
             hover.append(Component.text("\n"));
             hover.append(checkPermission(claim.getPermissionManager(), target, permission));
         }
+        boolean value2 = claim.hasPermission(target.getId(), permission);
+        if (target.getId().equals(claim.getOwner())) {
+            value = true;
+            hover.append(Component.text("\n -Owner; ").color(Color.YELLOW).append(Permission.Value.of(true).format()));
+        }
         if (value != value2) hover.append(Component.text("\n*Note: The actual value is ").color(Color.RED).append(Permission.Value.of(value2).format()).append(Component.text(", because of a parent claim.").color(Color.RED)));
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text(target.getName() + " (").color(Color.YELLOW)
-                .append(Component.text(perm).color(Color.ORANGE))
-                .append(Component.text("): ").color(Color.YELLOW))
-                .append(Permission.Value.of(value).format().style(style -> style.hoverEvent(HoverEvent.showText(hover.build())))));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Permission ").color(Color.YELLOW)
+            .append(Component.text(perm).color(Color.ORANGE))
+            .append(Component.text(" in ").color(Color.YELLOW))
+            .append(Component.text(claim.getFullName()).color(Color.ORANGE))
+            .append(Component.text(" is set to ").color(Color.YELLOW))
+            .append(Permission.Value.of(value).format().style(style -> style.hoverEvent(HoverEvent.showText(hover.build()))))
+            .append(Component.text(" for ").color(Color.YELLOW))
+            .append(Component.text(target.getName()).color(Color.ORANGE)));
     return 1;
     }
 
