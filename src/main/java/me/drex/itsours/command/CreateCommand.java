@@ -40,8 +40,8 @@ public class CreateCommand extends Command {
             AbstractClaim claim = new Claim(name, source.getPlayer().getUuid(), min, max, source.getWorld(), null);
             if (claim.intersects()) {
                 AbstractClaim parent = ItsOursMod.INSTANCE.getClaimList().get(source.getWorld(), min);
-                validatePermission(parent, source.getPlayer().getUuid(), "modify.subzone");
                 if (parent != null && parent.contains(max)) {
+                    validatePermission(parent, source.getPlayer().getUuid(), "modify.subzone");
                     for (Subzone subzone : parent.getSubzones()) {
                         if (subzone.getName().equals(name))
                             throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is already taken")).create();
@@ -51,10 +51,11 @@ public class CreateCommand extends Command {
                     throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim couldn't be created, because it would overlap with another claim")).create();
                 }
             } else {
-                if ((int) ((ClaimPlayer) source.getPlayer()).getSetting("blocks", 1000) < claim.getArea())
+                if ((int) claimPlayer.getSetting("blocks", 1000) < claim.getArea())
                     throw new SimpleCommandExceptionType(TextComponentUtil.error("You don't have enough claim blocks")).create();
                 if (ItsOursMod.INSTANCE.getClaimList().contains(name))
                     throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is already taken")).create();
+                claimPlayer.setSetting("blocks", ((int) claimPlayer.getSetting("blocks", 1000) - claim.getArea()));
                 BlockPos size = claim.getSize();
                 ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Claim " + name + " has been created (" + size.getX() + " x " + size.getY() + " x " + size.getZ() + ")").color(Color.LIGHT_GREEN));
             }
