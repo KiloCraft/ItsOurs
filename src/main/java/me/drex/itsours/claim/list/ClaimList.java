@@ -116,8 +116,8 @@ public class ClaimList {
     }
 
     public Claim getMainClaim(String name) {
-        for (AbstractClaim claim : claimList) {
-            if (claim.getFullName().equals(name) && claim instanceof Claim) return (Claim) claim;
+        for (AbstractClaim claim : claimList.stream().filter(claim -> claim instanceof Claim).collect(Collectors.toList())) {
+            if (claim.getFullName().equals(name)) return (Claim) claim;
         }
         return null;
     }
@@ -132,7 +132,7 @@ public class ClaimList {
                 }
             }
         } else {
-            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get()) {
+            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get().stream().filter(claim -> claim instanceof Claim).collect(Collectors.toList())) {
                 if (claim.getName().equals(name)) return claim;
             }
         }
