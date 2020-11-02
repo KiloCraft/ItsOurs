@@ -29,7 +29,7 @@ public class CreateCommand extends Command {
     }
 
     public static int create(ServerCommandSource source, String name) throws CommandSyntaxException {
-        if (ItsOursMod.INSTANCE.getClaimList().get(source.getPlayer().getUuid()).size() > 4)
+        if (ItsOursMod.INSTANCE.getClaimList().get(source.getPlayer().getUuid()).stream().filter(claim -> claim instanceof Claim).count() > 4)
             throw new SimpleCommandExceptionType(TextComponentUtil.error("You can't have more than 5 claims")).create();
         ClaimPlayer claimPlayer = (ClaimPlayer) source.getPlayer();
         if (claimPlayer.arePositionsSet()) {
