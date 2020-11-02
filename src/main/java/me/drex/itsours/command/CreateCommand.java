@@ -29,6 +29,8 @@ public class CreateCommand extends Command {
     }
 
     public static int create(ServerCommandSource source, String name) throws CommandSyntaxException {
+        if (ItsOursMod.INSTANCE.getClaimList().get(source.getPlayer().getUuid()).size() > 4)
+            throw new SimpleCommandExceptionType(TextComponentUtil.error("You can't have more than 5 claims")).create();
         ClaimPlayer claimPlayer = (ClaimPlayer) source.getPlayer();
         if (claimPlayer.arePositionsSet()) {
             BlockPos min = new BlockPos(claimPlayer.getLeftPosition());
@@ -41,6 +43,8 @@ public class CreateCommand extends Command {
             if (claim.intersects()) {
                 AbstractClaim parent = ItsOursMod.INSTANCE.getClaimList().get(source.getWorld(), min);
                 if (parent != null && parent.contains(max)) {
+                    if (parent.getDepth() > 2)
+                        throw new SimpleCommandExceptionType(TextComponentUtil.error("You can't create subzones with a depth higher than 3")).create();
                     validatePermission(parent, source.getPlayer().getUuid(), "modify.subzone");
                     for (Subzone subzone : parent.getSubzones()) {
                         if (subzone.getName().equals(name))
