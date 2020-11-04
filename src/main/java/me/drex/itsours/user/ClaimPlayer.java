@@ -3,14 +3,9 @@ package me.drex.itsours.user;
 import me.drex.itsours.claim.AbstractClaim;
 import net.kyori.adventure.text.Component;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.dimension.DimensionType;
-
-import java.util.HashMap;
-import java.util.UUID;
 
 public interface ClaimPlayer {
 

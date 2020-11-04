@@ -2,7 +2,6 @@ package me.drex.itsours;
 
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.permission.roles.RoleManager;
-import me.drex.itsours.claim.util.BlockManager;
 import me.drex.itsours.command.Manager;
 import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.util.PermissionHandler;
@@ -13,7 +12,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tag.BlockTags;
 import net.minecraft.util.WorldSavePath;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,10 +30,6 @@ public class ItsOursMod implements DedicatedServerModInitializer {
     private RoleManager roleManager;
     private PlayerList playerList;
     private PermissionHandler permissionHandler;
-
-    public static String getDirectory() {
-        return System.getProperty("user.dir");
-    }
 
     @Override
     public void onInitializeServer() {

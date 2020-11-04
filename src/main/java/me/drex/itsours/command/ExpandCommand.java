@@ -8,7 +8,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
-import net.minecraft.block.Blocks;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.math.Direction;
 
@@ -49,7 +48,7 @@ public class ExpandCommand extends Command {
         int amount = claim.expand(uuid, direction, distance);
         claim.show(source.getPlayer(), true);
         if (claim instanceof Claim) {
-            int blocks = (int) ItsOursMod.INSTANCE.getPlayerList().get(uuid, "blocks", 1000);
+            int blocks = ItsOursMod.INSTANCE.getPlayerList().getBlocks(uuid);
             ItsOursMod.INSTANCE.getPlayerList().set(uuid, "blocks", Math.max(0, blocks + amount));
         }
         //TODO: Add feedback

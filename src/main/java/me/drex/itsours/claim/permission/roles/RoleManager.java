@@ -3,7 +3,6 @@ package me.drex.itsours.claim.permission.roles;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class RoleManager extends HashMap<String, Role> {
 

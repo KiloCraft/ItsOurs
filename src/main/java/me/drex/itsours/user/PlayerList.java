@@ -13,6 +13,25 @@ public class PlayerList extends HashMap<UUID, CompoundTag> {
         this.fromNBT(tag);
     }
 
+    public static Object get(String key, CompoundTag tag) {
+        switch (tag.get(key).getType()) {
+            case 1:
+                return tag.getBoolean(key);
+            case 3:
+                return tag.getInt(key);
+            default:
+                return null;
+        }
+    }
+
+    public static void set(String key, CompoundTag tag, Object value) {
+        if (value instanceof Boolean) {
+            tag.putBoolean(key, (Boolean) value);
+        } else if (value instanceof Integer) {
+            tag.putInt(key, (Integer) value);
+        }
+    }
+
     public void fromNBT(CompoundTag tag) {
         for (String key : tag.getKeys()) {
             this.put(UUID.fromString(key), tag.getCompound(key));
@@ -43,8 +62,12 @@ public class PlayerList extends HashMap<UUID, CompoundTag> {
             }
 
         } else {
-            return ((ClaimPlayer)playerEntity).getSetting(key, defaultValue);
+            return ((ClaimPlayer) playerEntity).getSetting(key, defaultValue);
         }
+    }
+
+    public int getBlocks(UUID uuid) {
+        return (int) get(uuid, "blocks", 500);
     }
 
     public void set(UUID uuid, String key, Object value) {
@@ -54,23 +77,7 @@ public class PlayerList extends HashMap<UUID, CompoundTag> {
             set(key, tag, value);
             this.put(uuid, tag);
         } else {
-            ((ClaimPlayer)playerEntity).setSetting(key, value);
-        }
-    }
-
-    public static Object get(String key, CompoundTag tag) {
-        switch (tag.get(key).getType()) {
-            case 1: return tag.getBoolean(key);
-            case 3: return tag.getInt(key);
-            default: return null;
-        }
-    }
-
-    public static void set(String key, CompoundTag tag, Object value) {
-        if (value instanceof Boolean) {
-            tag.putBoolean(key, (Boolean) value);
-        } else if (value instanceof Integer) {
-            tag.putInt(key, (Integer) value);
+            ((ClaimPlayer) playerEntity).setSetting(key, value);
         }
     }
 
