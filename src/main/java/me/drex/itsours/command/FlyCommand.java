@@ -24,9 +24,9 @@ public class FlyCommand extends Command {
         boolean newVal = !(boolean)claimPlayer.getSetting("flight", false);
         claimPlayer.setSetting("flight", newVal);
         if (ItsOursMod.INSTANCE.getClaimList().get(player.getServerWorld(), player.getBlockPos()) != null) {
-            player.interactionManager.getGameMode().setAbilities(player.abilities);
+            player.interactionManager.getGameMode().setAbilities(player.getAbilities());
             if (newVal) {
-                player.abilities.allowFlying = true;
+                player.getAbilities().allowFlying = true;
             }
             player.sendAbilitiesUpdate();
         }

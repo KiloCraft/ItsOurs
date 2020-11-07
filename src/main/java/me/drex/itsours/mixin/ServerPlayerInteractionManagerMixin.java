@@ -40,7 +40,7 @@ public class ServerPlayerInteractionManagerMixin {
     @Redirect(method = "processBlockBreakingAction", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;canPlayerModifyAt(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/math/BlockPos;)Z"))
     private boolean itsours$onLeftClickOnBlock(ServerWorld serverWorld, PlayerEntity player, BlockPos pos) {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
-        if (player.inventory.getMainHandStack().getItem() == Items.GOLDEN_SHOVEL && !isSame(claimPlayer.getLeftPosition(), pos)) {
+        if (player.getInventory().getMainHandStack().getItem() == Items.GOLDEN_SHOVEL && !isSame(claimPlayer.getLeftPosition(), pos)) {
             claimPlayer.sendMessage(Component.text("Position #1 set to " + pos.getX() + " " + pos.getZ()).color(Color.LIGHT_GREEN));
             claimPlayer.setLeftPosition(pos);
             onClaimAddCorner();
