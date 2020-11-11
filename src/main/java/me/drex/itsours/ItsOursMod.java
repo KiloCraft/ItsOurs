@@ -20,12 +20,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 public class ItsOursMod implements DedicatedServerModInitializer {
 
     public static MinecraftServer server;
     public static Logger LOGGER = LogManager.getLogger();
     public static ItsOursMod INSTANCE;
+    public static final UUID serverUUID = new UUID(0, 0);
     private ClaimList claimList;
     private RoleManager roleManager;
     private PlayerList playerList;

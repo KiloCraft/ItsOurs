@@ -23,7 +23,7 @@ public class ListCommand extends Command {
     public static void register(LiteralArgumentBuilder<ServerCommandSource> command) {
         RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
         player.requires(src -> hasPermission(src, "itsours.list"));
-        player.executes(ctx -> list(ctx.getSource(), Command.getGameProfile(ctx, "player")));
+        player.executes(ctx -> list(ctx.getSource(), getGameProfile(ctx, "player")));
         LiteralArgumentBuilder<ServerCommandSource> list = LiteralArgumentBuilder.literal("list");
         list.executes(ctx -> list(ctx.getSource(), ctx.getSource().getPlayer().getGameProfile()));
         list.then(player);

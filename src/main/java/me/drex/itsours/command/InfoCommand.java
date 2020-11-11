@@ -20,7 +20,7 @@ import java.util.UUID;
 public class InfoCommand extends Command {
 
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
-        RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
+        RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
         claim.executes(ctx -> info(ctx.getSource(), getClaim(ctx)));
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("info");
         command.executes(ctx -> info(ctx.getSource(), getAndValidateClaim(ctx.getSource().getWorld(), ctx.getSource().getPlayer().getBlockPos())));

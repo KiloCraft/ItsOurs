@@ -14,7 +14,7 @@ public class TrustCommand extends Command {
         {
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             player.executes(ctx -> execute(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), true));
-            RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
+            RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
             LiteralArgumentBuilder<ServerCommandSource> trust = LiteralArgumentBuilder.literal("trust");
 
             claim.then(player);
@@ -24,7 +24,7 @@ public class TrustCommand extends Command {
         {
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             player.executes(ctx -> execute(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), false));
-            RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
+            RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
             LiteralArgumentBuilder<ServerCommandSource> distrust = LiteralArgumentBuilder.literal("distrust");
 
             claim.then(player);

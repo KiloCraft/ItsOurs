@@ -20,6 +20,7 @@ public class Manager {
         RemoveCommand.register(main);
         RoleCommand.register(main);
         RolesCommand.register(main);
+        SetOwnerCommand.register(main);
         SettingCommand.register(main);
         ShowCommand.register(main);
         TrustCommand.register(main);

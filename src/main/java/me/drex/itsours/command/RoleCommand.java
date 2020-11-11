@@ -34,7 +34,7 @@ public class RoleCommand extends Command {
 
     //TODO: Check if the executor is allowed to do this
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
-        RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
+        RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
         {
             RequiredArgumentBuilder<ServerCommandSource, Integer> weight = RequiredArgumentBuilder.argument("weight", IntegerArgumentType.integer(1));
             weight.executes(ctx -> addRole(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), StringArgumentType.getString(ctx, "name"), IntegerArgumentType.getInteger(ctx, "weight")));

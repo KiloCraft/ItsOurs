@@ -39,7 +39,7 @@ public abstract class Command {
         ItsOursMod.INSTANCE.getRoleManager().forEach((roleID, role) -> names.add(roleID));
         return CommandSource.suggestMatching(names, builder);
     };
-    public static final SuggestionProvider<ServerCommandSource> CLAIM_PROVIDER = (source, builder) -> {
+    public static final SuggestionProvider<ServerCommandSource> OWN_CLAIM_PROVIDER = (source, builder) -> {
         UUID uuid = source.getSource().getPlayer().getUuid();
         ServerPlayerEntity player = source.getSource().getPlayer();
         List<String> names = new ArrayList<>();
@@ -50,6 +50,15 @@ public abstract class Command {
                 names.add(claim.getName());
                 addSubzones(claim, builder.getRemaining(), names);
             }
+        }
+        return CommandSource.suggestMatching(names, builder);
+    };
+
+    public static final SuggestionProvider<ServerCommandSource> ALL_CLAIM_PROVIDER = (source, builder) -> {
+        List<String> names = new ArrayList<>();
+        for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get().stream().filter(claim -> claim instanceof Claim).collect(Collectors.toList())) {
+            names.add(claim.getName());
+            addSubzones(claim, builder.getRemaining(), names);
         }
         return CommandSource.suggestMatching(names, builder);
     };
@@ -166,8 +175,12 @@ public abstract class Command {
         throw new SimpleCommandExceptionType(new LiteralText("Invalid permission value")).create();
     }
 
-    public static RequiredArgumentBuilder<ServerCommandSource, String> claimArgument() {
-        return argument("claim", word()).suggests(CLAIM_PROVIDER);
+    public static RequiredArgumentBuilder<ServerCommandSource, String> ownClaimArgument() {
+        return argument("claim", word()).suggests(OWN_CLAIM_PROVIDER);
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, String> allClaimArgument() {
+        return argument("claim", word()).suggests(ALL_CLAIM_PROVIDER);
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> roleArgument() {

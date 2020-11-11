@@ -13,7 +13,7 @@ import net.minecraft.server.command.ServerCommandSource;
 public class SettingCommand extends Command {
 
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
-        RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
+        RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
         {
             RequiredArgumentBuilder<ServerCommandSource, String> setting = settingArgument();
             setting.executes(ctx -> checkSetting(ctx.getSource(), getClaim(ctx), getSetting(ctx)));

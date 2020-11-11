@@ -20,7 +20,7 @@ public class RemoveCommand extends Command {
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         LiteralArgumentBuilder<ServerCommandSource> confirm = LiteralArgumentBuilder.literal("confirm");
         confirm.executes(ctx -> remove(ctx.getSource(), getClaim(ctx)));
-        RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
+        RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
         claim.executes(ctx -> requestRemove(ctx.getSource(), getClaim(ctx)));
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("remove");
         claim.then(confirm);
