@@ -54,7 +54,7 @@ public class PermissionCommand extends Command {
     }
 
     public static int checkPlayer(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission) throws CommandSyntaxException {
-        //TODO: Check if excutor is allowed to check
+        validatePermission(claim, target.getId(), "modify.permission");
         boolean value = claim.getPermissionManager().hasPermission(target.getId(), permission).value;
 
         String perm = permission;
@@ -115,6 +115,7 @@ public class PermissionCommand extends Command {
     }
 
     public static int setPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission, Permission.Value value) throws CommandSyntaxException {
+        validatePermission(claim, target.getId(), "modify.permission");
         claim.getPermissionManager().setPlayerPermission(target.getId(), permission, value);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set permission ").color(Color.YELLOW)
                 .append(Component.text(permission)).color(Color.ORANGE)
@@ -124,6 +125,7 @@ public class PermissionCommand extends Command {
     }
 
     public static int listPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target) throws CommandSyntaxException {
+        validatePermission(claim, target.getId(), "modify.permission");
         TextComponent.Builder roleBuilder = Component.text();
         for (Map.Entry<Role, Integer> entry : claim.getPermissionManager().getRolesByWeight(target.getId()).entrySet()) {
             roleBuilder.append(Component.text(ItsOursMod.INSTANCE.getRoleManager().getRoleID(entry.getKey()) + " (").color(Color.YELLOW))
