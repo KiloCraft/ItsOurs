@@ -28,7 +28,7 @@ public class Group {
     public static final Group USE_ITEM = create(Registry.ITEM, ItemTags.getRequiredTags(), USE_ITEM_FILTER);
     public static final Group ENTITY = create(Registry.ENTITY_TYPE, EntityTypeTags.getRequiredTags());
     public static final Group ITEMS = create(Registry.ITEM, ItemTags.getRequiredTags());
-    public static final Group MODIFY = create("trust", "distrust", "size", "permission", "setting", "subzone");
+    public static final Group MODIFY = create("trust", "distrust", "size", "permission", "setting", "subzone", "name");
     public final List<AbstractNode> list;
 
     public Group(final List<AbstractNode> list) {

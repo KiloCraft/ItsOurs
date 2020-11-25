@@ -109,6 +109,10 @@ public abstract class AbstractClaim {
         return this.name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public abstract String getFullName();
 
     public UUID getOwner() {

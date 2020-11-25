@@ -42,7 +42,9 @@ public class InfoCommand extends Command {
             .append(newInfoLine("Name", Component.text(claim.getName()).color(Color.WHITE)))
             .append(newInfoLine("Owner", ownerName.equals("") ?
                 Component.text(ownerUUID.toString()).color(Color.RED).clickEvent(net.kyori.adventure.text.event.ClickEvent.copyToClipboard(claim.getOwner().toString())) :
-                TextComponentUtil.of("<gradient:" + Color.RED.stringValue() + ":" + Color.ORANGE.stringValue() + ">" + ownerName, false).append(Component.text("\n"))
+                TextComponentUtil.of("<gradient:" + Color.RED.stringValue() + ":" + Color.ORANGE.stringValue() + ">" + ownerName, false)
+                        .clickEvent(net.kyori.adventure.text.event.ClickEvent.copyToClipboard(claim.getOwner().toString()))
+                        .append(Component.text("\n"))
             .append(newInfoLine("Size", Component.text(size.getX() + " x " + size.getY() + " x " + size.getZ()).color(Color.LIGHT_GREEN)))
             .append(newInfoLine("Depth", Component.text(String.valueOf(claim.getDepth())).color(Color.DARK_GREEN)))
             .append(newInfoLine("Flags", claim.getPermissionManager().settings.toText()))
