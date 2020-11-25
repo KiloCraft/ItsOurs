@@ -14,6 +14,7 @@ public class Manager {
         DebugCommand.register(main);
         ExpandCommand.register(main);
         FlyCommand.register(main);
+        IgnoreCommand.register(main);
         InfoCommand.register(main);
         ListCommand.register(main);
         PermissionCommand.register(main);

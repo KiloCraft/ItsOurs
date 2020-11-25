@@ -141,6 +141,7 @@ public abstract class AbstractClaim {
 
     public boolean hasPermission(UUID uuid, String permission) {
         if (uuid.equals(owner)) return true;
+        if ((boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, "ignore", false)) return true;
         Permission.Value value = this.permissionManager.hasPermission(uuid, permission);
         sendDebug(uuid, permission, value);
         return value.value;
