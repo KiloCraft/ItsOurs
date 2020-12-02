@@ -206,7 +206,7 @@ public abstract class AbstractClaim {
 
     public boolean intersects() {
         for (AbstractClaim value : ItsOursMod.INSTANCE.getClaimList().get()) {
-            if (value.getDepth() == this.getDepth() && !this.equals(value) && (this.intersects(value))) {
+            if (value.getDepth() == this.getDepth() && !this.equals(value) && (this.intersects(value) || value.intersects(this))) {
                 return true;
             }
         }
