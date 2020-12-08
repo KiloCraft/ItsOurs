@@ -27,6 +27,7 @@ public class Permission {
     public static final Permission MODIFY = new Permission("modify", Group.MODIFY);
     public static final Setting PVP = new Setting("pvp");
     public static final Setting MOBSPAWN = new Setting("mobspawn");
+    public static final Setting EXPLOSIONS = new Setting("explosions");
     public static final Setting DROP_INVENTORY = new Setting("drop_inventory");
     public final String id;
     public final Group[] groups;

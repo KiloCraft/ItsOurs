@@ -8,6 +8,7 @@
     "BoatItemMixin",
     "BucketItemMixin",
     "EntityMixin",
+    "ExplosionMixin",
     "LevelStorageSessionMixin",
     "PlayerEntityMixin",
     "ProjectileEntityMixin",
