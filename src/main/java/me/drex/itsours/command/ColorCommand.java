@@ -13,6 +13,7 @@ public class ColorCommand extends Command {
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("colors");
         command.executes(ctx -> showColors(ctx.getSource()));
+        command.requires(src -> hasPermission(src, "itsours.color"));
         literal.then(command);
     }
 

@@ -20,7 +20,10 @@ configurations {
 }
 
 repositories {
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven {
+        name = 'sonatype-oss'
+        url = 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
 }
 
 dependencies {

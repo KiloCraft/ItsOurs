@@ -29,10 +29,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Optional;
+
 @Mixin(Entity.class)
 public abstract class EntityMixin {
 
-    private AbstractClaim pclaim = null;
+    private Optional<AbstractClaim> pclaim = Optional.empty();
 
     @Inject(method = "setPos", at = @At("HEAD"))
     public void doPrePosActions(double x, double y, double z, CallbackInfo ci) {
@@ -48,44 +50,42 @@ public abstract class EntityMixin {
         if ((Object) this instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
             if (player.getBlockPos() == null) return;
-            AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
+            Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
             if (pclaim != claim && player instanceof ServerPlayerEntity) {
                 if (player.networkHandler != null) {
                     ClaimPlayer claimPlayer = (ClaimPlayer) player;
-                    Text message = null;
-                    if (pclaim != null && claim == null) {
-                        message = new LiteralText("You left " + pclaim.getFullName()).formatted(Formatting.YELLOW);
+                    Optional<Text> message = Optional.empty();
+                    if (pclaim.isPresent() && !claim.isPresent()) {
+                        message = Optional.of(new LiteralText("You left " + pclaim.get().getFullName()).formatted(Formatting.YELLOW));
                         //TODO: Make configurable
-                        boolean cachedFlying = player.abilities.flying;
+                        boolean cachedFlying = player.getAbilities().flying;
                         //update abilities for respective gamemode
-                        player.interactionManager.getGameMode().setAbilities(player.abilities);
+                        player.interactionManager.getGameMode().setAbilities(player.getAbilities());
                         //check if the player was flying before they entered the claim
                         if ((boolean) claimPlayer.getSetting("cachedFlight", false)) {
-                            player.abilities.flying = cachedFlying;
-                            player.abilities.allowFlying = true;
+                            player.getAbilities().flying = cachedFlying;
+                            player.getAbilities().allowFlying = true;
                         }
-                        if (cachedFlying && !player.abilities.flying) {
+                        if (cachedFlying && !player.getAbilities().flying) {
                             BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
                             if (pos.getY() + 3 < player.getY())
                                 player.teleport((ServerWorld) WorldUtil.DEFAULT_WORLD, player.getX(), pos.getY(), player.getZ(), player.yaw, player.pitch);
                         }
                         player.sendAbilitiesUpdate();
-                    } else if (claim != null) {
-                        if (pclaim == null) claimPlayer.setSetting("cachedFlight", player.abilities.allowFlying);
-                        boolean cachedFlying = player.abilities.flying;
+                    } else if (claim.isPresent()) {
+                        if (!pclaim.isPresent()) claimPlayer.setSetting("cachedFlight", player.getAbilities().allowFlying);
+                        boolean cachedFlying = player.getAbilities().flying;
                         //update abilities for respective gamemode
-                        player.interactionManager.getGameMode().setAbilities(player.abilities);
+                        player.interactionManager.getGameMode().setAbilities(player.getAbilities());
                         //enable flying if player enabled it
-                        if (!player.abilities.allowFlying) player.abilities.allowFlying = (boolean) claimPlayer.getSetting("flight", false);
+                        if (!player.getAbilities().allowFlying) player.getAbilities().allowFlying = (boolean) claimPlayer.getSetting("flight", false);
                         //set the flight state to what it was before entering
-                        if (player.abilities.allowFlying) player.abilities.flying = cachedFlying;
+                        if (player.getAbilities().allowFlying) player.getAbilities().flying = cachedFlying;
                         player.sendAbilitiesUpdate();
-                        message = new LiteralText("Welcome to " + claim.getFullName()).formatted(Formatting.YELLOW);
+                        message = Optional.of(new LiteralText("Welcome to " + claim.get().getFullName()).formatted(Formatting.YELLOW));
                     }
 
-                    if (message != null) {
-                        player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.ACTIONBAR, message, -1, 20, -1));
-                    }
+                    message.ifPresent(text -> player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.ACTIONBAR, text, -1, 20, -1)));
                 }
             }
         }
@@ -123,12 +123,12 @@ public abstract class EntityMixin {
             blockState.onEntityCollision(world, pos, entity);
             return;
         }
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, pos);
-        if (claim == null) {
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, pos);
+        if (!claim.isPresent()) {
             blockState.onEntityCollision(world, pos, entity);
             return;
         }
-        if (!claim.hasPermission(playerEntity.getUuid(), "interact_block." + Permission.toString(blockState.getBlock()))) {
+        if (!claim.get().hasPermission(playerEntity.getUuid(), "interact_block." + Permission.toString(blockState.getBlock()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
             claimPlayer.sendError(Component.text("You can't interact with that block here.").color(Color.RED));
             return;

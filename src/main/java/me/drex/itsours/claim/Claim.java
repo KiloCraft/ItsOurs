@@ -3,7 +3,6 @@ package me.drex.itsours.claim;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOursMod;
-import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -38,7 +37,7 @@ public class Claim extends AbstractClaim {
         this.show(false);
         this.expand(direction, amount);
         int requiredBlocks = this.getArea() - previousArea;
-        if ((int)ItsOursMod.INSTANCE.getPlayerList().get(uuid, "blocks", 1000) < requiredBlocks) {
+        if (ItsOursMod.INSTANCE.getPlayerList().getBlocks(uuid) < requiredBlocks) {
             this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("You don't have enough claim blocks!")).create();
         }

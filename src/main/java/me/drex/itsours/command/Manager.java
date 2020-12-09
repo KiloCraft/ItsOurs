@@ -14,12 +14,15 @@ public class Manager {
         DebugCommand.register(main);
         ExpandCommand.register(main);
         FlyCommand.register(main);
+        IgnoreCommand.register(main);
         InfoCommand.register(main);
         ListCommand.register(main);
         PermissionCommand.register(main);
         RemoveCommand.register(main);
+        RenameCommand.register(main);
         RoleCommand.register(main);
         RolesCommand.register(main);
+        SetOwnerCommand.register(main);
         SettingCommand.register(main);
         ShowCommand.register(main);
         TrustCommand.register(main);

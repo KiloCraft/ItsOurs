@@ -11,7 +11,6 @@ import me.drex.itsours.util.TextComponentUtil;
 import me.drex.itsours.util.WorldUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.math.BlockPos;
@@ -21,7 +20,7 @@ import java.util.UUID;
 public class InfoCommand extends Command {
 
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
-        RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
+        RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
         claim.executes(ctx -> info(ctx.getSource(), getClaim(ctx)));
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("info");
         command.executes(ctx -> info(ctx.getSource(), getAndValidateClaim(ctx.getSource().getWorld(), ctx.getSource().getPlayer().getBlockPos())));
@@ -43,7 +42,9 @@ public class InfoCommand extends Command {
             .append(newInfoLine("Name", Component.text(claim.getName()).color(Color.WHITE)))
             .append(newInfoLine("Owner", ownerName.equals("") ?
                 Component.text(ownerUUID.toString()).color(Color.RED).clickEvent(net.kyori.adventure.text.event.ClickEvent.copyToClipboard(claim.getOwner().toString())) :
-                TextComponentUtil.of("<gradient:" + Color.RED.stringValue() + ":" + Color.ORANGE.stringValue() + ">" + ownerName, false).append(Component.text("\n"))
+                TextComponentUtil.of("<gradient:" + Color.RED.stringValue() + ":" + Color.ORANGE.stringValue() + ">" + ownerName, false)
+                        .clickEvent(net.kyori.adventure.text.event.ClickEvent.copyToClipboard(claim.getOwner().toString()))
+                        .append(Component.text("\n"))
             .append(newInfoLine("Size", Component.text(size.getX() + " x " + size.getY() + " x " + size.getZ()).color(Color.LIGHT_GREEN)))
             .append(newInfoLine("Depth", Component.text(String.valueOf(claim.getDepth())).color(Color.DARK_GREEN)))
             .append(newInfoLine("Flags", claim.getPermissionManager().settings.toText()))
@@ -51,7 +52,6 @@ public class InfoCommand extends Command {
                 Component.text("Min ").color(Color.WHITE).append(newPosLine(claim.min, Color.AQUA, Color.BLUE)),
                 Component.text(" Max ").color(Color.WHITE).append(newPosLine(claim.max, Color.PURPLE, Color.DARK_PURPLE))))
             .append(newInfoLine("Dimension", Component.text(WorldUtil.toIdentifier(claim.getWorld())).color(Color.GREEN)))));
-        //TODO: List flags
         ((ClaimPlayer) source.getPlayer()).sendMessage(text);
 
         return 1;

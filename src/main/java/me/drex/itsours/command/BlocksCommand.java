@@ -11,9 +11,6 @@ import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 public class BlocksCommand extends Command {
 
@@ -52,13 +49,13 @@ public class BlocksCommand extends Command {
     }
 
     public static int check(ServerCommandSource source) throws CommandSyntaxException {
-        int blocks = (int) ((ClaimPlayer)source.getPlayer()).getSetting("blocks", 1000);
+        int blocks = (int) ((ClaimPlayer)source.getPlayer()).getSetting("blocks", 500);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("You have " + blocks + " blocks left").color(Color.LIGHT_GREEN));
         return blocks;
     }
 
     public static int checkOther(ServerCommandSource source, GameProfile gameProfile) throws CommandSyntaxException {
-        int blocks = (int) ItsOursMod.INSTANCE.getPlayerList().get(gameProfile.getId(), "blocks", 1000);
+        int blocks = ItsOursMod.INSTANCE.getPlayerList().getBlocks(gameProfile.getId());
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text(gameProfile.getName() + " has " + blocks + " blocks left").color(Color.LIGHT_GREEN));
         return blocks;
     }
@@ -70,7 +67,7 @@ public class BlocksCommand extends Command {
     }
 
     public static int add(ServerCommandSource source, GameProfile gameProfile, int amount) throws CommandSyntaxException {
-        int blocks = (int) ItsOursMod.INSTANCE.getPlayerList().get(gameProfile.getId(), "blocks", 1000);
+        int blocks = ItsOursMod.INSTANCE.getPlayerList().getBlocks(gameProfile.getId());
         ItsOursMod.INSTANCE.getPlayerList().set(gameProfile.getId(), "blocks", Math.max(0, blocks + amount));
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text((amount > 0 ? ("Added " + amount) : ("Removed " + -amount)) + " claim block(s) " + (amount > 0 ? "to " : "from ") + gameProfile.getName()).color(Color.LIGHT_GREEN));
         return amount;

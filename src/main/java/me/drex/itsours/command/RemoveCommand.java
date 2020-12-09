@@ -11,19 +11,16 @@ import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.ClickEvent;
 import net.minecraft.text.LiteralText;
-import net.minecraft.util.Formatting;
 
 public class RemoveCommand extends Command {
 
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         LiteralArgumentBuilder<ServerCommandSource> confirm = LiteralArgumentBuilder.literal("confirm");
         confirm.executes(ctx -> remove(ctx.getSource(), getClaim(ctx)));
-        RequiredArgumentBuilder<ServerCommandSource, String> claim = claimArgument();
+        RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
         claim.executes(ctx -> requestRemove(ctx.getSource(), getClaim(ctx)));
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("remove");
         claim.then(confirm);
@@ -48,7 +45,7 @@ public class RemoveCommand extends Command {
             ((Subzone) claim).getParent().removeSubzone((Subzone) claim);
         }
         if (claim instanceof Claim) {
-            int blocks = (int) ItsOursMod.INSTANCE.getPlayerList().get(claim.getOwner(), "blocks", 1000);
+            int blocks = ItsOursMod.INSTANCE.getPlayerList().getBlocks(claim.getOwner());
             ItsOursMod.INSTANCE.getPlayerList().set(claim.getOwner(), "blocks", Math.max(0, blocks + claim.getArea()));
         }
         claim.show(false);

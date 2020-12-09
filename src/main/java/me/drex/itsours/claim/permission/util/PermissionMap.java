@@ -25,15 +25,14 @@ public class PermissionMap extends HashMap<String, Boolean> {
     }
 
     public Permission.Value getPermission(String permission) {
-        return getPermission(permission, s -> {
-        });
+        return getPermission(permission, s -> {});
     }
 
     public Permission.Value getPermission(String permission, PermissionCallback c) {
         if (this.containsKey(permission)) return Permission.Value.of(this.get(permission));
         String[] nodes = permission.split("\\.");
-        if (nodes.length == 1) return Permission.Value.UNSET;
         Permission perm = Permission.getPermission(permission);
+        if (perm != null && nodes.length == 1) return perm.getDefaultValue();
         if (perm == null) return Permission.Value.UNSET;
         return checkPermission(nodes, perm, 0, c);
     }

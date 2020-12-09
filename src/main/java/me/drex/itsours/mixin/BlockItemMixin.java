@@ -24,6 +24,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Optional;
+
 @Mixin(BlockItem.class)
 public abstract class BlockItemMixin extends Item {
 
@@ -37,9 +39,9 @@ public abstract class BlockItemMixin extends Item {
     @Redirect(method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemPlacementContext;canPlace()Z"))
     private boolean itsours$checkCanPlace(ItemPlacementContext context) {
         if (context.getPlayer() == null) return context.canPlace();
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
-        if (claim == null) return context.canPlace();
-        if (!claim.hasPermission(context.getPlayer().getUuid(), "place." + Permission.toString(this.getBlock()))) {
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
+        if (!claim.isPresent()) return context.canPlace();
+        if (!claim.get().hasPermission(context.getPlayer().getUuid(), "place." + Permission.toString(this.getBlock()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) context.getPlayer();
             claimPlayer.sendError(Component.text("You can't place a block here.").color(Color.RED));
             return false;
@@ -60,10 +62,8 @@ public abstract class BlockItemMixin extends Item {
                 TextComponent.Builder textComponent = Component.text().content("This " + this.getDefaultStack().getName().getString().toLowerCase() + " is not protected,").color(Color.YELLOW).append(Component.text(" click this ").color(Color.ORANGE)).append(Component.text("message to create a claim, to protect it").color(Color.YELLOW));
                 textComponent.clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim create"));
                 claimPlayer.sendMessage(textComponent.build());
-                if (!claimPlayer.arePositionsSet()) {
-                    claimPlayer.setRightPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
-                    claimPlayer.setLeftPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
-                }
+                claimPlayer.setRightPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
+                claimPlayer.setLeftPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
             }
         }
     }

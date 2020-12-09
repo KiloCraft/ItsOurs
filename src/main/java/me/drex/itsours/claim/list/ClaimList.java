@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 
 public class ClaimList {
 
-    private List<AbstractClaim> claimList = new ArrayList<>();
-    private Map<UUID, List<AbstractClaim>> byOwner = new HashMap<>();
+    private final List<AbstractClaim> claimList = new ArrayList<>();
+    private final Map<UUID, List<AbstractClaim>> byOwner = new HashMap<>();
     /*
      * byRegion is a HashMap for quick retrieval of claims by a position
      * */
-    private Map<Region, List<AbstractClaim>> byRegion = new HashMap<>();
+    private final Map<Region, List<AbstractClaim>> byRegion = new HashMap<>();
 
     public ClaimList(ListTag tag) {
         fromNBT(tag);
@@ -98,14 +98,14 @@ public class ClaimList {
         return byOwner.get(owner) == null ? new ArrayList<>() : byOwner.get(owner);
     }
 
-    public AbstractClaim get(ServerWorld world, BlockPos pos) {
+    public Optional<AbstractClaim> get(ServerWorld world, BlockPos pos) {
         List<AbstractClaim> claims = get(Region.get(pos.getX(), pos.getZ())).stream().filter(abstractClaim -> abstractClaim.getWorld().equals(world)).collect(Collectors.toList());
         for (AbstractClaim claim : claims) {
             if (claim.contains(pos)) {
-                return getDeepestClaim(claim, pos);
+                return Optional.of(getDeepestClaim(claim, pos));
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private AbstractClaim getDeepestClaim(AbstractClaim claim, BlockPos pos) {
@@ -115,49 +115,49 @@ public class ClaimList {
         return claim;
     }
 
-    public Claim getMainClaim(String name) {
-        for (AbstractClaim claim : claimList) {
-            if (claim.getFullName().equals(name) && claim instanceof Claim) return (Claim) claim;
+    public Optional<Claim> getMainClaim(String name) {
+        for (AbstractClaim claim : claimList.stream().filter(claim -> claim instanceof Claim).collect(Collectors.toList())) {
+            if (claim.getFullName().equals(name)) return Optional.of((Claim) claim);
         }
-        return null;
+        return Optional.empty();
     }
 
-    public AbstractClaim get(String name) {
+    public Optional<? extends AbstractClaim> get(String name) {
         if (name.contains(".")) {
             String[] names = name.split("\\.");
             for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get()) {
                 if (claim.getName().equals(names[0])) {
-                    Subzone subzone = getSubzone(claim, name);
-                    if (subzone != null) return subzone;
+                    Optional<Subzone> subzone = getSubzone(claim, name);
+                    if (subzone.isPresent()) return subzone;
                 }
             }
         } else {
-            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get()) {
-                if (claim.getName().equals(name)) return claim;
+            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get().stream().filter(claim -> claim instanceof Claim).collect(Collectors.toList())) {
+                if (claim.getName().equals(name)) return Optional.of(claim);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
-    private Subzone getSubzone(AbstractClaim claim, String name) {
+    private Optional<Subzone> getSubzone(AbstractClaim claim, String name) {
         String[] names = name.split("\\.");
         for (Subzone subzone : claim.getSubzones()) {
             if (subzone.getDepth() > names.length) {
-                return null;
+                return Optional.empty();
             }
             if (subzone.getName().equals(names[subzone.getDepth()])) {
                 if (subzone.getDepth() == names.length - 1) {
-                    return subzone;
+                    return Optional.of(subzone);
                 } else {
                     return getSubzone(subzone, name);
                 }
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     public boolean contains(String name) {
-        return getMainClaim(name) != null;
+        return getMainClaim(name).isPresent();
     }
 
     private List<AbstractClaim> get(Region region) {

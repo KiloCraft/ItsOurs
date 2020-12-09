@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Optional;
 import java.util.Random;
 
 @Mixin(SpawnRestriction.class)
@@ -20,8 +21,9 @@ public class SpawnRestrictionMixin {
 
     @Inject(method = "canSpawn", at = @At("HEAD"), cancellable = true)
     private static <T extends Entity> void canSpawnInClaim(EntityType<T> type, ServerWorldAccess serverWorldAccess, SpawnReason spawnReason, BlockPos pos, Random random, CallbackInfoReturnable<Boolean> cir) {
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(serverWorldAccess.toServerWorld(), pos);
-        if (claim != null && !claim.getSetting("mobspawn")) {
+        if (ItsOursMod.INSTANCE == null || ItsOursMod.INSTANCE.getClaimList() == null) return;
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get(serverWorldAccess.toServerWorld(), pos);
+        if (claim.isPresent() && !claim.get().getSetting("mobspawn")) {
             cir.setReturnValue(false);
         }
     }

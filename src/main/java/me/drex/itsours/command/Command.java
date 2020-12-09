@@ -9,6 +9,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.claim.permission.util.Group;
 import me.drex.itsours.claim.permission.util.Permission;
@@ -26,6 +27,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.server.command.CommandManager.argument;
@@ -37,14 +39,14 @@ public abstract class Command {
         ItsOursMod.INSTANCE.getRoleManager().forEach((roleID, role) -> names.add(roleID));
         return CommandSource.suggestMatching(names, builder);
     };
-    public static final SuggestionProvider<ServerCommandSource> CLAIM_PROVIDER = (source, builder) -> {
+    public static final SuggestionProvider<ServerCommandSource> OWN_CLAIM_PROVIDER = (source, builder) -> {
         UUID uuid = source.getSource().getPlayer().getUuid();
         ServerPlayerEntity player = source.getSource().getPlayer();
         List<String> names = new ArrayList<>();
-        AbstractClaim current = ItsOursMod.INSTANCE.getClaimList().get(player.getServerWorld(), player.getBlockPos());
-        if (current != null) names.add(current.getName());
+        Optional<AbstractClaim> current = ItsOursMod.INSTANCE.getClaimList().get(player.getServerWorld(), player.getBlockPos());
+        current.ifPresent(claim -> names.add(claim.getName()));
         if (uuid != null) {
-            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get(uuid)) {
+            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get(uuid).stream().filter(claim -> claim instanceof Claim).collect(Collectors.toList())) {
                 names.add(claim.getName());
                 addSubzones(claim, builder.getRemaining(), names);
             }
@@ -52,9 +54,19 @@ public abstract class Command {
         return CommandSource.suggestMatching(names, builder);
     };
 
+    public static final SuggestionProvider<ServerCommandSource> ALL_CLAIM_PROVIDER = (source, builder) -> {
+        List<String> names = new ArrayList<>();
+        for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get().stream().filter(claim -> claim instanceof Claim).collect(Collectors.toList())) {
+            names.add(claim.getName());
+            addSubzones(claim, builder.getRemaining(), names);
+        }
+        return CommandSource.suggestMatching(names, builder);
+    };
+
     public static final SuggestionProvider<ServerCommandSource> PERMISSION_PROVIDER = (source, builder) -> {
         List<String> permissions = new ArrayList<>();
         for (Permission permission : Permission.permissions) {
+            if (permission instanceof Setting) continue;
             permissions.add(permission.id);
             if (builder.getRemaining().startsWith(permission.id) && permission.groups.length > 0) {
                 addNodes(permission.id, permission.groups, 0, builder.getRemaining(), permissions);
@@ -121,20 +133,24 @@ public abstract class Command {
     }
 
     static AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(world, pos);
-        if (claim == null)
-            throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim at your position!")).create();
-        return claim;
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get(world, pos);
+        if (!claim.isPresent()) throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim at your position!")).create();
+        return claim.get();
     }
 
     static boolean hasPermission(ServerCommandSource src, String permission) {
         return ItsOursMod.INSTANCE.getPermissionHandler().hasPermission(src, permission, 2);
     }
 
+    static void validatePermission(AbstractClaim claim, UUID uuid, String permission) throws CommandSyntaxException {
+        if (!claim.hasPermission(uuid, permission))
+        throw new SimpleCommandExceptionType(new LiteralText("You don't have permission to do that")).create();
+    }
+
     public static AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         String name = StringArgumentType.getString(ctx, "claim");
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(name);
-        if (claim != null) return claim;
+        Optional<? extends AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get(name);
+        if (claim.isPresent()) return claim.get();
         throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim with that name")).create();
     }
 
@@ -158,8 +174,12 @@ public abstract class Command {
         throw new SimpleCommandExceptionType(new LiteralText("Invalid permission value")).create();
     }
 
-    public static RequiredArgumentBuilder<ServerCommandSource, String> claimArgument() {
-        return argument("claim", word()).suggests(CLAIM_PROVIDER);
+    public static RequiredArgumentBuilder<ServerCommandSource, String> ownClaimArgument() {
+        return argument("claim", word()).suggests(OWN_CLAIM_PROVIDER);
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, String> allClaimArgument() {
+        return argument("claim", word()).suggests(ALL_CLAIM_PROVIDER);
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> roleArgument() {

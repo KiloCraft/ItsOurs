@@ -109,6 +109,10 @@ public abstract class AbstractClaim {
         return this.name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public abstract String getFullName();
 
     public UUID getOwner() {
@@ -136,6 +140,8 @@ public abstract class AbstractClaim {
     }
 
     public boolean hasPermission(UUID uuid, String permission) {
+        if (uuid.equals(owner)) return true;
+        if ((boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, "ignore", false)) return true;
         Permission.Value value = this.permissionManager.hasPermission(uuid, permission);
         sendDebug(uuid, permission, value);
         return value.value;
@@ -200,7 +206,7 @@ public abstract class AbstractClaim {
 
     public boolean intersects() {
         for (AbstractClaim value : ItsOursMod.INSTANCE.getClaimList().get()) {
-            if (value.getDepth() == this.getDepth() && !this.equals(value) && (this.intersects(value))) {
+            if (value.getDepth() == this.getDepth() && !this.equals(value) && (this.intersects(value) || value.intersects(this))) {
                 return true;
             }
         }

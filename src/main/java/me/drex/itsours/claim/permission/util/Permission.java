@@ -10,7 +10,6 @@ import net.minecraft.item.Item;
 import net.minecraft.util.registry.Registry;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -25,11 +24,14 @@ public class Permission {
     public static final Permission USE_ITEM = new Permission("use_item", Group.USE_ITEM);
     public static final Permission DAMAGE_ENTITY = new Permission("damage_entity", Group.ENTITY);
     public static final Permission INTERACT_ENTITY = new Permission("interact_entity", Group.ENTITY);
+    public static final Permission MODIFY = new Permission("modify", Group.MODIFY);
     public static final Setting PVP = new Setting("pvp");
     public static final Setting MOBSPAWN = new Setting("mobspawn");
-    public static final Setting DROP_INVENTORY = new Setting("drop_inventory");
+    public static final Setting EXPLOSIONS = new Setting("explosions");
+    public static final Setting KEEP_INVENTORY = new Setting("keepinventory", Value.TRUE);
     public final String id;
     public final Group[] groups;
+    public Value defaultValue = Value.UNSET;
 
     Permission(String id, Group... groups) {
         permissions.add(this);
@@ -64,6 +66,10 @@ public class Permission {
             }
         }
         return null;
+    }
+
+    public Value getDefaultValue() {
+        return this.defaultValue;
     }
 
     public static String toString(Block block) {

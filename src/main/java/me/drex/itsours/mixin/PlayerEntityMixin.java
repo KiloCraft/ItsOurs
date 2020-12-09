@@ -19,6 +19,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+import java.util.Optional;
+
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin extends LivingEntity {
 
@@ -28,16 +30,16 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 
     @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;isAttackable()Z"))
     private boolean itsours$onDamage(Entity entity) {
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) entity.getEntityWorld(), entity.getBlockPos());
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) entity.getEntityWorld(), entity.getBlockPos());
         ClaimPlayer claimPlayer = (ClaimPlayer) this;
-        if (claim == null) {
+        if (!claim.isPresent()) {
             return entity.isAttackable();
         }
-        if (!claim.getSetting("pvp") && entity instanceof PlayerEntity) {
+        if (!claim.get().getSetting("pvp") && entity instanceof PlayerEntity) {
             claimPlayer.sendError(Component.text("You can't pvp here.").color(Color.RED));
             return false;
         }
-        if (!claim.hasPermission(this.getUuid(), "damage_entity." + Permission.toString(entity.getType()))) {
+        if (!claim.get().hasPermission(this.getUuid(), "damage_entity." + Permission.toString(entity.getType()))) {
             claimPlayer.sendError(Component.text("You can't damage that entity here.").color(Color.RED));
             return false;
         }
@@ -46,10 +48,10 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 
     @Redirect(method = "interact", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;interact(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;"))
     private ActionResult itsours$onInteractEntity(Entity entity, PlayerEntity player, Hand hand) {
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) entity.getEntityWorld(), entity.getBlockPos());
-        if (claim == null)
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) entity.getEntityWorld(), entity.getBlockPos());
+        if (!claim.isPresent())
             return entity.interact(player, hand);
-        if (!claim.hasPermission(this.getUuid(), "interact_entity." + Permission.toString(entity.getType()))) {
+        if (!claim.get().hasPermission(this.getUuid(), "interact_entity." + Permission.toString(entity.getType()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) this;
             claimPlayer.sendError(Component.text("You can't interact with that entity here.").color(Color.RED));
             return ActionResult.FAIL;
@@ -59,12 +61,8 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 
     @Redirect(method = "dropInventory", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/GameRules;getBoolean(Lnet/minecraft/world/GameRules$Key;)Z"))
     public boolean itsours$onDropInventory(GameRules gameRules, GameRules.Key<GameRules.BooleanRule> rule) {
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) this.getEntityWorld(), this.getBlockPos());
-        if (claim != null) {
-            return !claim.getSetting("drop_inventory");
-        } else {
-            return gameRules.getBoolean(rule);
-        }
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) this.getEntityWorld(), this.getBlockPos());
+        return claim.map(abstractClaim -> !abstractClaim.getSetting("drop_inventory")).orElseGet(() -> gameRules.getBoolean(rule));
     }
 
 }
