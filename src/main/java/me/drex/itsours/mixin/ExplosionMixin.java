@@ -25,8 +25,8 @@ public class ExplosionMixin {
 
     @Redirect(method = "collectBlocksAndDamageEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/explosion/ExplosionBehavior;getBlastResistance(Lnet/minecraft/world/explosion/Explosion;Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/fluid/FluidState;)Ljava/util/Optional;"))
     public Optional<Float> modifyResistance(ExplosionBehavior explosionBehavior, Explosion explosion, BlockView world, BlockPos pos, BlockState blockState, FluidState fluidState) {
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) this.world, pos);
-        if (claim != null && !claim.getSetting("explosions")) {
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) this.world, pos);
+        if (claim.isPresent() && !claim.get().getSetting("explosions")) {
             return Optional.of(3600000.0F);
         }
         return explosionBehavior.getBlastResistance(explosion, world, pos, blockState, fluidState);

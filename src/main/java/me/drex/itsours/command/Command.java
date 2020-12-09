@@ -43,8 +43,8 @@ public abstract class Command {
         UUID uuid = source.getSource().getPlayer().getUuid();
         ServerPlayerEntity player = source.getSource().getPlayer();
         List<String> names = new ArrayList<>();
-        AbstractClaim current = ItsOursMod.INSTANCE.getClaimList().get(player.getServerWorld(), player.getBlockPos());
-        if (current != null) names.add(current.getName());
+        Optional<AbstractClaim> current = ItsOursMod.INSTANCE.getClaimList().get(player.getServerWorld(), player.getBlockPos());
+        current.ifPresent(claim -> names.add(claim.getName()));
         if (uuid != null) {
             for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get(uuid).stream().filter(claim -> claim instanceof Claim).collect(Collectors.toList())) {
                 names.add(claim.getName());
@@ -133,10 +133,9 @@ public abstract class Command {
     }
 
     static AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(world, pos);
-        if (claim == null)
-            throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim at your position!")).create();
-        return claim;
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get(world, pos);
+        if (!claim.isPresent()) throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim at your position!")).create();
+        return claim.get();
     }
 
     static boolean hasPermission(ServerCommandSource src, String permission) {
@@ -150,8 +149,8 @@ public abstract class Command {
 
     public static AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         String name = StringArgumentType.getString(ctx, "claim");
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get(name);
-        if (claim != null) return claim;
+        Optional<? extends AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get(name);
+        if (claim.isPresent()) return claim.get();
         throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim with that name")).create();
     }
 

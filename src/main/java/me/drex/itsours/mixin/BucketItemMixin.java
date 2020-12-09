@@ -17,6 +17,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+import java.util.Optional;
+
 @Mixin(BucketItem.class)
 public class BucketItemMixin extends Item {
 
@@ -27,10 +29,10 @@ public class BucketItemMixin extends Item {
     @Redirect(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/BucketItem;raycast(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/RaycastContext$FluidHandling;)Lnet/minecraft/util/hit/BlockHitResult;"))
     private BlockHitResult itsours$onBucketUse(World world, PlayerEntity player, RaycastContext.FluidHandling fluidHandling) {
         BlockHitResult hit = Item.raycast(world, player, fluidHandling);
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
-        if (claim == null)
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
+        if (!claim.isPresent())
             return hit;
-        if (!claim.hasPermission(player.getUuid(), "interact_block." + Permission.toString(this))) {
+        if (!claim.get().hasPermission(player.getUuid(), "interact_block." + Permission.toString(this))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
             claimPlayer.sendError(Component.text("You can't interact with that block here.").color(Color.RED));
             return BlockHitResult.createMissed(hit.getPos(), hit.getSide(), hit.getBlockPos());

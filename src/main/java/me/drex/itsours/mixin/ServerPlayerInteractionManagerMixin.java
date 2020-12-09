@@ -23,24 +23,29 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+import java.util.Objects;
+import java.util.Optional;
+
 @Mixin(ServerPlayerInteractionManager.class)
 public class ServerPlayerInteractionManagerMixin {
 
     @Shadow
-    public ServerPlayerEntity player;
+    @Final
+    protected ServerPlayerEntity player;
 
     @Shadow
-    public ServerWorld world;
+    protected ServerWorld world;
 
     @Redirect(method = "processBlockBreakingAction", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;canPlayerModifyAt(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/math/BlockPos;)Z"))
     private boolean itsours$onLeftClickOnBlock(ServerWorld serverWorld, PlayerEntity player, BlockPos pos) {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
-        if (player.getInventory().getMainHandStack().getItem() == Items.GOLDEN_SHOVEL && !isSame(claimPlayer.getLeftPosition(), pos)) {
+        if (player.getInventory().getMainHandStack().getItem() == Items.GOLDEN_SHOVEL && isDifferent(claimPlayer.getLeftPosition(), pos)) {
             claimPlayer.sendMessage(Component.text("Position #1 set to " + pos.getX() + " " + pos.getZ()).color(Color.LIGHT_GREEN));
             claimPlayer.setLeftPosition(pos);
             onClaimAddCorner();
@@ -63,15 +68,15 @@ public class ServerPlayerInteractionManagerMixin {
         }
     }
 
-    private boolean isSame(BlockPos pos1, BlockPos pos2) {
-        return pos1 != null && pos2 != null && pos1.getX() == pos2.getX() && pos1.getY() == pos2.getY() && pos1.getZ() == pos2.getZ();
+    private boolean isDifferent(BlockPos pos1, BlockPos pos2) {
+        return pos1 == null || pos2 == null || pos1.getX() != pos2.getX() || pos1.getY() != pos2.getY() || pos1.getZ() != pos2.getZ();
     }
 
     @Redirect(method = "tryBreakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isBlockBreakingRestricted(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/GameMode;)Z"))
     private boolean itsours$onBlockBreak(ServerPlayerEntity playerEntity, World world, BlockPos pos, GameMode gameMode) {
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, pos);
-        if (claim == null) return playerEntity.isBlockBreakingRestricted(world, pos, gameMode);
-        if (!claim.hasPermission(playerEntity.getUuid(), "mine." + Permission.toString(this.world.getBlockState(pos).getBlock()) + "." + Permission.toString(playerEntity.getMainHandStack().getItem()))) {
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, pos);
+        if (!claim.isPresent()) return playerEntity.isBlockBreakingRestricted(world, pos, gameMode);
+        if (!claim.get().hasPermission(playerEntity.getUuid(), "mine." + Permission.toString(this.world.getBlockState(pos).getBlock()) + "." + Permission.toString(playerEntity.getMainHandStack().getItem()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
             claimPlayer.sendError(Component.text("You can't break that block here.").color(Color.RED));
             return true;
@@ -81,10 +86,10 @@ public class ServerPlayerInteractionManagerMixin {
 
     @Redirect(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onUse(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
     private ActionResult itsours$onBlockInteract(BlockState blockState, World world, PlayerEntity playerEntity, Hand hand, BlockHitResult hit) {
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
-        if (claim == null || !Group.filter(blockState.getBlock(), Group.INTERACT_BLOCK_FILTER))
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
+        if (!claim.isPresent() || !Group.filter(blockState.getBlock(), Group.INTERACT_BLOCK_FILTER))
             return blockState.onUse(world, playerEntity, hand, hit);
-        if (!claim.hasPermission(playerEntity.getUuid(), "interact_block." + Permission.toString(blockState.getBlock()))) {
+        if (!claim.get().hasPermission(playerEntity.getUuid(), "interact_block." + Permission.toString(blockState.getBlock()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
             claimPlayer.sendError(Component.text("You can't interact with that block here.").color(Color.RED));
             return ActionResult.FAIL;
@@ -96,16 +101,16 @@ public class ServerPlayerInteractionManagerMixin {
     private ActionResult itsours$onUseOnBlock(ItemStack itemStack, ItemUsageContext context) {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         BlockPos pos = context.getBlockPos();
-        if (itemStack.getItem() == Items.GOLDEN_SHOVEL && !isSame(claimPlayer.getRightPosition(), pos)) {
+        if (itemStack.getItem() == Items.GOLDEN_SHOVEL && isDifferent(claimPlayer.getRightPosition(), pos)) {
             claimPlayer.sendMessage(Component.text("Position #2 set to " + pos.getX() + " " + pos.getZ()).color(Color.LIGHT_GREEN));
             claimPlayer.setRightPosition(pos);
             onClaimAddCorner();
             return ActionResult.FAIL;
         }
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
-        if (claim == null || !Group.filter(itemStack.getItem(), Group.USE_ON_BLOCK_FILTER))
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
+        if (!claim.isPresent() || !Group.filter(itemStack.getItem(), Group.USE_ON_BLOCK_FILTER))
             return itemStack.useOnBlock(context);
-        if (!claim.hasPermission(context.getPlayer().getUuid(), "use_on_block." + Permission.toString(itemStack.getItem()) + "." + Permission.toString(context.getWorld().getBlockState(context.getBlockPos()).getBlock()))) {
+        if (!claim.get().hasPermission(Objects.requireNonNull(context.getPlayer()).getUuid(), "use_on_block." + Permission.toString(itemStack.getItem()) + "." + Permission.toString(context.getWorld().getBlockState(context.getBlockPos()).getBlock()))) {
             claimPlayer.sendError(Component.text("You can't use that item here.").color(Color.RED));
             return ActionResult.FAIL;
         }
@@ -114,10 +119,10 @@ public class ServerPlayerInteractionManagerMixin {
     
     @Redirect(method = "interactItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;"))
     private TypedActionResult<ItemStack> itsours$onItemUse(ItemStack itemStack, World world, PlayerEntity user, Hand hand) {
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, user.getBlockPos());
-        if (claim == null || !Group.filter(itemStack.getItem(), Group.USE_ITEM_FILTER))
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, user.getBlockPos());
+        if (!claim.isPresent() || !Group.filter(itemStack.getItem(), Group.USE_ITEM_FILTER))
             return itemStack.use(world, user, hand);
-        if (!claim.hasPermission(user.getUuid(), "use_item." + Permission.toString(itemStack.getItem()))) {
+        if (!claim.get().hasPermission(user.getUuid(), "use_item." + Permission.toString(itemStack.getItem()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) user;
             claimPlayer.sendError(Component.text("You can't use that item here.").color(Color.RED));
             return TypedActionResult.fail(itemStack);

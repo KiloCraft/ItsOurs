@@ -16,6 +16,8 @@ import net.kyori.adventure.text.Component;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.Optional;
+
 public class CreateCommand extends Command {
 
 
@@ -42,17 +44,17 @@ public class CreateCommand extends Command {
             AbstractClaim claim = new Claim(name, source.getPlayer().getUuid(), min, max, source.getWorld(), null);
             AbstractClaim show = claim;
             if (claim.intersects()) {
-                AbstractClaim parent = ItsOursMod.INSTANCE.getClaimList().get(source.getWorld(), min);
-                if (parent != null && parent.contains(max)) {
-                    if (parent.getDepth() > 2)
+                Optional<AbstractClaim> parent = ItsOursMod.INSTANCE.getClaimList().get(source.getWorld(), min);
+                if (parent.isPresent() && parent.get().contains(max)) {
+                    if (parent.get().getDepth() > 2)
                         throw new SimpleCommandExceptionType(TextComponentUtil.error("You can't create subzones with a depth higher than 3")).create();
-                    validatePermission(parent, source.getPlayer().getUuid(), "modify.subzone");
-                    for (Subzone subzone : parent.getSubzones()) {
+                    validatePermission(parent.get(), source.getPlayer().getUuid(), "modify.subzone");
+                    for (Subzone subzone : parent.get().getSubzones()) {
                         if (subzone.getName().equals(name))
                             throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is already taken")).create();
                     }
-                    claim = new Subzone(name, source.getPlayer().getUuid(), min, max, source.getWorld(), null, parent);
-                    show = parent;
+                    claim = new Subzone(name, source.getPlayer().getUuid(), min, max, source.getWorld(), null, parent.get());
+                    show = parent.get();
                 } else {
                     throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim couldn't be created, because it would overlap with another claim")).create();
                 }

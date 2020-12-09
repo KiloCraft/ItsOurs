@@ -19,6 +19,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+import java.util.Optional;
+
 @Mixin(ProjectileEntity.class)
 public abstract class ProjectileEntityMixin extends Entity {
 
@@ -30,12 +32,12 @@ public abstract class ProjectileEntityMixin extends Entity {
 
     @Redirect(method = "onCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/ProjectileEntity;onEntityHit(Lnet/minecraft/util/hit/EntityHitResult;)V"))
     public void itsours$onCollision(ProjectileEntity entity, EntityHitResult hitResult) {
-        AbstractClaim claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) hitResult.getEntity().getEntityWorld(), hitResult.getEntity().getBlockPos());
-        if (claim == null || !(entity.getOwner() instanceof ServerPlayerEntity)) {
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) hitResult.getEntity().getEntityWorld(), hitResult.getEntity().getBlockPos());
+        if (!claim.isPresent() || !(entity.getOwner() instanceof ServerPlayerEntity)) {
             this.onEntityHit(hitResult);
             return;
         }
-        if (!claim.hasPermission(entity.getOwner().getUuid(), "damage_entity." + Permission.toString(hitResult.getEntity().getType()))) {
+        if (!claim.get().hasPermission(entity.getOwner().getUuid(), "damage_entity." + Permission.toString(hitResult.getEntity().getType()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) entity.getOwner();
             claimPlayer.sendError(Component.text("You can't damage that entity here.").color(Color.RED));
             if (entity instanceof PersistentProjectileEntity) {
