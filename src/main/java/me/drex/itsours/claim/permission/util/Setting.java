@@ -7,6 +7,11 @@ public class Setting extends Permission {
         super(id);
     }
 
+    Setting (String id, Value defaultValue) {
+        super(id);
+        this.defaultValue = defaultValue;
+    }
+
     public static boolean isValid(String setting) {
         return Permission.isValid(setting) || getPermission(setting) instanceof Setting;
     }

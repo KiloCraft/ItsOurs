@@ -28,9 +28,10 @@ public class Permission {
     public static final Setting PVP = new Setting("pvp");
     public static final Setting MOBSPAWN = new Setting("mobspawn");
     public static final Setting EXPLOSIONS = new Setting("explosions");
-    public static final Setting DROP_INVENTORY = new Setting("drop_inventory");
+    public static final Setting KEEP_INVENTORY = new Setting("keepinventory", Value.TRUE);
     public final String id;
     public final Group[] groups;
+    public Value defaultValue = Value.UNSET;
 
     Permission(String id, Group... groups) {
         permissions.add(this);
@@ -65,6 +66,10 @@ public class Permission {
             }
         }
         return null;
+    }
+
+    public Value getDefaultValue() {
+        return this.defaultValue;
     }
 
     public static String toString(Block block) {
