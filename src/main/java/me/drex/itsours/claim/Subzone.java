@@ -10,6 +10,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class Subzone extends AbstractClaim {
@@ -70,9 +71,10 @@ public class Subzone extends AbstractClaim {
             this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in " + this.getName() + " being outside of " + this.parent.getName())).create();
         }
-        if (this.intersects()) {
+        Optional<AbstractClaim> optional = this.intersects();
+        if (optional.isPresent()) {
             this.undoExpand(direction, amount);
-            throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in hitting another subzone")).create();
+            throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in hitting " + optional.get())).create();
         }
         if (this.max.getY() > 256 || this.min.getY() < 0) {
             this.undoExpand(direction, amount);

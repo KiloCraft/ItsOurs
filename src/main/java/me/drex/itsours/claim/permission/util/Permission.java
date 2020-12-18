@@ -28,7 +28,6 @@ public class Permission {
     public static final Setting PVP = new Setting("pvp");
     public static final Setting MOBSPAWN = new Setting("mobspawn");
     public static final Setting EXPLOSIONS = new Setting("explosions");
-    public static final Setting KEEP_INVENTORY = new Setting("keepinventory", Value.TRUE);
     public final String id;
     public final Group[] groups;
     public Value defaultValue = Value.UNSET;

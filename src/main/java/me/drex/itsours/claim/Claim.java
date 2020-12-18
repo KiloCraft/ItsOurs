@@ -9,6 +9,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class Claim extends AbstractClaim {
@@ -41,9 +42,10 @@ public class Claim extends AbstractClaim {
             this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("You don't have enough claim blocks!")).create();
         }
-        if (this.intersects()) {
+        Optional<AbstractClaim> optional = this.intersects();
+        if (optional.isPresent()) {
             this.undoExpand(direction, amount);
-            throw new SimpleCommandExceptionType(new LiteralText("You can't expand into other claims")).create();
+            throw new SimpleCommandExceptionType(new LiteralText("You can't expand into " + optional.get().getName())).create();
         }
         if (this.max.getY() > 256 || this.min.getY() < 0) {
             this.undoExpand(direction, amount);

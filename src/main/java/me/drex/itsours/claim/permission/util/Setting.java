@@ -5,6 +5,7 @@ public class Setting extends Permission {
 
     Setting (String id) {
         super(id);
+        this.defaultValue = Value.FALSE;
     }
 
     Setting (String id, Value defaultValue) {

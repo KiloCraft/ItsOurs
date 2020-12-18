@@ -43,7 +43,7 @@ public class CreateCommand extends Command {
                 throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is to long or contains invalid characters")).create();
             AbstractClaim claim = new Claim(name, source.getPlayer().getUuid(), min, max, source.getWorld(), null);
             AbstractClaim show = claim;
-            if (claim.intersects()) {
+            if (claim.intersects().isPresent()) {
                 Optional<AbstractClaim> parent = ItsOursMod.INSTANCE.getClaimList().get(source.getWorld(), min);
                 if (parent.isPresent() && parent.get().contains(max)) {
                     if (parent.get().getDepth() > 2)

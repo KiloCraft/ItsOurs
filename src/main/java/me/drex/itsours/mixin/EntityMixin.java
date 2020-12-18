@@ -51,7 +51,7 @@ public abstract class EntityMixin {
             ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
             if (player.getBlockPos() == null) return;
             Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
-            if (pclaim != claim && player instanceof ServerPlayerEntity) {
+            if (!pclaim.equals(claim) && player instanceof ServerPlayerEntity) {
                 if (player.networkHandler != null) {
                     ClaimPlayer claimPlayer = (ClaimPlayer) player;
                     Optional<Text> message = Optional.empty();

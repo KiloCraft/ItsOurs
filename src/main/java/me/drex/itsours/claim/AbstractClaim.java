@@ -22,6 +22,7 @@ import net.minecraft.world.World;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static me.drex.itsours.claim.AbstractClaim.Util.getPosOnGround;
 
@@ -204,13 +205,13 @@ public abstract class AbstractClaim {
         }
     }
 
-    public boolean intersects() {
-        for (AbstractClaim value : ItsOursMod.INSTANCE.getClaimList().get()) {
+    public Optional<AbstractClaim> intersects() {
+        for (AbstractClaim value : ItsOursMod.INSTANCE.getClaimList().get().stream().filter(claim -> claim.getWorld().equals(this.getWorld())).collect(Collectors.toList())) {
             if (value.getDepth() == this.getDepth() && !this.equals(value) && (this.intersects(value) || value.intersects(this))) {
-                return true;
+                return Optional.of(value);
             }
         }
-        return false;
+        return Optional.empty();
     }
 
     void expand(Direction direction, int amount) {
