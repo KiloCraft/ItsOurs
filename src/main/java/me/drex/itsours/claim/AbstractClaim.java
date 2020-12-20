@@ -267,7 +267,7 @@ public abstract class AbstractClaim {
 
     public void show(ServerPlayerEntity player, boolean show) {
         BlockState blockState = show ? showBlocks[Math.min(this.getDepth(), showBlocks.length - 1)].getDefaultState() : null;
-        int y = ((ClaimPlayer) player).getLastShowPos().getY();
+        int y = ((ClaimPlayer) player).getLastShowClaim() != null ? ((ClaimPlayer) player).getLastShowPos().getY() : player.getBlockPos().getY();
         for (int i = min.getX(); i < max.getX(); i++) {
             sendBlockPacket(player, new BlockPos(getPosOnGround(new BlockPos(i, y, min.getZ()), player.getEntityWorld())).down(), blockState);
         }

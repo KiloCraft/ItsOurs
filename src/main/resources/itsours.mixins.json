@@ -9,6 +9,7 @@
     "BucketItemMixin",
     "EntityMixin",
     "ExplosionMixin",
+    "FarmlandBlockMixin",
     "LevelStorageSessionMixin",
     "PlayerEntityMixin",
     "ProjectileEntityMixin",

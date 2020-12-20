@@ -115,7 +115,7 @@ public class PermissionCommand extends Command {
     }
 
     public static int setPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission, Permission.Value value) throws CommandSyntaxException {
-        validatePermission(claim, target.getId(), "modify.permission");
+        validatePermission(claim, source.getPlayer().getUuid(), "modify.permission");
         claim.getPermissionManager().setPlayerPermission(target.getId(), permission, value);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set permission ").color(Color.YELLOW)
                 .append(Component.text(permission)).color(Color.ORANGE)

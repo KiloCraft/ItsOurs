@@ -49,7 +49,7 @@ public class ExpandCommand extends Command {
         claim.show(source.getPlayer(), true);
         if (claim instanceof Claim) {
             int blocks = ItsOursMod.INSTANCE.getPlayerList().getBlocks(uuid);
-            ItsOursMod.INSTANCE.getPlayerList().set(uuid, "blocks", Math.max(0, blocks + amount));
+            ItsOursMod.INSTANCE.getPlayerList().set(uuid, "blocks", Math.max(0, blocks - amount));
         }
         //TODO: Add feedback
         return distance;

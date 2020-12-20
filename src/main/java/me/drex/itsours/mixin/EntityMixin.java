@@ -63,8 +63,8 @@ public abstract class EntityMixin {
                         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
                         //check if the player was flying before they entered the claim
                         if ((boolean) claimPlayer.getSetting("cachedFlight", false)) {
-                            player.getAbilities().flying = cachedFlying;
-                            player.getAbilities().allowFlying = true;
+//                            player.getAbilities().flying = cachedFlying;
+//                            player.getAbilities().allowFlying = true;
                         }
                         if (cachedFlying && !player.getAbilities().flying) {
                             BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
@@ -78,9 +78,9 @@ public abstract class EntityMixin {
                         //update abilities for respective gamemode
                         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
                         //enable flying if player enabled it
-                        if (!player.getAbilities().allowFlying) player.getAbilities().allowFlying = (boolean) claimPlayer.getSetting("flight", false);
+//                        if (!player.getAbilities().allowFlying) player.getAbilities().allowFlying = (boolean) claimPlayer.getSetting("flight", false);
                         //set the flight state to what it was before entering
-                        if (player.getAbilities().allowFlying) player.getAbilities().flying = cachedFlying;
+//                        if (player.getAbilities().allowFlying) player.getAbilities().flying = cachedFlying;
                         player.sendAbilitiesUpdate();
                         message = Optional.of(new LiteralText("Welcome to " + claim.get().getFullName()).formatted(Formatting.YELLOW));
                     }

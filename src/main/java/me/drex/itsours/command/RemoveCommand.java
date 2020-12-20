@@ -30,7 +30,7 @@ public class RemoveCommand extends Command {
 
     public static int requestRemove(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
        validate(source, claim);
-       if (!source.getPlayer().getUuid().toString().equals(claim.getOwner().toString())) {
+       if (!source.getPlayer().getUuid().equals(claim.getOwner())) {
            ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("WARNING: This is not your claim...").color(Color.RED).decorate(TextDecoration.BOLD));
        }
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Are you sure you want to delete the claim \"" + claim.getName() + "\"? ").color(Color.RED)
@@ -66,7 +66,7 @@ public class RemoveCommand extends Command {
 
     //TODO
     public static void validate(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
-        if (source.getPlayer().getUuid() != claim.getOwner() && !hasPermission(source, "itsours.remove")) {
+        if (!source.getPlayer().getUuid().equals(claim.getOwner()) && !hasPermission(source, "itsours.remove")) {
             throw new SimpleCommandExceptionType(new LiteralText("You can't delete that claim")).create();
         }
     }
