@@ -8,6 +8,7 @@ import me.drex.itsours.util.TextComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
@@ -33,15 +34,14 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     @Shadow
     @Final
     public ServerPlayerInteractionManager interactionManager;
+    @Shadow @Final public MinecraftServer server;
     public Pair<BlockPos, BlockPos> positions = new Pair<>(null, null);
     public HashMap<String, Object> settings = new HashMap<>();
     private AbstractClaim lastShowClaim;
     private BlockPos lastShowPos;
     private ServerWorld lastShowWorld;
     private int cooldown = 0;
-    private boolean flight = false;
-    private boolean debug = false;
-    private boolean cachedFlight = false;
+    private boolean select = false;
 
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
@@ -96,6 +96,16 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     @Override
     public BlockPos getLeftPosition() {
         return positions.getLeft();
+    }
+
+    @Override
+    public void setSelecting(boolean value) {
+        this.select = value;
+    }
+
+    @Override
+    public boolean getSelecting() {
+        return this.select;
     }
 
     @Override

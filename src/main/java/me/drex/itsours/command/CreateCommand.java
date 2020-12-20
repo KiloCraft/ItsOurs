@@ -76,6 +76,7 @@ public class CreateCommand extends Command {
             //reset positions
             claimPlayer.setLeftPosition(null);
             claimPlayer.setRightPosition(null);
+            claimPlayer.setSelecting(false);
             return 1;
         } else {
             claimPlayer.sendMessage(Component.text("You need to select the corners of your claim with a golden shovel (left- / rightclick) first.").color(Color.RED));

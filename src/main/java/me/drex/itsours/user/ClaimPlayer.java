@@ -27,6 +27,10 @@ public interface ClaimPlayer {
 
     BlockPos getLeftPosition();
 
+    void setSelecting(boolean value);
+
+    boolean getSelecting();
+
     void sendError(Component component);
 
     void sendError(String error);

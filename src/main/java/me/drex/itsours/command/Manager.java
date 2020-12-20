@@ -22,6 +22,7 @@ public class Manager {
         RenameCommand.register(main);
         RoleCommand.register(main);
         RolesCommand.register(main);
+        SelectCommand.register(main);
         SetOwnerCommand.register(main);
         SettingCommand.register(main);
         ShowCommand.register(main);
