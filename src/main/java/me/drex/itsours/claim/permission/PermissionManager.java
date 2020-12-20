@@ -91,6 +91,20 @@ public class PermissionManager {
         return sortedRoles;
     }
 
+    public List<UUID> getPlayersWithRole(String role) {
+        List<UUID> list = new ArrayList<>();
+        Role r = ItsOursMod.INSTANCE.getRoleManager().get(role);
+        if (r == null) return list;
+        for (Map.Entry<UUID, HashMap<Role, Integer>> entry : this.roles.entrySet()) {
+            if (entry.getValue().containsKey(r)) list.add(entry.getKey());
+        }
+        return list;
+    }
+
+    public List<UUID> getTrustedPlayers() {
+        return getPlayersWithRole("trusted");
+    }
+
     public Permission.Value hasPermission(UUID uuid, String permission) {
         Permission.Value value = UNSET;
         Permission.Value v1 = settings.getPermission(permission);

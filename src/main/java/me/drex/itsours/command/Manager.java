@@ -26,6 +26,7 @@ public class Manager {
         SettingCommand.register(main);
         ShowCommand.register(main);
         TrustCommand.register(main);
+        TrustedCommand.register(main);
 
 
         dispatcher.register(main);
