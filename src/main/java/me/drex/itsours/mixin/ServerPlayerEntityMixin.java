@@ -1,11 +1,14 @@
 package me.drex.itsours.mixin;
 
 import com.mojang.authlib.GameProfile;
+import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.util.TextComponentUtil;
+import me.drex.itsours.util.WorldUtil;
 import net.kyori.adventure.text.Component;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
@@ -24,9 +27,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Mixin(ServerPlayerEntity.class)
 public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer {
@@ -34,14 +39,20 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     @Shadow
     @Final
     public ServerPlayerInteractionManager interactionManager;
-    @Shadow @Final public MinecraftServer server;
+    @Shadow
+    @Final
+    public MinecraftServer server;
     public Pair<BlockPos, BlockPos> positions = new Pair<>(null, null);
     public HashMap<String, Object> settings = new HashMap<>();
+    World pworld;
+    BlockPos ppos;
     private AbstractClaim lastShowClaim;
     private BlockPos lastShowPos;
     private ServerWorld lastShowWorld;
     private int cooldown = 0;
     private boolean select = false;
+    private Optional<AbstractClaim> pclaim = Optional.empty();
+
 
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
@@ -54,7 +65,6 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     public boolean isCreative() {
         return this.interactionManager.getGameMode() == GameMode.CREATIVE;
     }
-
 
     @Override
     public void setLastShow(AbstractClaim claim, BlockPos pos, ServerWorld world) {
@@ -99,8 +109,8 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     }
 
     @Override
-    public void setSelecting(boolean value) {
-        this.select = value;
+    public void setLeftPosition(BlockPos pos) {
+        positions = new Pair<>(pos, positions.getRight());
     }
 
     @Override
@@ -109,8 +119,8 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     }
 
     @Override
-    public void setLeftPosition(BlockPos pos) {
-        positions = new Pair<>(pos, positions.getRight());
+    public void setSelecting(boolean value) {
+        this.select = value;
     }
 
     @Override
@@ -148,7 +158,10 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
 
     @Override
     public Object getSetting(String key, Object defaultValue) {
-        return this.settings.getOrDefault(key, defaultValue);
+        Object o = this.settings.getOrDefault(key, defaultValue);
+        if (key.equals("blocks"))
+            System.out.println(this.uuid + ": \"" + key + "\": " + o + ", default: " + defaultValue);
+        return o;
     }
 
     @Override
@@ -175,4 +188,26 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     private void claimPlayer$onTick(CallbackInfo ci) {
         if (cooldown > 0) cooldown--;
     }
+
+    @Inject(method = "moveToWorld", at = @At("HEAD"))
+    public void itsours$PreWorldChange(ServerWorld destination, CallbackInfoReturnable<Entity> cir) {
+        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
+        pclaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, this.getBlockPos());
+        pworld = player.world;
+        ppos = player.getBlockPos();
+    }
+
+    @Inject(method = "moveToWorld", at = @At("RETURN"))
+    public void itsours$PostWorldChange(ServerWorld destination, CallbackInfoReturnable<Entity> cir) {
+        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, this.getBlockPos());
+        if (!pclaim.equals(claim)) {
+            //System.out.println("moveToWorld (" + WorldUtil.toIdentifier((ServerWorld) pworld) + ", " + ppos + ") " + pclaim + " -> (" + WorldUtil.toIdentifier((ServerWorld) player.world) + ", " + player.getBlockPos() + ") " + claim);
+            if (player.networkHandler != null) {
+                pclaim.ifPresent(c -> c.onLeave(player));
+                claim.ifPresent(c -> c.onEnter(pclaim, player));
+            }
+        }
+    }
 }
+

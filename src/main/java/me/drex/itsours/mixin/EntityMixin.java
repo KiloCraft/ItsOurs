@@ -23,6 +23,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -30,66 +31,43 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin {
 
-    private Optional<AbstractClaim> pclaim = Optional.empty();
+    protected UUID uuid;
+    public Optional<AbstractClaim> pclaim = Optional.empty();
+    World pworld;
+    BlockPos ppos;
 
     @Inject(method = "setPos", at = @At("HEAD"))
-    public void doPrePosActions(double x, double y, double z, CallbackInfo ci) {
+    public void itsours$doPrePosActions(CallbackInfo ci) {
         if ((Object) this instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
             if (player.getBlockPos() == null) return;
             pclaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
+            pworld = player.world;
+            ppos = player.getBlockPos();
         }
     }
 
     @Inject(method = "setPos", at = @At("RETURN"))
-    public void doPostPosActions(double x, double y, double z, CallbackInfo ci) {
+    public void itsours$doPostPosActions(CallbackInfo ci) {
         if ((Object) this instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
             if (player.getBlockPos() == null) return;
             Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
-            if (!pclaim.equals(claim) && player instanceof ServerPlayerEntity) {
+            if (!pclaim.equals(claim)) {
+                //System.out.println("setPos (" + WorldUtil.toIdentifier((ServerWorld) pworld) + ", " + ppos + ") " + pclaim + " -> (" + WorldUtil.toIdentifier((ServerWorld) player.world) + ", " + player.getBlockPos() + ") " + claim);
                 if (player.networkHandler != null) {
-                    ClaimPlayer claimPlayer = (ClaimPlayer) player;
-                    Optional<Text> message = Optional.empty();
-                    if (pclaim.isPresent() && !claim.isPresent()) {
-                        message = Optional.of(new LiteralText("You left " + pclaim.get().getFullName()).formatted(Formatting.YELLOW));
-                        //TODO: Make configurable
-                        boolean cachedFlying = player.getAbilities().flying;
-                        //update abilities for respective gamemode
-                        player.interactionManager.getGameMode().setAbilities(player.getAbilities());
-                        //check if the player was flying before they entered the claim
-                        if ((boolean) claimPlayer.getSetting("cachedFlight", false)) {
-//                            player.getAbilities().flying = cachedFlying;
-//                            player.getAbilities().allowFlying = true;
-                        }
-                        if (cachedFlying && !player.getAbilities().flying) {
-                            BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
-                            if (pos.getY() + 3 < player.getY())
-                                player.teleport((ServerWorld) WorldUtil.DEFAULT_WORLD, player.getX(), pos.getY(), player.getZ(), player.yaw, player.pitch);
-                        }
-                        player.sendAbilitiesUpdate();
-                    } else if (claim.isPresent()) {
-                        if (!pclaim.isPresent()) claimPlayer.setSetting("cachedFlight", player.getAbilities().allowFlying);
-                        boolean cachedFlying = player.getAbilities().flying;
-                        //update abilities for respective gamemode
-                        player.interactionManager.getGameMode().setAbilities(player.getAbilities());
-                        //enable flying if player enabled it
-//                        if (!player.getAbilities().allowFlying) player.getAbilities().allowFlying = (boolean) claimPlayer.getSetting("flight", false);
-                        //set the flight state to what it was before entering
-//                        if (player.getAbilities().allowFlying) player.getAbilities().flying = cachedFlying;
-                        player.sendAbilitiesUpdate();
-                        message = Optional.of(new LiteralText("Welcome to " + claim.get().getFullName()).formatted(Formatting.YELLOW));
-                    }
-
-                    message.ifPresent(text -> player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.ACTIONBAR, text, -1, 20, -1)));
+                    pclaim.ifPresent(c -> c.onLeave(player));
+                    claim.ifPresent(c -> c.onEnter(pclaim, player));
                 }
             }
         }
     }
+
 
     public BlockPos getPosOnGround(BlockPos pos, World world) {
         BlockPos blockPos = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
@@ -140,7 +118,7 @@ public abstract class EntityMixin {
     public void itsours$onEntityToTag(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
         if ((Object) this instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-            ItsOursMod.INSTANCE.getPlayerList().put(player.getUuid(), ((ClaimPlayer)player).toNBT());
+            ItsOursMod.INSTANCE.getPlayerList().put(player.getUuid(), ((ClaimPlayer) player).toNBT());
         }
     }
 
@@ -148,7 +126,7 @@ public abstract class EntityMixin {
     public void itsours$onEntityFromTag(CompoundTag tag, CallbackInfo ci) {
         if ((Object) this instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-            ((ClaimPlayer)player).fromNBT(ItsOursMod.INSTANCE.getPlayerList().getTags(player.getUuid()));
+            ((ClaimPlayer) player).fromNBT(ItsOursMod.INSTANCE.getPlayerList().getTags(player.getUuid()));
         }
     }
 

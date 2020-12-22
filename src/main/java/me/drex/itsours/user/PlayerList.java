@@ -20,6 +20,7 @@ public class PlayerList extends HashMap<UUID, CompoundTag> {
             case 3:
                 return tag.getInt(key);
             default:
+                System.out.println("Illegal type for \"" + key + "\": " + tag.get(key).getType());
                 return null;
         }
     }
@@ -58,6 +59,7 @@ public class PlayerList extends HashMap<UUID, CompoundTag> {
                 Object o = get(key, tag);
                 return o == null ? defaultValue : o;
             } else {
+                System.out.println("Couldn't find \"" + key + "\" for " + uuid.toString() + ", using " + defaultValue + " instead.");
                 return defaultValue;
             }
 

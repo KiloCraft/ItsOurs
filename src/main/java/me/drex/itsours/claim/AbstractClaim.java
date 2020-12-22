@@ -6,6 +6,7 @@ import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
+import me.drex.itsours.util.TextComponentUtil;
 import me.drex.itsours.util.WorldUtil;
 import net.kyori.adventure.text.Component;
 import net.minecraft.block.Block;
@@ -14,8 +15,11 @@ import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -140,6 +144,48 @@ public abstract class AbstractClaim {
         this.subzoneList.remove(subzone);
     }
 
+    public void onEnter(Optional<AbstractClaim> pclaim, ServerPlayerEntity player) {
+        ClaimPlayer claimPlayer = (ClaimPlayer) player;
+        if (!pclaim.isPresent()) {
+            claimPlayer.setSetting("cached_flight", player.getAbilities().allowFlying);
+        }
+        boolean cachedFlying = player.getAbilities().flying;
+        //update abilities for respective gamemode
+        player.interactionManager.getGameMode().setAbilities(player.getAbilities());
+        //enable flying if player enabled it
+        if (!player.getAbilities().allowFlying) {
+            player.getAbilities().allowFlying = (boolean) claimPlayer.getSetting("flight", false);
+        }
+        //set the flight state to what it was before entering
+        if (player.getAbilities().allowFlying) {
+            player.getAbilities().flying = cachedFlying;
+        }
+        player.sendAbilitiesUpdate();
+        player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.ACTIONBAR, TextComponentUtil.from(TextComponentUtil.of("<gradient:" + Color.AQUA.stringValue() + ":" + Color.PURPLE.stringValue() + ">" + "Welcome to " + this.getFullName(), false)), -1, 20, -1));
+    }
+
+    public void onLeave(ServerPlayerEntity player) {
+        ClaimPlayer claimPlayer = (ClaimPlayer) player;
+        //TODO: Make configurable
+        boolean cachedFlying = player.getAbilities().flying;
+        //update abilities for respective gamemode
+        player.interactionManager.getGameMode().setAbilities(player.getAbilities());
+        //check if the player was flying before they entered the claim
+        //TODO: Figure out how to make this possible (Problem: onLeave is executed twice if player leaves nether -> )
+/*        if ((boolean) claimPlayer.getSetting("cached_flight", false)) {
+            player.getAbilities().flying = cachedFlying;
+            player.getAbilities().allowFlying = true;
+        }*/
+        if (cachedFlying && !player.getAbilities().flying) {
+            BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
+            if (pos.getY() + 3 < player.getY()) {
+                player.teleport((ServerWorld) player.world, player.getX(), pos.getY(), player.getZ(), player.yaw, player.pitch);
+            }
+        }
+        player.sendAbilitiesUpdate();
+        player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.ACTIONBAR, TextComponentUtil.from(TextComponentUtil.of("<gradient:" + Color.AQUA.stringValue() + ":" + Color.PURPLE.stringValue() + ">" + "You left " + this.getFullName(), false)), -1, 20, -1));
+    }
+
     public boolean hasPermission(UUID uuid, String permission) {
         if (uuid.equals(owner)) return true;
         if ((boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, "ignore", false)) return true;
@@ -155,11 +201,11 @@ public abstract class AbstractClaim {
     void sendDebug(UUID uuid, String permission, Permission.Value value) {
         ServerPlayerEntity playerEntity = ItsOursMod.server.getPlayerManager().getPlayer(this.getOwner());
         if (playerEntity != null && (boolean) ((ClaimPlayer) playerEntity).getSetting("debug", false))
-        ((ClaimPlayer) playerEntity)
-                .sendActionbar(Component.text(this.getFullName() + ": ").color(Color.RED)
-                        .append(Component.text(Objects.requireNonNull(ItsOursMod.server.getPlayerManager().getPlayer(uuid)).getEntityName() + " ").color(Color.BLUE))
-                        .append(Component.text(permission + " ").color(Color.DARK_PURPLE))
-                        .append(value.format()));
+            ((ClaimPlayer) playerEntity)
+                    .sendActionbar(Component.text(this.getFullName() + ": ").color(Color.RED)
+                            .append(Component.text(Objects.requireNonNull(ItsOursMod.server.getPlayerManager().getPlayer(uuid)).getEntityName() + " ").color(Color.BLUE))
+                            .append(Component.text(permission + " ").color(Color.DARK_PURPLE))
+                            .append(value.format()));
     }
 
     public PermissionManager getPermissionManager() {
@@ -289,6 +335,15 @@ public abstract class AbstractClaim {
         BlockUpdateS2CPacket packet;
         packet = state == null ? new BlockUpdateS2CPacket(player.getEntityWorld(), pos) : new BlockUpdateS2CPacket(pos, state);
         player.networkHandler.sendPacket(packet);
+    }
+
+    public String toString() {
+        return String.format("%s[name=%s, full_name=%s, owner=%s, min=%s, max=%s, world=%s, subzones=%s]", this.getClass().getSimpleName(), this.name, this.getFullName(), this.getOwner(), this.min.toString(), this.max.toString(), this.getWorld().toString(), Arrays.toString(subzoneList.toArray()));
+    }
+
+    public String toShortString() {
+        return String.format("%s[name=%s, owner=%s]", this.getClass().getSimpleName(), this.name, this.getOwner());
+
     }
 
     public static class Util {
