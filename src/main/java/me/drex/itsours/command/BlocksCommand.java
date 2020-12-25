@@ -7,6 +7,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.PlayerSetting;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -49,7 +50,7 @@ public class BlocksCommand extends Command {
     }
 
     public static int check(ServerCommandSource source) throws CommandSyntaxException {
-        int blocks = (int) ((ClaimPlayer)source.getPlayer()).getSetting("blocks", 500);
+        int blocks = ItsOursMod.INSTANCE.getPlayerList().getBlocks(source.getPlayer().getUuid());
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("You have " + blocks + " blocks left").color(Color.LIGHT_GREEN));
         return blocks;
     }
@@ -61,14 +62,14 @@ public class BlocksCommand extends Command {
     }
 
     public static int set(ServerCommandSource source, GameProfile gameProfile, int amount) throws CommandSyntaxException {
-        ItsOursMod.INSTANCE.getPlayerList().set(gameProfile.getId(), "blocks", amount);
+        ItsOursMod.INSTANCE.getPlayerList().set(gameProfile.getId(), PlayerSetting.BLOCKS, amount);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set " + gameProfile.getName() + "'s claim blocks to " + amount).color(Color.LIGHT_GREEN));
         return amount;
     }
 
     public static int add(ServerCommandSource source, GameProfile gameProfile, int amount) throws CommandSyntaxException {
         int blocks = ItsOursMod.INSTANCE.getPlayerList().getBlocks(gameProfile.getId());
-        ItsOursMod.INSTANCE.getPlayerList().set(gameProfile.getId(), "blocks", Math.max(0, blocks + amount));
+        ItsOursMod.INSTANCE.getPlayerList().set(gameProfile.getId(), PlayerSetting.BLOCKS, Math.max(0, blocks + amount));
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text((amount > 0 ? ("Added " + amount) : ("Removed " + -amount)) + " claim block(s) " + (amount > 0 ? "to " : "from ") + gameProfile.getName()).color(Color.LIGHT_GREEN));
         return amount;
     }

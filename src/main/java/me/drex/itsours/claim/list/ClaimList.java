@@ -99,7 +99,17 @@ public class ClaimList {
     }
 
     public Optional<AbstractClaim> get(ServerWorld world, BlockPos pos) {
-        List<AbstractClaim> claims = get(Region.get(pos.getX(), pos.getZ())).stream().filter(abstractClaim -> abstractClaim.getWorld().equals(world)).collect(Collectors.toList());
+        List<AbstractClaim> claims = get(
+                Region.get(
+                        pos.getX()
+                        , pos.getZ()
+                )).
+                stream().
+                filter(abstractClaim -> abstractClaim
+                        .getWorld()
+                        .equals(world))
+                .collect(Collectors
+                        .toList());
         for (AbstractClaim claim : claims) {
             if (claim.contains(pos)) {
                 return Optional.of(getDeepestClaim(claim, pos));

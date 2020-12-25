@@ -4,13 +4,10 @@ import com.mojang.authlib.GameProfile;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.util.TextComponentUtil;
-import me.drex.itsours.util.WorldUtil;
 import net.kyori.adventure.text.Component;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
@@ -29,8 +26,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Mixin(ServerPlayerEntity.class)
@@ -43,7 +38,6 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     @Final
     public MinecraftServer server;
     public Pair<BlockPos, BlockPos> positions = new Pair<>(null, null);
-    public HashMap<String, Object> settings = new HashMap<>();
     World pworld;
     BlockPos ppos;
     private AbstractClaim lastShowClaim;
@@ -154,34 +148,6 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     @Override
     public void sendActionbar(Component component) {
         this.sendMessage(TextComponentUtil.from(component), true);
-    }
-
-    @Override
-    public Object getSetting(String key, Object defaultValue) {
-        Object o = this.settings.getOrDefault(key, defaultValue);
-        if (key.equals("blocks"))
-            System.out.println(this.uuid + ": \"" + key + "\": " + o + ", default: " + defaultValue);
-        return o;
-    }
-
-    @Override
-    public void setSetting(String key, Object value) {
-        this.settings.put(key, value);
-    }
-
-    public void fromNBT(CompoundTag tag) {
-        for (String key : tag.getKeys()) {
-            Object o = PlayerList.get(key, tag);
-            if (o != null) this.settings.put(key, o);
-        }
-    }
-
-    public CompoundTag toNBT() {
-        CompoundTag tag = new CompoundTag();
-        for (Map.Entry<String, Object> entry : this.settings.entrySet()) {
-            PlayerList.set(entry.getKey(), tag, entry.getValue());
-        }
-        return tag;
     }
 
     @Inject(method = "tick", at = @At(value = "HEAD"))

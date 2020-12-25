@@ -114,21 +114,5 @@ public abstract class EntityMixin {
         blockState.onEntityCollision(world, pos, entity);
     }
 
-    @Inject(method = "toTag", at = @At(value = "HEAD"))
-    public void itsours$onEntityToTag(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
-        if ((Object) this instanceof ServerPlayerEntity) {
-            ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-            ItsOursMod.INSTANCE.getPlayerList().put(player.getUuid(), ((ClaimPlayer) player).toNBT());
-        }
-    }
-
-    @Inject(method = "fromTag", at = @At(value = "RETURN"))
-    public void itsours$onEntityFromTag(CompoundTag tag, CallbackInfo ci) {
-        if ((Object) this instanceof ServerPlayerEntity) {
-            ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-            ((ClaimPlayer) player).fromNBT(ItsOursMod.INSTANCE.getPlayerList().getTags(player.getUuid()));
-        }
-    }
-
 
 }

@@ -2,7 +2,6 @@ package me.drex.itsours.user;
 
 import me.drex.itsours.ItsOursMod;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -20,7 +19,7 @@ public class PlayerList extends HashMap<UUID, CompoundTag> {
             case 3:
                 return tag.getInt(key);
             default:
-                System.out.println("Illegal type for \"" + key + "\": " + tag.get(key).getType());
+                ItsOursMod.LOGGER.error("Illegal type for \"" + key + "\": " + tag.get(key).getType());
                 return null;
         }
     }
@@ -51,36 +50,44 @@ public class PlayerList extends HashMap<UUID, CompoundTag> {
         return this.containsKey(uuid) ? this.get(uuid) : new CompoundTag();
     }
 
-    public Object get(UUID uuid, String key, Object defaultValue) {
-        ServerPlayerEntity playerEntity = ItsOursMod.server.getPlayerManager().getPlayer(uuid);
-        if (playerEntity == null) {
-            CompoundTag tag = getTags(uuid);
-            if (tag.contains(key)) {
-                Object o = get(key, tag);
-                return o == null ? defaultValue : o;
-            } else {
-                System.out.println("Couldn't find \"" + key + "\" for " + uuid.toString() + ", using " + defaultValue + " instead.");
-                return defaultValue;
-            }
-
+    private Object get(UUID uuid, String key, Object defaultValue) {
+        CompoundTag tag = getTags(uuid);
+        if (tag.contains(key)) {
+            Object o = get(key, tag);
+            return o == null ? defaultValue : o;
         } else {
-            return ((ClaimPlayer) playerEntity).getSetting(key, defaultValue);
+            return defaultValue;
         }
+    }
+
+    public Object get(UUID uuid, PlayerSetting setting) {
+        return get(uuid, setting.id, setting.defaultValue);
     }
 
     public int getBlocks(UUID uuid) {
-        return (int) get(uuid, "blocks", 500);
+        return (int) get(uuid, PlayerSetting.BLOCKS);
     }
 
-    public void set(UUID uuid, String key, Object value) {
-        ServerPlayerEntity playerEntity = ItsOursMod.server.getPlayerManager().getPlayer(uuid);
-        if (playerEntity == null) {
-            CompoundTag tag = getTags(uuid);
-            set(key, tag, value);
-            this.put(uuid, tag);
-        } else {
-            ((ClaimPlayer) playerEntity).setSetting(key, value);
-        }
+    public void setBlocks(UUID uuid, int value) {
+        set(uuid, "blocks", value);
+    }
+
+    public boolean getBoolean(UUID uuid, PlayerSetting setting) {
+        return (boolean) get(uuid, setting);
+    }
+
+    public void setBoolean(UUID uuid, PlayerSetting setting, boolean value) {
+        set(uuid, setting.id, value);
+    }
+
+    private void set(UUID uuid, String key, Object value) {
+        CompoundTag tag = getTags(uuid);
+        set(key, tag, value);
+        this.put(uuid, tag);
+    }
+
+    public void set(UUID uuid, PlayerSetting setting, Object value) {
+        set(uuid, setting.id, value);
     }
 
 }

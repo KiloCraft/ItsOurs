@@ -4,6 +4,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.PlayerSetting;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
 import net.minecraft.server.command.ServerCommandSource;
@@ -21,9 +22,9 @@ public class IgnoreCommand extends Command {
     public static int toggleIgnore(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayer();
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
-        boolean newVal = !(boolean)claimPlayer.getSetting("ignore", false);
-        claimPlayer.setSetting("ignore", newVal);
-        claimPlayer.sendMessage(Component.text("Claim ignore " + (newVal ? "enabled" : "disabled")).color(newVal ? Color.LIGHT_GREEN : Color.RED));
+        boolean val = !(boolean)ItsOursMod.INSTANCE.getPlayerList().getBoolean(player.getUuid(), PlayerSetting.IGNORE);
+        ItsOursMod.INSTANCE.getPlayerList().setBoolean(player.getUuid(), PlayerSetting.IGNORE, val);
+        claimPlayer.sendMessage(Component.text("Claim ignore " + (val ? "enabled" : "disabled")).color(val ? Color.LIGHT_GREEN : Color.RED));
         return 1;
     }
 

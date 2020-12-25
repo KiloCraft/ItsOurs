@@ -5,6 +5,7 @@ import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.PlayerSetting;
 import me.drex.itsours.util.Color;
 import me.drex.itsours.util.TextComponentUtil;
 import me.drex.itsours.util.WorldUtil;
@@ -18,8 +19,6 @@ import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -147,14 +146,14 @@ public abstract class AbstractClaim {
     public void onEnter(Optional<AbstractClaim> pclaim, ServerPlayerEntity player) {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         if (!pclaim.isPresent()) {
-            claimPlayer.setSetting("cached_flight", player.getAbilities().allowFlying);
+            ItsOursMod.INSTANCE.getPlayerList().setBoolean(player.getUuid(), PlayerSetting.CACHED_FLIGHT, player.getAbilities().allowFlying);
         }
         boolean cachedFlying = player.getAbilities().flying;
         //update abilities for respective gamemode
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
         //enable flying if player enabled it
         if (!player.getAbilities().allowFlying) {
-            player.getAbilities().allowFlying = (boolean) claimPlayer.getSetting("flight", false);
+            player.getAbilities().allowFlying = ItsOursMod.INSTANCE.getPlayerList().getBoolean(player.getUuid(), PlayerSetting.FLIGHT);
         }
         //set the flight state to what it was before entering
         if (player.getAbilities().allowFlying) {
@@ -188,7 +187,7 @@ public abstract class AbstractClaim {
 
     public boolean hasPermission(UUID uuid, String permission) {
         if (uuid.equals(owner)) return true;
-        if ((boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, "ignore", false)) return true;
+        if ((boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, PlayerSetting.IGNORE)) return true;
         Permission.Value value = this.permissionManager.hasPermission(uuid, permission);
         sendDebug(uuid, permission, value);
         return value.value;
@@ -200,7 +199,7 @@ public abstract class AbstractClaim {
 
     void sendDebug(UUID uuid, String permission, Permission.Value value) {
         ServerPlayerEntity playerEntity = ItsOursMod.server.getPlayerManager().getPlayer(this.getOwner());
-        if (playerEntity != null && (boolean) ((ClaimPlayer) playerEntity).getSetting("debug", false))
+        if (playerEntity != null && (boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, PlayerSetting.DEBUG));
             ((ClaimPlayer) playerEntity)
                     .sendActionbar(Component.text(this.getFullName() + ": ").color(Color.RED)
                             .append(Component.text(Objects.requireNonNull(ItsOursMod.server.getPlayerManager().getPlayer(uuid)).getEntityName() + " ").color(Color.BLUE))
@@ -219,7 +218,7 @@ public abstract class AbstractClaim {
     }
 
     public BlockPos getSize() {
-        return max.subtract(min);
+        return max.subtract(min).add(1, 1,1);
     }
 
     public boolean contains(BlockPos pos) {

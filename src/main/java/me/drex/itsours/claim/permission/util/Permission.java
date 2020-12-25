@@ -60,7 +60,10 @@ public class Permission {
 
     public static Permission getPermission(String perm) {
         for (Permission permission : Permission.permissions) {
-            if (perm.split("\\.")[0].equals(permission.id)) {
+            if (perm
+                    .split("\\.")
+                    [0]
+                    .equals(permission.id)) {
                 return permission;
             }
         }
