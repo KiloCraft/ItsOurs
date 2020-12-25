@@ -200,12 +200,13 @@ public abstract class AbstractClaim {
 
     void sendDebug(UUID uuid, String permission, Permission.Value value) {
         ServerPlayerEntity playerEntity = ItsOursMod.server.getPlayerManager().getPlayer(this.getOwner());
-        if (playerEntity != null && (boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, PlayerSetting.DEBUG));
+        if (playerEntity != null && (boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, PlayerSetting.DEBUG)) {
             ((ClaimPlayer) playerEntity)
                     .sendActionbar(Component.text(this.getFullName() + ": ").color(Color.RED)
                             .append(Component.text(Objects.requireNonNull(ItsOursMod.server.getPlayerManager().getPlayer(uuid)).getEntityName() + " ").color(Color.BLUE))
                             .append(Component.text(permission + " ").color(Color.DARK_PURPLE))
                             .append(value.format()));
+        }
     }
 
     public PermissionManager getPermissionManager() {
