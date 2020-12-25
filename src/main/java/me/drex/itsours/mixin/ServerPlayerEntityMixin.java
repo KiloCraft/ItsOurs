@@ -170,7 +170,7 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
         if (!pclaim.equals(claim)) {
             //System.out.println("moveToWorld (" + WorldUtil.toIdentifier((ServerWorld) pworld) + ", " + ppos + ") " + pclaim + " -> (" + WorldUtil.toIdentifier((ServerWorld) player.world) + ", " + player.getBlockPos() + ") " + claim);
             if (player.networkHandler != null) {
-                pclaim.ifPresent(c -> c.onLeave(player));
+                pclaim.ifPresent(c -> c.onLeave(claim, player));
                 claim.ifPresent(c -> c.onEnter(pclaim, player));
             }
         }

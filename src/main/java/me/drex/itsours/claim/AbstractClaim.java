@@ -163,25 +163,26 @@ public abstract class AbstractClaim {
         player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.ACTIONBAR, TextComponentUtil.from(TextComponentUtil.of("<gradient:" + Color.AQUA.stringValue() + ":" + Color.PURPLE.stringValue() + ">" + "Welcome to " + this.getFullName(), false)), -1, 20, -1));
     }
 
-    public void onLeave(ServerPlayerEntity player) {
-        ClaimPlayer claimPlayer = (ClaimPlayer) player;
-        //TODO: Make configurable
-        boolean cachedFlying = player.getAbilities().flying;
-        //update abilities for respective gamemode
-        player.interactionManager.getGameMode().setAbilities(player.getAbilities());
-        //check if the player was flying before they entered the claim
-        //TODO: Figure out how to make this possible (Problem: onLeave is executed twice if player leaves nether -> )
+    public void onLeave(Optional<AbstractClaim> claim, ServerPlayerEntity player) {
+        if (!claim.isPresent()) {
+            //TODO: Make configurable
+            boolean cachedFlying = player.getAbilities().flying;
+            //update abilities for respective gamemode
+            player.interactionManager.getGameMode().setAbilities(player.getAbilities());
+            //check if the player was flying before they entered the claim
+            //TODO: Figure out how to make this possible (Problem: onLeave is executed twice if player leaves nether -> )
 /*        if ((boolean) claimPlayer.getSetting("cached_flight", false)) {
             player.getAbilities().flying = cachedFlying;
             player.getAbilities().allowFlying = true;
         }*/
-        if (cachedFlying && !player.getAbilities().flying) {
-            BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
-            if (pos.getY() + 3 < player.getY()) {
-                player.teleport((ServerWorld) player.world, player.getX(), pos.getY(), player.getZ(), player.yaw, player.pitch);
+            if (cachedFlying && !player.getAbilities().flying) {
+                BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
+                if (pos.getY() + 3 < player.getY()) {
+                    player.teleport((ServerWorld) player.world, player.getX(), pos.getY(), player.getZ(), player.yaw, player.pitch);
+                }
             }
+            player.sendAbilitiesUpdate();
         }
-        player.sendAbilitiesUpdate();
         player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.ACTIONBAR, TextComponentUtil.from(TextComponentUtil.of("<gradient:" + Color.AQUA.stringValue() + ":" + Color.PURPLE.stringValue() + ">" + "You left " + this.getFullName(), false)), -1, 20, -1));
     }
 
