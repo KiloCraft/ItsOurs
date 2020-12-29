@@ -42,6 +42,7 @@ public abstract class ProjectileEntityMixin extends Entity {
         ClaimPlayer claimPlayer = (ClaimPlayer) entity.getOwner();
         if (!claim.get().getSetting("pvp") && hitResult.getEntity() instanceof PlayerEntity) {
             claimPlayer.sendError(Component.text("You can't pvp here.").color(Color.RED));
+            if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill();
             return;
         }
         if (!claim.get().hasPermission(entity.getOwner().getUuid(), "damage_entity." + Permission.toString(hitResult.getEntity().getType()))) {
