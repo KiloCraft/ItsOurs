@@ -33,8 +33,8 @@ public class RemoveCommand extends Command {
        if (!source.getPlayer().getUuid().equals(claim.getOwner())) {
            ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("WARNING: This is not your claim...").color(Color.RED).decorate(TextDecoration.BOLD));
        }
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Are you sure you want to delete the claim \"" + claim.getName() + "\"? ").color(Color.RED)
-                .append(Component.text("[I'M SURE]").clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim remove " + claim.getName() + " confirm")).decorate(TextDecoration.BOLD).color(Color.RED)));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Are you sure you want to delete the claim \"" + claim.getFullName() + "\"? ").color(Color.RED)
+                .append(Component.text("[I'M SURE]").clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim remove " + claim.getFullName() + " confirm")).decorate(TextDecoration.BOLD).color(Color.RED)));
        return 0;
     }
 
@@ -52,7 +52,7 @@ public class RemoveCommand extends Command {
         //recursively remove all subzones
         removeSubzones(claim);
         ItsOursMod.INSTANCE.getClaimList().remove(claim);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Deleted the claim \"" + claim.getName() + "\" ").color(Color.LIGHT_GREEN));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Deleted the claim \"" + claim.getFullName() + "\" ").color(Color.LIGHT_GREEN));
 
         return 0;
     }
