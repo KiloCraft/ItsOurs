@@ -5,6 +5,7 @@ import me.drex.itsours.claim.permission.util.node.AbstractNode;
 import me.drex.itsours.claim.permission.util.node.GroupNode;
 import me.drex.itsours.claim.permission.util.node.SingleNode;
 import net.minecraft.block.*;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.tag.*;
 import net.minecraft.util.Identifier;
@@ -24,7 +25,7 @@ public class Group {
     public static final Group INTERACTABLE_BLOCKS = create(Registry.BLOCK, BlockTags.getTagGroup(), INTERACT_BLOCK_FILTER);
     public static final Group USE_ON_BLOCKS = create(Registry.ITEM, ItemTags.getTagGroup(), USE_ON_BLOCK_FILTER);
     public static final Group USE_ITEM = create(Registry.ITEM, ItemTags.getTagGroup(), USE_ITEM_FILTER);
-    public static final Group ENTITY = create(Registry.ENTITY_TYPE, EntityTypeTags.getTagGroup());
+    public static final Group ENTITY = create(Registry.ENTITY_TYPE, EntityTypeTags.getTagGroup(), PlayerEntity.class);
     public static final Group ITEMS = create(Registry.ITEM, ItemTags.getTagGroup());
     public static final Group MODIFY = create("trust", "distrust", "size", "permission", "setting", "subzone", "name");
     public final List<AbstractNode> list;
