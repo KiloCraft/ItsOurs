@@ -10,6 +10,7 @@
     "EntityMixin",
     "ExplosionMixin",
     "FarmlandBlockMixin",
+    "FluidMixin",
     "LevelStorageSessionMixin",
     "PlayerEntityMixin",
     "ProjectileEntityMixin",

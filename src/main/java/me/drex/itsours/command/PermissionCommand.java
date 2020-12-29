@@ -69,7 +69,7 @@ public class PermissionCommand extends Command {
         boolean value2 = claim.hasPermission(target.getId(), permission);
         if (target.getId().equals(claim.getOwner())) {
             value = true;
-            hover.append(Component.text("\n -Owner; ").color(Color.YELLOW).append(Permission.Value.of(true).format()));
+            hover.append(Component.text("\n -Owner: ").color(Color.YELLOW).append(Permission.Value.of(true).format()));
         }
         if (value != value2) hover.append(Component.text("\n*Note: The actual value is ").color(Color.RED).append(Permission.Value.of(value2).format()).append(Component.text(", because of a parent claim.").color(Color.RED)));
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Permission ").color(Color.YELLOW)

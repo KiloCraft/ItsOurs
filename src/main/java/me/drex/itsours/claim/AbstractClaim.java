@@ -195,7 +195,8 @@ public abstract class AbstractClaim {
     }
 
     public boolean getSetting(String setting) {
-        return this.permissionManager.settings.getPermission(setting).value;
+        Permission.Value b = this.permissionManager.settings.getPermission(setting);
+        return b.value;
     }
 
     void sendDebug(UUID uuid, String permission, Permission.Value value) {
@@ -220,7 +221,7 @@ public abstract class AbstractClaim {
     }
 
     public BlockPos getSize() {
-        return max.subtract(min).add(1, 1,1);
+        return max.subtract(min).add(1, 1, 1);
     }
 
     public boolean contains(BlockPos pos) {

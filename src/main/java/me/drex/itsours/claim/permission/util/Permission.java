@@ -28,6 +28,7 @@ public class Permission {
     public static final Setting PVP = new Setting("pvp");
     public static final Setting MOBSPAWN = new Setting("mobspawn");
     public static final Setting EXPLOSIONS = new Setting("explosions");
+    public static final Setting FLUID_CROSSES_BORDERS = new Setting("fluid_crosses_borders");
     public final String id;
     public final Group[] groups;
     public Value defaultValue = Value.UNSET;
