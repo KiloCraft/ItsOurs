@@ -25,8 +25,8 @@ public class FluidMixin {
         BlockPos oldPos = newPos.offset(direction.getOpposite());
         Optional<AbstractClaim> oldClaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, oldPos);
         Optional<AbstractClaim> newClaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, newPos);
-        if (((oldClaim.isPresent() && !oldClaim.get().getSetting("fluid_crosses_borders")/* && oldClaim.get() instanceof Claim*/) ||
-                (newClaim.isPresent() && !newClaim.get().getSetting("fluid_crosses_borders")/* && newClaim.get() instanceof Claim*/)) && !newClaim.equals(oldClaim)) {
+        if (((oldClaim.isPresent() && !oldClaim.get().getSetting("fluid_crosses_borders")) ||
+                (newClaim.isPresent() && !newClaim.get().getSetting("fluid_crosses_borders"))) && !newClaim.equals(oldClaim)) {
             ci.cancel();
         }
     }

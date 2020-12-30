@@ -195,8 +195,7 @@ public abstract class AbstractClaim {
     }
 
     public boolean getSetting(String setting) {
-        Permission.Value b = this.permissionManager.settings.getPermission(setting);
-        return b.value;
+        return this.permissionManager.settings.getPermission(setting).value;
     }
 
     void sendDebug(UUID uuid, String permission, Permission.Value value) {

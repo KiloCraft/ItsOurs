@@ -171,7 +171,9 @@ public class ClaimList {
     }
 
     private List<AbstractClaim> get(Region region) {
-        return byRegion.get(region) == null ? new ArrayList<>() : byRegion.get(region);
+        return !byRegion.containsKey(region) ?
+                new ArrayList<>() :
+                byRegion.get(region);
     }
 
 }

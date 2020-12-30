@@ -4,11 +4,19 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.permission.util.Group;
 import me.drex.itsours.claim.permission.util.Permission;
+import me.drex.itsours.claim.permission.util.Setting;
+import me.drex.itsours.claim.permission.util.node.AbstractNode;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.minecraft.server.command.ServerCommandSource;
+
+import java.util.Collections;
+import java.util.List;
 
 public class SettingCommand extends Command {
 
@@ -31,8 +39,19 @@ public class SettingCommand extends Command {
             claim.then(set);
         }
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("setting");
+        command.executes(ctx -> listSettings(ctx.getSource()));
         command.then(claim);
         literal.then(command);
+    }
+
+    public static int listSettings(ServerCommandSource source) throws CommandSyntaxException {
+        TextComponent.Builder builder = Component.text().content("Permissions:\n").color(Color.ORANGE);
+        for (Permission permission : Permission.permissions) {
+            if (!(permission instanceof Setting)) continue;
+            builder.append(Component.text(permission.id).color(Color.LIGHT_GREEN), Component.text(": " + permission.information + "\n").color(Color.LIGHT_GRAY));
+        }
+        ((ClaimPlayer) source.getPlayer()).sendMessage(builder.build());
+        return 1;
     }
 
     public static int checkSetting(ServerCommandSource source, AbstractClaim claim, String setting) throws CommandSyntaxException {
