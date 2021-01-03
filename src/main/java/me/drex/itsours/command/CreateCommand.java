@@ -40,7 +40,7 @@ public class CreateCommand extends Command {
         ClaimPlayer claimPlayer = (ClaimPlayer) source.getPlayer();
         if (claimPlayer.arePositionsSet()) {
             BlockPos min = new BlockPos(claimPlayer.getLeftPosition());
-            min = new BlockPos(min.getX(), 1, min.getZ());
+            min = new BlockPos(min.getX(), 0, min.getZ());
             BlockPos max = new BlockPos(claimPlayer.getRightPosition());
             max = new BlockPos(max.getX(), 256, max.getZ());
             if (!AbstractClaim.isNameValid(name))
