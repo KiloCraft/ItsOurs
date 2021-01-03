@@ -1,12 +1,10 @@
 package me.drex.itsours.mixin;
 
 import com.mojang.authlib.GameProfile;
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.TextComponentUtil;
 import net.kyori.adventure.text.Component;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -24,7 +22,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 
@@ -155,25 +152,5 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
         if (cooldown > 0) cooldown--;
     }
 
-    @Inject(method = "moveToWorld", at = @At("HEAD"))
-    public void itsours$PreWorldChange(ServerWorld destination, CallbackInfoReturnable<Entity> cir) {
-        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-        pclaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, this.getBlockPos());
-        pworld = player.world;
-        ppos = player.getBlockPos();
-    }
-
-    @Inject(method = "moveToWorld", at = @At("RETURN"))
-    public void itsours$PostWorldChange(ServerWorld destination, CallbackInfoReturnable<Entity> cir) {
-        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, this.getBlockPos());
-        if (!pclaim.equals(claim)) {
-            //System.out.println("moveToWorld (" + WorldUtil.toIdentifier((ServerWorld) pworld) + ", " + ppos + ") " + pclaim + " -> (" + WorldUtil.toIdentifier((ServerWorld) player.world) + ", " + player.getBlockPos() + ") " + claim);
-            if (player.networkHandler != null) {
-                pclaim.ifPresent(c -> c.onLeave(claim, player));
-                claim.ifPresent(c -> c.onEnter(pclaim, player));
-            }
-        }
-    }
 }
 

@@ -5,7 +5,6 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
-import me.drex.itsours.util.WorldUtil;
 import net.kyori.adventure.text.Component;
 import net.minecraft.block.AbstractButtonBlock;
 import net.minecraft.block.AbstractPressurePlateBlock;
@@ -13,22 +12,15 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -36,20 +28,24 @@ import java.util.UUID;
 @Mixin(Entity.class)
 public abstract class EntityMixin {
 
-    protected UUID uuid;
     public Optional<AbstractClaim> pclaim = Optional.empty();
+    protected UUID uuid;
     World pworld;
     BlockPos ppos;
 
     @Inject(method = "setPos", at = @At("HEAD"))
     public void itsours$doPrePosActions(CallbackInfo ci) {
-        if ((Object) this instanceof ServerPlayerEntity) {
+/*        if ((Object) this instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
             if (player.getBlockPos() == null) return;
-            pclaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
+            Optional<AbstractClaim> newPreviousClaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
+            if (!pclaim.equals(newPreviousClaim)) {
+                System.out.println("Changed " + pclaim + " -> " + newPreviousClaim);
+                pclaim = newPreviousClaim;
+            }
             pworld = player.world;
             ppos = player.getBlockPos();
-        }
+        }*/
     }
 
     @Inject(method = "setPos", at = @At("RETURN"))
@@ -59,12 +55,15 @@ public abstract class EntityMixin {
             if (player.getBlockPos() == null) return;
             Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
             if (!pclaim.equals(claim)) {
-                //System.out.println("setPos (" + WorldUtil.toIdentifier((ServerWorld) pworld) + ", " + ppos + ") " + pclaim + " -> (" + WorldUtil.toIdentifier((ServerWorld) player.world) + ", " + player.getBlockPos() + ") " + claim);
                 if (player.networkHandler != null) {
+                    System.out.println(pclaim + " -> " + claim);
                     pclaim.ifPresent(c -> c.onLeave(claim, player));
                     claim.ifPresent(c -> c.onEnter(pclaim, player));
                 }
             }
+            pclaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
+            pworld = player.world;
+            ppos = player.getBlockPos();
         }
     }
 
