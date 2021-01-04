@@ -17,6 +17,7 @@
     "ServerPlayerEntityMixin",
     "ServerPlayerInteractionManagerMixin",
     "ServerPlayNetworkHandlerMixin",
+    "SpawnHelperMixin",
     "SpawnRestrictionMixin"
   ],
   "injectors": {

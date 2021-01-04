@@ -33,21 +33,6 @@ public abstract class EntityMixin {
     World pworld;
     BlockPos ppos;
 
-    @Inject(method = "setPos", at = @At("HEAD"))
-    public void itsours$doPrePosActions(CallbackInfo ci) {
-/*        if ((Object) this instanceof ServerPlayerEntity) {
-            ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-            if (player.getBlockPos() == null) return;
-            Optional<AbstractClaim> newPreviousClaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
-            if (!pclaim.equals(newPreviousClaim)) {
-                System.out.println("Changed " + pclaim + " -> " + newPreviousClaim);
-                pclaim = newPreviousClaim;
-            }
-            pworld = player.world;
-            ppos = player.getBlockPos();
-        }*/
-    }
-
     @Inject(method = "setPos", at = @At("RETURN"))
     public void itsours$doPostPosActions(CallbackInfo ci) {
         if ((Object) this instanceof ServerPlayerEntity) {
@@ -56,7 +41,6 @@ public abstract class EntityMixin {
             Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
             if (!pclaim.equals(claim)) {
                 if (player.networkHandler != null) {
-                    System.out.println(pclaim + " -> " + claim);
                     pclaim.ifPresent(c -> c.onLeave(claim, player));
                     claim.ifPresent(c -> c.onEnter(pclaim, player));
                 }
