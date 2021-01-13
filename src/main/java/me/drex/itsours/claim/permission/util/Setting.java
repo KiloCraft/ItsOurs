@@ -7,12 +7,22 @@ public class Setting extends Permission {
         super(id);
     }
 
+<<<<<<< Updated upstream
     Setting (String id, Value defaultValue) {
         super(id);
+=======
+    Setting(String id) {
+        super(id);
+        this.defaultValue = Value.UNSET;
+    }
+
+    Setting(String id, String information, Value defaultValue) {
+        super(id, information);
+>>>>>>> Stashed changes
         this.defaultValue = defaultValue;
     }
 
-    public static boolean isValid(String setting) {
+    public static boolean isVaid(String setting) {
         return Permission.isValid(setting) || getPermission(setting) instanceof Setting;
     }
 }
