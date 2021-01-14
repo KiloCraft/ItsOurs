@@ -5,6 +5,7 @@ import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.claim.permission.util.PermissionMap;
+import me.drex.itsours.claim.permission.util.context.PermissionContext;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.*;
@@ -93,6 +94,28 @@ public class PermissionManager {
 
     public Permission.Value hasPermission(UUID uuid, String permission) {
         Permission.Value value = UNSET;
+        Permission.Value v1 = settings.getPermission(permission);
+        if (v1 != UNSET)
+            value = v1;
+        for (Role role : this.getRolesByWeight(uuid).keySet()) {
+            Permission.Value v2 = role.permissions().getPermission(permission);
+            if (v2 != UNSET)
+                value = v2;
+        }
+        if (playerPermission.get(uuid) != null) {
+            Permission.Value v3 = playerPermission.get(uuid).getPermission(permission);
+            if (v3 != UNSET)
+                value = v3;
+        }
+        if (value == UNSET && permission.contains(".")) {
+            String[] node = permission.split("\\.");
+            return hasPermission(uuid, permission.substring(0, (permission.length() - (node[node.length - 1]).length() - 1)));
+        }
+        return value;
+    }
+
+    public PermissionContext hasPermission(UUID uuid, Permission permission) {
+        PermissionContext context = new PermissionContext();
         Permission.Value v1 = settings.getPermission(permission);
         if (v1 != UNSET)
             value = v1;

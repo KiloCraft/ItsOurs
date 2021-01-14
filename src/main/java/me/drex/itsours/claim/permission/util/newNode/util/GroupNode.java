@@ -1,15 +1,14 @@
-package me.drex.itsours.claim.permission.util.newNode;
+package me.drex.itsours.claim.permission.util.newNode.util;
 
-import java.util.Arrays;
 import java.util.List;
 
-public class GNode extends Node {
+public class GroupNode extends Node {
 
     private List<Node> contains;
 
-    public GNode(String id, Node... nodes) {
+    public GroupNode(String id, List<Node> nodes) {
         super(id);
-        this.contains = Arrays.asList(nodes);
+        this.contains = nodes;
     }
 
     @Override
