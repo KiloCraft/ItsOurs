@@ -29,6 +29,14 @@ public class Permission {
         return nodes;
     }
 
+    public int nodes() {
+        return nodes.size();
+    }
+
+    public Permission up(int amount) {
+        return new Permission(nodes.subList())
+    }
+
     public String asString() {
         StringBuilder result = new StringBuilder();
         for (int i = nodes.size() - 1; i >= 0; i--) {

@@ -11,6 +11,7 @@ import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
+import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.util.Group;
 import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.claim.permission.util.Setting;
@@ -154,10 +155,10 @@ public abstract class Command {
         throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim with that name")).create();
     }
 
-    public static String getPermission(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        String permission = StringArgumentType.getString(ctx, "perm");
-        if (!Permission.isValid(permission)) throw new SimpleCommandExceptionType(new LiteralText("Invalid permission")).create();
-        return permission;
+    public static Permission getPermission(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        Optional<Permission> permission = Permission.of(StringArgumentType.getString(ctx, "perm"));
+        if (!permission.isPresent()) throw new SimpleCommandExceptionType(new LiteralText("Invalid permission")).create();
+        return permission.get();
     }
 
     public static String getSetting(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {

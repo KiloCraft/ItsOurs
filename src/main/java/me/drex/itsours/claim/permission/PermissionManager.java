@@ -3,14 +3,15 @@ package me.drex.itsours.claim.permission;
 import com.google.common.collect.Maps;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.roles.Role;
-import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.claim.permission.util.PermissionMap;
 import me.drex.itsours.claim.permission.util.context.PermissionContext;
+import me.drex.itsours.claim.permission.util.context.SimpleContext;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.*;
 
-import static me.drex.itsours.claim.permission.util.Permission.Value.UNSET;
+import static me.drex.itsours.claim.permission.Permission.Value;
+import static me.drex.itsours.claim.permission.Permission.Value.UNSET;
 
 public class PermissionManager {
     public PermissionMap settings = new PermissionMap(new CompoundTag());
@@ -92,18 +93,18 @@ public class PermissionManager {
         return sortedRoles;
     }
 
-    public Permission.Value hasPermission(UUID uuid, String permission) {
-        Permission.Value value = UNSET;
-        Permission.Value v1 = settings.getPermission(permission);
+    public Value hasPermission(UUID uuid, String permission) {
+        Value value = UNSET;
+        Value v1 = settings.getPermission(permission);
         if (v1 != UNSET)
             value = v1;
         for (Role role : this.getRolesByWeight(uuid).keySet()) {
-            Permission.Value v2 = role.permissions().getPermission(permission);
+            Value v2 = role.permissions().getPermission(permission);
             if (v2 != UNSET)
                 value = v2;
         }
         if (playerPermission.get(uuid) != null) {
-            Permission.Value v3 = playerPermission.get(uuid).getPermission(permission);
+            Value v3 = playerPermission.get(uuid).getPermission(permission);
             if (v3 != UNSET)
                 value = v3;
         }
@@ -115,25 +116,28 @@ public class PermissionManager {
     }
 
     public PermissionContext hasPermission(UUID uuid, Permission permission) {
-        PermissionContext context = new PermissionContext();
-        Permission.Value v1 = settings.getPermission(permission);
-        if (v1 != UNSET)
-            value = v1;
+        PermissionContext context = new PermissionContext().setUuid(uuid);
+        SimpleContext simpleContext = settings.getPermission(permission);
+        if (simpleContext.getValue() != UNSET) context.update(simpleContext);
+
         for (Role role : this.getRolesByWeight(uuid).keySet()) {
-            Permission.Value v2 = role.permissions().getPermission(permission);
-            if (v2 != UNSET)
-                value = v2;
+            SimpleContext roleContext = role.permissions().getPermission(permission);
+            if (roleContext.getValue() != UNSET) context.update(roleContext);
         }
+
         if (playerPermission.get(uuid) != null) {
-            Permission.Value v3 = playerPermission.get(uuid).getPermission(permission);
-            if (v3 != UNSET)
-                value = v3;
+            SimpleContext permissionContext = playerPermission.get(uuid).getPermission(permission);
+            if (permissionContext.getValue() != UNSET) context.update(permissionContext);
         }
-        if (value == UNSET && permission.contains(".")) {
-            String[] node = permission.split("\\.");
-            return hasPermission(uuid, permission.substring(0, (permission.length() - (node[node.length - 1]).length() - 1)));
+
+        String perm = permission.asString();
+        if (context.getValue() == UNSET && perm.contains(".")) {
+            String[] node = perm.split("\\.");
+            Optional<Permission> optionalPermission = Permission.of(perm.substring(0, (perm.length() - (node[node.length - 1]).length() - 1)));
+            if (optionalPermission.isPresent()) return hasPermission(uuid, optionalPermission.get());
+            else return context;
         }
-        return value;
+        return context;
     }
 
     public boolean hasRole(UUID uuid, Role role) {
@@ -144,7 +148,7 @@ public class PermissionManager {
         return map.containsKey(role);
     }
 
-    public void setPlayerPermission(UUID uuid, String permission, Permission.Value value) {
+    public void setPlayerPermission(UUID uuid, String permission, Value value) {
         PermissionMap pm = playerPermission.get(uuid);
         if (pm == null) {
             pm = new PermissionMap(new CompoundTag());

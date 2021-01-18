@@ -6,6 +6,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.claim.permission.util.Permission;
@@ -53,7 +54,7 @@ public class PermissionCommand extends Command {
         literal.then(command);
     }
 
-    public static int checkPlayer(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission) throws CommandSyntaxException {
+    public static int checkPlayer(ServerCommandSource source, AbstractClaim claim, GameProfile target, Permission permission) throws CommandSyntaxException {
         validatePermission(claim, target.getId(), "modify.permission");
         boolean value = claim.getPermissionManager().hasPermission(target.getId(), permission).value;
 

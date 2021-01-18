@@ -22,6 +22,12 @@ public class PermissionContext extends SimpleContext {
         return uuid;
     }
 
+    public PermissionContext update(SimpleContext context) {
+        this.setValue(context.getValue());
+        this.setReason(context.getReason());
+        return this;
+    }
+
     public PermissionContext setUuid(UUID uuid) {
         this.uuid = uuid;
         return this;
