@@ -19,7 +19,7 @@ import java.util.Optional;
 @Mixin(SpawnHelper.class)
 public class SpawnHelperMixin {
 
-    @Inject(method = "isClearForSpawn", at = @At(value = "HEAD"))
+    @Inject(method = "isClearForSpawn", at = @At(value = "HEAD"), cancellable = true)
     private static void canPhantomSpawnInClaim(BlockView blockView, BlockPos pos, BlockState state, FluidState fluidState, EntityType<?> entityType, CallbackInfoReturnable<Boolean> cir) {
         if (blockView instanceof ServerWorld) {
             if (ItsOursMod.INSTANCE == null || ItsOursMod.INSTANCE.getClaimList() == null) return;

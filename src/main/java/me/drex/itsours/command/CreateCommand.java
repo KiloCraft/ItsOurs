@@ -64,7 +64,7 @@ public class CreateCommand extends Command {
                 }
             } else {
                 if (mod.getPlayerList().getBlocks(uuid) < claim.getArea())
-                    throw new SimpleCommandExceptionType(TextComponentUtil.error("You don't have enough claim blocks")).create();
+                    throw new SimpleCommandExceptionType(TextComponentUtil.error("You need " + (claim.getArea() - mod.getPlayerList().getBlocks(uuid)) + " more claim blocks")).create();
                 if (mod.getClaimList().contains(name))
                     throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is already taken")).create();
                 mod.getPlayerList().setBlocks(uuid, mod.getPlayerList().getBlocks(uuid) - claim.getArea());

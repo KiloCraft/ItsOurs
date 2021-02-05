@@ -22,7 +22,7 @@ public abstract class RaidMixin {
 
     @Shadow @Final private ServerWorld world;
 
-    @Inject(method = "spawnNextWave", at = @At(value = "HEAD"))
+    @Inject(method = "spawnNextWave", at = @At(value = "HEAD"), cancellable = true)
     public void canRaidSpawninClaim(BlockPos pos, CallbackInfo ci) {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get(this.world, pos);
         if (claim.isPresent() && !claim.get().getSetting("mobspawn")) {

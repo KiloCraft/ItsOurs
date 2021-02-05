@@ -144,11 +144,10 @@ public abstract class AbstractClaim {
     }
 
     public void onEnter(Optional<AbstractClaim> pclaim, ServerPlayerEntity player) {
-        ClaimPlayer claimPlayer = (ClaimPlayer) player;
         if (!pclaim.isPresent()) {
             ItsOursMod.INSTANCE.getPlayerList().setBoolean(player.getUuid(), PlayerSetting.CACHED_FLIGHT, player.getAbilities().allowFlying);
         }
-        boolean cachedFlying = player.getAbilities().flying;
+        boolean cachedFlying = ItsOursMod.INSTANCE.getPermissionHandler().hasPermission(player.getCommandSource(), "itsours.fly", 4) && player.getAbilities().flying;
         //update abilities for respective gamemode
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
         //enable flying if player enabled it
@@ -344,7 +343,6 @@ public abstract class AbstractClaim {
 
     public String toShortString() {
         return String.format("%s[name=%s, owner=%s]", this.getClass().getSimpleName(), this.name, this.getOwner());
-
     }
 
     public static class Util {

@@ -51,7 +51,7 @@ public class Subzone extends AbstractClaim {
     @Override
     public boolean getSetting(String setting) {
         Permission.Value value = this.getPermissionManager().settings.getPermission(setting);
-        if (value == Permission.Value.UNSET) {
+        if (value == Permission.Value.UNSET || setting.equalsIgnoreCase("mobspawn")) {
             return parent.getSetting(setting);
         }
         return value.value;
