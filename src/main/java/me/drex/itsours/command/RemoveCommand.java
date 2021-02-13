@@ -40,6 +40,13 @@ public class RemoveCommand extends Command {
 
     public static int remove(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
         validate(source, claim);
+        removeClaim(claim);
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Deleted the claim \"" + claim.getFullName() + "\" ").color(Color.LIGHT_GREEN));
+
+        return 0;
+    }
+
+    public static void removeClaim(AbstractClaim claim) {
         //Remove claim from it's parents subzone list, so the garbage collector can remove the claim
         if (claim instanceof Subzone) {
             ((Subzone) claim).getParent().removeSubzone((Subzone) claim);
@@ -52,9 +59,6 @@ public class RemoveCommand extends Command {
         //recursively remove all subzones
         removeSubzones(claim);
         ItsOursMod.INSTANCE.getClaimList().remove(claim);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Deleted the claim \"" + claim.getFullName() + "\" ").color(Color.LIGHT_GREEN));
-
-        return 0;
     }
 
     public static void removeSubzones(AbstractClaim claim) {

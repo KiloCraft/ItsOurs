@@ -138,7 +138,7 @@ public abstract class Command {
         return claim.get();
     }
 
-    static boolean hasPermission(ServerCommandSource src, String permission) {
+    protected static boolean hasPermission(ServerCommandSource src, String permission) {
         return ItsOursMod.INSTANCE.getPermissionHandler().hasPermission(src, permission, 2);
     }
 

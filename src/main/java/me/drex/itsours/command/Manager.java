@@ -2,6 +2,7 @@ package me.drex.itsours.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import me.drex.itsours.command.bulk.BulkCommand;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class Manager {
@@ -9,6 +10,7 @@ public class Manager {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         LiteralArgumentBuilder<ServerCommandSource> main = LiteralArgumentBuilder.literal("claim");
         BlocksCommand.register(main);
+        BulkCommand.register(main);
         ColorCommand.register(main);
         CreateCommand.register(main);
         DebugCommand.register(main);

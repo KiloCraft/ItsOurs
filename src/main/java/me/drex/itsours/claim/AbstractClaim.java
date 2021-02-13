@@ -1,5 +1,6 @@
 package me.drex.itsours.claim;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.PermissionManager;
@@ -10,6 +11,7 @@ import me.drex.itsours.util.Color;
 import me.drex.itsours.util.TextComponentUtil;
 import me.drex.itsours.util.WorldUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
