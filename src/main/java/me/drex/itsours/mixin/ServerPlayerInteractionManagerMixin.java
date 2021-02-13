@@ -92,7 +92,7 @@ public class ServerPlayerInteractionManagerMixin {
     @Redirect(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onUse(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
     private ActionResult itsours$onBlockInteract(BlockState blockState, World world, PlayerEntity playerEntity, Hand hand, BlockHitResult hit) {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
-        if (!claim.isPresent() || !Group.filter(blockState.getBlock(), Group.INTERACT_BLOCK_FILTER))
+        if (!claim.isPresent() || !Group.filter(blockState.getBlock(), Group.interactBlock))
             return blockState.onUse(world, playerEntity, hand, hit);
         if (!claim.get().hasPermission(playerEntity.getUuid(), "interact_block." + Permission.toString(blockState.getBlock()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
@@ -106,7 +106,7 @@ public class ServerPlayerInteractionManagerMixin {
     private ActionResult itsours$onUseOnBlock(ItemStack itemStack, ItemUsageContext context) {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
-        if (!claim.isPresent() || !Group.filter(itemStack.getItem(), Group.USE_ON_BLOCK_FILTER))
+        if (!claim.isPresent() || !Group.filter(itemStack.getItem(), Group.useOnBlock))
             return itemStack.useOnBlock(context);
         if (!claim.get().hasPermission(Objects.requireNonNull(context.getPlayer()).getUuid(), "use_on_block." + Permission.toString(itemStack.getItem()) + "." + Permission.toString(context.getWorld().getBlockState(context.getBlockPos()).getBlock()))) {
             claimPlayer.sendError(Component.text("You can't use that item here.").color(Color.RED));
@@ -136,7 +136,7 @@ public class ServerPlayerInteractionManagerMixin {
     @Redirect(method = "interactItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;"))
     private TypedActionResult<ItemStack> itsours$onItemUse(ItemStack itemStack, World world, PlayerEntity user, Hand hand) {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, user.getBlockPos());
-        if (!claim.isPresent() || !Group.filter(itemStack.getItem(), Group.USE_ITEM_FILTER))
+        if (!claim.isPresent() || !Group.filter(itemStack.getItem(), Group.useItem))
             return itemStack.use(world, user, hand);
         if (!claim.get().hasPermission(user.getUuid(), "use_item." + Permission.toString(itemStack.getItem()))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) user;

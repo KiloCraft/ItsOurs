@@ -147,12 +147,13 @@ public abstract class AbstractClaim {
         if (!pclaim.isPresent()) {
             ItsOursMod.INSTANCE.getPlayerList().setBoolean(player.getUuid(), PlayerSetting.CACHED_FLIGHT, player.getAbilities().allowFlying);
         }
-        boolean cachedFlying = ItsOursMod.INSTANCE.getPermissionHandler().hasPermission(player.getCommandSource(), "itsours.fly", 4) && player.getAbilities().flying;
+        boolean hasPermission = ItsOursMod.INSTANCE.getPermissionHandler().hasPermission(player.getCommandSource(), "itsours.fly", 4);
+        boolean cachedFlying = hasPermission && player.getAbilities().flying;
         //update abilities for respective gamemode
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
         //enable flying if player enabled it
         if (!player.getAbilities().allowFlying) {
-            player.getAbilities().allowFlying = ItsOursMod.INSTANCE.getPlayerList().getBoolean(player.getUuid(), PlayerSetting.FLIGHT);
+            player.getAbilities().allowFlying = hasPermission && ItsOursMod.INSTANCE.getPlayerList().getBoolean(player.getUuid(), PlayerSetting.FLIGHT);
         }
         //set the flight state to what it was before entering
         if (player.getAbilities().allowFlying) {
