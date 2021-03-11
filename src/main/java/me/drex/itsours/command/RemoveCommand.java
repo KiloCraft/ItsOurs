@@ -42,7 +42,6 @@ public class RemoveCommand extends Command {
         validate(source, claim);
         removeClaim(claim);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Deleted the claim \"" + claim.getFullName() + "\" ").color(Color.LIGHT_GREEN));
-
         return 0;
     }
 

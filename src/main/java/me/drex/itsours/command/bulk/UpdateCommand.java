@@ -3,7 +3,6 @@ package me.drex.itsours.command.bulk;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.command.Command;
 import me.drex.itsours.command.RemoveCommand;
@@ -16,7 +15,6 @@ import net.minecraft.command.argument.PosArgument;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.math.Vec3d;
 
-import java.nio.channels.Selector;
 import java.util.ArrayList;
 import java.util.List;
 

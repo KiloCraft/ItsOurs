@@ -82,7 +82,7 @@ public class PermissionCommand extends Command {
     }
 
     public static int checkPlayer(ServerCommandSource source, AbstractClaim claim, GameProfile target, String permission) throws CommandSyntaxException {
-        validatePermission(claim, target.getId(), "modify.permission");
+        validatePermission(claim, source.getPlayer().getUuid(), "modify.permission");
         boolean value = claim.getPermissionManager().hasPermission(target.getId(), permission).value;
 
         String perm = permission;

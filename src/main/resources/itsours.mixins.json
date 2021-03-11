@@ -4,6 +4,7 @@
   "package": "me.drex.itsours.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "ArmorStandEntityMixin",
     "BlockItemMixin",
     "BoatItemMixin",
     "BucketItemMixin",
@@ -11,13 +12,12 @@
     "ExplosionMixin",
     "FarmlandBlockMixin",
     "FluidMixin",
+    "LecternScreenHandlerMixin",
     "LevelStorageSessionMixin",
     "PlayerEntityMixin",
     "ProjectileEntityMixin",
-    "RaidMixin",
     "ServerPlayerEntityMixin",
     "ServerPlayerInteractionManagerMixin",
-    "ServerPlayNetworkHandlerMixin",
     "SpawnHelperMixin",
     "SpawnRestrictionMixin"
   ],

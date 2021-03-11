@@ -1,6 +1,5 @@
 package me.drex.itsours.claim;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.PermissionManager;
@@ -11,14 +10,14 @@ import me.drex.itsours.util.Color;
 import me.drex.itsours.util.TextComponentUtil;
 import me.drex.itsours.util.WorldUtil;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
+import net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket;
+import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -162,7 +161,8 @@ public abstract class AbstractClaim {
             player.getAbilities().flying = cachedFlying;
         }
         player.sendAbilitiesUpdate();
-        player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.ACTIONBAR, TextComponentUtil.from(TextComponentUtil.of("<gradient:" + Color.AQUA.stringValue() + ":" + Color.PURPLE.stringValue() + ">" + "Welcome to " + this.getFullName(), false)), -1, 20, -1));
+        player.networkHandler.sendPacket(new TitleFadeS2CPacket(-1, 20, -1));
+        player.networkHandler.sendPacket(new OverlayMessageS2CPacket(TextComponentUtil.from(TextComponentUtil.of("<gradient:" + Color.AQUA.stringValue() + ":" + Color.PURPLE.stringValue() + ">" + "Welcome to " + this.getFullName(), false))));
     }
 
     public void onLeave(Optional<AbstractClaim> claim, ServerPlayerEntity player) {
@@ -185,7 +185,8 @@ public abstract class AbstractClaim {
             }
             player.sendAbilitiesUpdate();
         }
-        player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.ACTIONBAR, TextComponentUtil.from(TextComponentUtil.of("<gradient:" + Color.AQUA.stringValue() + ":" + Color.PURPLE.stringValue() + ">" + "You left " + this.getFullName(), false)), -1, 20, -1));
+        player.networkHandler.sendPacket(new TitleFadeS2CPacket(-1, 20, -1));
+        player.networkHandler.sendPacket(new OverlayMessageS2CPacket(TextComponentUtil.from(TextComponentUtil.of("<gradient:" + Color.AQUA.stringValue() + ":" + Color.PURPLE.stringValue() + ">" + "You left " + this.getFullName(), false))));
     }
 
     public boolean hasPermission(UUID uuid, String permission) {

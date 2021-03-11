@@ -24,9 +24,9 @@ import java.util.function.Predicate;
 
 public class Group {
     public static final Group BLOCK = create("block", Registry.BLOCK, BlockTags.getTagGroup());
-    public static Predicate<Item> useItem = item -> !overrides(item.getClass(), Item.class, "method_7836", World.class, PlayerEntity.class, Hand.class);
-    public static Predicate<Item> useOnBlock = item -> !overrides(item.getClass(), Item.class, "method_7884", ItemUsageContext.class) && !(item instanceof BlockItem);
-    public static Predicate<Block> interactBlock = block -> !overrides(block.getClass(), Block.class, "method_9534", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class);
+    public static Predicate<Item> useItem = item -> !overrides(item.getClass(), Item.class, "method_7836", World.class, PlayerEntity.class, Hand.class) || item.isFood();
+    public static Predicate<Item> useOnBlock = item -> (!overrides(item.getClass(), Item.class, "method_7884", ItemUsageContext.class)) && !(item instanceof BlockItem) ;
+    public static Predicate<Block> interactBlock = block -> (!overrides(block.getClass(), Block.class, "method_9534", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class) || block instanceof AbstractButtonBlock || block instanceof AbstractPressurePlateBlock);
     public static final Group USE_ITEM = create("item", Registry.ITEM, ItemTags.getTagGroup(), useItem);
     public static final Group USE_ON_BLOCKS = create("item", Registry.ITEM, ItemTags.getTagGroup(), useOnBlock);
     public static final Group INTERACTABLE_BLOCKS = create("block", Registry.BLOCK, BlockTags.getTagGroup(), interactBlock);

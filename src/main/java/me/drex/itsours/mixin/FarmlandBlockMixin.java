@@ -21,11 +21,11 @@ import java.util.Optional;
 @Mixin(FarmlandBlock.class)
 public abstract class FarmlandBlockMixin {
 
-    @Inject(method = "onLandedUpon", at = @At(value = "HEAD", target = "Lnet/minecraft/block/FarmlandBlock;onLandedUpon(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;F)V"), cancellable = true)
+    @Inject(method = "onLandedUpon", at = @At(value = "HEAD"), cancellable = true)
     private void dontYouDareFarmMe(World world, BlockPos pos, Entity entity, float distance, CallbackInfo ci) {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, pos);
         if (claim.isPresent() && entity instanceof ServerPlayerEntity && !claim.get().hasPermission(entity.getUuid(), "mine.farmland")) {
-            ClaimPlayer claimPlayer = (ClaimPlayer) (ServerPlayerEntity) entity;
+            ClaimPlayer claimPlayer = (ClaimPlayer) entity;
             claimPlayer.sendError(Component.text("You can't break that block here.").color(Color.RED));
             ci.cancel();
         }

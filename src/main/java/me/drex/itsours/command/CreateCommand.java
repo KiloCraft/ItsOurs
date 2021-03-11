@@ -40,9 +40,9 @@ public class CreateCommand extends Command {
         ClaimPlayer claimPlayer = (ClaimPlayer) source.getPlayer();
         if (claimPlayer.arePositionsSet()) {
             BlockPos min = new BlockPos(claimPlayer.getLeftPosition());
-            min = new BlockPos(min.getX(), 0, min.getZ());
+            min = new BlockPos(min.getX(), source.getWorld().getBottomY(), min.getZ());
             BlockPos max = new BlockPos(claimPlayer.getRightPosition());
-            max = new BlockPos(max.getX(), 256, max.getZ());
+            max = new BlockPos(max.getX(), source.getWorld().getTopY(), max.getZ());
             if (!AbstractClaim.isNameValid(name))
                 throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is to long or contains invalid characters")).create();
             AbstractClaim claim = new Claim(name, uuid, min, max, source.getWorld(), null);

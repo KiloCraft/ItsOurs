@@ -10,23 +10,36 @@ import net.minecraft.block.AbstractButtonBlock;
 import net.minecraft.block.AbstractPressurePlateBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin {
+
+    @Shadow public abstract EntityType<?> getType();
+
+    @Shadow public abstract World getEntityWorld();
+
+    @Shadow public abstract BlockPos getBlockPos();
 
     public Optional<AbstractClaim> pclaim = Optional.empty();
     protected UUID uuid;
@@ -96,6 +109,5 @@ public abstract class EntityMixin {
         }
         blockState.onEntityCollision(world, pos, entity);
     }
-
 
 }
