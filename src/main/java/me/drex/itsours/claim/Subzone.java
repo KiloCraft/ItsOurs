@@ -76,7 +76,7 @@ public class Subzone extends AbstractClaim {
             this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in hitting " + optional.get())).create();
         }
-        if (this.max.getY() > 256 || this.min.getY() < 0) {
+        if (this.max.getY() > this.getWorld().getTopY() || this.min.getY() < this.getWorld().getBottomY()) {
             this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("You can't expand outside of the world!")).create();
         }

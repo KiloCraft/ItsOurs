@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Optional;
 
 @Mixin(ServerPlayerEntity.class)
-public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer {
+public abstract class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer {
 
     @Shadow
     @Final
@@ -47,14 +47,6 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
 
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
-    }
-
-    public boolean isSpectator() {
-        return this.interactionManager.getGameMode() == GameMode.SPECTATOR;
-    }
-
-    public boolean isCreative() {
-        return this.interactionManager.getGameMode() == GameMode.CREATIVE;
     }
 
     @Override
