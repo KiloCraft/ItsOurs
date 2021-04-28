@@ -4,7 +4,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.util.Permission;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
@@ -24,7 +24,7 @@ public class Subzone extends AbstractClaim {
         this.parent.addSubzone(this);
     }
 
-    public Subzone(CompoundTag tag, AbstractClaim parent) {
+    public Subzone(NbtCompound tag, AbstractClaim parent) {
         super(tag);
         this.parent = parent;
     }

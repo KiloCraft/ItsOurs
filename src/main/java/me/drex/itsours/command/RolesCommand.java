@@ -12,7 +12,7 @@ import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.LiteralText;
 
@@ -60,7 +60,7 @@ public class RolesCommand extends Command {
     public static int addRole(ServerCommandSource source, String name) throws CommandSyntaxException {
         if (ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
             throw new SimpleCommandExceptionType(new LiteralText("A role with that name already exists")).create();
-        ItsOursMod.INSTANCE.getRoleManager().put(name, new Role(new CompoundTag()));
+        ItsOursMod.INSTANCE.getRoleManager().put(name, new Role(new NbtCompound()));
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Role ").color(Color.YELLOW)
                 .append(Component.text(name).color(Color.ORANGE).append(Component.text(" has been added").color(Color.YELLOW))));
 

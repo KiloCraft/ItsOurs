@@ -3,7 +3,7 @@ package me.drex.itsours.claim;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOursMod;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
@@ -18,7 +18,7 @@ public class Claim extends AbstractClaim {
         super(name, owner, pos1, pos2, world, tppos);
     }
 
-    public Claim(CompoundTag tag) {
+    public Claim(NbtCompound tag) {
         super(tag);
     }
 

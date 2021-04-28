@@ -13,8 +13,8 @@ import net.kyori.adventure.text.Component;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket;
@@ -57,10 +57,10 @@ public abstract class AbstractClaim {
         this.max = new BlockPos(mx, my, mz);
         this.world = world;
         this.tp = tp;
-        this.permissionManager = new PermissionManager(new CompoundTag());
+        this.permissionManager = new PermissionManager(new NbtCompound());
     }
 
-    public AbstractClaim(CompoundTag tag) {
+    public AbstractClaim(NbtCompound tag) {
         fromNBT(tag);
     }
 
@@ -68,30 +68,30 @@ public abstract class AbstractClaim {
         return NAME.matcher(name).matches();
     }
 
-    public void fromNBT(CompoundTag tag) {
+    public void fromNBT(NbtCompound tag) {
         this.name = tag.getString("name");
         this.owner = tag.getUuid("owner");
-        CompoundTag position = tag.getCompound("position");
+        NbtCompound position = tag.getCompound("position");
         this.min = Util.blockPosFromNBT(position.getCompound("min"));
         this.max = Util.blockPosFromNBT(position.getCompound("max"));
         this.tp = Util.blockPosFromNBT(position.getCompound("tp"));
         //TODO: Add option to ignore claims which are located in unknown worlds
         this.world = WorldUtil.getWorld(position.getString("world"));
         if (tag.contains("subzones")) {
-            ListTag list = (ListTag) tag.get("subzones");
+            NbtList list = (NbtList) tag.get("subzones");
             list.forEach(subzones -> {
-                Subzone subzone = new Subzone((CompoundTag) subzones, this);
+                Subzone subzone = new Subzone((NbtCompound) subzones, this);
                 subzoneList.add(subzone);
             });
         }
         this.permissionManager = new PermissionManager(tag.getCompound("permissions"));
     }
 
-    public CompoundTag toNBT() {
-        CompoundTag tag = new CompoundTag();
+    public NbtCompound toNBT() {
+        NbtCompound tag = new NbtCompound();
         tag.putString("name", this.name);
         tag.putUuid("owner", this.owner);
-        CompoundTag position = new CompoundTag();
+        NbtCompound position = new NbtCompound();
         position.put("min", Util.blockPosToNBT(this.min));
         position.put("max", Util.blockPosToNBT(this.max));
         if (tp != null) {
@@ -100,7 +100,7 @@ public abstract class AbstractClaim {
         position.putString("world", WorldUtil.toIdentifier(this.world));
         tag.put("position", position);
         if (!subzoneList.isEmpty()) {
-            ListTag list = new ListTag();
+            NbtList list = new NbtList();
             subzoneList.forEach(subzone -> {
                 list.add(subzone.toNBT());
             });
@@ -180,7 +180,7 @@ public abstract class AbstractClaim {
             if (cachedFlying && !player.getAbilities().flying) {
                 BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
                 if (pos.getY() + 3 < player.getY()) {
-                    player.teleport((ServerWorld) player.world, player.getX(), pos.getY(), player.getZ(), player.yaw, player.pitch);
+                    player.teleport((ServerWorld) player.world, player.getX(), pos.getY(), player.getZ(), player.method_36454(), player.method_36455());
                 }
             }
             player.sendAbilitiesUpdate();
@@ -350,15 +350,15 @@ public abstract class AbstractClaim {
     }
 
     public static class Util {
-        public static CompoundTag blockPosToNBT(BlockPos pos) {
-            CompoundTag tag = new CompoundTag();
+        public static NbtCompound blockPosToNBT(BlockPos pos) {
+            NbtCompound tag = new NbtCompound();
             tag.putInt("x", pos.getX());
             tag.putInt("y", pos.getY());
             tag.putInt("z", pos.getZ());
             return tag;
         }
 
-        public static BlockPos blockPosFromNBT(CompoundTag tag) {
+        public static BlockPos blockPosFromNBT(NbtCompound tag) {
             return new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
         }
 

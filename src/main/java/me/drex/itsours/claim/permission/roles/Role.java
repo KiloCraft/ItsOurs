@@ -1,21 +1,21 @@
 package me.drex.itsours.claim.permission.roles;
 
 import me.drex.itsours.claim.permission.util.PermissionMap;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 public class Role {
 
-    private final PermissionMap permissions = new PermissionMap(new CompoundTag());
+    private final PermissionMap permissions = new PermissionMap(new NbtCompound());
 
-    public Role(CompoundTag tag) {
+    public Role(NbtCompound tag) {
         this.fromNBT(tag);
     }
 
-    public void fromNBT(CompoundTag tag) {
+    public void fromNBT(NbtCompound tag) {
         permissions.fromNBT(tag);
     }
 
-    public CompoundTag toNBT() {
+    public NbtCompound toNBT() {
         return permissions.toNBT();
     }
 
