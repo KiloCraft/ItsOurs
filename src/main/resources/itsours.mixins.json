@@ -12,6 +12,7 @@
     "ExplosionMixin",
     "FarmlandBlockMixin",
     "FluidMixin",
+    "FrostWalkerEnchantmentMixin",
     "LecternScreenHandlerMixin",
     "LevelStorageSessionMixin",
     "PlayerEntityMixin",

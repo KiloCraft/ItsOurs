@@ -5,6 +5,7 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.FarmlandBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -22,7 +23,7 @@ import java.util.Optional;
 public abstract class FarmlandBlockMixin {
 
     @Inject(method = "onLandedUpon", at = @At(value = "HEAD"), cancellable = true)
-    private void dontYouDareFarmMe(World world, BlockPos pos, Entity entity, float distance, CallbackInfo ci) {
+    private void dontYouDareFarmMe(World world, BlockState blockState, BlockPos pos, Entity entity, float f, CallbackInfo ci) {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, pos);
         if (claim.isPresent() && entity instanceof ServerPlayerEntity && !claim.get().hasPermission(entity.getUuid(), "mine.farmland")) {
             ClaimPlayer claimPlayer = (ClaimPlayer) entity;
