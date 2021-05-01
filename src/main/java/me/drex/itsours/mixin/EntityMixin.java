@@ -2,18 +2,18 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import me.drex.itsours.util.WorldUtil;
 import net.kyori.adventure.text.Component;
 import net.minecraft.block.AbstractButtonBlock;
 import net.minecraft.block.AbstractPressurePlateBlock;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -21,6 +21,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -69,7 +70,7 @@ public abstract class EntityMixin {
                         if (cachedFlying && !player.getAbilities().flying) {
                             BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
                             if (pos.getY() + 3 < player.getY())
-                                player.teleport((ServerWorld) WorldUtil.DEFAULT_WORLD, player.getX(), pos.getY(), player.getZ(), player.yaw, player.pitch);
+                                player.teleport((ServerWorld) WorldUtil.DEFAULT_WORLD, player.getX(), pos.getY(), player.getZ(), player.getYaw(), player.getPitch());
                         }
                         player.sendAbilitiesUpdate();
                     } else if (claim.isPresent()) {
@@ -85,7 +86,7 @@ public abstract class EntityMixin {
                         message = Optional.of(new LiteralText("Welcome to " + claim.get().getFullName()).formatted(Formatting.YELLOW));
                     }
 
-                    message.ifPresent(text -> player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.ACTIONBAR, text, -1, 20, -1)));
+                    //message.ifPresent(text -> player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.ACTIONBAR, text, -1, 20, -1)));
                 }
             }
         }
@@ -128,7 +129,7 @@ public abstract class EntityMixin {
             blockState.onEntityCollision(world, pos, entity);
             return;
         }
-        if (!claim.get().hasPermission(playerEntity.getUuid(), "interact_block." + Permission.toString(blockState.getBlock()))) {
+        if (!claim.get().hasPermission(playerEntity.getUuid(), "interact_block." + Registry.BLOCK.getId(blockState.getBlock()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
             claimPlayer.sendError(Component.text("You can't interact with that block here.").color(Color.RED));
             return;
@@ -136,16 +137,16 @@ public abstract class EntityMixin {
         blockState.onEntityCollision(world, pos, entity);
     }
 
-    @Inject(method = "toTag", at = @At(value = "HEAD"))
-    public void itsours$onEntityToTag(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
+    @Inject(method = "writeNbt", at = @At(value = "HEAD"))
+    public void itsours$onEntityToTag(NbtCompound tag, CallbackInfoReturnable<NbtCompound> cir) {
         if ((Object) this instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
             ItsOursMod.INSTANCE.getPlayerList().put(player.getUuid(), ((ClaimPlayer)player).toNBT());
         }
     }
 
-    @Inject(method = "fromTag", at = @At(value = "RETURN"))
-    public void itsours$onEntityFromTag(CompoundTag tag, CallbackInfo ci) {
+    @Inject(method = "readNbt", at = @At(value = "RETURN"))
+    public void itsours$onEntityFromTag(NbtCompound tag, CallbackInfo ci) {
         if ((Object) this instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
             ((ClaimPlayer)player).fromNBT(ItsOursMod.INSTANCE.getPlayerList().getTags(player.getUuid()));

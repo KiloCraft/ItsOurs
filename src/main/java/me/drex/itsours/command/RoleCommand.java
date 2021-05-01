@@ -31,7 +31,6 @@ import static net.minecraft.server.command.CommandManager.argument;
 
 public class RoleCommand extends Command {
 
-
     //TODO: Check if the executor is allowed to do this
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();

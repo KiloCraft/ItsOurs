@@ -1,6 +1,6 @@
-package me.drex.itsours.claim.permission.util.newNode;
+package me.drex.itsours.claim.permission.util.node;
 
-import me.drex.itsours.claim.permission.util.newNode.util.Node;
+import me.drex.itsours.claim.permission.util.node.util.Node;
 
 public class SettingNode extends Node {
 

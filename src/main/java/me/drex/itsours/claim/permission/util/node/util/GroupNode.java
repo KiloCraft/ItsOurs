@@ -1,14 +1,19 @@
-package me.drex.itsours.claim.permission.util.newNode.util;
+package me.drex.itsours.claim.permission.util.node.util;
 
 import java.util.List;
 
 public class GroupNode extends Node {
 
-    private List<Node> contains;
+    private final List<Node> contains;
 
     public GroupNode(String id, List<Node> nodes) {
         super(id);
         this.contains = nodes;
+    }
+
+    @Override
+    public List<Node> getContained() {
+        return contains;
     }
 
     @Override

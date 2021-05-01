@@ -2,7 +2,7 @@ package me.drex.itsours.user;
 
 import me.drex.itsours.claim.AbstractClaim;
 import net.kyori.adventure.text.Component;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -37,9 +37,9 @@ public interface ClaimPlayer {
 
     void sendActionbar(Component component);
 
-    void fromNBT(CompoundTag tag);
+    void fromNBT(NbtCompound tag);
 
-    CompoundTag toNBT();
+    NbtCompound toNBT();
 
     Object getSetting(String key, Object defaultValue);
 

@@ -4,8 +4,8 @@ import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
@@ -21,13 +21,13 @@ public class ClaimList {
      * */
     private final Map<Region, List<AbstractClaim>> byRegion = new HashMap<>();
 
-    public ClaimList(ListTag tag) {
+    public ClaimList(NbtList tag) {
         fromNBT(tag);
     }
 
-    public void fromNBT(ListTag tag) {
+    public void fromNBT(NbtList tag) {
         tag.forEach(claimTag -> {
-            Claim claim = new Claim((CompoundTag) claimTag);
+            Claim claim = new Claim((NbtCompound) claimTag);
             this.add(claim);
             for (Subzone subzone : claim.getSubzones()) {
                 this.add(subzone);
@@ -35,8 +35,8 @@ public class ClaimList {
         });
     }
 
-    public ListTag toNBT() {
-        ListTag list = new ListTag();
+    public NbtList toNBT() {
+        NbtList list = new NbtList();
         for (AbstractClaim claim : claimList) {
             //Filter main claims, since they handle subzone deserialization
             if (claim instanceof Claim) {

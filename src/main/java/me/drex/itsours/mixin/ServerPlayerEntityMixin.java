@@ -7,7 +7,7 @@ import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.util.TextComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
@@ -146,15 +146,15 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
         this.settings.put(key, value);
     }
 
-    public void fromNBT(CompoundTag tag) {
+    public void fromNBT(NbtCompound tag) {
         for (String key : tag.getKeys()) {
             Object o = PlayerList.get(key, tag);
             if (o != null) this.settings.put(key, o);
         }
     }
 
-    public CompoundTag toNBT() {
-        CompoundTag tag = new CompoundTag();
+    public NbtCompound toNBT() {
+        NbtCompound tag = new NbtCompound();
         for (Map.Entry<String, Object> entry : this.settings.entrySet()) {
             PlayerList.set(entry.getKey(), tag, entry.getValue());
         }

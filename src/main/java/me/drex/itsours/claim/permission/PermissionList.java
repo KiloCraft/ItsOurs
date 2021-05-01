@@ -1,27 +1,33 @@
 package me.drex.itsours.claim.permission;
 
-import me.drex.itsours.claim.permission.util.newNode.SettingNode;
-import me.drex.itsours.claim.permission.util.newNode.util.Node;
-import me.drex.itsours.claim.permission.util.newNode.PermissionNode;
-import me.drex.itsours.claim.permission.util.newNode.RootNode;
+import me.drex.itsours.claim.permission.util.node.SettingNode;
+import me.drex.itsours.claim.permission.util.node.util.Node;
+import me.drex.itsours.claim.permission.util.node.PermissionNode;
+import me.drex.itsours.claim.permission.util.node.RootNode;
 import net.minecraft.block.*;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.tag.EntityTypeTags;
 import net.minecraft.tag.ItemTags;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class PermissionList {
 
-    public static final RootNode permission = new RootNode("permission");
-    public static final RootNode setting = new RootNode("setting");
+    public static final RootNode permission = new RootNode("");
+    public static final RootNode setting = new RootNode("");
 
-    public static final Class<?>[] INTERACT_BLOCK_FILTER = {BlockWithEntity.class, AbstractButtonBlock.class, AbstractCandleBlock.class, AbstractPressurePlateBlock.class, AnvilBlock.class, BedBlock.class, CakeBlock.class, CartographyTableBlock.class, CauldronBlock.class, ComparatorBlock.class, ComposterBlock.class, CraftingTableBlock.class, DoorBlock.class, DragonEggBlock.class, EnderChestBlock.class, FenceBlock.class, FenceGateBlock.class, FlowerPotBlock.class, GrindstoneBlock.class, JigsawBlock.class, LeverBlock.class, LoomBlock.class, NoteBlock.class, PumpkinBlock.class, RedstoneOreBlock.class, RedstoneWireBlock.class, RepeaterBlock.class, RespawnAnchorBlock.class, StairsBlock.class, StonecutterBlock.class, SweetBerryBushBlock.class, TntBlock.class, TrapdoorBlock.class};
-    public static final Class<?>[] USE_ON_BLOCK_FILTER = {ArmorStandItem.class, AxeItem.class, BoneMealItem.class, CompassItem.class, DebugStickItem.class, DecorationItem.class, EndCrystalItem.class, EnderEyeItem.class, FilledMapItem.class, FireChargeItem.class, FireworkItem.class, FlintAndSteelItem.class, HoeItem.class, LeadItem.class, MinecartItem.class, MusicDiscItem.class, ShovelItem.class, SpawnEggItem.class, WritableBookItem.class, WritableBookItem.class};
-    public static final Class<?>[] USE_ITEM_FILTER = {ArmorItem.class, BoatItem.class, BowItem.class, BucketItem.class, ChorusFruitItem.class, CrossbowItem.class, EggItem.class, ElytraItem.class, EmptyMapItem.class, EnderEyeItem.class, EnderPearlItem.class, ExperienceBottleItem.class, FireworkItem.class, FishingRodItem.class, GlassBottleItem.class, HoneyBottleItem.class, KnowledgeBookItem.class, LilyPadItem.class, LingeringPotionItem.class, MilkBucketItem.class, OnAStickItem.class, PotionItem.class, ShieldItem.class, SnowballItem.class, SpawnEggItem.class, SplashPotionItem.class, ThrowablePotionItem.class, TridentItem.class, WritableBookItem.class, WrittenBookItem.class};
+    public static Predicate<Item> useItem = item -> !overrides(item.getClass(), Item.class, "method_7836", World.class, PlayerEntity.class, Hand.class) || item.isFood();
+    public static Predicate<Item> useOnBlock = item -> (!overrides(item.getClass(), Item.class, "method_7884", ItemUsageContext.class)) && !(item instanceof BlockItem) ;
+    public static Predicate<Block> interactBlock = block -> (!overrides(block.getClass(), Block.class, "method_9534", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class) || block instanceof AbstractButtonBlock || block instanceof AbstractPressurePlateBlock);
 
     public static void register() {
 
@@ -29,25 +35,37 @@ public class PermissionList {
         registerPermission((PermissionNode) new PermissionNode("place").addNodes(blockNodes));
         registerPermission((PermissionNode) new PermissionNode("mine").addNodes(blockNodes));
 
-        List<Node> interactableBlockNodes = Node.getNodes(Registry.BLOCK, BlockTags.getTagGroup(), INTERACT_BLOCK_FILTER);
+        List<Node> interactableBlockNodes = Node.getNodes(Registry.BLOCK, BlockTags.getTagGroup(), interactBlock);
         registerPermission((PermissionNode) new PermissionNode("interact_block").addNodes(interactableBlockNodes));
 
-        List<Node> itemBlockNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), blockNodes, USE_ON_BLOCK_FILTER);
+        List<Node> itemBlockNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), blockNodes, useOnBlock);
         registerPermission((PermissionNode) new PermissionNode("use_on_block").addNodes(itemBlockNodes));
 
-        List<Node> useItemNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), USE_ITEM_FILTER);
+        List<Node> useItemNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), useItem);
         registerPermission((PermissionNode) new PermissionNode("use_item").addNodes(useItemNodes));
 
         List<Node> entityNodes = Node.getNodes(Registry.ENTITY_TYPE, EntityTypeTags.getTagGroup());
         registerPermission((PermissionNode) new PermissionNode("damage_entity").addNodes(entityNodes));
         registerPermission((PermissionNode) new PermissionNode("interact_entity").addNodes(entityNodes));
 
-        registerPermission((PermissionNode) new PermissionNode("permission").addSimpleNodes(Arrays.asList("trust", "distrust", "size", "permission", "setting", "subzone", "name")));
+        registerPermission((PermissionNode) new PermissionNode("modify").addSimpleNodes(Arrays.asList("trust", "distrust", "size", "permission", "setting", "subzone", "name")));
 
         registerSetting(new SettingNode("mobspawn").global());
         registerSetting(new SettingNode("explosions"));
         registerSetting(new SettingNode("fluid_crosses_borders"));
 
+    }
+
+    private static boolean overrides(Class<?> clazz1, Class<?> clazz2, String methodName, Class<?>... classes) {
+        try {
+            return clazz1.getMethod(methodName, classes).equals(clazz2.getMethod(methodName, classes));
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("An error occured while retrieving " + methodName + " in " + clazz1.getName() + " or " + clazz2.getName() + ", maybe the method name or parameters changed?");
+        }
+    }
+
+    public static <T> boolean filter(T entry, Predicate<T> p) {
+        return p.test(entry);
     }
 
     public static void registerPermission(PermissionNode node) {
