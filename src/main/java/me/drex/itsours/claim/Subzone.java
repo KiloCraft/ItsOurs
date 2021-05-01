@@ -3,7 +3,8 @@ package me.drex.itsours.claim;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOursMod;
-import me.drex.itsours.claim.permission.util.Permission;
+import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.claim.permission.util.context.PermissionContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -40,21 +41,32 @@ public class Subzone extends AbstractClaim {
 
     @Override
     public boolean hasPermission(UUID uuid, String permission) {
-        Permission.Value value = this.getPermissionManager().hasPermission(uuid, permission);
-        if (value == Permission.Value.UNSET) {
-            return parent.hasPermission(uuid, permission);
+        Optional<Permission> optional = Permission.permission(permission);
+        if (optional.isPresent()) {
+            PermissionContext context = this.getPermissionManager().hasPermission_new(uuid, optional.get());
+            if (context.getValue() == Permission.Value.UNSET) {
+                return parent.hasPermission(uuid, permission);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
         }
-        sendDebug(uuid, permission, value);
-        return value.value;
     }
 
     @Override
     public boolean getSetting(String setting) {
-        Permission.Value value = this.getPermissionManager().settings.getPermission(setting);
-        if (value == Permission.Value.UNSET || setting.equalsIgnoreCase("mobspawn")) {
-            return parent.getSetting(setting);
+        Optional<Permission> optional = Permission.setting(setting);
+        if (optional.isPresent()) {
+            PermissionContext context = this.getPermissionManager().settings_new.getPermission(optional.get(), PermissionContext.CustomPriority.SETTING);
+            if (context.getValue() == Permission.Value.UNSET) {
+                return parent.getSetting(setting);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
         }
-        return value.value;
     }
 
     public int getDepth() {

@@ -2,7 +2,7 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.permission.util.Permission;
+import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
@@ -17,6 +17,7 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,7 +42,7 @@ public abstract class BlockItemMixin extends Item {
         if (context.getPlayer() == null) return context.canPlace();
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
         if (!claim.isPresent()) return context.canPlace();
-        if (!claim.get().hasPermission(context.getPlayer().getUuid(), "place." + Permission.toString(this.getBlock()))) {
+        if (!claim.get().hasPermission(context.getPlayer().getUuid(), "place." + Registry.BLOCK.getId(this.getBlock()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) context.getPlayer();
             claimPlayer.sendError(Component.text("You can't place a block here.").color(Color.RED));
             return false;

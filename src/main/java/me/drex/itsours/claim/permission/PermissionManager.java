@@ -2,13 +2,13 @@ package me.drex.itsours.claim.permission;
 
 import com.google.common.collect.Maps;
 import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.claim.permission.Permission.Value;
 import me.drex.itsours.claim.permission.roles.Role;
-import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.claim.permission.util.PermissionMap;
+import me.drex.itsours.claim.permission.util.context.PermissionContext;
 import net.minecraft.nbt.NbtCompound;
-import java.util.*;
 
-import static me.drex.itsours.claim.permission.util.Permission.Value.UNSET;
+import java.util.*;
 
 public class PermissionManager {
     public PermissionMap settings = new PermissionMap(new NbtCompound());
@@ -26,7 +26,7 @@ public class PermissionManager {
             players.getKeys().forEach(uuid -> {
                 NbtCompound player = players.getCompound(uuid);
                 if (player.contains("permission"))
-                    playerPermission.put(UUID.fromString(uuid), new PermissionMap(player.getCompound("permission")));
+                    playerPermission_new.put(UUID.fromString(uuid), new PermissionMap(player.getCompound("permission")));
                 if (player.contains("role")) {
                     NbtCompound roleTag = player.getCompound("role");
                     HashMap<Role, Integer> roleWeight = new HashMap<>();
@@ -46,7 +46,7 @@ public class PermissionManager {
         NbtCompound players = new NbtCompound();
 
         List<UUID> uuidSet = new ArrayList<>();
-        uuidSet.addAll(playerPermission.keySet());
+        uuidSet.addAll(playerPermission_new.keySet());
         uuidSet.addAll(roles.keySet());
         for (UUID uuid : uuidSet) {
             NbtCompound player = new NbtCompound();
@@ -65,7 +65,7 @@ public class PermissionManager {
             players.put(uuid.toString(), player);
         }
 
-        if (!settings.isEmpty()) tag.put("settings", settings.toNBT());
+        if (!settings_new.isEmpty()) tag.put("settings", settings_new.toNBT());
         tag.put("players", players);
         return tag;
     }
@@ -79,7 +79,8 @@ public class PermissionManager {
 
     public void removeRole(UUID uuid, Role role) {
         HashMap<Role, Integer> roleWeight = this.roles.get(uuid);
-        roleWeight.remove(role);
+        roleWeight.put(role, -1);
+        //roleWeight.remove(role);
         this.roles.put(uuid, roleWeight);
     }
 
@@ -104,26 +105,21 @@ public class PermissionManager {
         return getPlayersWithRole("trusted");
     }
 
-    public Permission.Value hasPermission(UUID uuid, String permission) {
-        Permission.Value value = UNSET;
-        Permission.Value v1 = settings.getPermission(permission);
-        if (v1 != UNSET)
-            value = v1;
-        for (Role role : this.getRolesByWeight(uuid).keySet()) {
-            Permission.Value v2 = role.permissions().getPermission(permission);
-            if (v2 != UNSET)
-                value = v2;
+    public PermissionContext hasPermission_new(UUID uuid, Permission permission) {
+        PermissionContext context = new PermissionContext();
+        context.combine(settings_new.getPermission(permission, PermissionContext.CustomPriority.SETTING));
+        for (Map.Entry<Role, Integer> entry : this.getRolesByWeight(uuid).entrySet()) {
+            context.combine(entry.getKey().permissions_new().getPermission(permission, new PermissionContext.RolePriority(ItsOursMod.INSTANCE.getRoleManager().getRoleID(entry.getKey()), entry.getValue())));
+
         }
-        if (playerPermission.get(uuid) != null) {
-            Permission.Value v3 = playerPermission.get(uuid).getPermission(permission);
-            if (v3 != UNSET)
-                value = v3;
+        if (playerPermission_new.get(uuid) != null) {
+            context.combine(playerPermission_new.get(uuid).getPermission(permission, PermissionContext.CustomPriority.PERMISSION));
         }
-        if (value == UNSET && permission.contains(".")) {
-            String[] node = permission.split("\\.");
-            return hasPermission(uuid, permission.substring(0, (permission.length() - (node[node.length - 1]).length() - 1)));
+        if (permission.nodes() > 1) {
+            Permission perm = permission.up(1);
+            context.combine(hasPermission_new(uuid, perm));
         }
-        return value;
+        return context;
     }
 
     public boolean hasRole(UUID uuid, Role role) {
@@ -134,8 +130,9 @@ public class PermissionManager {
         return map.containsKey(role);
     }
 
-    public void setPlayerPermission(UUID uuid, String permission, Permission.Value value) {
-        PermissionMap pm = playerPermission.get(uuid);
+    //TODO: Use Permission instead of String
+    public void setPlayerPermission(UUID uuid, String permission, Value value) {
+        PermissionMap pm = playerPermission_new.get(uuid);
         if (pm == null) {
             pm = new PermissionMap(new NbtCompound());
             playerPermission.put(uuid, pm);
@@ -144,7 +141,7 @@ public class PermissionManager {
     }
 
     public PermissionMap getPlayerPermission(UUID uuid) {
-        PermissionMap pm = playerPermission.get(uuid);
+        PermissionMap pm = playerPermission_new.get(uuid);
         if (pm == null) {
             pm = new PermissionMap(new NbtCompound());
         }
@@ -152,7 +149,7 @@ public class PermissionManager {
     }
 
     public void resetPlayerPermission(UUID uuid, String permission) {
-        PermissionMap pm = playerPermission.get(uuid);
+        PermissionMap pm = playerPermission_new.get(uuid);
         if (pm != null) {
             pm.resetPermission(permission);
         }
@@ -164,7 +161,7 @@ public class PermissionManager {
         HashMap<Role, Integer> temp = new LinkedHashMap<>();
         temp.put(ItsOursMod.INSTANCE.getRoleManager().get("default"), -1);
         for (Map.Entry<Role, Integer> aa : list) {
-            temp.put(aa.getKey(), aa.getValue());
+            if (aa.getValue() != -1) temp.put(aa.getKey(), aa.getValue());
         }
         return temp;
     }

@@ -2,8 +2,9 @@ package me.drex.itsours.claim;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.util.Permission;
+import me.drex.itsours.claim.permission.util.context.PermissionContext;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.user.PlayerSetting;
 import me.drex.itsours.util.Color;
@@ -189,16 +190,29 @@ public abstract class AbstractClaim {
         player.networkHandler.sendPacket(new OverlayMessageS2CPacket(TextComponentUtil.from(TextComponentUtil.of("<gradient:" + Color.AQUA.stringValue() + ":" + Color.PURPLE.stringValue() + ">" + "You left " + this.getFullName(), false))));
     }
 
+    public PermissionContext hasPermission_new(UUID uuid, String permission) {
+        PermissionContext context = new PermissionContext();
+        Optional<Permission> optional = Permission.permission(permission);
+        if (optional.isPresent()) {
+            context.combine(this.permissionManager.hasPermission_new(uuid, optional.get()));
+            if (uuid.equals(owner)) context.add(optional.get(), PermissionContext.CustomPriority.OWNER, Permission.Value.TRUE);
+            if ((boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, "ignore", false)) context.add(optional.get(), PermissionContext.CustomPriority.IGNORE, Permission.Value.TRUE);
+        }
+        return context;
+    }
+
     public boolean hasPermission(UUID uuid, String permission) {
-        if (uuid.equals(owner)) return true;
-        if ((boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, PlayerSetting.IGNORE)) return true;
-        Permission.Value value = this.permissionManager.hasPermission(uuid, permission);
-        sendDebug(uuid, permission, value);
-        return value.value;
+        return hasPermission_new(uuid, permission).getValue().value;
     }
 
     public boolean getSetting(String setting) {
-        return this.permissionManager.settings.getPermission(setting).value;
+        Optional<Permission> optional = Permission.setting(setting);
+        if (optional.isPresent()) {
+            PermissionContext context = this.permissionManager.settings_new.getPermission(optional.get(), PermissionContext.CustomPriority.SETTING);
+            return context.getValue().value;
+        } else {
+            return false;
+        }
     }
 
     void sendDebug(UUID uuid, String permission, Permission.Value value) {

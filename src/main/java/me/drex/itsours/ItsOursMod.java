@@ -1,6 +1,7 @@
 package me.drex.itsours;
 
 import me.drex.itsours.claim.list.ClaimList;
+import me.drex.itsours.claim.permission.PermissionList;
 import me.drex.itsours.claim.permission.roles.RoleManager;
 import me.drex.itsours.command.Manager;
 import me.drex.itsours.user.PlayerList;
@@ -48,6 +49,7 @@ public class ItsOursMod implements DedicatedServerModInitializer {
     }
 
     public void load() {
+        PermissionList.register();
         File data = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat").toFile();
         File data_backup = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat_old").toFile();
         if (!data.exists()) {

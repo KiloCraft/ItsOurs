@@ -2,12 +2,12 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
 import net.minecraft.block.AbstractButtonBlock;
 import net.minecraft.block.AbstractPressurePlateBlock;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -102,7 +102,7 @@ public abstract class EntityMixin {
             blockState.onEntityCollision(world, pos, entity);
             return;
         }
-        if (!claim.get().hasPermission(playerEntity.getUuid(), "interact_block." + Permission.toString(blockState.getBlock()))) {
+        if (!claim.get().hasPermission(playerEntity.getUuid(), "interact_block." + Registry.BLOCK.getId(blockState.getBlock()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
             claimPlayer.sendError(Component.text("You can't interact with that block here.").color(Color.RED));
             return;
