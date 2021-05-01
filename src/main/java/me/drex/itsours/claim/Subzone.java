@@ -4,12 +4,13 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.util.Permission;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class Subzone extends AbstractClaim {
@@ -23,7 +24,7 @@ public class Subzone extends AbstractClaim {
         this.parent.addSubzone(this);
     }
 
-    public Subzone(CompoundTag tag, AbstractClaim parent) {
+    public Subzone(NbtCompound tag, AbstractClaim parent) {
         super(tag);
         this.parent = parent;
     }
@@ -50,7 +51,7 @@ public class Subzone extends AbstractClaim {
     @Override
     public boolean getSetting(String setting) {
         Permission.Value value = this.getPermissionManager().settings.getPermission(setting);
-        if (value == Permission.Value.UNSET) {
+        if (value == Permission.Value.UNSET || setting.equalsIgnoreCase("mobspawn")) {
             return parent.getSetting(setting);
         }
         return value.value;
@@ -70,11 +71,12 @@ public class Subzone extends AbstractClaim {
             this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in " + this.getName() + " being outside of " + this.parent.getName())).create();
         }
-        if (this.intersects()) {
+        Optional<AbstractClaim> optional = this.intersects();
+        if (optional.isPresent()) {
             this.undoExpand(direction, amount);
-            throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in hitting another subzone")).create();
+            throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in hitting " + optional.get())).create();
         }
-        if (this.max.getY() > 256 || this.min.getY() < 0) {
+        if (this.max.getY() > this.getWorld().getTopY() || this.min.getY() < this.getWorld().getBottomY()) {
             this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("You can't expand outside of the world!")).create();
         }

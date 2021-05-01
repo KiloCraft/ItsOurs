@@ -59,10 +59,4 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         return entity.interact(player, hand);
     }
 
-    @Redirect(method = "dropInventory", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/GameRules;getBoolean(Lnet/minecraft/world/GameRules$Key;)Z"))
-    public boolean itsours$onDropInventory(GameRules gameRules, GameRules.Key<GameRules.BooleanRule> rule) {
-        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) this.getEntityWorld(), this.getBlockPos());
-        return claim.map(abstractClaim -> !abstractClaim.getSetting("drop_inventory")).orElseGet(() -> gameRules.getBoolean(rule));
-    }
-
 }

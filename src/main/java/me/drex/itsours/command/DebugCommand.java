@@ -2,7 +2,9 @@ package me.drex.itsours.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.PlayerSetting;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
 import net.minecraft.server.command.ServerCommandSource;
@@ -19,9 +21,9 @@ public class DebugCommand extends Command {
     public static int toggleDebug(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayer();
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
-        boolean newVal = !(boolean)claimPlayer.getSetting("debug", false);
-        claimPlayer.setSetting("debug", newVal);
-        claimPlayer.sendMessage(Component.text("Claim debug " + (newVal ? "enabled" : "disabled")).color((newVal ? Color.LIGHT_GREEN : Color.RED)));
+        boolean val = !ItsOursMod.INSTANCE.getPlayerList().getBoolean(player.getUuid(), PlayerSetting.DEBUG);
+        ItsOursMod.INSTANCE.getPlayerList().setBoolean(player.getUuid(), PlayerSetting.DEBUG, val);
+        claimPlayer.sendMessage(Component.text("Claim debug " + (val ? "enabled" : "disabled")).color((val ? Color.LIGHT_GREEN : Color.RED)));
         return 1;
     }
 

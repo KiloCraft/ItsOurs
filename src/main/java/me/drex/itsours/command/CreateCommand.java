@@ -17,6 +17,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class CreateCommand extends Command {
 
@@ -31,51 +32,55 @@ public class CreateCommand extends Command {
     }
 
     public static int create(ServerCommandSource source, String name) throws CommandSyntaxException {
-        if (ItsOursMod.INSTANCE.getClaimList().get(source.getPlayer().getUuid()).stream().filter(claim -> claim instanceof Claim).count() > 4 && !(hasPermission(source, "itsours.max.bypass")))
-            throw new SimpleCommandExceptionType(TextComponentUtil.error("You can't have more than 5 claims")).create();
+        ItsOursMod mod = ItsOursMod.INSTANCE;
+        UUID uuid = source.getPlayer().getUuid();
+        if (mod.getClaimList().get(uuid).stream().filter(claim -> claim instanceof Claim).count() > 9 && !(hasPermission(source, "itsours.max.bypass"))) {
+            throw new SimpleCommandExceptionType(TextComponentUtil.error("You can't have more than 10 claims")).create();
+        }
         ClaimPlayer claimPlayer = (ClaimPlayer) source.getPlayer();
         if (claimPlayer.arePositionsSet()) {
             BlockPos min = new BlockPos(claimPlayer.getLeftPosition());
-            min = new BlockPos(min.getX(), 1, min.getZ());
+            min = new BlockPos(min.getX(), source.getWorld().getBottomY(), min.getZ());
             BlockPos max = new BlockPos(claimPlayer.getRightPosition());
-            max = new BlockPos(max.getX(), 256, max.getZ());
+            max = new BlockPos(max.getX(), source.getWorld().getTopY(), max.getZ());
             if (!AbstractClaim.isNameValid(name))
                 throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is to long or contains invalid characters")).create();
-            AbstractClaim claim = new Claim(name, source.getPlayer().getUuid(), min, max, source.getWorld(), null);
+            AbstractClaim claim = new Claim(name, uuid, min, max, source.getWorld(), null);
             AbstractClaim show = claim;
-            if (claim.intersects()) {
-                Optional<AbstractClaim> parent = ItsOursMod.INSTANCE.getClaimList().get(source.getWorld(), min);
+            if (claim.intersects().isPresent()) {
+                Optional<AbstractClaim> parent = mod.getClaimList().get(source.getWorld(), min);
                 if (parent.isPresent() && parent.get().contains(max)) {
                     if (parent.get().getDepth() > 2)
                         throw new SimpleCommandExceptionType(TextComponentUtil.error("You can't create subzones with a depth higher than 3")).create();
-                    validatePermission(parent.get(), source.getPlayer().getUuid(), "modify.subzone");
+                    validatePermission(parent.get(), uuid, "modify.subzone");
                     for (Subzone subzone : parent.get().getSubzones()) {
                         if (subzone.getName().equals(name))
                             throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is already taken")).create();
                     }
-                    claim = new Subzone(name, source.getPlayer().getUuid(), min, max, source.getWorld(), null, parent.get());
+                    claim = new Subzone(name, uuid, min, max, source.getWorld(), null, parent.get());
                     show = parent.get();
                 } else {
                     throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim couldn't be created, because it would overlap with another claim")).create();
                 }
             } else {
-                if ((int) claimPlayer.getSetting("blocks", 500) < claim.getArea())
-                    throw new SimpleCommandExceptionType(TextComponentUtil.error("You don't have enough claim blocks")).create();
-                if (ItsOursMod.INSTANCE.getClaimList().contains(name))
+                if (mod.getPlayerList().getBlocks(uuid) < claim.getArea())
+                    throw new SimpleCommandExceptionType(TextComponentUtil.error("You need " + (claim.getArea() - mod.getPlayerList().getBlocks(uuid)) + " more claim blocks")).create();
+                if (mod.getClaimList().contains(name))
                     throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is already taken")).create();
-                claimPlayer.setSetting("blocks", ((int) claimPlayer.getSetting("blocks", 500) - claim.getArea()));
+                mod.getPlayerList().setBlocks(uuid, mod.getPlayerList().getBlocks(uuid) - claim.getArea());
                 BlockPos size = claim.getSize();
                 ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Claim " + name + " has been created (" + size.getX() + " x " + size.getY() + " x " + size.getZ() + ")").color(Color.LIGHT_GREEN));
             }
             if (claimPlayer.getLastShowClaim() != null) claimPlayer.getLastShowClaim().show(source.getPlayer(), false);
             claimPlayer.setLastShow(show, source.getPlayer().getBlockPos(), source.getWorld());
-            ItsOursMod.INSTANCE.getClaimList().add(claim);
+            mod.getClaimList().add(claim);
             show.show(source.getPlayer(), true);
 
 
             //reset positions
             claimPlayer.setLeftPosition(null);
             claimPlayer.setRightPosition(null);
+            claimPlayer.setSelecting(false);
             return 1;
         } else {
             claimPlayer.sendMessage(Component.text("You need to select the corners of your claim with a golden shovel (left- / rightclick) first.").color(Color.RED));

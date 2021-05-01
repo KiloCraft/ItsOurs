@@ -12,7 +12,7 @@ import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.LiteralText;
 
@@ -28,6 +28,7 @@ public class RolesCommand extends Command {
             RequiredArgumentBuilder<ServerCommandSource, String> name = RequiredArgumentBuilder.argument("name", StringArgumentType.word());
             name.executes(ctx -> addRole(ctx.getSource(), StringArgumentType.getString(ctx, "name")));
             LiteralArgumentBuilder<ServerCommandSource> add = LiteralArgumentBuilder.literal("add");
+            add.requires(src -> hasPermission(src, "itsours.roles.add"));
             add.then(name);
             command.then(add);
         }
@@ -35,6 +36,7 @@ public class RolesCommand extends Command {
             RequiredArgumentBuilder<ServerCommandSource, String> name = roleArgument();
             name.executes(ctx -> removeRole(ctx.getSource(), StringArgumentType.getString(ctx, "name")));
             LiteralArgumentBuilder<ServerCommandSource> remove = LiteralArgumentBuilder.literal("remove");
+            remove.requires(src -> hasPermission(src, "itsours.roles.remove"));
             remove.then(name);
             command.then(remove);
         }
@@ -45,6 +47,7 @@ public class RolesCommand extends Command {
             RequiredArgumentBuilder<ServerCommandSource, String> name = roleArgument();
             name.executes(ctx -> listPermission(ctx.getSource(), StringArgumentType.getString(ctx, "name")));
             LiteralArgumentBuilder<ServerCommandSource> permission = LiteralArgumentBuilder.literal("permission");
+            permission.requires(src -> hasPermission(src, "itsours.roles.permission"));
             perm.then(value);
             name.then(perm);
             permission.then(name);
@@ -57,7 +60,7 @@ public class RolesCommand extends Command {
     public static int addRole(ServerCommandSource source, String name) throws CommandSyntaxException {
         if (ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
             throw new SimpleCommandExceptionType(new LiteralText("A role with that name already exists")).create();
-        ItsOursMod.INSTANCE.getRoleManager().put(name, new Role(new CompoundTag()));
+        ItsOursMod.INSTANCE.getRoleManager().put(name, new Role(new NbtCompound()));
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Role ").color(Color.YELLOW)
                 .append(Component.text(name).color(Color.ORANGE).append(Component.text(" has been added").color(Color.YELLOW))));
 
@@ -66,8 +69,9 @@ public class RolesCommand extends Command {
 
     public static int removeRole(ServerCommandSource source, String name) throws CommandSyntaxException {
         if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
-        throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
-        if (name.equals("default") || name.equals("trusted")) throw new SimpleCommandExceptionType(new LiteralText("You can't remove that role")).create();
+            throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
+        if (name.equals("default") || name.equals("trusted"))
+            throw new SimpleCommandExceptionType(new LiteralText("You can't remove that role")).create();
         ItsOursMod.INSTANCE.getRoleManager().remove(name);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Role ").color(Color.YELLOW).append(Component.text(name).color(Color.ORANGE).append(Component.text(" has been removed").color(Color.YELLOW))));
         return 1;

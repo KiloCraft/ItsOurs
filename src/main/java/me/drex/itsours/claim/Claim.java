@@ -3,12 +3,13 @@ package me.drex.itsours.claim;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOursMod;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class Claim extends AbstractClaim {
@@ -17,7 +18,7 @@ public class Claim extends AbstractClaim {
         super(name, owner, pos1, pos2, world, tppos);
     }
 
-    public Claim(CompoundTag tag) {
+    public Claim(NbtCompound tag) {
         super(tag);
     }
 
@@ -41,11 +42,12 @@ public class Claim extends AbstractClaim {
             this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("You don't have enough claim blocks!")).create();
         }
-        if (this.intersects()) {
+        Optional<AbstractClaim> optional = this.intersects();
+        if (optional.isPresent()) {
             this.undoExpand(direction, amount);
-            throw new SimpleCommandExceptionType(new LiteralText("You can't expand into other claims")).create();
+            throw new SimpleCommandExceptionType(new LiteralText("You can't expand into " + optional.get().getName())).create();
         }
-        if (this.max.getY() > 256 || this.min.getY() < 0) {
+        if (this.max.getY() > this.getWorld().getTopY() || this.min.getY() < this.getWorld().getBottomY()) {
             this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("You can't expand outside of the world!")).create();
         }

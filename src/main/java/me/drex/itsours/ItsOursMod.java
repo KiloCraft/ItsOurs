@@ -8,9 +8,9 @@ import me.drex.itsours.util.PermissionHandler;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.WorldSavePath;
 import org.apache.logging.log4j.LogManager;
@@ -52,11 +52,11 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         File data_backup = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat_old").toFile();
         if (!data.exists()) {
             LOGGER.info("Data file not found.");
-            this.claimList = new ClaimList(new ListTag());
-            this.roleManager = new RoleManager(new CompoundTag());
-            this.playerList = new PlayerList(new CompoundTag());
+            this.claimList = new ClaimList(new NbtList());
+            this.roleManager = new RoleManager(new NbtCompound());
+            this.playerList = new PlayerList(new NbtCompound());
         } else {
-            CompoundTag tag;
+            NbtCompound tag;
             try {
                 tag = NbtIo.readCompressed(new FileInputStream(data));
             } catch (IOException e) {
@@ -73,14 +73,14 @@ public class ItsOursMod implements DedicatedServerModInitializer {
                 }
             }
             this.roleManager = new RoleManager(tag.getCompound("roles"));
-            this.claimList = new ClaimList((ListTag) tag.get("claims"));
+            this.claimList = new ClaimList((NbtList) tag.get("claims"));
             this.playerList = new PlayerList(tag.getCompound("players"));
         }
         this.permissionHandler = new PermissionHandler();
     }
 
     public void save() {
-        CompoundTag root = new CompoundTag();
+        NbtCompound root = new NbtCompound();
         root.put("claims", claimList.toNBT());
         root.put("roles", roleManager.toNBT());
         root.put("players", playerList.toNBT());

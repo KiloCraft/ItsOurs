@@ -4,22 +4,21 @@ import me.drex.itsours.claim.permission.util.node.AbstractNode;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.minecraft.nbt.CompoundTag;
-
+import net.minecraft.nbt.NbtCompound;
 import java.util.HashMap;
 
 public class PermissionMap extends HashMap<String, Boolean> {
 
-    public PermissionMap(CompoundTag tag) {
+    public PermissionMap(NbtCompound tag) {
         fromNBT(tag);
     }
 
-    public void fromNBT(CompoundTag tag) {
+    public void fromNBT(NbtCompound tag) {
         tag.getKeys().forEach(permission -> this.put(permission, tag.getBoolean(permission)));
     }
 
-    public CompoundTag toNBT() {
-        CompoundTag tag = new CompoundTag();
+    public NbtCompound toNBT() {
+        NbtCompound tag = new NbtCompound();
         this.forEach(tag::putBoolean);
         return tag;
     }

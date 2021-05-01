@@ -1,9 +1,17 @@
 package me.drex.itsours.util;
 
+import com.mojang.authlib.GameProfile;
+import me.drex.itsours.ItsOursMod;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.text.Text;
+
+import java.util.UUID;
 
 public class TextComponentUtil {
 
@@ -27,8 +35,19 @@ public class TextComponentUtil {
         if (markdown) {
             return MiniMessage.markdown().parse(raw);
         }
-
         return MiniMessage.get().parse(raw);
+    }
+
+    public static Component toName(UUID uuid, TextColor color) {
+        GameProfile owner = ItsOursMod.server.getUserCache().getByUuid(uuid);
+        Component text;
+        if (owner != null && owner.isComplete()) {
+            text = Component.text(owner.getName());
+        } else {
+            text = Component.text(uuid.toString()).decorate(TextDecoration.ITALIC).clickEvent(ClickEvent.copyToClipboard(uuid.toString()))
+                    .hoverEvent(HoverEvent.showText(Component.text("Click to copy!").color(Color.AQUA)));
+        }
+        return text.color(color);
     }
 
 }

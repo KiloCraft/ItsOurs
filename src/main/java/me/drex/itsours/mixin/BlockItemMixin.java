@@ -55,7 +55,8 @@ public abstract class BlockItemMixin extends Item {
         if (context.getPlayer() == null) return;
         Block block = this.getBlock();
         BlockPos blockPos = context.getBlockPos();
-        if (block instanceof BlockWithEntity || block == Blocks.CRAFTING_TABLE) {
+        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), blockPos);
+        if ((block instanceof BlockWithEntity || block == Blocks.CRAFTING_TABLE) && !claim.isPresent()) {
             PlayerEntity playerEntity = context.getPlayer();
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
             if (claimPlayer != null && ItsOursMod.INSTANCE.getClaimList().get(playerEntity.getUuid()).isEmpty()) {

@@ -5,31 +5,30 @@ import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.claim.permission.util.PermissionMap;
-import net.minecraft.nbt.CompoundTag;
-
+import net.minecraft.nbt.NbtCompound;
 import java.util.*;
 
 import static me.drex.itsours.claim.permission.util.Permission.Value.UNSET;
 
 public class PermissionManager {
-    public PermissionMap settings = new PermissionMap(new CompoundTag());
+    public PermissionMap settings = new PermissionMap(new NbtCompound());
     public HashMap<UUID, PermissionMap> playerPermission = Maps.newHashMap();
     public HashMap<UUID, HashMap<Role, Integer>> roles = Maps.newHashMap();
 
-    public PermissionManager(CompoundTag tag) {
+    public PermissionManager(NbtCompound tag) {
         fromNBT(tag);
     }
 
-    private void fromNBT(CompoundTag tag) {
+    private void fromNBT(NbtCompound tag) {
         if (tag.contains("settings")) settings.fromNBT(tag.getCompound("settings"));
         if (tag.contains("players")) {
-            CompoundTag players = tag.getCompound("players");
+            NbtCompound players = tag.getCompound("players");
             players.getKeys().forEach(uuid -> {
-                CompoundTag player = players.getCompound(uuid);
+                NbtCompound player = players.getCompound(uuid);
                 if (player.contains("permission"))
                     playerPermission.put(UUID.fromString(uuid), new PermissionMap(player.getCompound("permission")));
                 if (player.contains("role")) {
-                    CompoundTag roleTag = player.getCompound("role");
+                    NbtCompound roleTag = player.getCompound("role");
                     HashMap<Role, Integer> roleWeight = new HashMap<>();
                     roleTag.getKeys().forEach(roleID -> {
                         int weight = roleTag.getInt(roleID);
@@ -42,22 +41,22 @@ public class PermissionManager {
         }
     }
 
-    public CompoundTag toNBT() {
-        CompoundTag tag = new CompoundTag();
-        CompoundTag players = new CompoundTag();
+    public NbtCompound toNBT() {
+        NbtCompound tag = new NbtCompound();
+        NbtCompound players = new NbtCompound();
 
         List<UUID> uuidSet = new ArrayList<>();
         uuidSet.addAll(playerPermission.keySet());
         uuidSet.addAll(roles.keySet());
         for (UUID uuid : uuidSet) {
-            CompoundTag player = new CompoundTag();
+            NbtCompound player = new NbtCompound();
             PermissionMap pm = playerPermission.get(uuid);
             if (pm != null) {
                 player.put("permission", pm.toNBT());
             }
             HashMap<Role, Integer> roleMap = roles.get(uuid);
             if (roleMap != null) {
-                CompoundTag roleTag = new CompoundTag();
+                NbtCompound roleTag = new NbtCompound();
                 roleMap.forEach((role, integer) -> {
                     roleTag.putInt(ItsOursMod.INSTANCE.getRoleManager().getRoleID(role), integer);
                 });
@@ -89,6 +88,20 @@ public class PermissionManager {
         roles.computeIfAbsent(uuid, k -> new HashMap<>());
         sortedRoles = sort(roles.get(uuid));
         return sortedRoles;
+    }
+
+    public List<UUID> getPlayersWithRole(String role) {
+        List<UUID> list = new ArrayList<>();
+        Role r = ItsOursMod.INSTANCE.getRoleManager().get(role);
+        if (r == null) return list;
+        for (Map.Entry<UUID, HashMap<Role, Integer>> entry : this.roles.entrySet()) {
+            if (entry.getValue().containsKey(r)) list.add(entry.getKey());
+        }
+        return list;
+    }
+
+    public List<UUID> getTrustedPlayers() {
+        return getPlayersWithRole("trusted");
     }
 
     public Permission.Value hasPermission(UUID uuid, String permission) {
@@ -124,7 +137,7 @@ public class PermissionManager {
     public void setPlayerPermission(UUID uuid, String permission, Permission.Value value) {
         PermissionMap pm = playerPermission.get(uuid);
         if (pm == null) {
-            pm = new PermissionMap(new CompoundTag());
+            pm = new PermissionMap(new NbtCompound());
             playerPermission.put(uuid, pm);
         }
         pm.setPermission(permission, value);
@@ -133,7 +146,7 @@ public class PermissionManager {
     public PermissionMap getPlayerPermission(UUID uuid) {
         PermissionMap pm = playerPermission.get(uuid);
         if (pm == null) {
-            pm = new PermissionMap(new CompoundTag());
+            pm = new PermissionMap(new NbtCompound());
         }
         return pm;
     }

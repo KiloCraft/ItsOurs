@@ -3,11 +3,10 @@ package me.drex.itsours.mixin;
 import com.mojang.authlib.GameProfile;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.util.TextComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
@@ -24,37 +23,31 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 @Mixin(ServerPlayerEntity.class)
-public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer {
+public abstract class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer {
 
     @Shadow
     @Final
     public ServerPlayerInteractionManager interactionManager;
+    @Shadow
+    @Final
+    public MinecraftServer server;
     public Pair<BlockPos, BlockPos> positions = new Pair<>(null, null);
-    public HashMap<String, Object> settings = new HashMap<>();
+    World pworld;
+    BlockPos ppos;
     private AbstractClaim lastShowClaim;
     private BlockPos lastShowPos;
     private ServerWorld lastShowWorld;
     private int cooldown = 0;
-    private boolean flight = false;
-    private boolean debug = false;
-    private boolean cachedFlight = false;
+    private boolean select = false;
+    private Optional<AbstractClaim> pclaim = Optional.empty();
+
 
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
     }
-
-    public boolean isSpectator() {
-        return this.interactionManager.getGameMode() == GameMode.SPECTATOR;
-    }
-
-    public boolean isCreative() {
-        return this.interactionManager.getGameMode() == GameMode.CREATIVE;
-    }
-
 
     @Override
     public void setLastShow(AbstractClaim claim, BlockPos pos, ServerWorld world) {
@@ -104,6 +97,16 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
     }
 
     @Override
+    public boolean getSelecting() {
+        return this.select;
+    }
+
+    @Override
+    public void setSelecting(boolean value) {
+        this.select = value;
+    }
+
+    @Override
     public void sendError(String error) {
         if (cooldown == 0) {
             this.sendMessage(new LiteralText(error), false);
@@ -136,33 +139,10 @@ public class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer
         this.sendMessage(TextComponentUtil.from(component), true);
     }
 
-    @Override
-    public Object getSetting(String key, Object defaultValue) {
-        return this.settings.getOrDefault(key, defaultValue);
-    }
-
-    @Override
-    public void setSetting(String key, Object value) {
-        this.settings.put(key, value);
-    }
-
-    public void fromNBT(CompoundTag tag) {
-        for (String key : tag.getKeys()) {
-            Object o = PlayerList.get(key, tag);
-            if (o != null) this.settings.put(key, o);
-        }
-    }
-
-    public CompoundTag toNBT() {
-        CompoundTag tag = new CompoundTag();
-        for (Map.Entry<String, Object> entry : this.settings.entrySet()) {
-            PlayerList.set(entry.getKey(), tag, entry.getValue());
-        }
-        return tag;
-    }
-
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void claimPlayer$onTick(CallbackInfo ci) {
         if (cooldown > 0) cooldown--;
     }
+
 }
+

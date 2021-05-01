@@ -8,6 +8,10 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
+import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.PlayerSetting;
+import me.drex.itsours.util.Color;
+import net.kyori.adventure.text.Component;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.math.Direction;
 
@@ -49,9 +53,9 @@ public class ExpandCommand extends Command {
         claim.show(source.getPlayer(), true);
         if (claim instanceof Claim) {
             int blocks = ItsOursMod.INSTANCE.getPlayerList().getBlocks(uuid);
-            ItsOursMod.INSTANCE.getPlayerList().set(uuid, "blocks", Math.max(0, blocks + amount));
+            ItsOursMod.INSTANCE.getPlayerList().setBlocks(uuid, Math.max(0, blocks - amount));
         }
-        //TODO: Add feedback
-        return distance;
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Claim " + claim.getName() + " was " + (expand ? "expanded" : "shrunk") + " by " + Math.abs(distance) + " blocks (" + direction.getName() + ") for " + amount + " claim blocks.").color(Color.LIGHT_GREEN));
+        return amount;
     }
 }

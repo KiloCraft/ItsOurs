@@ -5,15 +5,19 @@ import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.PlayerSetting;
 import me.drex.itsours.util.Color;
+import me.drex.itsours.util.TextComponentUtil;
 import me.drex.itsours.util.WorldUtil;
 import net.kyori.adventure.text.Component;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket;
+import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -22,6 +26,7 @@ import net.minecraft.world.World;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static me.drex.itsours.claim.AbstractClaim.Util.getPosOnGround;
 
@@ -52,10 +57,10 @@ public abstract class AbstractClaim {
         this.max = new BlockPos(mx, my, mz);
         this.world = world;
         this.tp = tp;
-        this.permissionManager = new PermissionManager(new CompoundTag());
+        this.permissionManager = new PermissionManager(new NbtCompound());
     }
 
-    public AbstractClaim(CompoundTag tag) {
+    public AbstractClaim(NbtCompound tag) {
         fromNBT(tag);
     }
 
@@ -63,30 +68,30 @@ public abstract class AbstractClaim {
         return NAME.matcher(name).matches();
     }
 
-    public void fromNBT(CompoundTag tag) {
+    public void fromNBT(NbtCompound tag) {
         this.name = tag.getString("name");
         this.owner = tag.getUuid("owner");
-        CompoundTag position = tag.getCompound("position");
+        NbtCompound position = tag.getCompound("position");
         this.min = Util.blockPosFromNBT(position.getCompound("min"));
         this.max = Util.blockPosFromNBT(position.getCompound("max"));
         this.tp = Util.blockPosFromNBT(position.getCompound("tp"));
         //TODO: Add option to ignore claims which are located in unknown worlds
         this.world = WorldUtil.getWorld(position.getString("world"));
         if (tag.contains("subzones")) {
-            ListTag list = (ListTag) tag.get("subzones");
+            NbtList list = (NbtList) tag.get("subzones");
             list.forEach(subzones -> {
-                Subzone subzone = new Subzone((CompoundTag) subzones, this);
+                Subzone subzone = new Subzone((NbtCompound) subzones, this);
                 subzoneList.add(subzone);
             });
         }
         this.permissionManager = new PermissionManager(tag.getCompound("permissions"));
     }
 
-    public CompoundTag toNBT() {
-        CompoundTag tag = new CompoundTag();
+    public NbtCompound toNBT() {
+        NbtCompound tag = new NbtCompound();
         tag.putString("name", this.name);
         tag.putUuid("owner", this.owner);
-        CompoundTag position = new CompoundTag();
+        NbtCompound position = new NbtCompound();
         position.put("min", Util.blockPosToNBT(this.min));
         position.put("max", Util.blockPosToNBT(this.max));
         if (tp != null) {
@@ -95,7 +100,7 @@ public abstract class AbstractClaim {
         position.putString("world", WorldUtil.toIdentifier(this.world));
         tag.put("position", position);
         if (!subzoneList.isEmpty()) {
-            ListTag list = new ListTag();
+            NbtList list = new NbtList();
             subzoneList.forEach(subzone -> {
                 list.add(subzone.toNBT());
             });
@@ -139,9 +144,54 @@ public abstract class AbstractClaim {
         this.subzoneList.remove(subzone);
     }
 
+    public void onEnter(Optional<AbstractClaim> pclaim, ServerPlayerEntity player) {
+        if (!pclaim.isPresent()) {
+            ItsOursMod.INSTANCE.getPlayerList().setBoolean(player.getUuid(), PlayerSetting.CACHED_FLIGHT, player.getAbilities().allowFlying);
+        }
+        boolean hasPermission = ItsOursMod.INSTANCE.getPermissionHandler().hasPermission(player.getCommandSource(), "itsours.fly", 4);
+        boolean cachedFlying = hasPermission && player.getAbilities().flying;
+        //update abilities for respective gamemode
+        player.interactionManager.getGameMode().setAbilities(player.getAbilities());
+        //enable flying if player enabled it
+        if (!player.getAbilities().allowFlying) {
+            player.getAbilities().allowFlying = hasPermission && ItsOursMod.INSTANCE.getPlayerList().getBoolean(player.getUuid(), PlayerSetting.FLIGHT);
+        }
+        //set the flight state to what it was before entering
+        if (player.getAbilities().allowFlying) {
+            player.getAbilities().flying = cachedFlying;
+        }
+        player.sendAbilitiesUpdate();
+        player.networkHandler.sendPacket(new TitleFadeS2CPacket(-1, 20, -1));
+        player.networkHandler.sendPacket(new OverlayMessageS2CPacket(TextComponentUtil.from(TextComponentUtil.of("<gradient:" + Color.AQUA.stringValue() + ":" + Color.PURPLE.stringValue() + ">" + "Welcome to " + this.getFullName(), false))));
+    }
+
+    public void onLeave(Optional<AbstractClaim> claim, ServerPlayerEntity player) {
+        if (!claim.isPresent()) {
+            //TODO: Make configurable
+            boolean cachedFlying = player.getAbilities().flying;
+            //update abilities for respective gamemode
+            player.interactionManager.getGameMode().setAbilities(player.getAbilities());
+            //check if the player was flying before they entered the claim
+            //TODO: Figure out how to make this possible (Problem: onLeave is executed twice if player leaves nether -> )
+/*        if ((boolean) claimPlayer.getSetting("cached_flight", false)) {
+            player.getAbilities().flying = cachedFlying;
+            player.getAbilities().allowFlying = true;
+        }*/
+            if (cachedFlying && !player.getAbilities().flying) {
+                BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
+                if (pos.getY() + 3 < player.getY()) {
+                    player.teleport((ServerWorld) player.world, player.getX(), pos.getY(), player.getZ(), player.method_36454(), player.method_36455());
+                }
+            }
+            player.sendAbilitiesUpdate();
+        }
+        player.networkHandler.sendPacket(new TitleFadeS2CPacket(-1, 20, -1));
+        player.networkHandler.sendPacket(new OverlayMessageS2CPacket(TextComponentUtil.from(TextComponentUtil.of("<gradient:" + Color.AQUA.stringValue() + ":" + Color.PURPLE.stringValue() + ">" + "You left " + this.getFullName(), false))));
+    }
+
     public boolean hasPermission(UUID uuid, String permission) {
         if (uuid.equals(owner)) return true;
-        if ((boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, "ignore", false)) return true;
+        if ((boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, PlayerSetting.IGNORE)) return true;
         Permission.Value value = this.permissionManager.hasPermission(uuid, permission);
         sendDebug(uuid, permission, value);
         return value.value;
@@ -153,12 +203,13 @@ public abstract class AbstractClaim {
 
     void sendDebug(UUID uuid, String permission, Permission.Value value) {
         ServerPlayerEntity playerEntity = ItsOursMod.server.getPlayerManager().getPlayer(this.getOwner());
-        if (playerEntity != null && (boolean) ((ClaimPlayer) playerEntity).getSetting("debug", false))
-        ((ClaimPlayer) playerEntity)
-                .sendActionbar(Component.text(this.getFullName() + ": ").color(Color.RED)
-                        .append(Component.text(Objects.requireNonNull(ItsOursMod.server.getPlayerManager().getPlayer(uuid)).getEntityName() + " ").color(Color.BLUE))
-                        .append(Component.text(permission + " ").color(Color.DARK_PURPLE))
-                        .append(value.format()));
+        if (playerEntity != null && (boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, PlayerSetting.DEBUG)) {
+            ((ClaimPlayer) playerEntity)
+                    .sendActionbar(Component.text(this.getFullName() + ": ").color(Color.RED)
+                            .append(Component.text(Objects.requireNonNull(ItsOursMod.server.getPlayerManager().getPlayer(uuid)).getEntityName() + " ").color(Color.BLUE))
+                            .append(Component.text(permission + " ").color(Color.DARK_PURPLE))
+                            .append(value.format()));
+        }
     }
 
     public PermissionManager getPermissionManager() {
@@ -172,7 +223,7 @@ public abstract class AbstractClaim {
     }
 
     public BlockPos getSize() {
-        return max.subtract(min);
+        return max.subtract(min).add(1, 1, 1);
     }
 
     public boolean contains(BlockPos pos) {
@@ -204,13 +255,13 @@ public abstract class AbstractClaim {
         }
     }
 
-    public boolean intersects() {
-        for (AbstractClaim value : ItsOursMod.INSTANCE.getClaimList().get()) {
+    public Optional<AbstractClaim> intersects() {
+        for (AbstractClaim value : ItsOursMod.INSTANCE.getClaimList().get().stream().filter(claim -> claim.getWorld().equals(this.getWorld())).collect(Collectors.toList())) {
             if (value.getDepth() == this.getDepth() && !this.equals(value) && (this.intersects(value) || value.intersects(this))) {
-                return true;
+                return Optional.of(value);
             }
         }
-        return false;
+        return Optional.empty();
     }
 
     void expand(Direction direction, int amount) {
@@ -266,7 +317,7 @@ public abstract class AbstractClaim {
 
     public void show(ServerPlayerEntity player, boolean show) {
         BlockState blockState = show ? showBlocks[Math.min(this.getDepth(), showBlocks.length - 1)].getDefaultState() : null;
-        int y = ((ClaimPlayer) player).getLastShowPos().getY();
+        int y = ((ClaimPlayer) player).getLastShowClaim() != null ? ((ClaimPlayer) player).getLastShowPos().getY() : player.getBlockPos().getY();
         for (int i = min.getX(); i < max.getX(); i++) {
             sendBlockPacket(player, new BlockPos(getPosOnGround(new BlockPos(i, y, min.getZ()), player.getEntityWorld())).down(), blockState);
         }
@@ -290,16 +341,24 @@ public abstract class AbstractClaim {
         player.networkHandler.sendPacket(packet);
     }
 
+    public String toString() {
+        return String.format("%s[name=%s, full_name=%s, owner=%s, min=%s, max=%s, world=%s, subzones=%s]", this.getClass().getSimpleName(), this.name, this.getFullName(), this.getOwner(), this.min.toString(), this.max.toString(), this.getWorld().toString(), Arrays.toString(subzoneList.toArray()));
+    }
+
+    public String toShortString() {
+        return String.format("%s[name=%s, owner=%s]", this.getClass().getSimpleName(), this.name, this.getOwner());
+    }
+
     public static class Util {
-        public static CompoundTag blockPosToNBT(BlockPos pos) {
-            CompoundTag tag = new CompoundTag();
+        public static NbtCompound blockPosToNBT(BlockPos pos) {
+            NbtCompound tag = new NbtCompound();
             tag.putInt("x", pos.getX());
             tag.putInt("y", pos.getY());
             tag.putInt("z", pos.getZ());
             return tag;
         }
 
-        public static BlockPos blockPosFromNBT(CompoundTag tag) {
+        public static BlockPos blockPosFromNBT(NbtCompound tag) {
             return new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
         }
 

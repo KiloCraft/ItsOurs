@@ -1,7 +1,7 @@
 package me.drex.itsours.mixin;
 
 import me.drex.itsours.ItsOursMod;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.SaveProperties;
 import net.minecraft.world.level.storage.LevelStorage;
@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LevelStorage.Session.class)
 public class LevelStorageSessionMixin {
 
-    @Inject(method = "backupLevelDataFile(Lnet/minecraft/util/registry/DynamicRegistryManager;Lnet/minecraft/world/SaveProperties;Lnet/minecraft/nbt/CompoundTag;)V", at = @At("HEAD"))
-    public void itsours$onsave(DynamicRegistryManager dynamicRegistryManager, SaveProperties saveProperties, CompoundTag compoundTag, CallbackInfo ci) {
+    @Inject(method = "backupLevelDataFile(Lnet/minecraft/util/registry/DynamicRegistryManager;Lnet/minecraft/world/SaveProperties;Lnet/minecraft/nbt/NbtCompound;)V", at = @At("HEAD"))
+    public void itsours$onsave(DynamicRegistryManager dynamicRegistryManager, SaveProperties saveProperties, NbtCompound compoundTag, CallbackInfo ci) {
         if (ItsOursMod.INSTANCE != null) ItsOursMod.INSTANCE.save();
     }
 

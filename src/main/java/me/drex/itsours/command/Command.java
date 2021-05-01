@@ -44,10 +44,10 @@ public abstract class Command {
         ServerPlayerEntity player = source.getSource().getPlayer();
         List<String> names = new ArrayList<>();
         Optional<AbstractClaim> current = ItsOursMod.INSTANCE.getClaimList().get(player.getServerWorld(), player.getBlockPos());
-        current.ifPresent(claim -> names.add(claim.getName()));
+        current.ifPresent(claim -> names.add(claim.getFullName()));
         if (uuid != null) {
             for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get(uuid).stream().filter(claim -> claim instanceof Claim).collect(Collectors.toList())) {
-                names.add(claim.getName());
+                names.add(claim.getFullName());
                 addSubzones(claim, builder.getRemaining(), names);
             }
         }
@@ -57,7 +57,7 @@ public abstract class Command {
     public static final SuggestionProvider<ServerCommandSource> ALL_CLAIM_PROVIDER = (source, builder) -> {
         List<String> names = new ArrayList<>();
         for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get().stream().filter(claim -> claim instanceof Claim).collect(Collectors.toList())) {
-            names.add(claim.getName());
+            names.add(claim.getFullName());
             addSubzones(claim, builder.getRemaining(), names);
         }
         return CommandSource.suggestMatching(names, builder);
@@ -138,7 +138,7 @@ public abstract class Command {
         return claim.get();
     }
 
-    static boolean hasPermission(ServerCommandSource src, String permission) {
+    protected static boolean hasPermission(ServerCommandSource src, String permission) {
         return ItsOursMod.INSTANCE.getPermissionHandler().hasPermission(src, permission, 2);
     }
 

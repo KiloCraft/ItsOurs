@@ -30,31 +30,34 @@ public class RemoveCommand extends Command {
 
     public static int requestRemove(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
        validate(source, claim);
-       if (!source.getPlayer().getUuid().toString().equals(claim.getOwner().toString())) {
+       if (!source.getPlayer().getUuid().equals(claim.getOwner())) {
            ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("WARNING: This is not your claim...").color(Color.RED).decorate(TextDecoration.BOLD));
        }
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Are you sure you want to delete the claim \"" + claim.getName() + "\"? ").color(Color.RED)
-                .append(Component.text("[I'M SURE]").clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim remove " + claim.getName() + " confirm")).decorate(TextDecoration.BOLD).color(Color.RED)));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Are you sure you want to delete the claim \"" + claim.getFullName() + "\"? ").color(Color.RED)
+                .append(Component.text("[I'M SURE]").clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim remove " + claim.getFullName() + " confirm")).decorate(TextDecoration.BOLD).color(Color.RED)));
        return 0;
     }
 
     public static int remove(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
         validate(source, claim);
+        removeClaim(claim);
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Deleted the claim \"" + claim.getFullName() + "\" ").color(Color.LIGHT_GREEN));
+        return 0;
+    }
+
+    public static void removeClaim(AbstractClaim claim) {
         //Remove claim from it's parents subzone list, so the garbage collector can remove the claim
         if (claim instanceof Subzone) {
             ((Subzone) claim).getParent().removeSubzone((Subzone) claim);
         }
         if (claim instanceof Claim) {
             int blocks = ItsOursMod.INSTANCE.getPlayerList().getBlocks(claim.getOwner());
-            ItsOursMod.INSTANCE.getPlayerList().set(claim.getOwner(), "blocks", Math.max(0, blocks + claim.getArea()));
+            ItsOursMod.INSTANCE.getPlayerList().setBlocks(claim.getOwner(), Math.max(0, blocks + claim.getArea()));
         }
         claim.show(false);
         //recursively remove all subzones
         removeSubzones(claim);
         ItsOursMod.INSTANCE.getClaimList().remove(claim);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Deleted the claim \"" + claim.getName() + "\" ").color(Color.LIGHT_GREEN));
-
-        return 0;
     }
 
     public static void removeSubzones(AbstractClaim claim) {
@@ -66,7 +69,7 @@ public class RemoveCommand extends Command {
 
     //TODO
     public static void validate(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
-        if (source.getPlayer().getUuid() != claim.getOwner() && !hasPermission(source, "itsours.remove")) {
+        if (!source.getPlayer().getUuid().equals(claim.getOwner()) && !hasPermission(source, "itsours.remove")) {
             throw new SimpleCommandExceptionType(new LiteralText("You can't delete that claim")).create();
         }
     }
