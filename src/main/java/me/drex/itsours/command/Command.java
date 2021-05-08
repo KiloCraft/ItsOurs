@@ -14,6 +14,7 @@ import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionList;
 import me.drex.itsours.claim.permission.util.node.util.Node;
+import me.drex.itsours.command.help.HelpCategory;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -71,6 +72,14 @@ public abstract class Command {
         return CommandSource.suggestMatching(settings, builder);
     };
     public static final SuggestionProvider<ServerCommandSource> PERMISSION_VALUE_PROVIDER = (source, builder) -> CommandSource.suggestMatching(Arrays.asList("true", "false", "unset"), builder);
+
+    public static final SuggestionProvider<ServerCommandSource> CATEGORY_PROVIDER = (context, builder) -> {
+        List<String> categories = new ArrayList<>();
+        for (HelpCategory value : HelpCategory.values()) {
+            categories.add(value.getId());
+        }
+        return CommandSource.suggestMatching(categories, builder);
+    };
 
     //TODO: Look at this again, maybe there is a better approach to this
     public static GameProfile getGameProfile(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
@@ -168,6 +177,10 @@ public abstract class Command {
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> ownClaimArgument() {
         return argument("claim", word()).suggests(OWN_CLAIM_PROVIDER);
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, String> categoryArgument() {
+        return argument("category", word()).suggests(CATEGORY_PROVIDER);
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> allClaimArgument() {

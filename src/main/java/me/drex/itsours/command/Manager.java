@@ -3,6 +3,7 @@ package me.drex.itsours.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.drex.itsours.command.bulk.BulkCommand;
+import me.drex.itsours.command.help.HelpCommand;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class Manager {
@@ -16,6 +17,7 @@ public class Manager {
         DebugCommand.register(main);
         ExpandCommand.register(main);
         FlyCommand.register(main);
+        HelpCommand.register(main);
         IgnoreCommand.register(main);
         InfoCommand.register(main);
         ListCommand.register(main);

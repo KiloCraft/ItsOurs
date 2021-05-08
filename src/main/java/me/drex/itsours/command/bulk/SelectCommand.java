@@ -11,7 +11,7 @@ import me.drex.itsours.command.Command;
 import me.drex.itsours.command.InfoCommand;
 import me.drex.itsours.command.bulk.util.CriteriumParser;
 import me.drex.itsours.command.bulk.util.Range;
-import me.drex.itsours.command.bulk.util.TextPage;
+import me.drex.itsours.util.TextPage;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import me.drex.itsours.util.Pair;
