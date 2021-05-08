@@ -33,7 +33,18 @@ public class PlayerList extends HashMap<UUID, NbtCompound> {
 
     public void fromNBT(NbtCompound tag) {
         for (String key : tag.getKeys()) {
-            this.put(UUID.fromString(key), tag.getCompound(key));
+            NbtCompound nbtCompound = tag.getCompound(key);
+            NbtCompound copy = nbtCompound.copy();
+            for (String setting : nbtCompound.getKeys()) {
+                boolean keep = false;
+                for (PlayerSetting playerSetting : PlayerSetting.values()) {
+                    if (playerSetting.id.equals(setting) && !playerSetting.defaultValue.equals(get(setting, nbtCompound))) {
+                        keep = true;
+                    }
+                }
+                if (!keep) copy.remove(setting);
+            }
+            if (copy.getSize() > 0) this.put(UUID.fromString(key), copy);
         }
     }
 
@@ -68,7 +79,7 @@ public class PlayerList extends HashMap<UUID, NbtCompound> {
     }
 
     public void setBlocks(UUID uuid, int value) {
-        set(uuid, "blocks", value);
+        set(uuid, PlayerSetting.BLOCKS, value);
     }
 
     public boolean getBoolean(UUID uuid, PlayerSetting setting) {

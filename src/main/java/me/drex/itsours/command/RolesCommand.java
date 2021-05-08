@@ -81,7 +81,7 @@ public class RolesCommand extends Command {
         if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
             throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
         Role role = ItsOursMod.INSTANCE.getRoleManager().get(name);
-        role.permissions_new().setPermission(permission.asString(), value);
+        role.permissions().setPermission(permission.asString(), value);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set ").color(Color.YELLOW)
                 .append(Component.text(permission.asString()).color(Color.ORANGE)).append(Component.text(" for ").color(Color.YELLOW))
                 .append(Component.text(name).color(Color.ORANGE)
@@ -93,7 +93,7 @@ public class RolesCommand extends Command {
         if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
             throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
         Role role = ItsOursMod.INSTANCE.getRoleManager().get(name);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text(name).color(Color.YELLOW).append(Component.text("\n")).append(role.permissions_new().toText()));
+        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text(name).color(Color.YELLOW).append(Component.text("\n")).append(role.permissions().toText()));
         return 1;
     }
 
@@ -102,7 +102,7 @@ public class RolesCommand extends Command {
         for (Map.Entry<String, Role> entry : ItsOursMod.INSTANCE.getRoleManager().entrySet()) {
             String name = entry.getKey();
             Role role = entry.getValue();
-            builder.append(Component.text(name).color(Color.YELLOW).style(style -> style.hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(role.permissions_new().toText())))).append(Component.text(" "));
+            builder.append(Component.text(name).color(Color.YELLOW).style(style -> style.hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(role.permissions().toText())))).append(Component.text(" "));
         }
         ((ClaimPlayer) source.getPlayer()).sendMessage(builder.build());
         return 1;

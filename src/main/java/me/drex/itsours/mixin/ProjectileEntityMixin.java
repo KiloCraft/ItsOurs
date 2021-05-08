@@ -47,7 +47,7 @@ public abstract class ProjectileEntityMixin extends Entity {
             }
             return;
         }
-        if (!claim.get().hasPermission(entity.getOwner().getUuid(), "damage_entity." + Permission.toString(hitResult.getEntity().getType()))) {
+        if (!claim.get().hasPermission(entity.getOwner().getUuid(), "damage_entity." + Registry.ENTITY_TYPE.getId(hitResult.getEntity().getType()).getPath())) {
             claimPlayer.sendError(Component.text("You can't damage that entity here.").color(Color.RED));
             if (entity instanceof PersistentProjectileEntity) {
                 if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill();

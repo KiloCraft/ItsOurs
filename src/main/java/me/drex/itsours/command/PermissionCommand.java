@@ -4,11 +4,11 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
-import me.drex.itsours.claim.permission.roles.Role;
+import me.drex.itsours.claim.permission.PermissionList;
 import me.drex.itsours.claim.permission.util.context.PermissionContext;
+import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
@@ -56,7 +56,7 @@ public class PermissionCommand extends Command {
 
     public static int checkPlayer(ServerCommandSource source, AbstractClaim claim, GameProfile target, Permission permission) throws CommandSyntaxException {
         validatePermission(claim, target.getId(), "modify.permission");
-        PermissionContext context = claim.hasPermission_new(target.getId(), permission.asString());
+        PermissionContext context = claim.getContext(target.getId(), permission);
         TextComponent.Builder hover = Component.text();
         for (Map.Entry<Permission, List<Pair<PermissionContext.Priority, Permission.Value>>> entry : context.getData().entrySet()) {
             hover.append(Component.text("\n" + entry.getKey().asString() + "\n").color(Color.PINK));
@@ -78,7 +78,7 @@ public class PermissionCommand extends Command {
 
     public static int setPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target, Permission permission, Permission.Value value) throws CommandSyntaxException {
         validatePermission(claim, target.getId(), "modify.permission");
-        claim.getPermissionManager().setPlayerPermission(target.getId(), permission.asString(), value);
+        claim.getPermissionManager().setPlayerPermission(target.getId(), permission, value);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set permission ").color(Color.YELLOW)
                 .append(Component.text(permission.asString())).color(Color.ORANGE)
                 .append(Component.text(" for ")).color(Color.YELLOW)
@@ -89,11 +89,12 @@ public class PermissionCommand extends Command {
     public static int listPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target) throws CommandSyntaxException {
         validatePermission(claim, target.getId(), "modify.permission");
         TextComponent.Builder roleBuilder = Component.text();
-        for (Map.Entry<Role, Integer> entry : claim.getPermissionManager().getRolesByWeight(target.getId()).entrySet()) {
+        //TODO:
+        /*for (Map.Entry<Role, Integer> entry : claim.getPermissionManager().getRolesByWeight(target.getId()).entrySet()) {
             roleBuilder.append(Component.text(ItsOursMod.INSTANCE.getRoleManager().getRoleID(entry.getKey()) + " (").color(Color.YELLOW))
                     .append(Component.text(String.valueOf(entry.getValue())).color(Color.ORANGE))
                     .append(Component.text(") ").color(Color.YELLOW));
-        }
+        }*/
 
         TextComponent.Builder builder = Component.text().content("Player Info (").color(Color.ORANGE)
                 .append(Component.text(target.getName()).color(Color.RED))
@@ -104,6 +105,15 @@ public class PermissionCommand extends Command {
 
         ((ClaimPlayer) source.getPlayer()).sendMessage(builder.build());
         return 0;
+    }
+
+    public static int listPermissions(ServerCommandSource source) throws CommandSyntaxException {
+        TextComponent.Builder builder = Component.text().content("Permissions:\n").color(Color.ORANGE);
+        for (Node node : PermissionList.permission.getNodes()) {
+            builder.append(Component.text(node.getId()).color(Color.LIGHT_GREEN), Component.text(": " + node.getInformation() + "\n").color(Color.LIGHT_GRAY));
+        }
+        ((ClaimPlayer) source.getPlayer()).sendMessage(builder.build());
+        return 1;
     }
 
 }

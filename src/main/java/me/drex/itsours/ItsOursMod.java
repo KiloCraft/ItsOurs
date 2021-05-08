@@ -4,6 +4,7 @@ import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.permission.PermissionList;
 import me.drex.itsours.claim.permission.roles.RoleManager;
 import me.drex.itsours.command.Manager;
+import me.drex.itsours.data.DataHandler;
 import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.util.PermissionHandler;
 import net.fabricmc.api.DedicatedServerModInitializer;
@@ -29,10 +30,8 @@ public class ItsOursMod implements DedicatedServerModInitializer {
     public static Logger LOGGER = LogManager.getLogger();
     public static ItsOursMod INSTANCE;
     public static final UUID serverUUID = new UUID(0, 0);
-    private ClaimList claimList;
-    private RoleManager roleManager;
-    private PlayerList playerList;
     private PermissionHandler permissionHandler;
+    private DataHandler dataHandler = new DataHandler();
 
     @Override
     public void onInitializeServer() {
@@ -54,9 +53,10 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         File data_backup = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat_old").toFile();
         if (!data.exists()) {
             LOGGER.info("Data file not found.");
-            this.claimList = new ClaimList(new NbtList());
+            this.dataHandler.load(new NbtCompound(), true);
+            /*this.claimList = new ClaimList(new NbtList());
             this.roleManager = new RoleManager(new NbtCompound());
-            this.playerList = new PlayerList(new NbtCompound());
+            this.playerList = new PlayerList(new NbtCompound());*/
         } else {
             NbtCompound tag;
             try {
@@ -74,18 +74,13 @@ public class ItsOursMod implements DedicatedServerModInitializer {
                     throw new RuntimeException("Could not load backup - Crashing server to save data.");
                 }
             }
-            this.roleManager = new RoleManager(tag.getCompound("roles"));
-            this.claimList = new ClaimList((NbtList) tag.get("claims"));
-            this.playerList = new PlayerList(tag.getCompound("players"));
+            this.dataHandler.load(tag, false);
         }
         this.permissionHandler = new PermissionHandler();
     }
 
     public void save() {
-        NbtCompound root = new NbtCompound();
-        root.put("claims", claimList.toNBT());
-        root.put("roles", roleManager.toNBT());
-        root.put("players", playerList.toNBT());
+        NbtCompound root = dataHandler.save();
         File data = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat").toFile();
         File data_backup = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat_old").toFile();
         //Backup old file
@@ -100,23 +95,25 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         } catch (IOException e) {
             LOGGER.error("Could not save " + data.getName(), e);
         }
-
     }
 
     public RoleManager getRoleManager() {
-        return this.roleManager;
+        return this.dataHandler.getRoleManager();
     }
 
     public ClaimList getClaimList() {
-        return this.claimList;
+        return this.dataHandler.getClaimList();
     }
 
     public PlayerList getPlayerList() {
-        return this.playerList;
+        return this.dataHandler.getPlayerList();
+    }
+
+    public int getDataVersion() {
+        return dataHandler.dataVersion;
     }
 
     public PermissionHandler getPermissionHandler() {
         return this.permissionHandler;
     }
-
 }

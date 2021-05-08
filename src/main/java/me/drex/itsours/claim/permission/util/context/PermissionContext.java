@@ -1,5 +1,6 @@
 package me.drex.itsours.claim.permission.util.context;
 
+import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
 import net.minecraft.util.Pair;
 
@@ -32,9 +33,9 @@ public class PermissionContext {
     public Pair<Priority, Permission.Value> getResult() {
         Permission.Value value = Permission.Value.UNSET;
         Priority reason = CustomPriority.NONE;
-        int currentPriority = -1;
-        int currentDepth = -1;
-        int currentWeight = -1;
+        int currentPriority = Integer.MIN_VALUE;
+        int currentDepth = Integer.MIN_VALUE;
+        int currentWeight = Integer.MIN_VALUE;
         for (Map.Entry<Permission, List<Pair<Priority, Permission.Value>>> entry : data.entrySet()) {
             Permission permission = entry.getKey();
             int depth = permission.nodes();
@@ -81,6 +82,7 @@ public class PermissionContext {
         result.append("]");
         return result.toString();
     }
+
     public static abstract class Priority {
         abstract String getName();
 
@@ -91,19 +93,27 @@ public class PermissionContext {
         public String toString() {
             return getName();
         }
+
+        @Override
+        public boolean equals(Object other) {
+            if (other instanceof Priority) {
+                return this.toString().equals(other.toString());
+            } else {
+                return false;
+            }
+        }
     }
 
     public static class CustomPriority extends Priority {
 
+        public static CustomPriority NONE = new CustomPriority("None", -1);
+        public static CustomPriority DEFAULT = new CustomPriority("Default", 1);
+        public static CustomPriority SETTING = new CustomPriority("Setting", 2);
+        public static CustomPriority PERMISSION = new CustomPriority("Permission", 4);
+        public static CustomPriority OWNER = new CustomPriority("Owner", 5);
+        public static CustomPriority IGNORE = new CustomPriority("Ignore", 6);
         private final String name;
         private final int priority;
-
-        public static CustomPriority NONE = new CustomPriority("NONE", -1);
-        public static CustomPriority DEFAULT = new CustomPriority("DEFAULT", 1);
-        public static CustomPriority SETTING = new CustomPriority("SETTING", 2);
-        public static CustomPriority PERMISSION = new CustomPriority("PERMISSION", 4);
-        public static CustomPriority OWNER = new CustomPriority("OWNER", 5);
-        public static CustomPriority IGNORE = new CustomPriority("IGNORE", 6);
 
         public CustomPriority(String name, int priority) {
             this.name = name;

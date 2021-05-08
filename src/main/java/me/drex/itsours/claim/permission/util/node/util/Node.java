@@ -18,10 +18,21 @@ public class Node {
 
     final String id;
     final Permission.Value defaultVal = Permission.Value.UNSET;
+
+    public String getInformation() {
+        return information;
+    }
+
+    String information = "-";
     final List<Node> nodes = new ArrayList<>();
 
     public Node(String id) {
         this.id = id;
+    }
+
+    public Node withInformation(String information) {
+        this.information = information;
+        return this;
     }
 
     public static <T> List<Node> getNodes(@NotNull final Registry<T> registry, TagGroup<T> tagGroup, List<Node> child, Predicate<T> predicate) {
@@ -124,23 +135,17 @@ public class Node {
 
     public List<Node> getNodes(String input) throws InvalidPermissionException {
         if (input.equals("")) {
-            if (SharedConstants.isDevelopment) System.out.println("Input empty");
             return new ArrayList<>();
         } else {
             String id = input.split("\\.")[0];
-            if (SharedConstants.isDevelopment) System.out.println("Looking for id \"" + id + "\" input: " + input);
             for (Node node : nodes) {
                 if (node.getId().equals(id)) {
-                    if (SharedConstants.isDevelopment) System.out.println("node " + node.getId() + " contains " + id);
-                    //Properly update input
                     String s = input.contains(".") ? input.substring(input.indexOf('.') + 1) : "";
-                    if (SharedConstants.isDevelopment) System.out.println("New id will be " + s);
                     List<Node> list = node.getNodes(s);
                     list.add(node);
                     return list;
                 }
             }
-            System.out.println("Couldnt find " + id + " in any subnodes");
         }
         throw new InvalidPermissionException("Couldn't find " + id + " node in " + this.getId());
     }

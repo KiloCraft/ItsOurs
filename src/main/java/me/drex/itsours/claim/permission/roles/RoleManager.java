@@ -32,4 +32,11 @@ public class RoleManager extends HashMap<String, Role> {
         return null;
     }
 
+    public Role getRole(String id) {
+        for (Entry<String, Role> entry : entrySet()) {
+            if (entry.getKey().equals(id)) return entry.getValue();
+        }
+        return null;
+    }
+
 }

@@ -33,7 +33,7 @@ public class PermissionMap extends HashMap<String, Boolean> {
             Node node = permission.getNodes().get(i);
             for (Node contained : node.getContained()) {
                 String perm = permission.asString(contained.getId(), i);
-                if (this.containsKey(perm)) {
+                if (this.containsKey(perm) && !perm.equals(permission.asString())) {
                     Optional<Permission> optional = Permission.permission(perm);
                     optional.ifPresent(value -> context.add(value, priority, Permission.Value.of(this.get(perm))));
                 }
@@ -45,10 +45,6 @@ public class PermissionMap extends HashMap<String, Boolean> {
     public void setPermission(String permission, Permission.Value value) {
         if (value == Permission.Value.UNSET) this.remove(permission);
         else this.put(permission, value.value);
-    }
-
-    public void resetPermission(String permission) {
-        this.remove(permission);
     }
 
     public Component toText() {

@@ -3,6 +3,7 @@ package me.drex.itsours.command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
@@ -11,6 +12,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.minecraft.server.command.ServerCommandSource;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +28,10 @@ public class TrustedCommand extends Command {
     }
 
     public static int trusted(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
-        List<UUID> trusted = claim.getPermissionManager().getTrustedPlayers();
+        List<UUID> trusted = new ArrayList<>();
+        for (UUID uuid : claim.getPermissionManager().roleManager.keySet()) {
+            if (claim.getRoles(uuid).containsKey(ItsOursMod.INSTANCE.getRoleManager().get("trusted"))) trusted.add(uuid);
+        }
         ClaimPlayer player = (ClaimPlayer) source.getPlayer();
         if (trusted.isEmpty()) {
             player.sendMessage(Component.text("No one is trusted in " + claim.getName() + ".").color(Color.RED));

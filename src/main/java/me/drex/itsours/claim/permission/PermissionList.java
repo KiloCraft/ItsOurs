@@ -32,27 +32,28 @@ public class PermissionList {
     public static void register() {
 
         List<Node> blockNodes = Node.getNodes(Registry.BLOCK, BlockTags.getTagGroup());
-        registerPermission((PermissionNode) new PermissionNode("place").addNodes(blockNodes));
-        registerPermission((PermissionNode) new PermissionNode("mine").addNodes(blockNodes));
+        registerPermission((PermissionNode) new PermissionNode("place").withInformation("Place blocks").addNodes(blockNodes));
+        registerPermission((PermissionNode) new PermissionNode("mine").withInformation("Mine blocks").addNodes(blockNodes));
 
         List<Node> interactableBlockNodes = Node.getNodes(Registry.BLOCK, BlockTags.getTagGroup(), interactBlock);
-        registerPermission((PermissionNode) new PermissionNode("interact_block").addNodes(interactableBlockNodes));
+        registerPermission((PermissionNode) new PermissionNode("interact_block").withInformation("Rightclick on blocks").addNodes(interactableBlockNodes));
 
         List<Node> itemBlockNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), blockNodes, useOnBlock);
-        registerPermission((PermissionNode) new PermissionNode("use_on_block").addNodes(itemBlockNodes));
+        registerPermission((PermissionNode) new PermissionNode("use_on_block").withInformation("Use an item on a block").addNodes(itemBlockNodes));
 
         List<Node> useItemNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), useItem);
-        registerPermission((PermissionNode) new PermissionNode("use_item").addNodes(useItemNodes));
+        registerPermission((PermissionNode) new PermissionNode("use_item").withInformation("Rightclick with an item").addNodes(useItemNodes));
 
         List<Node> entityNodes = Node.getNodes(Registry.ENTITY_TYPE, EntityTypeTags.getTagGroup());
-        registerPermission((PermissionNode) new PermissionNode("damage_entity").addNodes(entityNodes));
-        registerPermission((PermissionNode) new PermissionNode("interact_entity").addNodes(entityNodes));
+        registerPermission((PermissionNode) new PermissionNode("damage_entity").withInformation("Hit / damage entities").addNodes(entityNodes));
+        registerPermission((PermissionNode) new PermissionNode("interact_entity").withInformation("Rightclick on entities").addNodes(entityNodes));
 
-        registerPermission((PermissionNode) new PermissionNode("modify").addSimpleNodes(Arrays.asList("trust", "distrust", "size", "permission", "setting", "subzone", "name")));
+        registerPermission((PermissionNode) new PermissionNode("modify").withInformation("Claim permissions").addSimpleNodes(Arrays.asList("trust", "distrust", "size", "permission", "setting", "subzone", "name")));
 
-        registerSetting(new SettingNode("mobspawn").global());
-        registerSetting(new SettingNode("explosions"));
-        registerSetting(new SettingNode("fluid_crosses_borders"));
+        registerSetting((SettingNode) new SettingNode("pvp").global().withInformation("Toggle Player vs Player"));
+        registerSetting((SettingNode) new SettingNode("mobspawn").global().withInformation("Toggle mobspawning"));
+        registerSetting((SettingNode) new SettingNode("explosions").withInformation("Toggle explosion block damage"));
+        registerSetting((SettingNode) new SettingNode("fluid_crosses_borders").withInformation("Toggle fluids crossing claim borders"));
 
     }
 

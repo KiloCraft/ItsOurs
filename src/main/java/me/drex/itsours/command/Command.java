@@ -63,39 +63,14 @@ public abstract class Command {
     };
 
     public static final SuggestionProvider<ServerCommandSource> PERMISSION_PROVIDER = (source, builder) -> {
-        List<String> permissions = new ArrayList<>(getPermissions_new(PermissionList.permission, "", builder.getRemaining()));
-        permissions.addAll(getPermissions_new(PermissionList.setting, "", builder.getRemaining()));
+        List<String> permissions = new ArrayList<>(getPermissions(PermissionList.permission, "", builder.getRemaining()));
         return CommandSource.suggestMatching(permissions, builder);
     };
     public static final SuggestionProvider<ServerCommandSource> SETTING_PROVIDER = (source, builder) -> {
-        List<String> settings = new ArrayList<>(getPermissions_new(PermissionList.setting, "", builder.getRemaining()));
+        List<String> settings = new ArrayList<>(getPermissions(PermissionList.setting, "", builder.getRemaining()));
         return CommandSource.suggestMatching(settings, builder);
     };
     public static final SuggestionProvider<ServerCommandSource> PERMISSION_VALUE_PROVIDER = (source, builder) -> CommandSource.suggestMatching(Arrays.asList("true", "false", "unset"), builder);
-
-    private static List<String> getPermissions(String current, Node node, List<String> list) {
-        list.add(current);
-        if (node.getNodes().size() == 0) {
-            return list;
-        } else {
-            for (Node n : node.getNodes()) {
-                return getPermissions(current + "." + node.getId(), n, list);
-            }
-        }
-        return list;
-    }
-
-    private static List<String> getPermissions_new(Node node, String currentID, String input) {
-        ArrayList<String> list = new ArrayList<>();
-        String newID = currentID.equals("") ? node.getId() : currentID + "." + node.getId();
-        list.add(newID);
-        if (newID.equals("") || !newID.startsWith(input)) {
-            for (Node n : node.getNodes()) {
-                list.addAll(getPermissions_new(n, newID, input));
-            }
-        }
-        return list;
-    }
 
     //TODO: Look at this again, maybe there is a better approach to this
     public static GameProfile getGameProfile(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
@@ -124,6 +99,18 @@ public abstract class Command {
         return profile;
     }
 
+    private static List<String> getPermissions(Node node, String currentID, String input) {
+        ArrayList<String> list = new ArrayList<>();
+        String newID = currentID.equals("") ? node.getId() : currentID + "." + node.getId();
+        list.add(newID);
+        if (newID.equals("") || !newID.startsWith(input)) {
+            for (Node n : node.getNodes()) {
+                list.addAll(getPermissions(n, newID, input));
+            }
+        }
+        return list;
+    }
+
     private static void addSubzones(AbstractClaim claim, String input, List<String> names) {
         if (input.startsWith(claim.getFullName())) {
             for (Subzone subzone : claim.getSubzones()) {
@@ -145,8 +132,9 @@ public abstract class Command {
     }
 
     static void validatePermission(AbstractClaim claim, UUID uuid, String permission) throws CommandSyntaxException {
-        if (!claim.hasPermission(uuid, permission))
-            throw new SimpleCommandExceptionType(new LiteralText("You don't have permission to do that")).create();
+        //TODO:
+        /*if (!claim.hasPermission(uuid, permission))
+            throw new SimpleCommandExceptionType(new LiteralText("You don't have permission to do that")).create();*/
     }
 
     public static AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {

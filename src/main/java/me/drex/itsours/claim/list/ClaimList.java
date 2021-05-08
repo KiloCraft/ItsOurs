@@ -175,5 +175,4 @@ public class ClaimList {
                 new ArrayList<>() :
                 byRegion.get(region);
     }
-
 }

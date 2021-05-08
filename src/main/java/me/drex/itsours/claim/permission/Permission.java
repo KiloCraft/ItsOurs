@@ -29,11 +29,15 @@ public class Permission {
         try {
             return Optional.of(new Permission(PermissionList.setting.getNodes(setting)));
         } catch (InvalidPermissionException e) {
-            return Optional.empty();
+            try {
+                return Optional.of(new Permission(PermissionList.permission.getNodes(setting)));
+            } catch (InvalidPermissionException e1) {
+                return Optional.empty();
+            }
         }
     }
 
-    public Permission up(int amount) {
+    public Permission up() {
         return new Permission(nodes.subList(1, nodes.size()));
     }
 

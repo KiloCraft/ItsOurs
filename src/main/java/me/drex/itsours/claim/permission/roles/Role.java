@@ -19,7 +19,7 @@ public class Role {
         return permissions.toNBT();
     }
 
-    public PermissionMap permissions_new() {
-        return this.permissions_new;
+    public PermissionMap permissions() {
+        return this.permissions;
     }
 }
