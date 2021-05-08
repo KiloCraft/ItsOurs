@@ -3,6 +3,7 @@ package me.drex.itsours.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.drex.itsours.command.bulk.BulkCommand;
+import me.drex.itsours.command.help.HelpCategory;
 import me.drex.itsours.command.help.HelpCommand;
 import net.minecraft.server.command.ServerCommandSource;
 
@@ -10,6 +11,7 @@ public class Manager {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         LiteralArgumentBuilder<ServerCommandSource> main = LiteralArgumentBuilder.literal("claim");
+        main.executes(ctx -> HelpCommand.sendHelp(ctx.getSource(), HelpCategory.GET_STARTED, 0));
         BlocksCommand.register(main);
         BulkCommand.register(main);
         ColorCommand.register(main);
