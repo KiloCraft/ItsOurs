@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class PermissionList {
 
@@ -44,7 +45,7 @@ public class PermissionList {
         List<Node> useItemNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), useItem);
         registerPermission((PermissionNode) new PermissionNode("use_item").withInformation("Rightclick with an item").addNodes(useItemNodes));
 
-        List<Node> entityNodes = Node.getNodes(Registry.ENTITY_TYPE, EntityTypeTags.getTagGroup());
+        List<Node> entityNodes = Node.getNodes(Registry.ENTITY_TYPE, EntityTypeTags.getTagGroup()).stream().filter(node -> !node.getId().equals("player")).collect(Collectors.toList());
         registerPermission((PermissionNode) new PermissionNode("damage_entity").withInformation("Hit / damage entities").addNodes(entityNodes));
         registerPermission((PermissionNode) new PermissionNode("interact_entity").withInformation("Rightclick on entities").addNodes(entityNodes));
 
