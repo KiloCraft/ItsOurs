@@ -23,6 +23,10 @@ public class TextComponentUtil {
         return from(of(error).color(Color.RED));
     }
 
+    public static Text toText(String input) {
+        return from(of(input));
+    }
+
     public static Component toComponent(final Text text) {
         return GsonComponentSerializer.gson().deserialize(Text.Serializer.toJson(text));
     }

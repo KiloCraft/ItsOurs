@@ -2,7 +2,10 @@ package me.drex.itsours.claim;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.claim.permission.roles.Role;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -25,6 +28,19 @@ public class Claim extends AbstractClaim {
     @Override
     public String getFullName() {
         return getName();
+    }
+
+    @Override
+    public Object2IntMap<Role> getRoles(UUID uuid) {
+        Object2IntMap<Role> roles = getPermissionManager().getRoles(uuid);
+        Role trusted = ItsOursMod.INSTANCE.getRoleManager().getRole("default");
+        if (!getPermissionManager().getRemovedRoles(uuid).contains(trusted)) {
+            final Object2IntMap<Role> copy = new Object2IntArrayMap<>();
+            copy.putAll(roles);
+            copy.put(trusted, -1);
+            return copy;
+        }
+        return roles;
     }
 
     @Override

@@ -11,10 +11,10 @@ import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
-import me.drex.itsours.claim.permission.util.Group;
-import me.drex.itsours.claim.permission.util.Permission;
-import me.drex.itsours.claim.permission.util.Setting;
-import me.drex.itsours.claim.permission.util.node.AbstractNode;
+import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.claim.permission.PermissionList;
+import me.drex.itsours.claim.permission.util.node.util.Node;
+import me.drex.itsours.command.help.HelpCategory;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -64,29 +64,23 @@ public abstract class Command {
     };
 
     public static final SuggestionProvider<ServerCommandSource> PERMISSION_PROVIDER = (source, builder) -> {
-        List<String> permissions = new ArrayList<>();
-        for (Permission permission : Permission.permissions) {
-            if (permission instanceof Setting) continue;
-            permissions.add(permission.id);
-            if (builder.getRemaining().startsWith(permission.id) && permission.groups.length > 0) {
-                addNodes(permission.id, permission.groups, 0, builder.getRemaining(), permissions);
-            }
-        }
+        List<String> permissions = new ArrayList<>(getPermissions(PermissionList.permission, "", builder.getRemaining()));
         return CommandSource.suggestMatching(permissions, builder);
     };
-
     public static final SuggestionProvider<ServerCommandSource> SETTING_PROVIDER = (source, builder) -> {
-        List<String> settings = new ArrayList<>();
-        for (Permission setting : Permission.permissions) {
-            settings.add(setting.id);
-            if (builder.getRemaining().startsWith(setting.id) && setting.groups.length > 0) {
-                addNodes(setting.id, setting.groups, 0, builder.getRemaining(), settings);
-            }
-        }
+        List<String> settings = new ArrayList<>(getPermissions(PermissionList.setting, "", builder.getRemaining()));
+        settings.addAll(getPermissions(PermissionList.permission, "", builder.getRemaining()));
         return CommandSource.suggestMatching(settings, builder);
     };
-
     public static final SuggestionProvider<ServerCommandSource> PERMISSION_VALUE_PROVIDER = (source, builder) -> CommandSource.suggestMatching(Arrays.asList("true", "false", "unset"), builder);
+
+    public static final SuggestionProvider<ServerCommandSource> CATEGORY_PROVIDER = (context, builder) -> {
+        List<String> categories = new ArrayList<>();
+        for (HelpCategory value : HelpCategory.values()) {
+            categories.add(value.getId());
+        }
+        return CommandSource.suggestMatching(categories, builder);
+    };
 
     //TODO: Look at this again, maybe there is a better approach to this
     public static GameProfile getGameProfile(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
@@ -115,6 +109,18 @@ public abstract class Command {
         return profile;
     }
 
+    private static List<String> getPermissions(Node node, String currentID, String input) {
+        ArrayList<String> list = new ArrayList<>();
+        String newID = currentID.equals("") ? node.getId() : currentID + "." + node.getId();
+        list.add(newID);
+        if (newID.equals("") || !newID.startsWith(input)) {
+            for (Node n : node.getNodes()) {
+                list.addAll(getPermissions(n, newID, input));
+            }
+        }
+        return list;
+    }
+
     private static void addSubzones(AbstractClaim claim, String input, List<String> names) {
         if (input.startsWith(claim.getFullName())) {
             for (Subzone subzone : claim.getSubzones()) {
@@ -124,17 +130,10 @@ public abstract class Command {
         }
     }
 
-    private static void addNodes(String parent, Group[] groups, int i, String input, List<String> permissions) {
-        for (AbstractNode node : groups[i].list) {
-            String s = parent + "." + node.getID();
-            permissions.add(s);
-            if (input.startsWith(s) && i + 1 < groups.length) addNodes(s, groups, i + 1, input, permissions);
-        }
-    }
-
     static AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get(world, pos);
-        if (!claim.isPresent()) throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim at your position!")).create();
+        if (!claim.isPresent())
+            throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim at your position!")).create();
         return claim.get();
     }
 
@@ -143,8 +142,9 @@ public abstract class Command {
     }
 
     static void validatePermission(AbstractClaim claim, UUID uuid, String permission) throws CommandSyntaxException {
-        if (!claim.hasPermission(uuid, permission))
-        throw new SimpleCommandExceptionType(new LiteralText("You don't have permission to do that")).create();
+        //TODO:
+        /*if (!claim.hasPermission(uuid, permission))
+            throw new SimpleCommandExceptionType(new LiteralText("You don't have permission to do that")).create();*/
     }
 
     public static AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
@@ -154,16 +154,18 @@ public abstract class Command {
         throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim with that name")).create();
     }
 
-    public static String getPermission(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        String permission = StringArgumentType.getString(ctx, "perm");
-        if (!Permission.isValid(permission)) throw new SimpleCommandExceptionType(new LiteralText("Invalid permission")).create();
-        return permission;
+    public static Permission getPermission(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        Optional<Permission> permission = Permission.permission(StringArgumentType.getString(ctx, "perm"));
+        if (!permission.isPresent())
+            throw new SimpleCommandExceptionType(new LiteralText("Invalid permission")).create();
+        return permission.get();
     }
 
-    public static String getSetting(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        String permission = StringArgumentType.getString(ctx, "setting");
-        if (!Setting.isValid(permission)) throw new SimpleCommandExceptionType(new LiteralText("Invalid setting")).create();
-        return permission;
+    public static Permission getSetting(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        Optional<Permission> setting = Permission.setting(StringArgumentType.getString(ctx, "setting"));
+        if (!setting.isPresent())
+            throw new SimpleCommandExceptionType(new LiteralText("Invalid setting")).create();
+        return setting.get();
     }
 
     public static Permission.Value getPermissionValue(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
@@ -176,6 +178,10 @@ public abstract class Command {
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> ownClaimArgument() {
         return argument("claim", word()).suggests(OWN_CLAIM_PROVIDER);
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, String> categoryArgument() {
+        return argument("category", word()).suggests(CATEGORY_PROVIDER);
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> allClaimArgument() {

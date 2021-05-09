@@ -1,5 +1,6 @@
-package me.drex.itsours.command.bulk.util;
+package me.drex.itsours.util;
 
+import net.kyori.adventure.text.Component;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.LiteralText;
@@ -12,7 +13,7 @@ import java.util.List;
 
 public class TextPage {
 
-    public final MutableText title;
+    public final Text title;
     private final String command;
     public List<Text> entries;
     private String number = "%s. ";
@@ -21,6 +22,19 @@ public class TextPage {
     public TextPage(MutableText title, List<Text> entries, String command) {
         this.title = title;
         this.entries = entries == null ? new ArrayList<>() : entries;
+        this.command = command;
+    }
+
+    public TextPage(String title, List<String> entries, String command) {
+        this.title = TextComponentUtil.toText(title);
+        ArrayList<Text> list = new ArrayList<>();
+        if (entries != null) {
+            for (String entry : entries) {
+                list.add(TextComponentUtil.toText(entry));
+            }
+        }
+
+        this.entries = list;
         this.command = command;
     }
 
@@ -45,21 +59,24 @@ public class TextPage {
         //index
         int from = page * entriesPerPage;
         int to = Math.min(((page + 1) * entriesPerPage), entries);
+        sendEntries(player, page, maxPage, from, to);
+    }
+
+    public void sendEntries(ServerPlayerEntity player, int page, int maxPage, int from, int to) {
         MutableText message = new LiteralText("").append(title);
         int currentIndex = from + 1;
         for (Text text : this.entries.subList(from, to)) {
             message.append(new LiteralText("\n" + String.format(this.number, currentIndex)).formatted(numberFormat)).append(text);
             currentIndex++;
         }
-        int finalPage = page;
         message.append(new LiteralText("\n<- ").formatted(Formatting.WHITE).styled(style -> style.withBold(true)))
                 .append(new LiteralText("Prev ").formatted(page > 0 ? Formatting.GOLD : Formatting.GRAY)
-                        .styled(style -> finalPage > 0 ? style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format(this.command, finalPage))) : style))
-                .append(new LiteralText(String.valueOf(finalPage + 1)).formatted(Formatting.GREEN))
+                        .styled(style -> page > 0 ? style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format(this.command, page))) : style))
+                .append(new LiteralText(String.valueOf(page + 1)).formatted(Formatting.GREEN))
                 .append(new LiteralText(" / ").formatted(Formatting.GRAY))
                 .append(new LiteralText(String.valueOf(maxPage + 1)).formatted(Formatting.GREEN))
                 .append(new LiteralText(" Next").formatted(page == maxPage ? Formatting.GRAY : Formatting.GOLD)
-                        .styled(style -> finalPage == maxPage ? style : style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format(this.command, finalPage + 2)))))
+                        .styled(style -> page == maxPage ? style : style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format(this.command, page + 2)))))
                 .append(new LiteralText(" ->").formatted(Formatting.WHITE).styled(style -> style.withBold(true)));
         player.sendMessage(message, false);
     }

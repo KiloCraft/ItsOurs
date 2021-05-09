@@ -28,6 +28,7 @@ public class SetOwnerCommand extends Command {
     }
 
     public static int setOwner(ServerCommandSource source, AbstractClaim claim, GameProfile newOwner) throws CommandSyntaxException {
+        //TODO: Only allow to change owner of main claims
         claim.setOwner(newOwner.getId());
         ItsOursMod.INSTANCE.getClaimList().update();
         TextComponent text = Component.text("Set owner of ").color(Color.YELLOW)

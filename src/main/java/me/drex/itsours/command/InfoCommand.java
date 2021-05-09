@@ -12,6 +12,7 @@ import me.drex.itsours.util.TextComponentUtil;
 import me.drex.itsours.util.WorldUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.math.BlockPos;
@@ -30,11 +31,8 @@ public class InfoCommand extends Command {
     }
 
     public static int info(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
-
-
         TextComponent text = getInfo(claim);
         ((ClaimPlayer) source.getPlayer()).sendMessage(text);
-
         return 1;
     }
 
@@ -46,6 +44,9 @@ public class InfoCommand extends Command {
             ownerName = owner.getName();
         }
         BlockPos size = claim.getSize();
+        BlockPos tpPos = new BlockPos((claim.min.getX() + claim.max.getX()) / 2, (claim.min.getY() + claim.max.getY() / 2) , (claim.min.getZ() + claim.max.getZ()) / 2);
+        tpPos = AbstractClaim.Util.getPosOnGround(tpPos, claim.getWorld());
+        String world = WorldUtil.toIdentifier(claim.getWorld());
         return Component.text("\n")
                 .append(Component.text("Claim Info: \n").color(Color.ORANGE))
                 .append(newInfoLine("Name", Component.text(claim.getName()).color(Color.WHITE)))
@@ -55,11 +56,11 @@ public class InfoCommand extends Command {
                                 .clickEvent(net.kyori.adventure.text.event.ClickEvent.copyToClipboard(claim.getOwner().toString())))
                         .append(newInfoLine("Size", Component.text(size.getX() + " x " + size.getY() + " x " + size.getZ()).color(Color.LIGHT_GREEN)))
                         .append(newInfoLine("Depth", Component.text(String.valueOf(claim.getDepth())).color(Color.DARK_GREEN)))
-                        .append(newInfoLine("Flags", claim.getPermissionManager().settings.toText()))
+                        .append(newInfoLine("Settings", claim.getPermissionManager().settings.toText()))
                         .append(newInfoLine("Position",
                                 Component.text("Min ").color(Color.WHITE).append(newPosLine(claim.min, Color.AQUA, Color.BLUE)),
-                                Component.text(" Max ").color(Color.WHITE).append(newPosLine(claim.max, Color.PURPLE, Color.DARK_PURPLE))))
-                        .append(newInfoLine("Dimension", Component.text(WorldUtil.toIdentifier(claim.getWorld())).color(Color.GREEN))));
+                                Component.text(" Max ").color(Color.WHITE).append(newPosLine(claim.max, Color.PURPLE, Color.DARK_PURPLE))).clickEvent(ClickEvent.runCommand("/execute in " + world + " run tp @s " + tpPos.getX() + " " + tpPos.getY() + " " + tpPos.getZ())))
+                        .append(newInfoLine("Dimension", Component.text(world).color(Color.GREEN))));
     }
 
     private static Component newPosLine(BlockPos pos, TextColor color1, TextColor color2) {

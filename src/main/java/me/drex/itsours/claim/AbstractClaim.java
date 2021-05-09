@@ -1,9 +1,12 @@
 package me.drex.itsours.claim;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.util.Permission;
+import me.drex.itsours.claim.permission.roles.Role;
+import me.drex.itsours.claim.permission.util.context.PermissionContext;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.user.PlayerSetting;
 import me.drex.itsours.util.Color;
@@ -180,7 +183,7 @@ public abstract class AbstractClaim {
             if (cachedFlying && !player.getAbilities().flying) {
                 BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
                 if (pos.getY() + 3 < player.getY()) {
-                    player.teleport((ServerWorld) player.world, player.getX(), pos.getY(), player.getZ(), player.method_36454(), player.method_36455());
+                    player.teleport((ServerWorld) player.world, player.getX(), pos.getY(), player.getZ(), player.getYaw(), player.getPitch());
                 }
             }
             player.sendAbilitiesUpdate();
@@ -189,17 +192,51 @@ public abstract class AbstractClaim {
         player.networkHandler.sendPacket(new OverlayMessageS2CPacket(TextComponentUtil.from(TextComponentUtil.of("<gradient:" + Color.AQUA.stringValue() + ":" + Color.PURPLE.stringValue() + ">" + "You left " + this.getFullName(), false))));
     }
 
+    protected PermissionContext getPermissionContext(UUID uuid, Permission permission) {
+        PermissionContext context = new PermissionContext();
+            context.combine(this.permissionManager.getPermissionContext(uuid, permission));
+            if (uuid.equals(owner))
+                context.add(permission, PermissionContext.CustomPriority.OWNER, Permission.Value.TRUE);
+            if (ItsOursMod.INSTANCE.getPlayerList().getBoolean(uuid, PlayerSetting.IGNORE))
+                context.add(permission, PermissionContext.CustomPriority.IGNORE, Permission.Value.TRUE);
+        return context;
+    }
+
+    public PermissionContext getContext(UUID uuid, Permission permission) {
+        PermissionContext context = getPermissionContext(uuid, permission);
+        context.combine(getRolePermissionContext(uuid, permission));
+        return context;
+    }
+
     public boolean hasPermission(UUID uuid, String permission) {
-        if (uuid.equals(owner)) return true;
-        if ((boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, PlayerSetting.IGNORE)) return true;
-        Permission.Value value = this.permissionManager.hasPermission(uuid, permission);
-        sendDebug(uuid, permission, value);
-        return value.value;
+        Optional<Permission> optional = Permission.permission(permission);
+        if (optional.isPresent()) return getContext(uuid, optional.get()).getValue().value;
+        return false;
     }
 
     public boolean getSetting(String setting) {
-        return this.permissionManager.settings.getPermission(setting).value;
+        Optional<Permission> optional = Permission.setting(setting);
+        if (optional.isPresent()) {
+            PermissionContext context = this.permissionManager.settings.getPermission(optional.get(), PermissionContext.CustomPriority.SETTING);
+            return context.getValue().value;
+        } else {
+            return false;
+        }
     }
+
+    PermissionContext getRolePermissionContext(UUID uuid, Permission permission) {
+        PermissionContext context = new PermissionContext();
+        for (Object2IntMap.Entry<Role> roleEntry : getRoles(uuid).object2IntEntrySet()) {
+            context.combine(roleEntry.getKey().permissions().getPermission(permission, new PermissionContext.RolePriority(ItsOursMod.INSTANCE.getRoleManager().getRoleID(roleEntry.getKey()), roleEntry.getIntValue())));
+        }
+        if (permission.nodes() > 1) {
+            Permission perm = permission.up();
+            context.combine(getRolePermissionContext(uuid, perm));
+        }
+        return context;
+    }
+
+    public abstract Object2IntMap<Role> getRoles(UUID uuid);
 
     void sendDebug(UUID uuid, String permission, Permission.Value value) {
         ServerPlayerEntity playerEntity = ItsOursMod.server.getPlayerManager().getPlayer(this.getOwner());

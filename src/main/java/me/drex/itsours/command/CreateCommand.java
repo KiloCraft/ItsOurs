@@ -21,6 +21,7 @@ import java.util.UUID;
 
 public class CreateCommand extends Command {
 
+    private static final int MAX_CHECK = 100;
 
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         RequiredArgumentBuilder<ServerCommandSource, String> name = RequiredArgumentBuilder.argument("name", StringArgumentType.word());
@@ -34,8 +35,19 @@ public class CreateCommand extends Command {
     public static int create(ServerCommandSource source, String name) throws CommandSyntaxException {
         ItsOursMod mod = ItsOursMod.INSTANCE;
         UUID uuid = source.getPlayer().getUuid();
-        if (mod.getClaimList().get(uuid).stream().filter(claim -> claim instanceof Claim).count() > 9 && !(hasPermission(source, "itsours.max.bypass"))) {
-            throw new SimpleCommandExceptionType(TextComponentUtil.error("You can't have more than 10 claims")).create();
+        //TODO: Make configurable
+        int limit = 3;
+        if (hasPermission(source, "itsours.max.bypass")) {
+            limit = Integer.MAX_VALUE;
+        } else {
+            for (int i = 0; i < MAX_CHECK; i++) {
+                if (hasPermission(source, "itsours.max." + i)) {
+                    limit = Math.max(limit, i);
+                }
+            }
+        }
+        if (mod.getClaimList().get(uuid).stream().filter(claim -> claim instanceof Claim).count() >= limit) {
+            throw new SimpleCommandExceptionType(TextComponentUtil.error("You can't have more than " + limit + " claims")).create();
         }
         ClaimPlayer claimPlayer = (ClaimPlayer) source.getPlayer();
         if (claimPlayer.arePositionsSet()) {

@@ -2,8 +2,11 @@ package me.drex.itsours.claim;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import me.drex.itsours.ItsOursMod;
-import me.drex.itsours.claim.permission.util.Permission;
+import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.claim.permission.roles.Role;
+import me.drex.itsours.claim.permission.util.context.PermissionContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -39,22 +42,39 @@ public class Subzone extends AbstractClaim {
     }
 
     @Override
-    public boolean hasPermission(UUID uuid, String permission) {
-        Permission.Value value = this.getPermissionManager().hasPermission(uuid, permission);
-        if (value == Permission.Value.UNSET) {
-            return parent.hasPermission(uuid, permission);
+    protected PermissionContext getPermissionContext(UUID uuid, Permission permission) {
+        PermissionContext context = super.getPermissionContext(uuid, permission);
+        if (context.getValue() == Permission.Value.UNSET) {
+            return parent.getPermissionContext(uuid, permission);
         }
-        sendDebug(uuid, permission, value);
-        return value.value;
+        return context;
+    }
+
+    @Override
+    public Object2IntMap<Role> getRoles(UUID uuid) {
+        Object2IntMap<Role> roles = parent.getRoles(uuid);
+        for (Role role : getPermissionManager().getRemovedRoles(uuid)) {
+            roles.remove(role);
+        }
+        for (Object2IntMap.Entry<Role> entry : getPermissionManager().getRoles(uuid).object2IntEntrySet()) {
+            roles.put(entry.getKey(), entry.getIntValue());
+        }
+        return roles;
     }
 
     @Override
     public boolean getSetting(String setting) {
-        Permission.Value value = this.getPermissionManager().settings.getPermission(setting);
-        if (value == Permission.Value.UNSET || setting.equalsIgnoreCase("mobspawn")) {
-            return parent.getSetting(setting);
+        Optional<Permission> optional = Permission.setting(setting);
+        if (optional.isPresent()) {
+            PermissionContext context = this.getPermissionManager().settings.getPermission(optional.get(), PermissionContext.CustomPriority.SETTING);
+            if (context.getValue() == Permission.Value.UNSET) {
+                return parent.getSetting(setting);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
         }
-        return value.value;
     }
 
     public int getDepth() {

@@ -6,8 +6,8 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.roles.Role;
-import me.drex.itsours.claim.permission.util.Permission;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
@@ -77,13 +77,13 @@ public class RolesCommand extends Command {
         return 1;
     }
 
-    public static int setPermission(ServerCommandSource source, String name, String permission, Permission.Value value) throws CommandSyntaxException {
+    public static int setPermission(ServerCommandSource source, String name, Permission permission, Permission.Value value) throws CommandSyntaxException {
         if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
             throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
         Role role = ItsOursMod.INSTANCE.getRoleManager().get(name);
-        role.permissions().setPermission(permission, value);
+        role.permissions().setPermission(permission.asString(), value);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set ").color(Color.YELLOW)
-                .append(Component.text(permission).color(Color.ORANGE)).append(Component.text(" for ").color(Color.YELLOW))
+                .append(Component.text(permission.asString()).color(Color.ORANGE)).append(Component.text(" for ").color(Color.YELLOW))
                 .append(Component.text(name).color(Color.ORANGE)
                         .append(Component.text(" to ").color(Color.YELLOW)).append(value.format())));
         return 1;
