@@ -69,6 +69,7 @@ public abstract class Command {
     };
     public static final SuggestionProvider<ServerCommandSource> SETTING_PROVIDER = (source, builder) -> {
         List<String> settings = new ArrayList<>(getPermissions(PermissionList.setting, "", builder.getRemaining()));
+        settings.addAll(getPermissions(PermissionList.permission, "", builder.getRemaining()));
         return CommandSource.suggestMatching(settings, builder);
     };
     public static final SuggestionProvider<ServerCommandSource> PERMISSION_VALUE_PROVIDER = (source, builder) -> CommandSource.suggestMatching(Arrays.asList("true", "false", "unset"), builder);

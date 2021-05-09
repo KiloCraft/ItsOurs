@@ -215,7 +215,6 @@ public abstract class AbstractClaim {
     }
 
     public boolean getSetting(String setting) {
-        //TODO: Check for permission?
         Optional<Permission> optional = Permission.setting(setting);
         if (optional.isPresent()) {
             PermissionContext context = this.permissionManager.settings.getPermission(optional.get(), PermissionContext.CustomPriority.SETTING);

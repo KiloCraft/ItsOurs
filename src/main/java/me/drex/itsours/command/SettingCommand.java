@@ -63,7 +63,6 @@ public class SettingCommand extends Command {
     public static int listSettings(ServerCommandSource source) throws CommandSyntaxException {
         TextComponent.Builder builder = Component.text().content("Settings:\n").color(Color.ORANGE);
         for (Node node : PermissionList.setting.getNodes()) {
-            if (!(node instanceof SettingNode)) continue;
             builder.append(Component.text(node.getId()).color(Color.LIGHT_GREEN), Component.text(": " + node.getInformation() + "\n").color(Color.LIGHT_GRAY));
         }
         ((ClaimPlayer) source.getPlayer()).sendMessage(builder.build());
