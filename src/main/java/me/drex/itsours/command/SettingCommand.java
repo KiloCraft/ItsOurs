@@ -36,7 +36,6 @@ public class SettingCommand extends Command {
             claim.then(set);
         }
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("setting");
-        //TODO: Implement setting list
         command.executes(ctx -> listSettings(ctx.getSource()));
         command.then(claim);
         literal.then(command);
