@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import me.drex.itsours.util.TextComponentUtil;
@@ -14,6 +15,7 @@ import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class TrustedCommand extends Command {
@@ -29,7 +31,7 @@ public class TrustedCommand extends Command {
 
     public static int trusted(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
         List<UUID> trusted = new ArrayList<>();
-        for (UUID uuid : claim.getPermissionManager().roleManager.keySet()) {
+        for (UUID uuid : getAllUUIDs(claim)) {
             if (claim.getRoles(uuid).containsKey(ItsOursMod.INSTANCE.getRoleManager().get("trusted"))) trusted.add(uuid);
         }
         ClaimPlayer player = (ClaimPlayer) source.getPlayer();
@@ -44,6 +46,17 @@ public class TrustedCommand extends Command {
             player.sendMessage(builder.build());
         }
         return trusted.size();
+    }
+
+    private static Set<UUID> getAllUUIDs(AbstractClaim claim) {
+        if (claim instanceof Subzone) {
+            Subzone subzone = (Subzone) claim;
+            Set<UUID> set = subzone.getPermissionManager().roleManager.keySet();
+            set.addAll(getAllUUIDs(subzone.getParent()));
+            return set;
+        } else {
+            return claim.getPermissionManager().roleManager.keySet();
+        }
     }
 
 

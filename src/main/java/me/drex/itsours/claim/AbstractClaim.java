@@ -236,15 +236,6 @@ public abstract class AbstractClaim {
         return context;
     }
 
-    /*        PermissionContext context = new PermissionContext();
-        for (Object2IntMap.Entry<Role> roleEntry : getRoles(uuid).object2IntEntrySet()) {
-            PermissionContext other = roleEntry.getKey().permissions().getPermission(permission, new PermissionContext.RolePriority(ItsOursMod.INSTANCE.getRoleManager().getRoleID(roleEntry.getKey()), roleEntry.getIntValue()));
-            System.out.println("Role context in " + this.getFullName() + ": " + context.toString() + " and " + other.toString());
-            context.combine(other);
-            System.out.println("Role context in " + this.getFullName() + ": " + context.toString() + " and " + other.toString());
-        }
-        return context;*/
-
     public abstract Object2IntMap<Role> getRoles(UUID uuid);
 
     void sendDebug(UUID uuid, String permission, Permission.Value value) {
