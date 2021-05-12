@@ -13,10 +13,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.minecraft.server.command.ServerCommandSource;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TrustedCommand extends Command {
 
@@ -51,11 +49,11 @@ public class TrustedCommand extends Command {
     private static Set<UUID> getAllUUIDs(AbstractClaim claim) {
         if (claim instanceof Subzone) {
             Subzone subzone = (Subzone) claim;
-            Set<UUID> set = subzone.getPermissionManager().roleManager.keySet();
+            Set<UUID> set = new HashSet<>(subzone.getPermissionManager().roleManager.keySet());
             set.addAll(getAllUUIDs(subzone.getParent()));
             return set;
         } else {
-            return claim.getPermissionManager().roleManager.keySet();
+            return new HashSet<>(claim.getPermissionManager().roleManager.keySet());
         }
     }
 
