@@ -39,7 +39,7 @@ public class PermissionList {
         List<Node> interactableBlockNodes = Node.getNodes(Registry.BLOCK, BlockTags.getTagGroup(), interactBlock);
         registerPermission((PermissionNode) new PermissionNode("interact_block").withInformation("Rightclick on blocks").addNodes(interactableBlockNodes));
 
-        List<Node> itemBlockNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), blockNodes, useOnBlock);
+        List<Node> itemBlockNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), useOnBlock);
         registerPermission((PermissionNode) new PermissionNode("use_on_block").withInformation("Use an item on a block").addNodes(itemBlockNodes));
 
         List<Node> useItemNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), useItem);
