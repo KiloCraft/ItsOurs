@@ -14,7 +14,7 @@ import java.util.*;
 
 public class PermissionManager {
     public PermissionMap settings = new PermissionMap(new NbtCompound());
-    public HashMap<UUID, PermissionMap> playerPermission = Maps.newHashMap();
+    public HashMap<UUID, PermissionMap> playerPermission = new HashMap<>();
     public HashMap<UUID, PlayerRoleManager> roleManager = new HashMap<>();
 
     public PermissionManager(NbtCompound tag) {
