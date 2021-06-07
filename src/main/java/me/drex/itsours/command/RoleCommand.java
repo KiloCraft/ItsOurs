@@ -113,6 +113,7 @@ public class RoleCommand extends Command {
     }
 
     public static int addRole(ServerCommandSource source, AbstractClaim claim, GameProfile target, String name, int weight) throws CommandSyntaxException {
+        validatePermission(claim, source.getPlayer().getUuid(), "modify.role");
         Role role = validateRole(name);
         boolean changed = claim.getPermissionManager().addRole(target.getId(), role, weight);
         ((ClaimPlayer) source.getPlayer()).sendMessage(changed ? Component.text("Added ").color(Color.YELLOW)
@@ -123,6 +124,7 @@ public class RoleCommand extends Command {
     }
 
     public static int removeRole(ServerCommandSource source, AbstractClaim claim, GameProfile target, String name) throws CommandSyntaxException {
+        validatePermission(claim, source.getPlayer().getUuid(), "modify.role");
         Role role = validateRole(name);
         boolean changed = claim.getPermissionManager().removeRole(target.getId(), role);
         ((ClaimPlayer) source.getPlayer()).sendMessage(changed ? Component.text("Removed ").color(Color.YELLOW)
@@ -133,6 +135,7 @@ public class RoleCommand extends Command {
     }
 
     public static int unsetRole(ServerCommandSource source, AbstractClaim claim, GameProfile target, String name) throws CommandSyntaxException {
+        validatePermission(claim, source.getPlayer().getUuid(), "modify.role");
         Role role = validateRole(name);
         boolean changed = claim.getPermissionManager().unsetRole(target.getId(), role);
         ((ClaimPlayer) source.getPlayer()).sendMessage(changed ? Component.text("Unset ").color(Color.YELLOW)
@@ -143,6 +146,7 @@ public class RoleCommand extends Command {
     }
 
     public static int listRoles(ServerCommandSource source, AbstractClaim claim, GameProfile target) throws CommandSyntaxException {
+        validatePermission(claim, source.getPlayer().getUuid(), "modify.role");
         //Hover builder
         Object2IntMap<Role> addedRoles = claim.getPermissionManager().getPlayerRoleManager(target.getId()).getRoles();
         TextComponent.Builder hover = Component.text().content(addedRoles.size() > 0 ? "Added: " : "").color(Color.LIGHT_GREEN);

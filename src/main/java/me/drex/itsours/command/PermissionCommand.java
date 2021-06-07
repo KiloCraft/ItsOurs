@@ -26,7 +26,7 @@ import java.util.Map;
 public class PermissionCommand extends Command {
 
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
-        RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
+        RequiredArgumentBuilder<ServerCommandSource, String> claim = permissionClaimArgument("modify.permission");
         {
             RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();
             permission.executes(ctx -> checkPlayer(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), getPermission(ctx)));

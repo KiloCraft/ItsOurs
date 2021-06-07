@@ -49,7 +49,7 @@ public class PermissionList {
         registerPermission((PermissionNode) new PermissionNode("damage_entity").withInformation("Hit / damage entities").addNodes(entityNodes));
         registerPermission((PermissionNode) new PermissionNode("interact_entity").withInformation("Rightclick on entities").addNodes(entityNodes));
 
-        registerPermission((PermissionNode) new PermissionNode("modify").withInformation("Claim permissions").addSimpleNodes(Arrays.asList("trust", "untrust", "distrust", "size", "permission", "setting", "subzone", "name")));
+        registerPermission((PermissionNode) new PermissionNode("modify").withInformation("Claim permissions").addSimpleNodes(Arrays.asList("trust", "untrust", "distrust", "size", "permission", "setting", "subzone", "name", "role")));
 
         registerSetting((SettingNode) new SettingNode("pvp").global().withInformation("Toggle Player vs Player"));
         registerSetting((SettingNode) new SettingNode("mobspawn").global().withInformation("Toggle mobspawning"));
