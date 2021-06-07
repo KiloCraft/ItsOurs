@@ -142,9 +142,8 @@ public abstract class Command {
     }
 
     static void validatePermission(AbstractClaim claim, UUID uuid, String permission) throws CommandSyntaxException {
-        //TODO:
-        /*if (!claim.hasPermission(uuid, permission))
-            throw new SimpleCommandExceptionType(new LiteralText("You don't have permission to do that")).create();*/
+        if (!claim.hasPermission(uuid, permission))
+            throw new SimpleCommandExceptionType(new LiteralText("You don't have permission to do that")).create();
     }
 
     public static AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
