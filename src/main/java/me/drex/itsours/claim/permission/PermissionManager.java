@@ -1,6 +1,5 @@
 package me.drex.itsours.claim.permission;
 
-import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.Permission.Value;

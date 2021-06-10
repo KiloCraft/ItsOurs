@@ -30,10 +30,7 @@ public class TrustedCommand extends Command {
     }
 
     public static int trusted(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
-        List<UUID> trusted = new ArrayList<>();
-        for (UUID uuid : getAllUUIDs(claim)) {
-            if (claim.getRoles(uuid).containsKey(ItsOursMod.INSTANCE.getRoleManager().get("trusted"))) trusted.add(uuid);
-        }
+        List<UUID> trusted = getAllTrusted(claim);
         ClaimPlayer player = (ClaimPlayer) source.getPlayer();
         if (trusted.isEmpty()) {
             player.sendMessage(Component.text("No one is trusted in " + claim.getName() + ".").color(Color.RED));
@@ -48,7 +45,7 @@ public class TrustedCommand extends Command {
         return trusted.size();
     }
 
-    private static Set<UUID> getAllUUIDs(AbstractClaim claim) {
+    public static Set<UUID> getAllUUIDs(AbstractClaim claim) {
         if (claim instanceof Subzone) {
             Subzone subzone = (Subzone) claim;
             Set<UUID> set = subzone.getPermissionManager().roleManager.keySet();
@@ -57,6 +54,14 @@ public class TrustedCommand extends Command {
         } else {
             return claim.getPermissionManager().roleManager.keySet();
         }
+    }
+
+    public static List<UUID> getAllTrusted(AbstractClaim claim) {
+        List<UUID> trusted = new ArrayList<>();
+        for (UUID uuid : getAllUUIDs(claim)) {
+            if (claim.getRoles(uuid).containsKey(ItsOursMod.INSTANCE.getRoleManager().get("trusted"))) trusted.add(uuid);
+        }
+        return trusted;
     }
 
 

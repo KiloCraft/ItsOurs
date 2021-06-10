@@ -3,7 +3,12 @@ package me.drex.itsours.claim.permission.util.node.util;
 
 import com.google.common.collect.Lists;
 import me.drex.itsours.claim.permission.Permission;
-import net.minecraft.SharedConstants;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemConvertible;
+import net.minecraft.item.Items;
+import net.minecraft.item.SpawnEggItem;
 import net.minecraft.tag.Tag;
 import net.minecraft.tag.TagGroup;
 import net.minecraft.util.Identifier;
@@ -16,23 +21,14 @@ import java.util.function.Predicate;
 
 public class Node {
 
-    final String id;
+    protected final String id;
     final Permission.Value defaultVal = Permission.Value.UNSET;
-
-    public String getInformation() {
-        return information;
-    }
-
-    String information = "-";
     final List<Node> nodes = new ArrayList<>();
+    Item item = Items.STONE;
+    String information = "-";
 
     public Node(String id) {
         this.id = id;
-    }
-
-    public Node withInformation(String information) {
-        this.information = information;
-        return this;
     }
 
     public static <T> List<Node> getNodes(@NotNull final Registry<T> registry, TagGroup<T> tagGroup, List<Node> child, Predicate<T> predicate) {
@@ -42,27 +38,46 @@ public class Node {
         for (Map.Entry<Identifier, Tag<T>> mapEntry : tagGroup.getTags().entrySet()) {
             Tag<T> tag = mapEntry.getValue();
             final List<Node> entries = Lists.newArrayList();
+            T symbol = null;
             for (T entry : registry) {
                 if (!predicate.test(entry)) continue;
                 if (tag.contains(entry)) {
+                    if (symbol == null) symbol = entry;
                     final Identifier identifier = registry.getId(entry);
                     Validate.notNull(identifier, "%s does not contain entry %s", registry.toString(), entry.toString());
-                    entries.add(new Node(identifier.getPath()));
+                    Node n = new Node(identifier.getPath());
+                    addItem(entry, n);
+                    entries.add(n);
                 }
             }
-            if (!entries.isEmpty())
-                nodes.add(new GroupNode(mapEntry.getKey().getPath().toUpperCase(Locale.ENGLISH), entries).addNodes(child));
+            if (!entries.isEmpty()) {
+                GroupNode groupNode = new GroupNode(mapEntry.getKey().getPath().toUpperCase(Locale.ENGLISH), entries);
+                addItem(symbol, groupNode);
+                nodes.add(groupNode.addNodes(child));
+            }
         }
         for (T entry : registry) {
-            if (!predicate.test(entry)) continue;
-            nodes.add(new Node(
+            Node n = new Node(
                     Validate.notNull(
                             registry.getId(entry),
                             "%s does not contain entry %s", registry.toString(), entry.toString()
                     ).getPath()
-            ).addNodes(child));
+            ).addNodes(child);
+            addItem(entry, n);
+            if (!predicate.test(entry)) continue;
+            nodes.add(n);
         }
         return nodes;
+    }
+
+    private static <T>void addItem(T entry, Node n) {
+        if (entry instanceof ItemConvertible) {
+            n.item(((ItemConvertible) entry).asItem());
+        } else if (entry instanceof EntityType) {
+            Item item = SpawnEggItem.forEntity((EntityType<?>) entry);
+            if (item == null) item = Items.EGG;
+            n.item(item);
+        }
     }
 
     public static <T> List<Node> getNodes(@NotNull final Registry<T> registry, TagGroup<T> tagGroup) {
@@ -86,8 +101,26 @@ public class Node {
         return true;
     }
 
+    public Item getItem() {
+        return item;
+    }
+
+    public String getInformation() {
+        return information;
+    }
+
+    public Node withInformation(String information) {
+        this.information = information;
+        return this;
+    }
+
     public List<Node> getNodes() {
         return nodes;
+    }
+
+    public Node item(Item item) {
+        this.item = item;
+        return this;
     }
 
     public Node add(Node node) {
@@ -127,6 +160,10 @@ public class Node {
 
     public String getId() {
         return id;
+    }
+
+    public String getName() {
+        return getId();
     }
 
     public Permission.Value getDefaultValue() {

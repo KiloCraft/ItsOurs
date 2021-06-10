@@ -8,4 +8,13 @@ public class RootNode extends Node {
         super(id);
     }
 
+    @Override
+    public String getId() {
+        return "";
+    }
+
+    @Override
+    public String getName() {
+        return this.id;
+    }
 }

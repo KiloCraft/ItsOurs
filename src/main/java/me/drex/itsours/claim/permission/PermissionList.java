@@ -4,7 +4,10 @@ import me.drex.itsours.claim.permission.util.node.SettingNode;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.claim.permission.util.node.PermissionNode;
 import me.drex.itsours.claim.permission.util.node.RootNode;
+import me.drex.itsours.util.WorldUtil;
 import net.minecraft.block.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.tag.BlockTags;
@@ -23,38 +26,45 @@ import java.util.stream.Collectors;
 
 public class PermissionList {
 
-    public static final RootNode permission = new RootNode("");
-    public static final RootNode setting = new RootNode("");
+    public static final RootNode permission = new RootNode("permission");
+    public static final RootNode setting = new RootNode("setting");
 
     public static Predicate<Item> useItem = item -> !overrides(item.getClass(), Item.class, "method_7836", World.class, PlayerEntity.class, Hand.class) || item.isFood();
     public static Predicate<Item> useOnBlock = item -> (!overrides(item.getClass(), Item.class, "method_7884", ItemUsageContext.class)) && !(item instanceof BlockItem) ;
     public static Predicate<Block> interactBlock = block -> (!overrides(block.getClass(), Block.class, "method_9534", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class) || block instanceof AbstractButtonBlock || block instanceof AbstractPressurePlateBlock);
+    public static Predicate<EntityType<?>> interactEntity = entityType -> {
+        Entity entity = entityType.create(WorldUtil.getWorld(World.OVERWORLD.getValue().toString()));
+        if (entity == null) { return false;
+        } else { return !overrides(entity.getClass(), Entity.class, "method_5688", PlayerEntity.class, Hand.class); }
+    };
 
     public static void register() {
 
         List<Node> blockNodes = Node.getNodes(Registry.BLOCK, BlockTags.getTagGroup());
-        registerPermission((PermissionNode) new PermissionNode("place").withInformation("Place blocks").addNodes(blockNodes));
-        registerPermission((PermissionNode) new PermissionNode("mine").withInformation("Mine blocks").addNodes(blockNodes));
+        registerPermission((PermissionNode) new PermissionNode("place").withInformation("Place blocks").addNodes(blockNodes).item(Items.STONE));
+        registerPermission((PermissionNode) new PermissionNode("mine").withInformation("Mine blocks").addNodes(blockNodes).item(Items.DIAMOND_PICKAXE));
 
         List<Node> interactableBlockNodes = Node.getNodes(Registry.BLOCK, BlockTags.getTagGroup(), interactBlock);
-        registerPermission((PermissionNode) new PermissionNode("interact_block").withInformation("Rightclick on blocks").addNodes(interactableBlockNodes));
+        registerPermission((PermissionNode) new PermissionNode("interact_block").withInformation("Rightclick on blocks").addNodes(interactableBlockNodes).item(Items.FURNACE));
 
-        List<Node> itemBlockNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), blockNodes, useOnBlock);
-        registerPermission((PermissionNode) new PermissionNode("use_on_block").withInformation("Use an item on a block").addNodes(itemBlockNodes));
+        List<Node> itemBlockNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), useOnBlock);
+        registerPermission((PermissionNode) new PermissionNode("use_on_block").withInformation("Use an item on a block").addNodes(itemBlockNodes).item(Items.IRON_SHOVEL));
 
         List<Node> useItemNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), useItem);
-        registerPermission((PermissionNode) new PermissionNode("use_item").withInformation("Rightclick with an item").addNodes(useItemNodes));
+        registerPermission((PermissionNode) new PermissionNode("use_item").withInformation("Rightclick with an item").addNodes(useItemNodes).item(Items.FIREWORK_ROCKET));
 
         List<Node> entityNodes = Node.getNodes(Registry.ENTITY_TYPE, EntityTypeTags.getTagGroup()).stream().filter(node -> !node.getId().equals("player")).collect(Collectors.toList());
-        registerPermission((PermissionNode) new PermissionNode("damage_entity").withInformation("Hit / damage entities").addNodes(entityNodes));
-        registerPermission((PermissionNode) new PermissionNode("interact_entity").withInformation("Rightclick on entities").addNodes(entityNodes));
+        registerPermission((PermissionNode) new PermissionNode("damage_entity").withInformation("Hit / damage entities").addNodes(entityNodes).item(Items.DIAMOND_SWORD));
 
-        registerPermission((PermissionNode) new PermissionNode("modify").withInformation("Claim permissions").addSimpleNodes(Arrays.asList("trust", "untrust", "distrust", "size", "permission", "setting", "subzone", "name")));
+        List<Node> interactableEntityNodes = Node.getNodes(Registry.ENTITY_TYPE, EntityTypeTags.getTagGroup(), interactEntity);
+        registerPermission((PermissionNode) new PermissionNode("interact_entity").withInformation("Rightclick on entities").addNodes(interactableEntityNodes).item(Items.VILLAGER_SPAWN_EGG));
 
-        registerSetting((SettingNode) new SettingNode("pvp").global().withInformation("Toggle Player vs Player"));
-        registerSetting((SettingNode) new SettingNode("mobspawn").global().withInformation("Toggle mobspawning"));
-        registerSetting((SettingNode) new SettingNode("explosions").withInformation("Toggle explosion block damage"));
-        registerSetting((SettingNode) new SettingNode("fluid_crosses_borders").withInformation("Toggle fluids crossing claim borders"));
+        registerPermission((PermissionNode) new PermissionNode("modify").withInformation("Claim permissions").addSimpleNodes(Arrays.asList("trust", "untrust", "distrust", "size", "permission", "setting", "subzone", "name", "role")).item(Items.REPEATER));
+
+        registerSetting((SettingNode) new SettingNode("pvp").global().withInformation("Toggle Player vs Player").item(Items.BOW));
+        registerSetting((SettingNode) new SettingNode("mobspawn").global().withInformation("Toggle mobspawning").item(Items.PIG_SPAWN_EGG));
+        registerSetting((SettingNode) new SettingNode("explosions").withInformation("Toggle explosion block damage").item(Items.TNT));
+        registerSetting((SettingNode) new SettingNode("fluid_crosses_borders").withInformation("Toggle fluids crossing claim borders").item(Items.WATER_BUCKET));
 
     }
 

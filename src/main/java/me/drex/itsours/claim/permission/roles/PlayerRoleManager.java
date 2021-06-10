@@ -3,6 +3,7 @@ package me.drex.itsours.claim.permission.roles;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.claim.permission.Permission;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;

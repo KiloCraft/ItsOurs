@@ -47,6 +47,15 @@ public class PermissionMap extends HashMap<String, Boolean> {
         else this.put(permission, value.value);
     }
 
+    public Permission.Value getValue(String permission) {
+        Boolean bool = this.get(permission);
+        if (bool != null) {
+            return Permission.Value.of(bool);
+        } else {
+            return Permission.Value.UNSET;
+        }
+    }
+
     public Component toText() {
         TextComponent.Builder text = Component.text();
         for (Entry<String, Boolean> entry : this.entrySet()) {
