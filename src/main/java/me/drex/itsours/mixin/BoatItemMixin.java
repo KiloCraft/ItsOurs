@@ -33,9 +33,9 @@ public class BoatItemMixin extends Item {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
         if (!claim.isPresent())
             return hit;
-        if (!claim.get().hasPermission(player.getUuid(), "interact_block." + Registry.BLOCK.getId((Block) (Object) this).getPath())) {
+        if (!claim.get().hasPermission(player.getUuid(), "use_item." + Registry.ITEM.getId(this).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            claimPlayer.sendError(Component.text("You can't interact with that block here.").color(Color.RED));
+            claimPlayer.sendError(Component.text("You can't use that item here.").color(Color.RED));
             return BlockHitResult.createMissed(hit.getPos(), hit.getSide(), hit.getBlockPos());
         }
         return hit;

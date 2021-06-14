@@ -21,7 +21,7 @@ public class RenameCommand extends Command {
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         RequiredArgumentBuilder<ServerCommandSource, String> newOwner = RequiredArgumentBuilder.argument("newName", StringArgumentType.word());
         newOwner.executes(ctx -> rename(ctx.getSource(), getClaim(ctx), StringArgumentType.getString(ctx, "newName")));
-        RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
+        RequiredArgumentBuilder<ServerCommandSource, String> claim = permissionClaimArgument("modify.name");
         claim.then(newOwner);
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("rename");
         command.then(claim);

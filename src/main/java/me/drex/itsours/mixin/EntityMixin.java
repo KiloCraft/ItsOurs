@@ -15,6 +15,7 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,14 +33,11 @@ public abstract class EntityMixin {
 
     @Shadow public abstract EntityType<?> getType();
 
-    @Shadow public abstract World getEntityWorld();
-
     @Shadow public abstract BlockPos getBlockPos();
 
     public Optional<AbstractClaim> pclaim = Optional.empty();
     protected UUID uuid;
-    World pworld;
-    BlockPos ppos;
+    Vec3d ppos;
 
     @Inject(method = "setPos", at = @At("RETURN"))
     public void itsours$doPostPosActions(CallbackInfo ci) {
@@ -50,26 +48,26 @@ public abstract class EntityMixin {
             if (!pclaim.equals(claim)) {
                 if (player.networkHandler != null) {
                     pclaim.ifPresent(c -> c.onLeave(claim, player));
-                    claim.ifPresent(c -> c.onEnter(pclaim, player));
+                    claim.ifPresent(c -> {
+                        if (c.getRestrictionManager().canEnter(player.getUuid())) {
+                            if (pclaim.isPresent()) {
+                                if (pclaim.get().getRestrictionManager().canEnter(player.getUuid())) {
+                                    c.onEnter(pclaim, player);
+                                } else {
+                                    player.requestTeleport(ppos.getX(), ppos.getY(), ppos.getZ());
+                                }
+                            } else {
+                                player.requestTeleport(ppos.getX(), ppos.getY(), ppos.getZ());
+                            }
+                        } else {
+                            c.onEnter(pclaim, player);
+                        }
+                    });
                 }
             }
             pclaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
-            pworld = player.world;
-            ppos = player.getBlockPos();
+            ppos = player.getPos();
         }
-    }
-
-
-    public BlockPos getPosOnGround(BlockPos pos, World world) {
-        BlockPos blockPos = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
-        do {
-            blockPos = blockPos.down();
-            if (blockPos.getY() < 1) {
-                return pos;
-            }
-        } while (world.getBlockState(blockPos).isAir());
-
-        return blockPos.up();
     }
 
     @Redirect(method = "checkBlockCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V"))

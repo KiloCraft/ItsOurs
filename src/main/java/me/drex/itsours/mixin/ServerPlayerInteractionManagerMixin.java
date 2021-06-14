@@ -7,6 +7,7 @@ import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -108,8 +109,8 @@ public class ServerPlayerInteractionManagerMixin {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
         if (!claim.isPresent() || !PermissionList.filter(itemStack.getItem(), PermissionList.useOnBlock))
             return itemStack.useOnBlock(context);
-        if (!claim.get().hasPermission(Objects.requireNonNull(context.getPlayer()).getUuid(), "use_on_block." + Registry.ITEM.getId(itemStack.getItem()) + "." + Registry.BLOCK.getId(context.getWorld().getBlockState(context.getBlockPos()).getBlock()).getPath())) {
-            claimPlayer.sendError(Component.text("You can't use that item here.").color(Color.RED));
+        if (!claim.get().hasPermission(context.getPlayer().getUuid(), "use_on_block." + Registry.ITEM.getId(itemStack.getItem()).getPath())) {
+            claimPlayer.sendError(Component.text("You can't use that item on this block here.").color(Color.RED));
             return ActionResult.FAIL;
         }
         return itemStack.useOnBlock(context);

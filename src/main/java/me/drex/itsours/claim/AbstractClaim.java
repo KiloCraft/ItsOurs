@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.claim.permission.RestrictionManager;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.claim.permission.util.context.PermissionContext;
 import me.drex.itsours.user.ClaimPlayer;
@@ -45,6 +46,7 @@ public abstract class AbstractClaim {
     private Date created;
     private Date lastEdited;
     private PermissionManager permissionManager;
+    private RestrictionManager restrictionManager;
 
     public AbstractClaim(String name, UUID owner, BlockPos pos1, BlockPos pos2, ServerWorld world, BlockPos tp) {
         this.name = name;
@@ -61,6 +63,7 @@ public abstract class AbstractClaim {
         this.world = world;
         this.tp = tp;
         this.permissionManager = new PermissionManager(new NbtCompound());
+        this.restrictionManager = new RestrictionManager(new NbtCompound());
     }
 
     public AbstractClaim(NbtCompound tag) {
@@ -69,6 +72,10 @@ public abstract class AbstractClaim {
 
     public static boolean isNameValid(String name) {
         return NAME.matcher(name).matches();
+    }
+
+    public RestrictionManager getRestrictionManager() {
+        return restrictionManager;
     }
 
     public void fromNBT(NbtCompound tag) {
@@ -88,6 +95,7 @@ public abstract class AbstractClaim {
             });
         }
         this.permissionManager = new PermissionManager(tag.getCompound("permissions"));
+        this.restrictionManager = new RestrictionManager(tag.getCompound("restrictions"));
     }
 
     public NbtCompound toNBT() {
@@ -110,6 +118,7 @@ public abstract class AbstractClaim {
             tag.put("subzones", list);
         }
         tag.put("permissions", this.permissionManager.toNBT());
+        tag.put("restrictions", this.restrictionManager.toNBT());
         return tag;
     }
 
@@ -194,11 +203,11 @@ public abstract class AbstractClaim {
 
     protected PermissionContext getPermissionContext(UUID uuid, Permission permission) {
         PermissionContext context = new PermissionContext();
-            context.combine(this.permissionManager.getPermissionContext(uuid, permission));
-            if (uuid.equals(owner))
-                context.add(permission, PermissionContext.CustomPriority.OWNER, Permission.Value.TRUE);
-            if (ItsOursMod.INSTANCE.getPlayerList().getBoolean(uuid, PlayerSetting.IGNORE))
-                context.add(permission, PermissionContext.CustomPriority.IGNORE, Permission.Value.TRUE);
+        context.combine(this.permissionManager.getPermissionContext(uuid, permission));
+        if (uuid.equals(owner))
+            context.add(permission, PermissionContext.CustomPriority.OWNER, Permission.Value.TRUE);
+        if (ItsOursMod.INSTANCE.getPlayerList().getBoolean(uuid, PlayerSetting.IGNORE))
+            context.add(permission, PermissionContext.CustomPriority.IGNORE, Permission.Value.TRUE);
         return context;
     }
 

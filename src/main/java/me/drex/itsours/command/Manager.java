@@ -26,6 +26,7 @@ public class Manager {
         PermissionCommand.register(main);
         RemoveCommand.register(main);
         RenameCommand.register(main);
+        //RestrictionCommand.register(main);
         RoleCommand.register(main);
         RolesCommand.register(main);
         SelectCommand.register(main);

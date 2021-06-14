@@ -15,7 +15,7 @@ public class TrustCommand extends Command {
         {
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             player.executes(ctx -> execute(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), Permission.Value.TRUE));
-            RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
+            RequiredArgumentBuilder<ServerCommandSource, String> claim = permissionClaimArgument("modify.trust");
             LiteralArgumentBuilder<ServerCommandSource> trust = LiteralArgumentBuilder.literal("trust");
 
             claim.then(player);
@@ -25,7 +25,7 @@ public class TrustCommand extends Command {
         {
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             player.executes(ctx -> execute(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), Permission.Value.FALSE));
-            RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
+            RequiredArgumentBuilder<ServerCommandSource, String> claim = permissionClaimArgument("modify.distrust");
             LiteralArgumentBuilder<ServerCommandSource> distrust = LiteralArgumentBuilder.literal("distrust");
 
             claim.then(player);
@@ -35,7 +35,7 @@ public class TrustCommand extends Command {
         {
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
             player.executes(ctx -> execute(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), Permission.Value.UNSET));
-            RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
+            RequiredArgumentBuilder<ServerCommandSource, String> claim = permissionClaimArgument("modify.untrust");
             LiteralArgumentBuilder<ServerCommandSource> untrust = LiteralArgumentBuilder.literal("untrust");
 
             claim.then(player);
@@ -46,18 +46,18 @@ public class TrustCommand extends Command {
 
     public static int execute(ServerCommandSource source, AbstractClaim claim, GameProfile target, Permission.Value trust) throws CommandSyntaxException {
         switch (trust) {
-            case TRUE:
+            case TRUE -> {
                 validatePermission(claim, source.getPlayer().getUuid(), "modify.trust");
                 RoleCommand.addRole(source, claim, target, "trusted", 0);
-                break;
-            case FALSE:
+            }
+            case FALSE -> {
                 validatePermission(claim, source.getPlayer().getUuid(), "modify.distrust");
                 RoleCommand.removeRole(source, claim, target, "trusted");
-                break;
-            case UNSET:
+            }
+            case UNSET -> {
                 validatePermission(claim, source.getPlayer().getUuid(), "modify.untrust");
                 RoleCommand.unsetRole(source, claim, target, "trusted");
-                break;
+            }
         }
         return 1;
     }

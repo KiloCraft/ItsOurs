@@ -27,6 +27,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
@@ -122,9 +123,13 @@ public abstract class Command {
     }
 
     private static void addSubzones(AbstractClaim claim, String input, List<String> names) {
+        addSubzones(claim, input, names, c -> true);
+    }
+
+    private static void addSubzones(AbstractClaim claim, String input, List<String> names, Predicate<AbstractClaim> predicate) {
         if (input.startsWith(claim.getFullName())) {
             for (Subzone subzone : claim.getSubzones()) {
-                names.add(subzone.getFullName());
+                if (predicate.test(subzone)) names.add(subzone.getFullName());
                 addSubzones(subzone, input, names);
             }
         }
@@ -142,9 +147,8 @@ public abstract class Command {
     }
 
     static void validatePermission(AbstractClaim claim, UUID uuid, String permission) throws CommandSyntaxException {
-        //TODO:
-        /*if (!claim.hasPermission(uuid, permission))
-            throw new SimpleCommandExceptionType(new LiteralText("You don't have permission to do that")).create();*/
+        if (!claim.hasPermission(uuid, permission))
+            throw new SimpleCommandExceptionType(new LiteralText("You don't have permission to do that")).create();
     }
 
     public static AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
@@ -174,6 +178,28 @@ public abstract class Command {
             if (val.name.equalsIgnoreCase(value)) return val;
         }
         throw new SimpleCommandExceptionType(new LiteralText("Invalid permission value")).create();
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, String> permissionClaimArgument(String... permissions) {
+
+        SuggestionProvider<ServerCommandSource> CLAIM_PROVIDER = (source, builder) -> {
+            UUID uuid = source.getSource().getPlayer().getUuid();
+            Predicate<AbstractClaim> predicate = claim -> {
+                for (String permission : permissions) {
+                    if (claim.hasPermission(uuid, permission)) return true;
+                }
+                return false;
+            };
+            List<String> names = new ArrayList<>();
+            if (uuid != null) {
+                for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get().stream().filter(claim -> claim instanceof Claim).collect(Collectors.toList())) {
+                    if (predicate.test(claim)) names.add(claim.getFullName());
+                    addSubzones(claim, builder.getRemaining(), names, predicate);
+                }
+            }
+            return CommandSource.suggestMatching(names, builder);
+        };
+        return argument("claim", word()).suggests(CLAIM_PROVIDER);
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> ownClaimArgument() {
