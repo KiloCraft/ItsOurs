@@ -1,5 +1,8 @@
 package me.drex.itsours.gui;
 
+import me.drex.itsours.gui.util.ScreenHelper;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
@@ -11,20 +14,18 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.Formatting;
 
 import java.util.UUID;
 
 public abstract class GUIScreenHandler extends ScreenHandler {
 
-    private final int rows;
-    private final PlayerEntity player;
+    protected final int rows;
+    protected final ServerPlayerEntity player;
     protected ScreenHandlerSyncHandler syncHandler;
     protected GUIScreenHandler previous;
     protected final Inventory inventory;
 
-    protected GUIScreenHandler(int syncId, int rows, PlayerEntity player) {
+    protected GUIScreenHandler(int syncId, int rows, ServerPlayerEntity player) {
         super(toScreenHandlerType(rows), syncId);
         this.rows = rows;
         this.player = player;
@@ -76,7 +77,7 @@ public abstract class GUIScreenHandler extends ScreenHandler {
 
     public void addBack() {
         ItemStack back = ScreenHelper.createPlayerHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODY1MmUyYjkzNmNhODAyNmJkMjg2NTFkN2M5ZjI4MTlkMmU5MjM2OTc3MzRkMThkZmRiMTM1NTBmOGZkYWQ1ZiJ9fX0=", UUID.fromString("e8627b92-1dcb-4733-810c-a2b47833c451"));
-        back.setCustomName(new LiteralText("Back").formatted(Formatting.GRAY));
+        ScreenHelper.setCustomName(back, Component.text("Back").color(NamedTextColor.GRAY));
         inventory.setStack(0, back);
     }
 

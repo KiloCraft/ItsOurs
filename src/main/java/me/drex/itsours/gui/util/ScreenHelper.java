@@ -1,4 +1,4 @@
-package me.drex.itsours.gui;
+package me.drex.itsours.gui.util;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
@@ -6,13 +6,13 @@ import com.mojang.authlib.minecraft.MinecraftSessionService;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.util.TextComponentUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import org.apache.commons.codec.binary.Base64;
 
@@ -46,6 +46,12 @@ public class ScreenHelper {
         item.setTag(itemTag);
     }
 
+    public static void addLore(ItemStack itemStack, String... strings) {
+        for (String string : strings) {
+            addLore(itemStack, Component.text(string).color(NamedTextColor.WHITE));
+        }
+    }
+
     public static void addGlint(ItemStack item) {
         NbtCompound itemTag = item.getTag();
 
@@ -61,6 +67,20 @@ public class ScreenHelper {
         enchantments.add(new NbtCompound());
         itemTag.put("Enchantments", enchantments);
         item.setTag(itemTag);
+    }
+
+    public static void setCustomName(ItemStack item, Component text) {
+        item.setCustomName(TextComponentUtil.from(text));
+    }
+
+    public static void setCustomName(ItemStack item, String text) {
+        setCustomName(item, Component.text(text).color(NamedTextColor.GRAY));
+    }
+
+    public static GameProfile getProfile(UUID uuid) {
+        GameProfile profile = ItsOursMod.server.getUserCache().getByUuid(uuid);
+        if (profile == null) profile = new GameProfile(uuid, "???");
+        return profile;
     }
 
     public static String toName(UUID uuid) {
@@ -143,20 +163,6 @@ public class ScreenHelper {
 
 
         });
-    }
-
-    public static void openPrevious(ServerPlayerEntity player, GUIScreenHandler screenHandler) {
-        GUIScreenHandler previous = screenHandler.previous;
-        player.closeHandledScreen();
-        if (previous instanceof SettingInfoScreenHandler) {
-            player.getServer().execute(() -> SettingInfoScreenHandler.openMenu(player, ((SettingInfoScreenHandler) previous).map, previous.previous, ((SettingInfoScreenHandler) previous).page, ((SettingInfoScreenHandler) previous).node));
-        } else if (previous instanceof PermissionInfoScreenHandler) {
-            player.getServer().execute(() -> PermissionInfoScreenHandler.openMenu(player, ((PermissionInfoScreenHandler) previous).map, previous.previous, ((PermissionInfoScreenHandler) previous).page, ((PermissionInfoScreenHandler) previous).uuid, ((PermissionInfoScreenHandler) previous).node));
-        } else if (previous instanceof ClaimInfoScreenHandler) {
-            player.getServer().execute(() -> ClaimInfoScreenHandler.openMenu(player, ((ClaimInfoScreenHandler) previous).claim));
-        } else if (previous instanceof TrustedScreenHandler) {
-            player.getServer().execute(() -> TrustedScreenHandler.openMenu(player, ((TrustedScreenHandler) previous).claim, previous.previous, ((TrustedScreenHandler) previous).page));
-        }
     }
 
 }

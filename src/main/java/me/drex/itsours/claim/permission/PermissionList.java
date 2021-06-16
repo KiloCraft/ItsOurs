@@ -28,6 +28,7 @@ public class PermissionList {
 
     public static final RootNode permission = new RootNode("permission");
     public static final RootNode setting = new RootNode("setting");
+    public static final RootNode both = new RootNode("setting");
 
     public static Predicate<Item> useItem = item -> !overrides(item.getClass(), Item.class, "method_7836", World.class, PlayerEntity.class, Hand.class) || item.isFood();
     public static Predicate<Item> useOnBlock = item -> (!overrides(item.getClass(), Item.class, "method_7884", ItemUsageContext.class)) && !(item instanceof BlockItem) ;
@@ -82,10 +83,12 @@ public class PermissionList {
 
     public static void registerPermission(PermissionNode node) {
         permission.add(node);
+        both.add(node);
     }
 
     public static void registerSetting(SettingNode node) {
         setting.add(node);
+        both.add(node);
     }
 
 }

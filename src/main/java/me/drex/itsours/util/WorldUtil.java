@@ -34,4 +34,14 @@ public class WorldUtil {
         return "";
     }
 
+    public static boolean isOverworld(ServerWorld world) {
+        return world.getRegistryKey().equals(World.OVERWORLD);
+    }
+    public static boolean isNether(ServerWorld world) {
+        return world.getRegistryKey().equals(World.NETHER);
+    }
+    public static boolean isEnd(ServerWorld world) {
+        return world.getRegistryKey().equals(World.END);
+    }
+
 }

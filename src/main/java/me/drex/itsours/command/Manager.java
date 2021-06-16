@@ -19,6 +19,7 @@ public class Manager {
         DebugCommand.register(main);
         ExpandCommand.register(main);
         FlyCommand.register(main);
+        GUICommand.register(main);
         HelpCommand.register(main);
         IgnoreCommand.register(main);
         InfoCommand.register(main);

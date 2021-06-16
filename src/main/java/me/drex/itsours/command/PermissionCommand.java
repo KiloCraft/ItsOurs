@@ -55,7 +55,7 @@ public class PermissionCommand extends Command {
     }
 
     public static int checkPlayer(ServerCommandSource source, AbstractClaim claim, GameProfile target, Permission permission) throws CommandSyntaxException {
-        validatePermission(claim, target.getId(), "modify.permission");
+        validatePermission(claim, source.getPlayer().getUuid(), "modify.permission");
         PermissionContext context = claim.getContext(target.getId(), permission);
         TextComponent.Builder hover = Component.text();
         for (Map.Entry<Permission, List<Pair<PermissionContext.Priority, Permission.Value>>> entry : context.getData().entrySet()) {
@@ -77,7 +77,7 @@ public class PermissionCommand extends Command {
     }
 
     public static int setPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target, Permission permission, Permission.Value value) throws CommandSyntaxException {
-        validatePermission(claim, target.getId(), "modify.permission");
+        validatePermission(claim, source.getPlayer().getUuid(), "modify.permission");
         claim.getPermissionManager().setPlayerPermission(target.getId(), permission, value);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set permission ").color(Color.YELLOW)
                 .append(Component.text(permission.asString())).color(Color.ORANGE)
@@ -87,7 +87,7 @@ public class PermissionCommand extends Command {
     }
 
     public static int listPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target) throws CommandSyntaxException {
-        validatePermission(claim, target.getId(), "modify.permission");
+        validatePermission(claim, source.getPlayer().getUuid(), "modify.permission");
         TextComponent.Builder roleBuilder = Component.text();
         //TODO:
         /*for (Map.Entry<Role, Integer> entry : claim.getPermissionManager().getRolesByWeight(target.getId()).entrySet()) {

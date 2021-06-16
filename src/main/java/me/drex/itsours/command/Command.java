@@ -135,7 +135,7 @@ public abstract class Command {
         }
     }
 
-    static AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
+    protected static AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get(world, pos);
         if (!claim.isPresent())
             throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim at your position!")).create();

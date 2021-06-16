@@ -6,8 +6,6 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.gui.ClaimInfoScreenHandler;
-import me.drex.itsours.gui.TrustedScreenHandler;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import me.drex.itsours.util.TextComponentUtil;
@@ -33,7 +31,6 @@ public class InfoCommand extends Command {
     }
 
     public static int info(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
-        ClaimInfoScreenHandler.openMenu(source.getPlayer(), claim);
         TextComponent text = getInfo(claim);
         ((ClaimPlayer) source.getPlayer()).sendMessage(text);
         return 1;

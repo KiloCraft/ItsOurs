@@ -3,7 +3,6 @@ package me.drex.itsours.claim.permission.util.node.util;
 
 import com.google.common.collect.Lists;
 import me.drex.itsours.claim.permission.Permission;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
@@ -70,7 +69,7 @@ public class Node {
         return nodes;
     }
 
-    private static <T>void addItem(T entry, Node n) {
+    private static <T> void addItem(T entry, Node n) {
         if (entry instanceof ItemConvertible) {
             n.item(((ItemConvertible) entry).asItem());
         } else if (entry instanceof EntityType) {
@@ -185,5 +184,50 @@ public class Node {
             }
         }
         throw new InvalidPermissionException("Couldn't find " + id + " node in " + this.getId());
+    }
+
+    public int compareTo(Node other, CompareMode compareMode) {
+        switch (compareMode) {
+            case ALPHABET_DESC -> {
+                return this.getId().toLowerCase().compareTo(other.getId().toLowerCase());
+            }
+            case ALPHABET_ASC -> {
+                return compareTo(other, CompareMode.ALPHABET_DESC) * -1;
+            }
+            case GROUP_FIRST -> {
+                if (this instanceof GroupNode && !(other instanceof GroupNode)) {
+                    return -1;
+                } else if (other instanceof GroupNode && !(this instanceof GroupNode)) {
+                    return 1;
+                } else {
+                    return compareTo(other, CompareMode.ALPHABET_DESC);
+                }
+            }
+            case SINGLE_FIRST -> {
+                if (this instanceof GroupNode && !(other instanceof GroupNode)) {
+                    return 1;
+                } else if (other instanceof GroupNode && !(this instanceof GroupNode)) {
+                    return -1;
+                } else {
+                    return compareTo(other, CompareMode.ALPHABET_DESC);
+                }
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + compareMode);
+        }
+    }
+
+    public static enum CompareMode {
+        ALPHABET_DESC("Alphabet (Desc)"), ALPHABET_ASC("Alphabet (Asc)"), GROUP_FIRST("Groups first"), SINGLE_FIRST("Nongroups first");
+
+        private final String name;
+
+        CompareMode(String name) {
+
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 }
