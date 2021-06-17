@@ -56,7 +56,7 @@ public class TrustedScreen extends PagedScreen<ClaimContext> {
                 } else {
                     value = Permission.Value.UNSET;
                 }
-                ItemStack playerHead = ScreenHelper.createPlayerHead(uuid);
+                ItemStack playerHead = new ItemStack(Items.PLAYER_HEAD);/*ScreenHelper.createPlayerHead(uuid);*/
                 String name = ScreenHelper.toName(uuid);
                 ScreenHelper.addLore(playerHead, "Click to open", "permission manager");
                 ScreenHelper.setCustomName(playerHead, name);

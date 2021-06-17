@@ -60,7 +60,7 @@ public class Permission {
     public String asString(String replacement, int replacementIndex) {
         StringBuilder result = new StringBuilder();
         for (int i = nodes.size() - 1; i >= 0; i--) {
-            result.append(i != replacementIndex ? nodes.get(i) :replacement).append(i == 0 ? "" : ".");
+            result.append(i != replacementIndex ? nodes.get(i).getId() : replacement).append(i == 0 ? "" : ".");
         }
         return result.toString();
     }
