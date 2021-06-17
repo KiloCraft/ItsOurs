@@ -18,6 +18,7 @@ import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.Texts;
 import net.minecraft.util.Formatting;
 
 import java.util.List;
@@ -56,7 +57,7 @@ public class TrustedScreen extends PagedScreen<ClaimContext> {
                 } else {
                     value = Permission.Value.UNSET;
                 }
-                ItemStack playerHead = new ItemStack(Items.PLAYER_HEAD);/*ScreenHelper.createPlayerHead(uuid);*/
+                ItemStack playerHead = new ItemStack(Items.PLAYER_HEAD);
                 String name = ScreenHelper.toName(uuid);
                 ScreenHelper.addLore(playerHead, "Click to open", "permission manager");
                 ScreenHelper.setCustomName(playerHead, name);
@@ -130,7 +131,7 @@ public class TrustedScreen extends PagedScreen<ClaimContext> {
                 TrustCommand.execute(player.getCommandSource(), claimContext.getClaim(), target, next);
                 draw();
             } catch (CommandSyntaxException e) {
-                player.sendMessage(new LiteralText(e.getContext()), false);
+                player.getCommandSource().sendError(Texts.toText(e.getRawMessage()));
             }
         });
         data.put(nextSlot + 8, slotEntry);
