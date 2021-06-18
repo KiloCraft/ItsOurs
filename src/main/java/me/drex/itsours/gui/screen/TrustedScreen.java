@@ -7,6 +7,7 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionList;
 import me.drex.itsours.claim.permission.roles.Role;
+import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.command.TrustCommand;
 import me.drex.itsours.command.TrustedCommand;
 import me.drex.itsours.gui.util.ScreenHelper;
@@ -73,7 +74,7 @@ public class TrustedScreen extends PagedScreen<ClaimContext> {
                                     return uuid;
                                 }
                             },
-                            this, PermissionList.permission);
+                            this, PermissionList.permission, Node.CompareMode.ALPHABET_DESC, AbstractMapScreen.FilterMode.ALL);
                     permissionScreen.render();
                 });
                 addPageEntry(slotEntry);

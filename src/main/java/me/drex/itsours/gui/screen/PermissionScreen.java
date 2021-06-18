@@ -19,8 +19,8 @@ import java.util.Optional;
 
 public class PermissionScreen extends AbstractMapScreen<PermissionContext> {
 
-    public PermissionScreen(ServerPlayerEntity player, int rows, PermissionContext context, SimpleScreen<?> previous, Node node) {
-        super(player, rows, context, previous, node);
+    public PermissionScreen(ServerPlayerEntity player, int rows, PermissionContext context, SimpleScreen<?> previous, Node node, Node.CompareMode compareMode, FilterMode filterMode) {
+        super(player, rows, context, previous, node, compareMode, filterMode);
         ItemStack info = ScreenHelper.createPlayerHead(context.getUUID());
         ScreenHelper.setCustomName(info, "Permissions");
         ScreenHelper.addLore(info, Component.text("This page allows").color(NamedTextColor.WHITE));
@@ -55,8 +55,7 @@ public class PermissionScreen extends AbstractMapScreen<PermissionContext> {
     }
 
     @Override
-    public AbstractMapScreen<PermissionContext> buildScreen(ServerPlayerEntity player, int rows, PermissionContext context, SimpleScreen<?> previous, Node node) {
-        return new PermissionScreen(player, rows, context, this, node);
+    public AbstractMapScreen<PermissionContext> buildScreen(ServerPlayerEntity player, int rows, PermissionContext context, SimpleScreen<?> previous, Node node, Node.CompareMode compareMode, FilterMode filterMode) {
+        return new PermissionScreen(player, rows, context, previous, node, compareMode, filterMode);
     }
-
 }

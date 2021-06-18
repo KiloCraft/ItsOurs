@@ -20,8 +20,8 @@ import java.util.Optional;
 
 public class SettingScreen extends AbstractMapScreen<ClaimContext> {
 
-    public SettingScreen(ServerPlayerEntity player, int rows, ClaimContext context, SimpleScreen<?> previous, Node node) {
-        super(player, rows, context, previous, node);
+    public SettingScreen(ServerPlayerEntity player, int rows, ClaimContext context, SimpleScreen<?> previous, Node node, Node.CompareMode compareMode, FilterMode filterMode) {
+        super(player, rows, context, previous, node, compareMode, filterMode);
         ItemStack info = new ItemStack(Items.PAPER);
         ScreenHelper.setCustomName(info, "Settings");
         ScreenHelper.addLore(info, Component.text("This page allows").color(NamedTextColor.WHITE));
@@ -51,8 +51,8 @@ public class SettingScreen extends AbstractMapScreen<ClaimContext> {
     }
 
     @Override
-    public AbstractMapScreen<ClaimContext> buildScreen(ServerPlayerEntity player, int rows, ClaimContext context, SimpleScreen<?> previous, Node node) {
-        return new SettingScreen(player, rows, context, this, node);
+    public AbstractMapScreen<ClaimContext> buildScreen(ServerPlayerEntity player, int rows, ClaimContext context, SimpleScreen<?> previous, Node node, Node.CompareMode compareMode, FilterMode filterMode) {
+        return new SettingScreen(player, rows, context, previous, node, compareMode, filterMode);
     }
 
     @Override

@@ -4,6 +4,7 @@ import me.drex.itsours.gui.util.SlotEntry;
 import me.drex.itsours.gui.util.context.NoContext;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,6 +35,8 @@ public class PagedScreen<K extends NoContext> extends BackScreen<K> {
 
     @Override
     public void draw() {
+        int maxPage = (entries-1) / entriesPerPage;
+        page = MathHelper.clamp(page, 0, maxPage);
         SlotEntry<K> previous = new SlotEntry<>(Items.ARROW, "Previous", (NoC, leftClick, shiftClick) -> {
             page--;
             draw();
@@ -43,7 +46,6 @@ public class PagedScreen<K extends NoContext> extends BackScreen<K> {
             page++;
             draw();
         });
-        int maxPage = (entries-1) / entriesPerPage;
         addSlot((page < maxPage) ? next : fill, (rows * 9) - 1);
 
         SlotEntry<K> current = new SlotEntry<>(Items.OAK_SIGN, "Page " + (page + 1) + " / " + (maxPage + 1));

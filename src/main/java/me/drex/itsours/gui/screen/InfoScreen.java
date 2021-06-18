@@ -1,6 +1,7 @@
 package me.drex.itsours.gui.screen;
 
 import me.drex.itsours.claim.permission.PermissionList;
+import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.gui.util.SlotEntry;
 import me.drex.itsours.gui.util.context.ClaimContext;
 import net.minecraft.item.Items;
@@ -20,7 +21,7 @@ public class InfoScreen extends BackScreen<ClaimContext> {
         super(player, 3, context, previous);
         SlotEntry<ClaimContext> settings = new SlotEntry<>(Items.COMPARATOR, "Settings", (claimContext, leftClick, shiftClick) -> {
             player.closeHandledScreen();
-            SettingScreen settingScreen = new SettingScreen(player, 6, context, this, PermissionList.both);
+            SettingScreen settingScreen = new SettingScreen(player, 6, context, this, PermissionList.both, Node.CompareMode.ALPHABET_DESC, AbstractMapScreen.FilterMode.ALL);
             settingScreen.render();
         });
         addSlot(settings, 4);
