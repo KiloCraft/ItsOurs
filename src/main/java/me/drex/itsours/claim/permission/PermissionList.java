@@ -16,6 +16,7 @@ import net.minecraft.tag.ItemTags;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
@@ -36,7 +37,9 @@ public class PermissionList {
     public static Predicate<EntityType<?>> interactEntity = entityType -> {
         Entity entity = entityType.create(WorldUtil.getWorld(World.OVERWORLD.getValue().toString()));
         if (entity == null) { return false;
-        } else { return !overrides(entity.getClass(), Entity.class, "method_5688", PlayerEntity.class, Hand.class); }
+        } else {
+            return !overrides(entity.getClass(), Entity.class, "method_5688", PlayerEntity.class, Hand.class) || !overrides(entity.getClass(), Entity.class, "method_5664", PlayerEntity.class, Vec3d.class, Hand.class);
+        }
     };
 
     public static void register() {
