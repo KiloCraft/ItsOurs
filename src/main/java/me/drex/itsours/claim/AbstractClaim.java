@@ -7,7 +7,9 @@ import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.RestrictionManager;
 import me.drex.itsours.claim.permission.roles.Role;
+import me.drex.itsours.claim.permission.util.context.ContextEntry;
 import me.drex.itsours.claim.permission.util.context.PermissionContext;
+import me.drex.itsours.claim.permission.util.context.Priority;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.user.PlayerSetting;
 import me.drex.itsours.util.Color;
@@ -202,41 +204,40 @@ public abstract class AbstractClaim {
     }
 
     protected PermissionContext getPermissionContext(UUID uuid, Permission permission) {
-        PermissionContext context = new PermissionContext();
-        context.combine(this.permissionManager.getPermissionContext(uuid, permission));
+        PermissionContext context = new PermissionContext(permission);
+        context.combine(this.permissionManager.getPermissionContext(this, uuid, permission));
         if (uuid.equals(owner))
-            context.add(permission, PermissionContext.CustomPriority.OWNER, Permission.Value.TRUE);
+            context.addEntry(ContextEntry.of(this, Priority.OWNER, permission, Permission.Value.TRUE));
         if (ItsOursMod.INSTANCE.getPlayerList().getBoolean(uuid, PlayerSetting.IGNORE))
-            context.add(permission, PermissionContext.CustomPriority.IGNORE, Permission.Value.TRUE);
+            context.addEntry(ContextEntry.of(this, Priority.IGNORE, permission, Permission.Value.TRUE));
+        context.combine(getRolePermissionContext(uuid, permission));
         return context;
     }
 
     public PermissionContext getContext(UUID uuid, Permission permission) {
         PermissionContext context = getPermissionContext(uuid, permission);
-        context.combine(getRolePermissionContext(uuid, permission));
         return context;
     }
 
     public boolean hasPermission(UUID uuid, String permission) {
         Optional<Permission> optional = Permission.permission(permission);
-        if (optional.isPresent()) return getContext(uuid, optional.get()).getValue().value;
-        return false;
+        return optional.filter(value -> getContext(uuid, value).getValue().value).isPresent();
     }
 
     public boolean getSetting(String setting) {
         Optional<Permission> optional = Permission.setting(setting);
         if (optional.isPresent()) {
-            PermissionContext context = this.permissionManager.settings.getPermission(optional.get(), PermissionContext.CustomPriority.SETTING);
+            PermissionContext context = this.permissionManager.settings.getPermission(this, optional.get(), Priority.SETTING);
             return context.getValue().value;
         } else {
             return false;
         }
     }
 
-    PermissionContext getRolePermissionContext(UUID uuid, Permission permission) {
-        PermissionContext context = new PermissionContext();
+    private PermissionContext getRolePermissionContext(UUID uuid, Permission permission) {
+        PermissionContext context = new PermissionContext(permission);
         for (Object2IntMap.Entry<Role> roleEntry : getRoles(uuid).object2IntEntrySet()) {
-            context.combine(roleEntry.getKey().permissions().getPermission(permission, new PermissionContext.RolePriority(ItsOursMod.INSTANCE.getRoleManager().getRoleID(roleEntry.getKey()), roleEntry.getIntValue())));
+            context.combine(roleEntry.getKey().permissions().getPermission(this, permission, Priority.of(ItsOursMod.INSTANCE.getRoleManager().getRoleID(roleEntry.getKey()), 3, roleEntry.getIntValue())));
         }
         if (permission.nodes() > 1) {
             Permission perm = permission.up();

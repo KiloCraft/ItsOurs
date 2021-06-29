@@ -33,11 +33,11 @@ public class Claim extends AbstractClaim {
     @Override
     public Object2IntMap<Role> getRoles(UUID uuid) {
         Object2IntMap<Role> roles = getPermissionManager().getRoles(uuid);
-        Role trusted = ItsOursMod.INSTANCE.getRoleManager().getRole("default");
-        if (!getPermissionManager().getRemovedRoles(uuid).contains(trusted)) {
+        Role def = ItsOursMod.INSTANCE.getRoleManager().getRole("default");
+        if (!getPermissionManager().getRemovedRoles(uuid).contains(def)) {
             final Object2IntMap<Role> copy = new Object2IntArrayMap<>();
             copy.putAll(roles);
-            copy.put(trusted, -1);
+            copy.put(def, -1);
             return copy;
         }
         return roles;

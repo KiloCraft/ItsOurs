@@ -2,11 +2,13 @@ package me.drex.itsours.claim.permission;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission.Value;
 import me.drex.itsours.claim.permission.roles.PlayerRoleManager;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.claim.permission.util.PermissionMap;
 import me.drex.itsours.claim.permission.util.context.PermissionContext;
+import me.drex.itsours.claim.permission.util.context.Priority;
 import net.minecraft.nbt.NbtCompound;
 
 import java.util.*;
@@ -108,18 +110,19 @@ public class PermissionManager {
         return getPlayersWithRole("trusted");
     }
 
-    public PermissionContext getPermissionContext(UUID uuid, Permission permission) {
-        PermissionContext context = new PermissionContext();
-        context.combine(settings.getPermission(permission, PermissionContext.CustomPriority.SETTING));
+    public PermissionContext getPermissionContext(AbstractClaim claim, UUID uuid, Permission permission) {
+        PermissionContext context = new PermissionContext(permission);
+        context.combine(settings.getPermission(claim, permission, Priority.SETTING));
         if (playerPermission.get(uuid) != null) {
-            context.combine(playerPermission.get(uuid).getPermission(permission, PermissionContext.CustomPriority.PERMISSION));
+            context.combine(playerPermission.get(uuid).getPermission(claim, permission, Priority.PERMISSION));
         }
         if (permission.nodes() > 1) {
             Permission perm = permission.up();
-            context.combine(getPermissionContext(uuid, perm));
+            context.combine(getPermissionContext(claim, uuid, perm));
         }
         return context;
     }
+
 
     public void setPlayerPermission(UUID uuid, Permission permission, Value value) {
         PermissionMap pm = playerPermission.get(uuid);

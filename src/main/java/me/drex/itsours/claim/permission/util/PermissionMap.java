@@ -1,7 +1,10 @@
 package me.drex.itsours.claim.permission.util;
 
+import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.claim.permission.util.context.ContextEntry;
 import me.drex.itsours.claim.permission.util.context.PermissionContext;
+import me.drex.itsours.claim.permission.util.context.Priority;
 import me.drex.itsours.claim.permission.util.node.util.GroupNode;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.util.Color;
@@ -28,10 +31,10 @@ public class PermissionMap extends HashMap<String, Boolean> {
         return tag;
     }
 
-    public PermissionContext getPermission(Permission permission, PermissionContext.Priority priority) {
-        PermissionContext context = new PermissionContext();
+    public PermissionContext getPermission(AbstractClaim claim, Permission permission, Priority priority) {
+        PermissionContext context = new PermissionContext(permission);
         if (this.containsKey(permission.asString()))
-            context.add(permission, priority, Permission.Value.of(this.get(permission.asString())));
+            context.addEntry(ContextEntry.of(claim, priority, permission, getValue(permission)));
         for (int i = permission.getNodes().size() - 1; i > 0; i--) {
             Node node = permission.getNodes().get(i);
             Node child = permission.getNodes().get(i - 1);
@@ -41,7 +44,7 @@ public class PermissionMap extends HashMap<String, Boolean> {
                         String s = permission.asString(groupNode.getId(), i - 1);
                         if (this.containsKey(s)) {
                             Optional<Permission> optional = Permission.permission(s);
-                            optional.ifPresent(perm -> context.add(perm, priority, Permission.Value.of(this.get(s))));
+                            optional.ifPresent(perm -> context.addEntry(ContextEntry.of(claim, priority, perm, getValue(s))));
                         }
                     }
                 }
@@ -53,6 +56,10 @@ public class PermissionMap extends HashMap<String, Boolean> {
     public void setPermission(String permission, Permission.Value value) {
         if (value == Permission.Value.UNSET) this.remove(permission);
         else this.put(permission, value.value);
+    }
+
+    public Permission.Value getValue(Permission permission) {
+        return getValue(permission.asString());
     }
 
     public Permission.Value getValue(String permission) {

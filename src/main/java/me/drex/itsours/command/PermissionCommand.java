@@ -7,6 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionList;
+import me.drex.itsours.claim.permission.util.context.ContextEntry;
 import me.drex.itsours.claim.permission.util.context.PermissionContext;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.user.ClaimPlayer;
@@ -17,10 +18,6 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.util.Pair;
-
-import java.util.List;
-import java.util.Map;
 
 
 public class PermissionCommand extends Command {
@@ -58,22 +55,29 @@ public class PermissionCommand extends Command {
         validatePermission(claim, source.getPlayer().getUuid(), "modify.permission");
         PermissionContext context = claim.getContext(target.getId(), permission);
         TextComponent.Builder hover = Component.text();
-        for (Map.Entry<Permission, List<Pair<PermissionContext.Priority, Permission.Value>>> entry : context.getData().entrySet()) {
-            hover.append(Component.text("\n" + entry.getKey().asString() + "\n").color(Color.PINK));
-            for (Pair<PermissionContext.Priority, Permission.Value> pair : entry.getValue()) {
-                hover.append(Component.text(pair.getLeft().toString() + ": ").color(Color.GRAY).append((pair.getRight().format())).append(Component.text("\n")));
-            }
+        for (ContextEntry entry : context.getEntries()) {
+            hover.append(Component.text(entry.getClaim().getName()).color(Color.PURPLE))
+                    .append(Component.text("(").color(Color.DARK_GRAY))
+                    .append(Component.text(entry.getClaim().getDepth()).color(Color.DARK_PURPLE))
+                    .append(Component.text(")").color(Color.DARK_GRAY))
+                    .append(Component.text(" | ").color(Color.GRAY))
+                    .append(Component.text(entry.getPriority().getName()).color(Color.YELLOW))
+                    .append(Component.text(" | ").color(Color.GRAY))
+                    .append(Component.text(entry.getPermission().asString()).color(Color.WHITE))
+                    .append(Component.text(": ").color(Color.GRAY))
+                    .append(entry.getValue().format())
+                    .append(Component.text("\n"));
         }
 
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Permission ").color(Color.YELLOW)
-            .append(Component.text(permission.asString()).color(Color.ORANGE))
-            .append(Component.text(" in ").color(Color.YELLOW))
-            .append(Component.text(claim.getFullName()).color(Color.ORANGE))
-            .append(Component.text(" is set to ").color(Color.YELLOW))
-            .append(context.getValue().format().style(style -> style.hoverEvent(HoverEvent.showText(hover.build()))))
-            .append(Component.text(" for ").color(Color.YELLOW))
-            .append(Component.text(target.getName()).color(Color.ORANGE)));
-    return 1;
+                .append(Component.text(permission.asString()).color(Color.ORANGE))
+                .append(Component.text(" in ").color(Color.YELLOW))
+                .append(Component.text(claim.getFullName()).color(Color.ORANGE))
+                .append(Component.text(" is set to ").color(Color.YELLOW))
+                .append(context.getValue().format().style(style -> style.hoverEvent(HoverEvent.showText(hover.build()))))
+                .append(Component.text(" for ").color(Color.YELLOW))
+                .append(Component.text(target.getName()).color(Color.ORANGE)));
+        return 1;
     }
 
     public static int setPermission(ServerCommandSource source, AbstractClaim claim, GameProfile target, Permission permission, Permission.Value value) throws CommandSyntaxException {

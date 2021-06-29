@@ -6,8 +6,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionList;
-import me.drex.itsours.claim.permission.util.context.PermissionContext;
-import me.drex.itsours.claim.permission.util.node.SettingNode;
+import me.drex.itsours.claim.permission.util.context.Priority;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
@@ -46,7 +45,7 @@ public class SettingCommand extends Command {
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Setting (").color(Color.ORANGE)
                 .append(Component.text(setting.asString()).color(Color.YELLOW))
                 .append(Component.text("): ").color(Color.ORANGE))
-                .append((claim.getPermissionManager().settings.getPermission(setting, PermissionContext.CustomPriority.SETTING).getValue().format())));
+                .append((claim.getPermissionManager().settings.getPermission(claim, setting, Priority.SETTING).getValue().format())));
         return 1;
     }
 
