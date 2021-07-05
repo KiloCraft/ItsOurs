@@ -12,6 +12,7 @@ public class PlayerList extends HashMap<UUID, NbtCompound> {
     public static <K> void set(UUID uuid, Setting<K> setting, K value) {
         NbtCompound nbtCompound = data.getOrDefault(uuid, new NbtCompound());
         setting.writeNbt(nbtCompound, value);
+        data.put(uuid, nbtCompound);
     }
 
     public static <K> K get(UUID uuid, Setting<K> setting) {
@@ -38,7 +39,7 @@ public class PlayerList extends HashMap<UUID, NbtCompound> {
             for (String s : nbtCompound.getKeys()) {
                 boolean keep = false;
                 for (Setting<?> setting : Setting.settings) {
-                    if (setting.getId().equals(s) && setting.getDefault().equals(setting.fromNbt(nbtCompound))) {
+                    if (setting.getId().equals(s) && !setting.getDefault().equals(setting.fromNbt(nbtCompound))) {
                         keep = true;
                     }
                 }
