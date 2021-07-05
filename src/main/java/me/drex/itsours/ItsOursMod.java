@@ -54,9 +54,6 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         if (!data.exists()) {
             LOGGER.info("Data file not found.");
             this.dataHandler.load(new NbtCompound(), true);
-            /*this.claimList = new ClaimList(new NbtList());
-            this.roleManager = new RoleManager(new NbtCompound());
-            this.playerList = new PlayerList(new NbtCompound());*/
         } else {
             NbtCompound tag;
             try {
@@ -103,10 +100,6 @@ public class ItsOursMod implements DedicatedServerModInitializer {
 
     public ClaimList getClaimList() {
         return this.dataHandler.getClaimList();
-    }
-
-    public PlayerList getPlayerList() {
-        return this.dataHandler.getPlayerList();
     }
 
     public int getDataVersion() {

@@ -5,10 +5,11 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.PlayerList;
+import me.drex.itsours.user.Settings;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
 import net.minecraft.server.command.ServerCommandSource;
@@ -51,8 +52,8 @@ public class ExpandCommand extends Command {
         int amount = claim.expand(uuid, direction, distance);
         claim.show(source.getPlayer(), true);
         if (claim instanceof Claim) {
-            int blocks = ItsOursMod.INSTANCE.getPlayerList().getBlocks(uuid);
-            ItsOursMod.INSTANCE.getPlayerList().setBlocks(uuid, Math.max(0, blocks - amount));
+            int blocks = PlayerList.get(uuid, Settings.BLOCKS);
+            PlayerList.set(uuid, Settings.BLOCKS, Math.max(0, blocks - amount));
         }
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Claim " + claim.getName() + " was " + (expand ? "expanded" : "shrunk") + " by " + Math.abs(distance) + " blocks (" + direction.getName() + ") for " + amount + " claim blocks.").color(Color.LIGHT_GREEN));
         return amount;

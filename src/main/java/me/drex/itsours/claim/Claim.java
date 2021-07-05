@@ -6,6 +6,8 @@ import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.roles.Role;
+import me.drex.itsours.user.PlayerList;
+import me.drex.itsours.user.Settings;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -54,7 +56,7 @@ public class Claim extends AbstractClaim {
         this.show(false);
         this.expand(direction, amount);
         int requiredBlocks = this.getArea() - previousArea;
-        if (ItsOursMod.INSTANCE.getPlayerList().getBlocks(uuid) < requiredBlocks) {
+        if (PlayerList.get(uuid, Settings.BLOCKS) < requiredBlocks) {
             this.undoExpand(direction, amount);
             throw new SimpleCommandExceptionType(new LiteralText("You don't have enough claim blocks!")).create();
         }

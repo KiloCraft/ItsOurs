@@ -8,19 +8,18 @@ import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.command.Command;
-import me.drex.itsours.command.InfoCommand;
 import me.drex.itsours.command.bulk.util.CriteriumParser;
 import me.drex.itsours.command.bulk.util.Range;
-import me.drex.itsours.util.TextPage;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import me.drex.itsours.util.Pair;
 import me.drex.itsours.util.TextComponentUtil;
+import me.drex.itsours.util.TextPage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.HoverEvent;
+import net.minecraft.text.ClickEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -85,7 +84,8 @@ public class SelectCommand extends Command {
             MutableText text = new LiteralText(claim.getName()).formatted(Formatting.GOLD).append(" (").formatted(Formatting.GRAY)
                     .append(TextComponentUtil.from(TextComponentUtil.toName(claim.getOwner(), NamedTextColor.AQUA)))
                     .append(new LiteralText(")"));
-            text.styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponentUtil.from(InfoCommand.getInfo(claim)))));
+            text.styled(style ->
+                    style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/claim info " + claim.getFullName())));
             entries.add(text);
         }
         cachedPages.put(uuid, new TextPage(new LiteralText("Selected Claims").formatted(Formatting.LIGHT_PURPLE), entries, "/claim bulk list %s"));

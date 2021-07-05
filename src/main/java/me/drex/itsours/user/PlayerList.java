@@ -7,8 +7,16 @@ import java.util.UUID;
 
 public class PlayerList extends HashMap<UUID, NbtCompound> {
 
-    public PlayerList(NbtCompound tag) {
-        this.fromNBT(tag);
+    private static final HashMap<UUID, NbtCompound> data = new HashMap<>();
+
+    public static <K> void set(UUID uuid, Setting<K> setting, K value) {
+        NbtCompound nbtCompound = data.getOrDefault(uuid, new NbtCompound());
+        setting.writeNbt(nbtCompound, value);
+    }
+
+    public static <K> K get(UUID uuid, Setting<K> setting) {
+        NbtCompound nbtCompound = data.getOrDefault(uuid, new NbtCompound());
+       return setting.readNbt(nbtCompound);
     }
 
     public static Object get(String key, NbtCompound tag) {
@@ -23,81 +31,29 @@ public class PlayerList extends HashMap<UUID, NbtCompound> {
         }
     }
 
-    public static void set(String key, NbtCompound tag, Object value) {
-        if (value instanceof Boolean) {
-            tag.putBoolean(key, (Boolean) value);
-        } else if (value instanceof Integer) {
-            tag.putInt(key, (Integer) value);
-        }
-    }
-
-    public void fromNBT(NbtCompound tag) {
+    public static void fromNBT(NbtCompound tag) {
         for (String key : tag.getKeys()) {
             NbtCompound nbtCompound = tag.getCompound(key);
             NbtCompound copy = nbtCompound.copy();
-            for (String setting : nbtCompound.getKeys()) {
+            for (String s : nbtCompound.getKeys()) {
                 boolean keep = false;
-                for (PlayerSetting playerSetting : PlayerSetting.values()) {
-                    if (playerSetting.id.equals(setting) && !playerSetting.defaultValue.equals(get(setting, nbtCompound))) {
+                for (Setting<?> setting : Setting.settings) {
+                    if (setting.getId().equals(s) && setting.getDefault().equals(setting.fromNbt(nbtCompound))) {
                         keep = true;
                     }
                 }
-                if (!keep) copy.remove(setting);
+                if (!keep) copy.remove(s);
             }
-            if (copy.getSize() > 0) this.put(UUID.fromString(key), copy);
+            if (copy.getSize() > 0) data.put(UUID.fromString(key), copy);
         }
     }
 
-    public NbtCompound toNBT() {
+    public static NbtCompound toNBT() {
         NbtCompound tag = new NbtCompound();
-        for (Entry<UUID, NbtCompound> entry : this.entrySet()) {
+        for (Entry<UUID, NbtCompound> entry : data.entrySet()) {
             tag.put(entry.getKey().toString(), entry.getValue());
         }
         return tag;
-    }
-
-    public NbtCompound getTags(UUID uuid) {
-        return this.containsKey(uuid) ? this.get(uuid) : new NbtCompound();
-    }
-
-    private Object get(UUID uuid, String key, Object defaultValue) {
-        NbtCompound tag = getTags(uuid);
-        if (tag.contains(key)) {
-            Object o = get(key, tag);
-            return o == null ? defaultValue : o;
-        } else {
-            return defaultValue;
-        }
-    }
-
-    public Object get(UUID uuid, PlayerSetting setting) {
-        return get(uuid, setting.id, setting.defaultValue);
-    }
-
-    public int getBlocks(UUID uuid) {
-        return (int) get(uuid, PlayerSetting.BLOCKS);
-    }
-
-    public void setBlocks(UUID uuid, int value) {
-        set(uuid, PlayerSetting.BLOCKS, value);
-    }
-
-    public boolean getBoolean(UUID uuid, PlayerSetting setting) {
-        return (boolean) get(uuid, setting);
-    }
-
-    public void setBoolean(UUID uuid, PlayerSetting setting, boolean value) {
-        set(uuid, setting.id, value);
-    }
-
-    private void set(UUID uuid, String key, Object value) {
-        NbtCompound tag = getTags(uuid);
-        set(key, tag, value);
-        this.put(uuid, tag);
-    }
-
-    public void set(UUID uuid, PlayerSetting setting, Object value) {
-        set(uuid, setting.id, value);
     }
 
 }

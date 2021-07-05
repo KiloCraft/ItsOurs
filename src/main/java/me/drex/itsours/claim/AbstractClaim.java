@@ -10,8 +10,7 @@ import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.claim.permission.util.context.ContextEntry;
 import me.drex.itsours.claim.permission.util.context.PermissionContext;
 import me.drex.itsours.claim.permission.util.context.Priority;
-import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.user.PlayerSetting;
+import me.drex.itsours.user.*;
 import me.drex.itsours.util.Color;
 import me.drex.itsours.util.TextComponentUtil;
 import me.drex.itsours.util.WorldUtil;
@@ -160,7 +159,7 @@ public abstract class AbstractClaim {
 
     public void onEnter(Optional<AbstractClaim> pclaim, ServerPlayerEntity player) {
         if (!pclaim.isPresent()) {
-            ItsOursMod.INSTANCE.getPlayerList().setBoolean(player.getUuid(), PlayerSetting.CACHED_FLIGHT, player.getAbilities().allowFlying);
+            PlayerList.set(player.getUuid(), Settings.CACHED_FLIGHT, player.getAbilities().allowFlying);
         }
         boolean hasPermission = ItsOursMod.INSTANCE.getPermissionHandler().hasPermission(player.getCommandSource(), "itsours.fly", 4);
         boolean cachedFlying = hasPermission && player.getAbilities().flying;
@@ -168,7 +167,7 @@ public abstract class AbstractClaim {
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
         //enable flying if player enabled it
         if (!player.getAbilities().allowFlying) {
-            player.getAbilities().allowFlying = hasPermission && ItsOursMod.INSTANCE.getPlayerList().getBoolean(player.getUuid(), PlayerSetting.FLIGHT);
+            player.getAbilities().allowFlying = PlayerList.get(player.getUuid(), Settings.FLIGHT);
         }
         //set the flight state to what it was before entering
         if (player.getAbilities().allowFlying) {
@@ -208,7 +207,7 @@ public abstract class AbstractClaim {
         context.combine(this.permissionManager.getPermissionContext(this, uuid, permission));
         if (uuid.equals(owner))
             context.addEntry(ContextEntry.of(this, Priority.OWNER, permission, Permission.Value.TRUE));
-        if (ItsOursMod.INSTANCE.getPlayerList().getBoolean(uuid, PlayerSetting.IGNORE))
+        if (PlayerList.get(uuid, Settings.IGNORE))
             context.addEntry(ContextEntry.of(this, Priority.IGNORE, permission, Permission.Value.TRUE));
         context.combine(getRolePermissionContext(uuid, permission));
         return context;
@@ -250,7 +249,7 @@ public abstract class AbstractClaim {
 
     void sendDebug(UUID uuid, String permission, Permission.Value value) {
         ServerPlayerEntity playerEntity = ItsOursMod.server.getPlayerManager().getPlayer(this.getOwner());
-        if (playerEntity != null && (boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, PlayerSetting.DEBUG)) {
+        if (playerEntity != null && PlayerList.get(uuid, Settings.DEBUG)) {
             ((ClaimPlayer) playerEntity)
                     .sendActionbar(Component.text(this.getFullName() + ": ").color(Color.RED)
                             .append(Component.text(Objects.requireNonNull(ItsOursMod.server.getPlayerManager().getPlayer(uuid)).getEntityName() + " ").color(Color.BLUE))

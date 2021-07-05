@@ -10,6 +10,8 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.PlayerList;
+import me.drex.itsours.user.Settings;
 import me.drex.itsours.util.Color;
 import me.drex.itsours.util.TextComponentUtil;
 import net.kyori.adventure.text.Component;
@@ -75,11 +77,11 @@ public class CreateCommand extends Command {
                     throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim couldn't be created, because it would overlap with another claim")).create();
                 }
             } else {
-                if (mod.getPlayerList().getBlocks(uuid) < claim.getArea())
-                    throw new SimpleCommandExceptionType(TextComponentUtil.error("You need " + (claim.getArea() - mod.getPlayerList().getBlocks(uuid)) + " more claim blocks")).create();
+                if (PlayerList.get(uuid, Settings.BLOCKS) < claim.getArea())
+                    throw new SimpleCommandExceptionType(TextComponentUtil.error("You need " + (claim.getArea() - PlayerList.get(uuid, Settings.BLOCKS)) + " more claim blocks")).create();
                 if (mod.getClaimList().contains(name))
                     throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is already taken")).create();
-                mod.getPlayerList().setBlocks(uuid, mod.getPlayerList().getBlocks(uuid) - claim.getArea());
+                PlayerList.set(uuid, Settings.BLOCKS, PlayerList.get(uuid, Settings.BLOCKS) - claim.getArea());
                 BlockPos size = claim.getSize();
                 ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Claim " + name + " has been created (" + size.getX() + " x " + size.getY() + " x " + size.getZ() + ")").color(Color.LIGHT_GREEN));
             }
