@@ -17,6 +17,7 @@
     "LevelStorageSessionMixin",
     "PlayerEntityInvoker",
     "PlayerEntityMixin",
+    "PlayerManagerMixin",
     "ProjectileEntityMixin",
     "ScreenHandlerMixin",
     "ServerPlayerEntityMixin",

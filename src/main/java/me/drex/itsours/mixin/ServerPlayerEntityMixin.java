@@ -1,6 +1,7 @@
 package me.drex.itsours.mixin;
 
 import com.mojang.authlib.GameProfile;
+import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.TextComponentUtil;
@@ -8,13 +9,11 @@ import net.kyori.adventure.text.Component;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,19 +29,13 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
 
     @Shadow
     @Final
-    public ServerPlayerInteractionManager interactionManager;
-    @Shadow
-    @Final
     public MinecraftServer server;
     public Pair<BlockPos, BlockPos> positions = new Pair<>(null, null);
-    World pworld;
-    BlockPos ppos;
     private AbstractClaim lastShowClaim;
     private BlockPos lastShowPos;
     private ServerWorld lastShowWorld;
     private int cooldown = 0;
     private boolean select = false;
-    private Optional<AbstractClaim> pclaim = Optional.empty();
 
 
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {

@@ -12,6 +12,7 @@ import me.drex.itsours.claim.permission.util.context.PermissionContext;
 import me.drex.itsours.claim.permission.util.context.Priority;
 import me.drex.itsours.user.*;
 import me.drex.itsours.util.Color;
+import me.drex.itsours.util.PermissionHandler;
 import me.drex.itsours.util.TextComponentUtil;
 import me.drex.itsours.util.WorldUtil;
 import net.kyori.adventure.text.Component;
@@ -158,10 +159,10 @@ public abstract class AbstractClaim {
     }
 
     public void onEnter(Optional<AbstractClaim> pclaim, ServerPlayerEntity player) {
-        if (!pclaim.isPresent()) {
+        if (pclaim.isEmpty()) {
             PlayerList.set(player.getUuid(), Settings.CACHED_FLIGHT, player.getAbilities().allowFlying);
         }
-        boolean hasPermission = ItsOursMod.INSTANCE.getPermissionHandler().hasPermission(player.getCommandSource(), "itsours.fly", 4);
+        boolean hasPermission = PermissionHandler.hasPermission(player.getCommandSource(), "itsours.fly", 2);
         boolean cachedFlying = hasPermission && player.getAbilities().flying;
         //update abilities for respective gamemode
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
@@ -180,16 +181,9 @@ public abstract class AbstractClaim {
 
     public void onLeave(Optional<AbstractClaim> claim, ServerPlayerEntity player) {
         if (!claim.isPresent()) {
-            //TODO: Make configurable
             boolean cachedFlying = player.getAbilities().flying;
             //update abilities for respective gamemode
             player.interactionManager.getGameMode().setAbilities(player.getAbilities());
-            //check if the player was flying before they entered the claim
-            //TODO: Figure out how to make this possible (Problem: onLeave is executed twice if player leaves nether -> )
-/*        if ((boolean) claimPlayer.getSetting("cached_flight", false)) {
-            player.getAbilities().flying = cachedFlying;
-            player.getAbilities().allowFlying = true;
-        }*/
             if (cachedFlying && !player.getAbilities().flying) {
                 BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
                 if (pos.getY() + 3 < player.getY()) {

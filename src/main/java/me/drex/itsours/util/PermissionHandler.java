@@ -10,18 +10,18 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class PermissionHandler {
-    private boolean present;
+    private static boolean present;
 
-    public PermissionHandler() {
-        this.present = checkPresent();
-        if (this.present) {
+    public static void load() {
+        present = checkPresent();
+        if (present) {
             ItsOursMod.LOGGER.info("Using Luckperms as the Permission Manager");
         } else {
             ItsOursMod.LOGGER.info("Using Vanilla operator system as the Permission Manager");
         }
     }
 
-    public boolean hasPermission(ServerCommandSource src, String permission, int opLevel) {
+    public static boolean hasPermission(ServerCommandSource src, String permission, int opLevel) {
         LuckPerms luckPerms = LuckPermsProvider.get();
 
         try {
@@ -39,7 +39,7 @@ public class PermissionHandler {
         return src.hasPermissionLevel(opLevel);
     }
 
-    private boolean checkPresent() {
+    private static boolean checkPresent() {
         try {
             LuckPermsProvider.get();
             return true;

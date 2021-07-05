@@ -30,7 +30,6 @@ public class ItsOursMod implements DedicatedServerModInitializer {
     public static Logger LOGGER = LogManager.getLogger();
     public static ItsOursMod INSTANCE;
     public static final UUID serverUUID = new UUID(0, 0);
-    private PermissionHandler permissionHandler;
     private DataHandler dataHandler = new DataHandler();
 
     @Override
@@ -73,7 +72,7 @@ public class ItsOursMod implements DedicatedServerModInitializer {
             }
             this.dataHandler.load(tag, false);
         }
-        this.permissionHandler = new PermissionHandler();
+        PermissionHandler.load();
     }
 
     public void save() {
@@ -106,7 +105,4 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         return dataHandler.dataVersion;
     }
 
-    public PermissionHandler getPermissionHandler() {
-        return this.permissionHandler;
-    }
 }
