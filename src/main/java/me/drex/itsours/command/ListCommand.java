@@ -3,6 +3,7 @@ package me.drex.itsours.command;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.gui.screen.ListScreen;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -13,7 +14,7 @@ public class ListCommand extends Command {
     public static void register(LiteralArgumentBuilder<ServerCommandSource> command) {
         RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
         player.requires(src -> hasPermission(src, "itsours.list"));
-        player.executes(ctx -> list(ctx.getSource(), getGameProfile(ctx, "player")));
+        player.executes(ListCommand::list);
         LiteralArgumentBuilder<ServerCommandSource> list = LiteralArgumentBuilder.literal("list");
         list.executes(ctx -> list(ctx.getSource(), ctx.getSource().getPlayer().getGameProfile()));
         list.then(player);
@@ -25,4 +26,10 @@ public class ListCommand extends Command {
         listScreen.render();
         return 1;
     }
+
+    public static int list(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        getGameProfile(ctx, "player", profile -> list(ctx.getSource(), profile));
+        return 1;
+    }
+
 }

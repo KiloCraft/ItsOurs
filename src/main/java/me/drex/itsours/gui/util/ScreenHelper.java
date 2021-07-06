@@ -18,6 +18,7 @@ import org.apache.commons.codec.binary.Base64;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -78,16 +79,16 @@ public class ScreenHelper {
     }
 
     public static GameProfile getProfile(UUID uuid) {
-        GameProfile profile = ItsOursMod.server.getUserCache().getByUuid(uuid);
-        if (profile == null) profile = new GameProfile(uuid, "???");
-        return profile;
+        Optional<GameProfile> optional = ItsOursMod.server.getUserCache().getByUuid(uuid);
+        if (optional.isEmpty()) return new GameProfile(uuid, "???");
+        return optional.get();
     }
 
     public static String toName(UUID uuid) {
-        GameProfile owner = ItsOursMod.server.getUserCache().getByUuid(uuid);
+        Optional<GameProfile> optional = ItsOursMod.server.getUserCache().getByUuid(uuid);
         String text;
-        if (owner != null && owner.isComplete()) {
-            text = owner.getName();
+        if (optional.isPresent() && optional.get().isComplete()) {
+            text = optional.get().getName();
         } else {
             text = uuid.toString();
         }
@@ -127,13 +128,14 @@ public class ScreenHelper {
         CompletableFuture.runAsync(() -> {
             ItemStack itemStack = new ItemStack(Items.PLAYER_HEAD);
 
-            GameProfile profile = server.getUserCache().getByUuid(uuid);
+            Optional<GameProfile> optional = server.getUserCache().getByUuid(uuid);
             MinecraftSessionService sessionService = server.getSessionService();
 
-            if (profile == null) {
+            if (optional.isEmpty()) {
                 itemStack.removeSubTag("SkullOwner");
                 return;
             }
+            GameProfile profile = optional.get();
 
             profile = sessionService.fillProfileProperties(profile, true);
             Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> textures = sessionService.getTextures(profile, true);

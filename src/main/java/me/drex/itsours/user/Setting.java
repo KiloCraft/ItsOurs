@@ -7,9 +7,9 @@ import java.util.List;
 
 public abstract class Setting<K> {
 
+    public static final List<Setting> settings = new ArrayList<>();
     private final String id;
     private final K defaultValue;
-    public static final List<Setting> settings = new ArrayList<>();
 
     public Setting(String id, K defaultValue) {
         this.id = id;
@@ -22,7 +22,11 @@ public abstract class Setting<K> {
     }
 
     public void writeNbt(NbtCompound nbtCompound, K k) {
-        if (!k.equals(defaultValue)) toNbt(nbtCompound, k);
+        if (k.equals(defaultValue)) {
+            nbtCompound.remove(id);
+        } else {
+            toNbt(nbtCompound, k);
+        }
     }
 
     public abstract void toNbt(NbtCompound nbtCompound, K k);

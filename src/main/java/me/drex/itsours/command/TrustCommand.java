@@ -3,6 +3,7 @@ package me.drex.itsours.command;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
@@ -14,7 +15,7 @@ public class TrustCommand extends Command {
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         {
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
-            player.executes(ctx -> execute(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), Permission.Value.TRUE));
+            player.executes(ctx -> execute(ctx, Permission.Value.TRUE));
             RequiredArgumentBuilder<ServerCommandSource, String> claim = permissionClaimArgument("modify.trust");
             LiteralArgumentBuilder<ServerCommandSource> trust = LiteralArgumentBuilder.literal("trust");
 
@@ -24,7 +25,7 @@ public class TrustCommand extends Command {
         }
         {
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
-            player.executes(ctx -> execute(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), Permission.Value.FALSE));
+            player.executes(ctx -> execute(ctx, Permission.Value.FALSE));
             RequiredArgumentBuilder<ServerCommandSource, String> claim = permissionClaimArgument("modify.distrust");
             LiteralArgumentBuilder<ServerCommandSource> distrust = LiteralArgumentBuilder.literal("distrust");
 
@@ -34,7 +35,7 @@ public class TrustCommand extends Command {
         }
         {
             RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
-            player.executes(ctx -> execute(ctx.getSource(), getClaim(ctx), getGameProfile(ctx, "player"), Permission.Value.UNSET));
+            player.executes(ctx -> execute(ctx, Permission.Value.UNSET));
             RequiredArgumentBuilder<ServerCommandSource, String> claim = permissionClaimArgument("modify.untrust");
             LiteralArgumentBuilder<ServerCommandSource> untrust = LiteralArgumentBuilder.literal("untrust");
 
@@ -59,6 +60,13 @@ public class TrustCommand extends Command {
                 RoleCommand.unsetRole(source, claim, target, "trusted");
             }
         }
+        return 1;
+    }
+
+    public static int execute(CommandContext<ServerCommandSource> ctx, Permission.Value trust) throws CommandSyntaxException {
+        ServerCommandSource src = ctx.getSource();
+        AbstractClaim claim = getClaim(ctx);
+        getGameProfile(ctx, "player", profile -> execute(src, claim, profile, trust));
         return 1;
     }
 }

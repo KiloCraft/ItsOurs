@@ -17,6 +17,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class InfoCommand extends Command {
@@ -39,9 +40,9 @@ public class InfoCommand extends Command {
     public static TextComponent getInfo(AbstractClaim claim) {
         UUID ownerUUID = claim.getOwner();
         String ownerName = "";
-        GameProfile owner = ItsOursMod.server.getUserCache().getByUuid(ownerUUID);
-        if (owner != null && owner.isComplete()) {
-            ownerName = owner.getName();
+        Optional<GameProfile> optional = ItsOursMod.server.getUserCache().getByUuid(ownerUUID);
+        if (optional.isPresent() && optional.get().isComplete()) {
+            ownerName = optional.get().getName();
         }
         BlockPos size = claim.getSize();
         BlockPos tpPos = new BlockPos((claim.min.getX() + claim.max.getX()) / 2, (claim.min.getY() + claim.max.getY() / 2) , (claim.min.getZ() + claim.max.getZ()) / 2);

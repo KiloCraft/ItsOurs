@@ -15,6 +15,7 @@ import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionList;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.command.help.HelpCategory;
+import me.drex.itsours.command.util.SafeConsumer;
 import me.drex.itsours.util.PermissionHandler;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -28,6 +29,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -84,31 +86,25 @@ public abstract class Command {
         return CommandSource.suggestMatching(categories, builder);
     };
 
-    //TODO: Look at this again, maybe there is a better approach to this
-    public static GameProfile getGameProfile(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
-        AtomicReference<String> exception = new AtomicReference<>();
-        CompletableFuture<GameProfile> completableFuture = CompletableFuture.supplyAsync(() -> {
+    public static void getGameProfile(CommandContext<ServerCommandSource> ctx, String argument, SafeConsumer<GameProfile> consumer) {
+        CompletableFuture.runAsync(() -> {
+            String error = null;
             try {
-                Collection<GameProfile> profiles = GameProfileArgumentType.getProfileArgument(ctx, name);
+                Collection<GameProfile> profiles = GameProfileArgumentType.getProfileArgument(ctx, argument);
                 if (profiles.size() > 1) {
-                    exception.set("Only one selection is allowed!");
-                } else if (profiles.isEmpty()) {
-                    exception.set("At least one selection is required!");
+                    error = "You can only select one player!";
+                } else {
+                    try {
+                        consumer.accept(profiles.iterator().next());
+                    } catch (CommandSyntaxException e) {
+                        error = e.getMessage();
+                    }
                 }
-                return profiles.iterator().next();
             } catch (CommandSyntaxException e) {
-                exception.set(e.getRawMessage().getString());
+                error = e.getMessage();
             }
-            return null;
+            if (error != null) ctx.getSource().sendError(new LiteralText(error));
         });
-        GameProfile profile = null;
-        try {
-            profile = completableFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
-            ItsOursMod.LOGGER.error("Unable to retrieve GameProfile: ", e);
-        }
-        if (exception.get() != null) throw new SimpleCommandExceptionType(new LiteralText(exception.get())).create();
-        return profile;
     }
 
     private static List<String> getPermissions(Node node, String currentID, String input) {
