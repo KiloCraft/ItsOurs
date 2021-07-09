@@ -13,7 +13,7 @@ public class GUICommand extends Command {
         RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
         claim.executes(ctx -> gui(ctx.getSource(), getClaim(ctx)));
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("gui");
-        command.executes(ctx -> gui(ctx.getSource(), getAndValidateClaim(ctx.getSource().getWorld(), ctx.getSource().getPlayer().getBlockPos())));
+        command.executes(ctx -> gui(ctx.getSource(), getAndValidateClaim(ctx.getSource())));
         command.then(claim);
         literal.then(command);
     }

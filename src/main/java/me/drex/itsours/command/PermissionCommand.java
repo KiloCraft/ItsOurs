@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionList;
@@ -17,7 +18,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 
 
@@ -28,7 +28,7 @@ public class PermissionCommand extends Command {
         {
             RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();
             permission.executes(PermissionCommand::checkPlayer);
-            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
+            RequiredArgumentBuilder<ServerCommandSource, String> player = playerArgument("player");
             player.executes(PermissionCommand::listPermission);
             LiteralArgumentBuilder<ServerCommandSource> check = LiteralArgumentBuilder.literal("check");
             player.then(permission);
@@ -39,7 +39,7 @@ public class PermissionCommand extends Command {
             RequiredArgumentBuilder<ServerCommandSource, String> value = permissionValueArgument();
             value.executes(PermissionCommand::setPermission);
             RequiredArgumentBuilder<ServerCommandSource, String> permission = permissionArgument();
-            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
+            RequiredArgumentBuilder<ServerCommandSource, String> player = playerArgument("player");
             LiteralArgumentBuilder<ServerCommandSource> set = LiteralArgumentBuilder.literal("set");
             permission.then(value);
             player.then(permission);
@@ -86,14 +86,15 @@ public class PermissionCommand extends Command {
         return 1;
     }
 
-    public static int setPermission(ServerCommandSource source, AbstractClaim claim, GameProfile profile, Permission permission, Permission.Value value) throws CommandSyntaxException {
+    public static void setPermission(ServerCommandSource source, AbstractClaim claim, GameProfile profile, Permission permission, Permission.Value value) throws CommandSyntaxException {
         validatePermission(claim, source.getPlayer().getUuid(), "modify.permission");
         claim.getPermissionManager().setPlayerPermission(profile.getId(), permission, value);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set permission ").color(Color.YELLOW)
-                .append(Component.text(permission.asString())).color(Color.ORANGE)
-                .append(Component.text(" for ")).color(Color.YELLOW)
-                .append(Component.text(profile.getName())).color(Color.ORANGE).append(Component.text(" to ")).color(Color.YELLOW).append(value.format()));
-        return 1;
+                .append(Component.text(permission.asString()).color(Color.ORANGE))
+                .append(Component.text(" for ").color(Color.YELLOW))
+                .append(Component.text(profile.getName()).color(Color.ORANGE))
+                .append(Component.text(" to ").color(Color.YELLOW))
+                .append(value.format()));
     }
 
     public static int setPermission(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {

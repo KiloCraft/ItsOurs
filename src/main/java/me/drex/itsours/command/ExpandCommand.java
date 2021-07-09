@@ -43,7 +43,7 @@ public class ExpandCommand extends Command {
     public static int expand(CommandContext<ServerCommandSource> ctx, boolean expand) throws CommandSyntaxException {
         ServerCommandSource source = ctx.getSource();
         UUID uuid = source.getPlayer().getUuid();
-        AbstractClaim claim = getAndValidateClaim(source.getWorld(), source.getPlayer().getBlockPos());
+        AbstractClaim claim = getAndValidateClaim(source);
         validatePermission(claim, uuid, "modify.size");
         int distance = IntegerArgumentType.getInteger(ctx, "distance");
         distance *= expand ? 1 : -1;

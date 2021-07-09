@@ -19,6 +19,7 @@ import me.drex.itsours.command.util.SafeConsumer;
 import me.drex.itsours.util.PermissionHandler;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.GameProfileArgumentType;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -76,6 +77,15 @@ public abstract class Command {
         settings.addAll(getPermissions(PermissionList.permission, "", builder.getRemaining()));
         return CommandSource.suggestMatching(settings, builder);
     };
+
+    public static final SuggestionProvider<ServerCommandSource> PLAYER_PROVIDER = (source, builder) -> {
+        List<String> players = new ArrayList<>();
+        for (ServerPlayerEntity player : source.getSource().getServer().getPlayerManager().getPlayerList()) {
+            players.add(player.getEntityName());
+        }
+        return CommandSource.suggestMatching(players, builder);
+    };
+
     public static final SuggestionProvider<ServerCommandSource> PERMISSION_VALUE_PROVIDER = (source, builder) -> CommandSource.suggestMatching(Arrays.asList("true", "false", "unset"), builder);
 
     public static final SuggestionProvider<ServerCommandSource> CATEGORY_PROVIDER = (context, builder) -> {
@@ -88,22 +98,28 @@ public abstract class Command {
 
     public static void getGameProfile(CommandContext<ServerCommandSource> ctx, String argument, SafeConsumer<GameProfile> consumer) {
         CompletableFuture.runAsync(() -> {
-            String error = null;
+            String error;
             try {
-                Collection<GameProfile> profiles = GameProfileArgumentType.getProfileArgument(ctx, argument);
-                if (profiles.size() > 1) {
-                    error = "You can only select one player!";
-                } else {
-                    try {
-                        consumer.accept(profiles.iterator().next());
-                    } catch (CommandSyntaxException e) {
-                        error = e.getMessage();
-                    }
+                String playerName = StringArgumentType.getString(ctx, argument);
+                MinecraftServer server = ctx.getSource().getServer();
+                ServerPlayerEntity player = server.getPlayerManager().getPlayer(playerName);
+                if (player != null) {
+                    consumer.accept(player.getGameProfile());
+                    return;
                 }
-            } catch (CommandSyntaxException e) {
+                Optional<GameProfile> optional = server.getUserCache().findByName(playerName);
+                if (optional.isPresent()) {
+                    consumer.accept(optional.get());
+                    return;
+                } else {
+                    error = "Unknown player!";
+                }
+            } catch (Exception e) {
                 error = e.getMessage();
             }
-            if (error != null) ctx.getSource().sendError(new LiteralText(error));
+            if (error != null) {
+                ctx.getSource().sendError(new LiteralText(error));
+            }
         });
     }
 
@@ -132,11 +148,15 @@ public abstract class Command {
         }
     }
 
-    protected static AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
+    public static AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get(world, pos);
         if (!claim.isPresent())
             throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim at your position!")).create();
         return claim.get();
+    }
+
+    protected static AbstractClaim getAndValidateClaim(ServerCommandSource src) throws CommandSyntaxException {
+        return getAndValidateClaim(src.getWorld(), src.getPlayer().getBlockPos());
     }
 
     protected static boolean hasPermission(ServerCommandSource src, String permission) {
@@ -228,5 +248,8 @@ public abstract class Command {
         return argument("value", word()).suggests(PERMISSION_VALUE_PROVIDER);
     }
 
+    public static RequiredArgumentBuilder<ServerCommandSource, String> playerArgument(String name) {
+        return argument(name, word()).suggests(PLAYER_PROVIDER);
+    }
 
 }

@@ -12,7 +12,7 @@ import net.minecraft.server.command.ServerCommandSource;
 public class ListCommand extends Command {
 
     public static void register(LiteralArgumentBuilder<ServerCommandSource> command) {
-        RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
+        RequiredArgumentBuilder<ServerCommandSource, String> player = playerArgument("player");
         player.requires(src -> hasPermission(src, "itsours.list"));
         player.executes(ListCommand::list);
         LiteralArgumentBuilder<ServerCommandSource> list = LiteralArgumentBuilder.literal("list");

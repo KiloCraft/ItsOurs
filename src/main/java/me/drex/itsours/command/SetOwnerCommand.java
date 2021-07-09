@@ -18,7 +18,7 @@ import net.minecraft.server.command.ServerCommandSource;
 public class SetOwnerCommand extends Command {
 
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
-        RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> newOwner = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
+        RequiredArgumentBuilder<ServerCommandSource, String> newOwner = playerArgument("player");
         newOwner.executes(SetOwnerCommand::setOwner);
         RequiredArgumentBuilder<ServerCommandSource, String> claim = allClaimArgument();
         claim.then(newOwner);

@@ -22,7 +22,7 @@ public class TrustedCommand extends Command {
         RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
         claim.executes(ctx -> trusted(ctx.getSource(), getClaim(ctx)));
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("trusted");
-        command.executes(ctx -> trusted(ctx.getSource(), getAndValidateClaim(ctx.getSource().getWorld(), ctx.getSource().getPlayer().getBlockPos())));
+        command.executes(ctx -> trusted(ctx.getSource(), getAndValidateClaim(ctx.getSource())));
         command.then(claim);
         literal.then(command);
     }

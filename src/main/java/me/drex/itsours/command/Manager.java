@@ -34,7 +34,7 @@ public class Manager {
         SetOwnerCommand.register(main);
         SettingCommand.register(main);
         ShowCommand.register(main);
-        TrustCommand.register(main);
+        TrustCommand.register(main, dispatcher);
         TrustedCommand.register(main);
 
 

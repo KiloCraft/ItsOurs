@@ -12,7 +12,7 @@ public class PlayerList extends HashMap<UUID, NbtCompound> {
     public static <K> void set(UUID uuid, Setting<K> setting, K value) {
         NbtCompound nbtCompound = data.getOrDefault(uuid, new NbtCompound());
         setting.writeNbt(nbtCompound, value);
-        data.put(uuid, nbtCompound);
+        if (nbtCompound.getSize() > 0) data.put(uuid, nbtCompound);
     }
 
     public static <K> K get(UUID uuid, Setting<K> setting) {
@@ -35,24 +35,14 @@ public class PlayerList extends HashMap<UUID, NbtCompound> {
     public static void fromNBT(NbtCompound tag) {
         for (String key : tag.getKeys()) {
             NbtCompound nbtCompound = tag.getCompound(key);
-            NbtCompound copy = nbtCompound.copy();
-            for (String s : nbtCompound.getKeys()) {
-                boolean keep = false;
-                for (Setting<?> setting : Setting.settings) {
-                    if (setting.getId().equals(s) && !setting.getDefault().equals(setting.fromNbt(nbtCompound))) {
-                        keep = true;
-                    }
-                }
-                if (!keep) copy.remove(s);
-            }
-            if (copy.getSize() > 0) data.put(UUID.fromString(key), copy);
+            data.put(UUID.fromString(key), nbtCompound);
         }
     }
 
     public static NbtCompound toNBT() {
         NbtCompound tag = new NbtCompound();
         for (Entry<UUID, NbtCompound> entry : data.entrySet()) {
-            tag.put(entry.getKey().toString(), entry.getValue());
+            if (entry.getValue().getSize() > 0) tag.put(entry.getKey().toString(), entry.getValue());
         }
         return tag;
     }

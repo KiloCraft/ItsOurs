@@ -26,7 +26,7 @@ public class InfoCommand extends Command {
         RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
         claim.executes(ctx -> info(ctx.getSource(), getClaim(ctx)));
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("info");
-        command.executes(ctx -> info(ctx.getSource(), getAndValidateClaim(ctx.getSource().getWorld(), ctx.getSource().getPlayer().getBlockPos())));
+        command.executes(ctx -> info(ctx.getSource(), getAndValidateClaim(ctx.getSource())));
         command.then(claim);
         literal.then(command);
     }

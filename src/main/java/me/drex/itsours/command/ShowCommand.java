@@ -23,7 +23,7 @@ public class ShowCommand extends Command {
     }
 
     public static int show(ServerCommandSource source, boolean show) throws CommandSyntaxException {
-        AbstractClaim claim = getAndValidateClaim(source.getWorld(), source.getPlayer().getBlockPos());
+        AbstractClaim claim = getAndValidateClaim(source);
         ServerPlayerEntity player = source.getPlayer();
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         if (claimPlayer.getLastShowClaim() != null) claimPlayer.getLastShowClaim().show(player, false);

@@ -79,7 +79,7 @@ public class RoleCommand extends Command {
             RequiredArgumentBuilder<ServerCommandSource, Integer> weight = RequiredArgumentBuilder.argument("weight", IntegerArgumentType.integer(1));
             weight.executes(RoleCommand::addRole);
             RequiredArgumentBuilder<ServerCommandSource, String> name = argument("name", word()).suggests(REMOVED_ROLES_PROVIDER);
-            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
+            RequiredArgumentBuilder<ServerCommandSource, String> player = playerArgument("player");
             LiteralArgumentBuilder<ServerCommandSource> add = LiteralArgumentBuilder.literal("add");
             name.then(weight);
             player.then(name);
@@ -89,7 +89,7 @@ public class RoleCommand extends Command {
         {
             RequiredArgumentBuilder<ServerCommandSource, String> name = argument("name", word()).suggests(ADDED_ROLES_PROVIDER);
             name.executes(RoleCommand::removeRole);
-            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
+            RequiredArgumentBuilder<ServerCommandSource, String> player = playerArgument("player");
             LiteralArgumentBuilder<ServerCommandSource> remove = LiteralArgumentBuilder.literal("remove");
             player.then(name);
             remove.then(player);
@@ -98,14 +98,14 @@ public class RoleCommand extends Command {
         {
             RequiredArgumentBuilder<ServerCommandSource, String> name = argument("name", word()).suggests(TO_BE_UNSET_ROLES_PROVIDER);
             name.executes(RoleCommand::unsetRole);
-            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
+            RequiredArgumentBuilder<ServerCommandSource, String> player = playerArgument("player");
             LiteralArgumentBuilder<ServerCommandSource> unset = LiteralArgumentBuilder.literal("unset");
             player.then(name);
             unset.then(player);
             claim.then(unset);
         }
         {
-            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
+            RequiredArgumentBuilder<ServerCommandSource, String> player = playerArgument("player");
             player.executes(RoleCommand::listRoles);
             LiteralArgumentBuilder<ServerCommandSource> list = LiteralArgumentBuilder.literal("list");
             list.then(player);
