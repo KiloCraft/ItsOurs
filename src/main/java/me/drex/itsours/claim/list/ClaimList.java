@@ -26,6 +26,7 @@ public class ClaimList {
     }
 
     public void fromNBT(NbtList tag) {
+        if (tag == null) return;
         tag.forEach(claimTag -> {
             Claim claim = new Claim((NbtCompound) claimTag);
             this.add(claim);
