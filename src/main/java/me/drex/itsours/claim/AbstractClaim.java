@@ -168,7 +168,7 @@ public abstract class AbstractClaim {
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
         //enable flying if player enabled it
         if (!player.getAbilities().allowFlying) {
-            player.getAbilities().allowFlying = PlayerList.get(player.getUuid(), Settings.FLIGHT);
+            player.getAbilities().allowFlying = PlayerList.get(player.getUuid(), Settings.FLIGHT) && hasPermission;
         }
         //set the flight state to what it was before entering
         if (player.getAbilities().allowFlying) {
