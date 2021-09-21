@@ -39,10 +39,13 @@ dependencies {
             "fabric-lifecycle-events-v1"
     ]
 
-// Add each module as a dependency
+    // Add each module as a dependency
     apiModules.forEach {
         include(modImplementation(fabricApi.module(it, project.fabric_version)))
     }
+
+    // Fabric permission api
+    modImplementation "me.lucko:fabric-permissions-api:${project.perm_version}"
 
     implementation "org.jetbrains:annotations:${project.jetbrains_annotations_version}"
     implementation "net.luckperms:api:${project.luckperms_version}"

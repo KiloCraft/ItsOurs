@@ -11,8 +11,6 @@ import java.util.List;
 public class WorldUtil {
 
     private static final List<RegistryKey<World>> REGISTRY_KEYS = Lists.newArrayList();
-    private static RegistryKey<World> DEFAULT = World.OVERWORLD;
-    public static World DEFAULT_WORLD = ItsOursMod.server.getWorld(DEFAULT);
 
     static {
         REGISTRY_KEYS.addAll(ItsOursMod.server.getWorldRegistryKeys());

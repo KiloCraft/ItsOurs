@@ -16,7 +16,6 @@ import me.drex.itsours.claim.permission.PermissionList;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.command.help.HelpCategory;
 import me.drex.itsours.command.util.SafeConsumer;
-import me.drex.itsours.util.PermissionHandler;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
@@ -156,7 +155,7 @@ public abstract class Command {
     }
 
     protected static boolean hasPermission(ServerCommandSource src, String permission) {
-        return PermissionHandler.hasPermission(src, permission, 2);
+        return ItsOursMod.hasPermission(src, permission);
     }
 
     static void validatePermission(AbstractClaim claim, UUID uuid, String permission) throws CommandSyntaxException {

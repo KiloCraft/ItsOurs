@@ -10,9 +10,10 @@ import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.claim.permission.util.context.ContextEntry;
 import me.drex.itsours.claim.permission.util.context.PermissionContext;
 import me.drex.itsours.claim.permission.util.context.Priority;
-import me.drex.itsours.user.*;
+import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.PlayerList;
+import me.drex.itsours.user.Settings;
 import me.drex.itsours.util.Color;
-import me.drex.itsours.util.PermissionHandler;
 import me.drex.itsours.util.TextComponentUtil;
 import me.drex.itsours.util.WorldUtil;
 import net.kyori.adventure.text.Component;
@@ -162,7 +163,7 @@ public abstract class AbstractClaim {
         if (pclaim.isEmpty()) {
             PlayerList.set(player.getUuid(), Settings.CACHED_FLIGHT, player.getAbilities().allowFlying);
         }
-        boolean hasPermission = PermissionHandler.hasPermission(player.getCommandSource(), "itsours.fly", 2);
+        boolean hasPermission = ItsOursMod.hasPermission(player.getCommandSource(), "itsours.fly");
         boolean cachedFlying = hasPermission && player.getAbilities().flying;
         //update abilities for respective gamemode
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());

@@ -1,7 +1,8 @@
 package me.drex.itsours.claim.permission.roles;
 
-import java.util.HashMap;
 import net.minecraft.nbt.NbtCompound;
+
+import java.util.HashMap;
 
 public class RoleManager extends HashMap<String, Role> {
 
