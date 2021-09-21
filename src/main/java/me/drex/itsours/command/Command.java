@@ -18,7 +18,6 @@ import me.drex.itsours.command.help.HelpCategory;
 import me.drex.itsours.command.util.SafeConsumer;
 import me.drex.itsours.util.PermissionHandler;
 import net.minecraft.command.CommandSource;
-import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -28,9 +27,6 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 

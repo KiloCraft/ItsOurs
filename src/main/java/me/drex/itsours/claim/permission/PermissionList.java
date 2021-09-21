@@ -1,15 +1,21 @@
 package me.drex.itsours.claim.permission;
 
-import me.drex.itsours.claim.permission.util.node.SettingNode;
-import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.claim.permission.util.node.PermissionNode;
 import me.drex.itsours.claim.permission.util.node.RootNode;
+import me.drex.itsours.claim.permission.util.node.SettingNode;
+import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.util.WorldUtil;
-import net.minecraft.block.*;
+import net.minecraft.block.AbstractButtonBlock;
+import net.minecraft.block.AbstractPressurePlateBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.*;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemUsageContext;
+import net.minecraft.item.Items;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.tag.EntityTypeTags;
 import net.minecraft.tag.ItemTags;

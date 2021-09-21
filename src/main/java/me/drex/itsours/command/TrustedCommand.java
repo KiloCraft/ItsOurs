@@ -14,7 +14,6 @@ import net.kyori.adventure.text.TextComponent;
 import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TrustedCommand extends Command {
 

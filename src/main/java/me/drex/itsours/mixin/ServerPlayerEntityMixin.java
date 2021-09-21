@@ -1,7 +1,6 @@
 package me.drex.itsours.mixin;
 
 import com.mojang.authlib.GameProfile;
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.TextComponentUtil;
@@ -21,8 +20,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Optional;
 
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer {

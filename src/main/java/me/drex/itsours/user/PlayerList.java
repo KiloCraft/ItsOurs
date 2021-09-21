@@ -2,6 +2,7 @@ package me.drex.itsours.user;
 
 import me.drex.itsours.ItsOursMod;
 import net.minecraft.nbt.NbtCompound;
+
 import java.util.HashMap;
 import java.util.UUID;
 
