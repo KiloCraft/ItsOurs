@@ -8,6 +8,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface PlayerEntityInvoker {
 
     @Invoker("closeHandledScreen")
-    public void invokeCloseHandledScreen();
+    void closeHandledScreen();
 
 }

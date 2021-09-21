@@ -21,14 +21,20 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.Optional;
 
 @Mixin(BucketItem.class)
-public class BucketItemMixin extends Item {
+public abstract class BucketItemMixin extends Item {
 
     public BucketItemMixin(Settings settings) {
         super(settings);
     }
 
-    @Redirect(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/BucketItem;raycast(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/RaycastContext$FluidHandling;)Lnet/minecraft/util/hit/BlockHitResult;"))
-    private BlockHitResult itsours$onBucketUse(World world, PlayerEntity player, RaycastContext.FluidHandling fluidHandling) {
+    @Redirect(
+            method = "use",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/item/BucketItem;raycast(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/RaycastContext$FluidHandling;)Lnet/minecraft/util/hit/BlockHitResult;"
+            )
+    )
+    private BlockHitResult canUseBucket(World world, PlayerEntity player, RaycastContext.FluidHandling fluidHandling) {
         BlockHitResult hit = Item.raycast(world, player, fluidHandling);
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
         if (!claim.isPresent())

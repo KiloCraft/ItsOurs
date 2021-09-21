@@ -17,10 +17,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Optional;
 
 @Mixin(SpawnHelper.class)
-public class SpawnHelperMixin {
+public abstract class SpawnHelperMixin {
 
-    @Inject(method = "isClearForSpawn", at = @At(value = "HEAD"), cancellable = true)
-    private static void canPhantomSpawnInClaim(BlockView blockView, BlockPos pos, BlockState state, FluidState fluidState, EntityType<?> entityType, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(
+            method = "isClearForSpawn",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private static void canPhantomsSpawn(BlockView blockView, BlockPos pos, BlockState state, FluidState fluidState, EntityType<?> entityType, CallbackInfoReturnable<Boolean> cir) {
         if (blockView instanceof ServerWorld) {
             if (ItsOursMod.INSTANCE == null || ItsOursMod.INSTANCE.getClaimList() == null) return;
             Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) blockView, pos);

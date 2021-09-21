@@ -14,10 +14,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Optional;
 
 @Mixin(PlayerManager.class)
-public class PlayerManagerMixin {
+public abstract class PlayerManagerMixin {
 
-    @Inject(method = "onPlayerConnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;onSpawn()V"))
-    public void itsours$onPlayerConnect(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+    @Inject(
+            method = "onPlayerConnect",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/network/ServerPlayerEntity;onSpawn()V"
+            )
+    )
+    public void onPlayerConnect(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
         Optional<AbstractClaim> optional = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
         optional.ifPresent(claim -> claim.onEnter(Optional.empty(), player));
     }

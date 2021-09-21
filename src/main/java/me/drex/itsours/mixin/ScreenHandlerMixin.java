@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ScreenHandler.class)
-public class ScreenHandlerMixin implements ScreenSync {
+public abstract class ScreenHandlerMixin implements ScreenSync {
 
 
     @Mutable

@@ -22,8 +22,12 @@ import java.util.Optional;
 @Mixin(FarmlandBlock.class)
 public abstract class FarmlandBlockMixin {
 
-    @Inject(method = "onLandedUpon", at = @At(value = "HEAD"), cancellable = true)
-    private void dontYouDareFarmMe(World world, BlockState blockState, BlockPos pos, Entity entity, float f, CallbackInfo ci) {
+    @Inject(
+            method = "onLandedUpon",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private void canPlayerTrample(World world, BlockState blockState, BlockPos pos, Entity entity, float f, CallbackInfo ci) {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, pos);
         if (claim.isPresent() && entity instanceof ServerPlayerEntity && !claim.get().hasPermission(entity.getUuid(), "mine.farmland")) {
             ClaimPlayer claimPlayer = (ClaimPlayer) entity;

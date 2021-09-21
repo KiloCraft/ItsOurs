@@ -45,7 +45,7 @@ public class SimpleScreen<K extends NoContext> extends GUIScreenHandler {
     }
 
     public void close() {
-        ((PlayerEntityInvoker)player).invokeCloseHandledScreen();
+        ((PlayerEntityInvoker)player).closeHandledScreen();
     }
 
     @Override
