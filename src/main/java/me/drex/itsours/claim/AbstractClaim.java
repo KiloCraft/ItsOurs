@@ -40,14 +40,12 @@ import static me.drex.itsours.claim.AbstractClaim.Util.getPosOnGround;
 public abstract class AbstractClaim {
 
     public static final Pattern NAME = Pattern.compile("\\w{3,16}");
-    private static Block[] showBlocks = {Blocks.GOLD_BLOCK, Blocks.DIAMOND_BLOCK, Blocks.EMERALD_BLOCK, Blocks.REDSTONE_BLOCK, Blocks.LAPIS_BLOCK};
+    private static final Block[] SHOW_BLOCKS = {Blocks.GOLD_BLOCK, Blocks.DIAMOND_BLOCK, Blocks.EMERALD_BLOCK, Blocks.REDSTONE_BLOCK, Blocks.LAPIS_BLOCK};
     public BlockPos min, max, tp;
     private String name;
     private UUID owner;
     private ServerWorld world;
-    private List<Subzone> subzoneList = new ArrayList<>();
-    private Date created;
-    private Date lastEdited;
+    private final List<Subzone> subzoneList = new ArrayList<>();
     private PermissionManager permissionManager;
     private RestrictionManager restrictionManager;
 
@@ -73,8 +71,8 @@ public abstract class AbstractClaim {
         fromNBT(tag);
     }
 
-    public static boolean isNameValid(String name) {
-        return NAME.matcher(name).matches();
+    public static boolean isNameInvalid(String name) {
+        return !NAME.matcher(name).matches();
     }
 
     public RestrictionManager getRestrictionManager() {
@@ -88,10 +86,10 @@ public abstract class AbstractClaim {
         this.min = Util.blockPosFromNBT(position.getCompound("min"));
         this.max = Util.blockPosFromNBT(position.getCompound("max"));
         this.tp = Util.blockPosFromNBT(position.getCompound("tp"));
-        //TODO: Add option to ignore claims which are located in unknown worlds
+        // TODO: Add option to ignore claims which are located in unknown worlds
         this.world = WorldUtil.getWorld(position.getString("world"));
-        if (tag.contains("subzones")) {
-            NbtList list = (NbtList) tag.get("subzones");
+        NbtList list = (NbtList) tag.get("subzones");
+        if (list != null) {
             list.forEach(subzones -> {
                 Subzone subzone = new Subzone((NbtCompound) subzones, this);
                 subzoneList.add(subzone);
@@ -115,9 +113,7 @@ public abstract class AbstractClaim {
         tag.put("position", position);
         if (!subzoneList.isEmpty()) {
             NbtList list = new NbtList();
-            subzoneList.forEach(subzone -> {
-                list.add(subzone.toNBT());
-            });
+            subzoneList.forEach(subzone -> list.add(subzone.toNBT()));
             tag.put("subzones", list);
         }
         tag.put("permissions", this.permissionManager.toNBT());
@@ -159,19 +155,19 @@ public abstract class AbstractClaim {
         this.subzoneList.remove(subzone);
     }
 
-    public void onEnter(Optional<AbstractClaim> pclaim, ServerPlayerEntity player) {
-        if (pclaim.isEmpty()) {
+    public void onEnter(Optional<AbstractClaim> previousClaim, ServerPlayerEntity player) {
+        if (previousClaim.isEmpty()) {
             PlayerList.set(player.getUuid(), Settings.CACHED_FLIGHT, player.getAbilities().allowFlying);
         }
-        boolean hasPermission = ItsOursMod.hasPermission(player.getCommandSource(), "itsours.fly");
+        boolean hasPermission = ItsOursMod.hasPermission(player.getCommandSource(), "itsours.fly") && player.getServerWorld().equals(player.getServer().getOverworld());
         boolean cachedFlying = hasPermission && player.getAbilities().flying;
-        //update abilities for respective gamemode
+        // Update abilities for respective gamemode
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
-        //enable flying if player enabled it
+        // Enable flying if player enabled it
         if (!player.getAbilities().allowFlying) {
             player.getAbilities().allowFlying = PlayerList.get(player.getUuid(), Settings.FLIGHT) && hasPermission;
         }
-        //set the flight state to what it was before entering
+        // Set the flight state to what it was before entering
         if (player.getAbilities().allowFlying) {
             player.getAbilities().flying = cachedFlying;
         }
@@ -181,9 +177,9 @@ public abstract class AbstractClaim {
     }
 
     public void onLeave(Optional<AbstractClaim> claim, ServerPlayerEntity player) {
-        if (!claim.isPresent()) {
+        if (claim.isEmpty()) {
             boolean cachedFlying = player.getAbilities().flying;
-            //update abilities for respective gamemode
+            // Update abilities for respective gamemode
             player.interactionManager.getGameMode().setAbilities(player.getAbilities());
             if (cachedFlying && !player.getAbilities().flying) {
                 BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
@@ -241,17 +237,6 @@ public abstract class AbstractClaim {
     }
 
     public abstract Object2IntMap<Role> getRoles(UUID uuid);
-
-    void sendDebug(UUID uuid, String permission, Permission.Value value) {
-        ServerPlayerEntity playerEntity = ItsOursMod.server.getPlayerManager().getPlayer(this.getOwner());
-        if (playerEntity != null && PlayerList.get(uuid, Settings.DEBUG)) {
-            ((ClaimPlayer) playerEntity)
-                    .sendActionbar(Component.text(this.getFullName() + ": ").color(Color.RED)
-                            .append(Component.text(Objects.requireNonNull(ItsOursMod.server.getPlayerManager().getPlayer(uuid)).getEntityName() + " ").color(Color.BLUE))
-                            .append(Component.text(permission + " ").color(Color.DARK_PURPLE))
-                            .append(value.format()));
-        }
-    }
 
     public PermissionManager getPermissionManager() {
         return this.permissionManager;
@@ -357,7 +342,7 @@ public abstract class AbstractClaim {
     }
 
     public void show(ServerPlayerEntity player, boolean show) {
-        BlockState blockState = show ? showBlocks[Math.min(this.getDepth(), showBlocks.length - 1)].getDefaultState() : null;
+        BlockState blockState = show ? SHOW_BLOCKS[Math.min(this.getDepth(), SHOW_BLOCKS.length - 1)].getDefaultState() : null;
         int y = ((ClaimPlayer) player).getLastShowClaim() != null ? ((ClaimPlayer) player).getLastShowPos().getY() : player.getBlockPos().getY();
         for (int i = min.getX(); i < max.getX(); i++) {
             sendBlockPacket(player, new BlockPos(getPosOnGround(new BlockPos(i, y, min.getZ()), player.getEntityWorld())).down(), blockState);

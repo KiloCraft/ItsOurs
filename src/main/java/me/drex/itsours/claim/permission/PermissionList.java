@@ -72,7 +72,6 @@ public class PermissionList {
         registerPermission((PermissionNode) new PermissionNode("modify").withInformation("Claim permissions").addSimpleNodes(Arrays.asList("trust", "untrust", "distrust", "size", "permission", "setting", "subzone", "name", "role")).item(Items.REPEATER));
 
         registerSetting((SettingNode) new SettingNode("pvp").global().withInformation("Toggle Player vs Player").item(Items.BOW));
-        registerSetting((SettingNode) new SettingNode("mobspawn").global().withInformation("Toggle mobspawning").item(Items.PIG_SPAWN_EGG));
         registerSetting((SettingNode) new SettingNode("explosions").withInformation("Toggle explosion block damage").item(Items.TNT));
         registerSetting((SettingNode) new SettingNode("fluid_crosses_borders").withInformation("Toggle fluids crossing claim borders").item(Items.WATER_BUCKET));
 

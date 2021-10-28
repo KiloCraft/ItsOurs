@@ -37,7 +37,7 @@ public class RenameCommand extends Command {
         } else {
             if (ItsOursMod.INSTANCE.getClaimList().contains(newName)) throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is already taken")).create();
         }
-        if (!AbstractClaim.isNameValid(newName)) throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is to long or contains invalid characters")).create();
+        if (AbstractClaim.isNameInvalid(newName)) throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is to long or contains invalid characters")).create();
         TextComponent text = Component.text("Changed name of ").color(Color.YELLOW)
                 .append(Component.text(claim.getName()).color(Color.ORANGE))
                 .append(Component.text(" to ").color(Color.YELLOW))

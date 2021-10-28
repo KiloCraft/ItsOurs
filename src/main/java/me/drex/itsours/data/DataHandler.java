@@ -11,7 +11,7 @@ public class DataHandler {
 
     //DataVersion
     public int dataVersion = 0;
-    private int currentVersion = 1;
+    private final int currentVersion = 1;
     //Data
     private ClaimList claimList;
     private RoleManager roleManager;

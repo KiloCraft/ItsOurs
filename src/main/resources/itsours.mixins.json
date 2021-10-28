@@ -21,9 +21,7 @@
     "ProjectileEntityMixin",
     "ScreenHandlerMixin",
     "ServerPlayerEntityMixin",
-    "ServerPlayerInteractionManagerMixin",
-    "SpawnHelperMixin",
-    "SpawnRestrictionMixin"
+    "ServerPlayerInteractionManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -72,7 +72,7 @@ public class ItsOursMod implements DedicatedServerModInitializer {
     }
 
     public static boolean hasPermission(ServerCommandSource src, String permission) {
-        return Permissions.check(src, permission);
+        return Permissions.check(src, permission, 2);
     }
 
     public void save() {

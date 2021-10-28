@@ -36,7 +36,7 @@ public abstract class BoatItemMixin extends Item {
     private BlockHitResult canUseBoat(World world, PlayerEntity player, RaycastContext.FluidHandling fluidHandling) {
         BlockHitResult hit = Item.raycast(world, player, fluidHandling);
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
-        if (!claim.isPresent())
+        if (claim.isEmpty())
             return hit;
         if (!claim.get().hasPermission(player.getUuid(), "use_item." + Registry.ITEM.getId(this).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
