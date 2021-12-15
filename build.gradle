@@ -1,7 +1,7 @@
 plugins {
     id 'fabric-loom' version '0.8-SNAPSHOT'
     id 'maven-publish'
-    id "com.github.johnrengelman.shadow" version "5.2.0"
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_16
@@ -19,11 +19,14 @@ configurations {
     modCompile.extendsFrom modShade
 }
 
+shadowJar {
+    classifier = "shadow"
+    configurations = [project.configurations.shadow]
+}
+
 repositories {
-    maven {
-        name = 'sonatype-oss'
-        url = 'https://oss.sonatype.org/content/repositories/snapshots/'
-    }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+
 }
 
 dependencies {
@@ -50,7 +53,10 @@ dependencies {
     implementation "org.jetbrains:annotations:${project.jetbrains_annotations_version}"
     implementation "net.luckperms:api:${project.luckperms_version}"
     implementation "net.kyori:adventure-text-minimessage:${project.kyori_adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-minimessage:${project.kyori_adventure_minimessage_version}"
     implementation "net.kyori:adventure-text-serializer-gson:${project.kyori_adventure_serializer_version}"
+    shadow "net.kyori:adventure-text-serializer-gson:${project.kyori_adventure_serializer_version}"
+
 }
 
 // Tasks
@@ -61,15 +67,9 @@ shadowJar {
     classifier = "dev"
 }
 
-task remapShadowJar(type: net.fabricmc.loom.task.RemapJarTask, dependsOn: shadowJar) {
-    afterEvaluate {
-        input = file("${jarpath}-dev.jar")
-        archiveName = "${project.name}-${project.version}.jar"
-        addNestedDependencies = true
-        remapAccessWidener = true
-    }
+task remapJar(type: net.fabricmc.loom.task.RemapJarTask, overwrite: true) {
+    from zipTree(shadowJar.archiveFile) dependsOn shadowJar
 }
-
 
 processResources {
     inputs.property "version", project.version
@@ -79,9 +79,6 @@ processResources {
     }
 }
 
-build.dependsOn(shadowJar, remapShadowJar)
-
-
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly
@@ -89,7 +86,6 @@ tasks.withType(JavaCompile).configureEach {
     // If Javadoc is generated, this must be specified in that task too.
     it.options.encoding = "UTF-8"
 
-    // Minecraft 1.17 (21w19a) upwards uses Java 16.
     it.options.release = 16
 }
 

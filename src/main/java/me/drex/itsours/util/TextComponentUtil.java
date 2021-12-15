@@ -37,10 +37,7 @@ public class TextComponentUtil {
     }
 
     public static Component of(final String raw, final boolean markdown) {
-        if (markdown) {
-            return MiniMessage.markdown().parse(raw);
-        }
-        return MiniMessage.get().parse(raw);
+        return MiniMessage.miniMessage().parse(raw);
     }
 
     public static Component toName(UUID uuid, TextColor color) {
