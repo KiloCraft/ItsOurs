@@ -1,16 +1,15 @@
 package me.drex.itsours.command;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.user.PlayerSetting;
+import me.drex.itsours.user.PlayerList;
+import me.drex.itsours.user.Settings;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
-import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class BlocksCommand extends Command {
@@ -19,8 +18,8 @@ public class BlocksCommand extends Command {
         LiteralArgumentBuilder<ServerCommandSource> blocks = LiteralArgumentBuilder.literal("blocks");
         blocks.executes(context -> check(context.getSource()));
         {
-            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
-            player.executes(ctx -> checkOther(ctx.getSource(), Command.getGameProfile(ctx, "player")));
+            RequiredArgumentBuilder<ServerCommandSource, String> player = playerArgument("player");
+            player.executes(BlocksCommand::checkOther);
             LiteralArgumentBuilder<ServerCommandSource> check = LiteralArgumentBuilder.literal("check");
             check.requires(src -> hasPermission(src, "itsours.blocks.check"));
             check.then(player);
@@ -28,8 +27,8 @@ public class BlocksCommand extends Command {
         }
         {
             RequiredArgumentBuilder<ServerCommandSource, Integer> amount = RequiredArgumentBuilder.argument("amount", IntegerArgumentType.integer());
-            amount.executes(ctx -> set(ctx.getSource(), Command.getGameProfile(ctx, "player"), IntegerArgumentType.getInteger(ctx, "amount")));
-            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
+            amount.executes(BlocksCommand::set);
+            RequiredArgumentBuilder<ServerCommandSource, String> player = playerArgument("player");
             LiteralArgumentBuilder<ServerCommandSource> set = LiteralArgumentBuilder.literal("set");
             set.requires(src -> hasPermission(src, "itsours.blocks.set"));
             player.then(amount);
@@ -38,8 +37,8 @@ public class BlocksCommand extends Command {
         }
         {
             RequiredArgumentBuilder<ServerCommandSource, Integer> amount = RequiredArgumentBuilder.argument("amount", IntegerArgumentType.integer());
-            amount.executes(ctx -> add(ctx.getSource(), Command.getGameProfile(ctx, "player"), IntegerArgumentType.getInteger(ctx, "amount")));
-            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = RequiredArgumentBuilder.argument("player", GameProfileArgumentType.gameProfile());
+            amount.executes(BlocksCommand::add);
+            RequiredArgumentBuilder<ServerCommandSource, String> player = playerArgument("player");
             LiteralArgumentBuilder<ServerCommandSource> add = LiteralArgumentBuilder.literal("add");
             add.requires(src -> hasPermission(src, "itsours.blocks.add"));
             player.then(amount);
@@ -50,28 +49,36 @@ public class BlocksCommand extends Command {
     }
 
     public static int check(ServerCommandSource source) throws CommandSyntaxException {
-        int blocks = ItsOursMod.INSTANCE.getPlayerList().getBlocks(source.getPlayer().getUuid());
+        int blocks = PlayerList.get(source.getPlayer().getUuid(), Settings.BLOCKS);
         ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("You have " + blocks + " blocks left").color(Color.LIGHT_GREEN));
         return blocks;
     }
 
-    public static int checkOther(ServerCommandSource source, GameProfile gameProfile) throws CommandSyntaxException {
-        int blocks = ItsOursMod.INSTANCE.getPlayerList().getBlocks(gameProfile.getId());
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text(gameProfile.getName() + " has " + blocks + " blocks left").color(Color.LIGHT_GREEN));
-        return blocks;
+    public static int checkOther(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        getGameProfile(ctx, "player", profile -> {
+            int blocks = PlayerList.get(profile.getId(), Settings.BLOCKS);
+            ((ClaimPlayer) ctx.getSource().getPlayer()).sendMessage(Component.text(profile.getName() + " has " + blocks + " blocks left").color(Color.LIGHT_GREEN));
+        });
+        return 1;
     }
 
-    public static int set(ServerCommandSource source, GameProfile gameProfile, int amount) throws CommandSyntaxException {
-        ItsOursMod.INSTANCE.getPlayerList().set(gameProfile.getId(), PlayerSetting.BLOCKS, amount);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set " + gameProfile.getName() + "'s claim blocks to " + amount).color(Color.LIGHT_GREEN));
-        return amount;
+    public static int set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        int amount = IntegerArgumentType.getInteger(ctx, "amount");
+        getGameProfile(ctx, "player", profile -> {
+            PlayerList.set(profile.getId(), Settings.BLOCKS, amount);
+            ((ClaimPlayer) ctx.getSource().getPlayer()).sendMessage(Component.text("Set " + profile.getName() + "'s claim blocks to " + amount).color(Color.LIGHT_GREEN));
+        });
+        return 1;
     }
 
-    public static int add(ServerCommandSource source, GameProfile gameProfile, int amount) throws CommandSyntaxException {
-        int blocks = ItsOursMod.INSTANCE.getPlayerList().getBlocks(gameProfile.getId());
-        ItsOursMod.INSTANCE.getPlayerList().set(gameProfile.getId(), PlayerSetting.BLOCKS, Math.max(0, blocks + amount));
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text((amount > 0 ? ("Added " + amount) : ("Removed " + -amount)) + " claim block(s) " + (amount > 0 ? "to " : "from ") + gameProfile.getName()).color(Color.LIGHT_GREEN));
-        return amount;
+    public static int add(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        int amount = IntegerArgumentType.getInteger(ctx, "amount");
+        getGameProfile(ctx, "player", profile -> {
+            int blocks = PlayerList.get(profile.getId(), Settings.BLOCKS);
+            PlayerList.set(profile.getId(), Settings.BLOCKS, Math.max(0, blocks + amount));
+            ((ClaimPlayer) ctx.getSource().getPlayer()).sendMessage(Component.text((amount > 0 ? ("Added " + amount) : ("Removed " + -amount)) + " claim block(s) " + (amount > 0 ? "to " : "from ") + profile.getName()).color(Color.LIGHT_GREEN));
+        });
+        return 1;
     }
 
 }

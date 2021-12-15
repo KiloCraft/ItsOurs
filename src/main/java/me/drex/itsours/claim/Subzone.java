@@ -7,6 +7,7 @@ import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.claim.permission.util.context.PermissionContext;
+import me.drex.itsours.claim.permission.util.context.Priority;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -44,9 +45,7 @@ public class Subzone extends AbstractClaim {
     @Override
     protected PermissionContext getPermissionContext(UUID uuid, Permission permission) {
         PermissionContext context = super.getPermissionContext(uuid, permission);
-        if (context.getValue() == Permission.Value.UNSET) {
-            return parent.getPermissionContext(uuid, permission);
-        }
+        context.combine(parent.getPermissionContext(uuid, permission));
         return context;
     }
 
@@ -66,7 +65,7 @@ public class Subzone extends AbstractClaim {
     public boolean getSetting(String setting) {
         Optional<Permission> optional = Permission.setting(setting);
         if (optional.isPresent()) {
-            PermissionContext context = this.getPermissionManager().settings.getPermission(optional.get(), PermissionContext.CustomPriority.SETTING);
+            PermissionContext context = this.getPermissionManager().settings.getPermission(this, optional.get(), Priority.SETTING);
             if (context.getValue() == Permission.Value.UNSET) {
                 return parent.getSetting(setting);
             } else {

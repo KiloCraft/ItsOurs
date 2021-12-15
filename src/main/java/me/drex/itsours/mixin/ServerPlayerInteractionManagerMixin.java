@@ -31,11 +31,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @Mixin(ServerPlayerInteractionManager.class)
-public class ServerPlayerInteractionManagerMixin {
+public abstract class ServerPlayerInteractionManagerMixin {
 
     @Shadow
     @Final
@@ -47,8 +46,14 @@ public class ServerPlayerInteractionManagerMixin {
     public BlockPos blockPos;
 
 
-    @Redirect(method = "processBlockBreakingAction", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;canPlayerModifyAt(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/math/BlockPos;)Z"))
-    private boolean itsours$onLeftClickOnBlock(ServerWorld serverWorld, PlayerEntity player, BlockPos pos) {
+    @Redirect(
+            method = "processBlockBreakingAction",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/world/ServerWorld;canPlayerModifyAt(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/math/BlockPos;)Z"
+            )
+    )
+    private boolean onBlockLeftClick(ServerWorld serverWorld, PlayerEntity player, BlockPos pos) {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         if ((player.getInventory().getMainHandStack().getItem() == Items.GOLDEN_SHOVEL || claimPlayer.getSelecting()) && isDifferent(claimPlayer.getLeftPosition(), pos)) {
             claimPlayer.sendMessage(Component.text("Position #1 set to " + pos.getX() + " " + pos.getZ()).color(Color.LIGHT_GREEN));
@@ -59,6 +64,23 @@ public class ServerPlayerInteractionManagerMixin {
         return true;
     }
 
+    @Redirect(
+            method = "interactBlock",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"
+            )
+    )
+    private boolean onBlockRightClick(ItemStack itemStack) {
+        ClaimPlayer claimPlayer = (ClaimPlayer) player;
+        if ((itemStack.getItem() == Items.GOLDEN_SHOVEL || claimPlayer.getSelecting()) && isDifferent(claimPlayer.getRightPosition(), blockPos)) {
+            claimPlayer.sendMessage(Component.text("Position #2 set to " + blockPos.getX() + " " + blockPos.getZ()).color(Color.LIGHT_GREEN));
+            claimPlayer.setRightPosition(blockPos);
+            onClaimAddCorner();
+            return true;
+        }
+        return itemStack.isEmpty();
+    }
 
     public void onClaimAddCorner() {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
@@ -77,8 +99,14 @@ public class ServerPlayerInteractionManagerMixin {
         return pos1 == null || pos2 == null || pos1.getX() != pos2.getX() || pos1.getY() != pos2.getY() || pos1.getZ() != pos2.getZ();
     }
 
-    @Redirect(method = "tryBreakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;isBlockBreakingRestricted(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/GameMode;)Z"))
-    private boolean itsours$onBlockBreak(ServerPlayerEntity playerEntity, World world, BlockPos pos, GameMode gameMode) {
+    @Redirect(
+            method = "tryBreakBlock",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/network/ServerPlayerEntity;isBlockBreakingRestricted(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/GameMode;)Z"
+            )
+    )
+    private boolean canBreakBlock(ServerPlayerEntity playerEntity, World world, BlockPos pos, GameMode gameMode) {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, pos);
         if (!claim.isPresent()) return playerEntity.isBlockBreakingRestricted(world, pos, gameMode);
         if (!claim.get().hasPermission(playerEntity.getUuid(), "mine." + Registry.BLOCK.getId(this.world.getBlockState(pos).getBlock()).getPath())) {
@@ -89,10 +117,16 @@ public class ServerPlayerInteractionManagerMixin {
         return playerEntity.isBlockBreakingRestricted(world, pos, gameMode);
     }
 
-    @Redirect(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onUse(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"))
-    private ActionResult itsours$onBlockInteract(BlockState blockState, World world, PlayerEntity playerEntity, Hand hand, BlockHitResult hit) {
+    @Redirect(
+            method = "interactBlock",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/block/BlockState;onUse(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"
+            )
+    )
+    private ActionResult canInteractBlock(BlockState blockState, World world, PlayerEntity playerEntity, Hand hand, BlockHitResult hit) {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
-        if (!claim.isPresent() || !PermissionList.filter(blockState.getBlock(), PermissionList.interactBlock))
+        if (claim.isEmpty() || !PermissionList.filter(blockState.getBlock(), PermissionList.interactBlock))
             return blockState.onUse(world, playerEntity, hand, hit);
         if (!claim.get().hasPermission(playerEntity.getUuid(), "interact_block." + Registry.BLOCK.getId(blockState.getBlock()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
@@ -102,41 +136,44 @@ public class ServerPlayerInteractionManagerMixin {
         return blockState.onUse(world, playerEntity, hand, hit);
     }
 
-    @Redirect(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;useOnBlock(Lnet/minecraft/item/ItemUsageContext;)Lnet/minecraft/util/ActionResult;"))
-    private ActionResult itsours$onUseOnBlock(ItemStack itemStack, ItemUsageContext context) {
+    @Redirect(
+            method = "interactBlock",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/item/ItemStack;useOnBlock(Lnet/minecraft/item/ItemUsageContext;)Lnet/minecraft/util/ActionResult;"
+            )
+    )
+    private ActionResult canUseOnBlock(ItemStack itemStack, ItemUsageContext context) {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
-        if (!claim.isPresent() || !PermissionList.filter(itemStack.getItem(), PermissionList.useOnBlock))
+        if (claim.isEmpty() || !PermissionList.filter(itemStack.getItem(), PermissionList.useOnBlock))
             return itemStack.useOnBlock(context);
-        if (!claim.get().hasPermission(Objects.requireNonNull(context.getPlayer()).getUuid(), "use_on_block." + Registry.ITEM.getId(itemStack.getItem()) + "." + Registry.BLOCK.getId(context.getWorld().getBlockState(context.getBlockPos()).getBlock()).getPath())) {
-            claimPlayer.sendError(Component.text("You can't use that item here.").color(Color.RED));
+        if (!claim.get().hasPermission(context.getPlayer().getUuid(), "use_on_block." + Registry.ITEM.getId(itemStack.getItem()).getPath())) {
+            claimPlayer.sendError(Component.text("You can't use that item on this block here.").color(Color.RED));
             return ActionResult.FAIL;
         }
         return itemStack.useOnBlock(context);
     }
 
-    @Inject(method = "interactBlock", at = @At(value = "HEAD"))
-    private void itsours$onUseOnBlock$getBlock(ServerPlayerEntity serverPlayerEntity, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
+    @Inject(
+            method = "interactBlock",
+            at = @At("HEAD")
+    )
+    private void acquireLocale(ServerPlayerEntity serverPlayerEntity, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
         blockPos = hitResult.getBlockPos().offset(hitResult.getSide());
     }
 
-    @Redirect(method = "interactBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"))
-    private boolean itsours$onUseOnBlock$selectPosition(ItemStack itemStack) {
-        ClaimPlayer claimPlayer = (ClaimPlayer) player;
-        if ((itemStack.getItem() == Items.GOLDEN_SHOVEL || claimPlayer.getSelecting()) && isDifferent(claimPlayer.getRightPosition(), blockPos)) {
-            claimPlayer.sendMessage(Component.text("Position #2 set to " + blockPos.getX() + " " + blockPos.getZ()).color(Color.LIGHT_GREEN));
-            claimPlayer.setRightPosition(blockPos);
-            onClaimAddCorner();
-            return true;
-        }
-        return itemStack.isEmpty();
-    }
 
-
-    @Redirect(method = "interactItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;"))
-    private TypedActionResult<ItemStack> itsours$onItemUse(ItemStack itemStack, World world, PlayerEntity user, Hand hand) {
+    @Redirect(
+            method = "interactItem",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/item/ItemStack;use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;"
+            )
+    )
+    private TypedActionResult<ItemStack> canUseItem(ItemStack itemStack, World world, PlayerEntity user, Hand hand) {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, user.getBlockPos());
-        if (!claim.isPresent() || !PermissionList.filter(itemStack.getItem(), PermissionList.useItem))
+        if (claim.isEmpty() || !PermissionList.filter(itemStack.getItem(), PermissionList.useItem))
             return itemStack.use(world, user, hand);
         if (!claim.get().hasPermission(user.getUuid(), "use_item." + Registry.ITEM.getId(itemStack.getItem()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) user;

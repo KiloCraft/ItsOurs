@@ -13,10 +13,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.minecraft.server.command.ServerCommandSource;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class TrustedCommand extends Command {
 
@@ -24,16 +21,13 @@ public class TrustedCommand extends Command {
         RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
         claim.executes(ctx -> trusted(ctx.getSource(), getClaim(ctx)));
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("trusted");
-        command.executes(ctx -> trusted(ctx.getSource(), getAndValidateClaim(ctx.getSource().getWorld(), ctx.getSource().getPlayer().getBlockPos())));
+        command.executes(ctx -> trusted(ctx.getSource(), getAndValidateClaim(ctx.getSource())));
         command.then(claim);
         literal.then(command);
     }
 
     public static int trusted(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
-        List<UUID> trusted = new ArrayList<>();
-        for (UUID uuid : getAllUUIDs(claim)) {
-            if (claim.getRoles(uuid).containsKey(ItsOursMod.INSTANCE.getRoleManager().get("trusted"))) trusted.add(uuid);
-        }
+        List<UUID> trusted = getAllTrusted(claim);
         ClaimPlayer player = (ClaimPlayer) source.getPlayer();
         if (trusted.isEmpty()) {
             player.sendMessage(Component.text("No one is trusted in " + claim.getName() + ".").color(Color.RED));
@@ -48,15 +42,23 @@ public class TrustedCommand extends Command {
         return trusted.size();
     }
 
-    private static Set<UUID> getAllUUIDs(AbstractClaim claim) {
+    public static Set<UUID> getAllUUIDs(AbstractClaim claim) {
         if (claim instanceof Subzone) {
             Subzone subzone = (Subzone) claim;
-            Set<UUID> set = subzone.getPermissionManager().roleManager.keySet();
+            Set<UUID> set = new HashSet<>(subzone.getPermissionManager().roleManager.keySet());
             set.addAll(getAllUUIDs(subzone.getParent()));
             return set;
         } else {
-            return claim.getPermissionManager().roleManager.keySet();
+            return new HashSet<>(claim.getPermissionManager().roleManager.keySet());
         }
+    }
+
+    public static List<UUID> getAllTrusted(AbstractClaim claim) {
+        List<UUID> trusted = new ArrayList<>();
+        for (UUID uuid : getAllUUIDs(claim)) {
+            if (claim.getRoles(uuid).containsKey(ItsOursMod.INSTANCE.getRoleManager().get("trusted"))) trusted.add(uuid);
+        }
+        return trusted;
     }
 
 

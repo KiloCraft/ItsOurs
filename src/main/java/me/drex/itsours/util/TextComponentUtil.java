@@ -11,6 +11,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.text.Text;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class TextComponentUtil {
@@ -36,17 +37,14 @@ public class TextComponentUtil {
     }
 
     public static Component of(final String raw, final boolean markdown) {
-        if (markdown) {
-            return MiniMessage.markdown().parse(raw);
-        }
-        return MiniMessage.get().parse(raw);
+        return MiniMessage.miniMessage().parse(raw);
     }
 
     public static Component toName(UUID uuid, TextColor color) {
-        GameProfile owner = ItsOursMod.server.getUserCache().getByUuid(uuid);
+        Optional<GameProfile> optional = ItsOursMod.server.getUserCache().getByUuid(uuid);
         Component text;
-        if (owner != null && owner.isComplete()) {
-            text = Component.text(owner.getName());
+        if (optional.isPresent() && optional.get().isComplete()) {
+            text = Component.text(optional.get().getName());
         } else {
             text = Component.text(uuid.toString()).decorate(TextDecoration.ITALIC).clickEvent(ClickEvent.copyToClipboard(uuid.toString()))
                     .hoverEvent(HoverEvent.showText(Component.text("Click to copy!").color(Color.AQUA)));

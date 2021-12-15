@@ -19,6 +19,7 @@ public class Manager {
         DebugCommand.register(main);
         ExpandCommand.register(main);
         FlyCommand.register(main);
+        GUICommand.register(main);
         HelpCommand.register(main);
         IgnoreCommand.register(main);
         InfoCommand.register(main);
@@ -26,13 +27,14 @@ public class Manager {
         PermissionCommand.register(main);
         RemoveCommand.register(main);
         RenameCommand.register(main);
+        //RestrictionCommand.register(main);
         RoleCommand.register(main);
         RolesCommand.register(main);
         SelectCommand.register(main);
         SetOwnerCommand.register(main);
         SettingCommand.register(main);
         ShowCommand.register(main);
-        TrustCommand.register(main);
+        TrustCommand.register(main, dispatcher);
         TrustedCommand.register(main);
 
 

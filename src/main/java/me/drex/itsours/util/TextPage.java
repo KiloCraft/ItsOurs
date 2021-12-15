@@ -1,6 +1,5 @@
 package me.drex.itsours.util;
 
-import net.kyori.adventure.text.Component;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.LiteralText;

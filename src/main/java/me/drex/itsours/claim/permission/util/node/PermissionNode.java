@@ -8,4 +8,5 @@ public class PermissionNode extends Node {
     public PermissionNode(String id) {
         super(id);
     }
+
 }

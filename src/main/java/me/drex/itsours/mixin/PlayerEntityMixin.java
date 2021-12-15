@@ -28,8 +28,14 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         super(entityType, world);
     }
 
-    @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;isAttackable()Z"))
-    private boolean itsours$onDamage(Entity entity) {
+    @Redirect(
+            method = "attack",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/Entity;isAttackable()Z"
+            )
+    )
+    private boolean canDamageEntity(Entity entity) {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) entity.getEntityWorld(), entity.getBlockPos());
         ClaimPlayer claimPlayer = (ClaimPlayer) this;
         if (!claim.isPresent()) {
@@ -46,7 +52,13 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         return entity.isAttackable();
     }
 
-    @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;damage(Lnet/minecraft/entity/damage/DamageSource;F)Z"))
+    @Redirect(
+            method = "attack",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/LivingEntity;damage(Lnet/minecraft/entity/damage/DamageSource;F)Z"
+            )
+    )
     public boolean shouldApplySweepingDamage(LivingEntity livingEntity, DamageSource source, float amount) {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) livingEntity.getEntityWorld(), livingEntity.getBlockPos());
         ClaimPlayer claimPlayer = (ClaimPlayer) this;
@@ -64,10 +76,16 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         return livingEntity.damage(DamageSource.player((PlayerEntity) (Object)this), amount);
     }
 
-    @Redirect(method = "interact", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;interact(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;"))
-    private ActionResult itsours$onInteractEntity(Entity entity, PlayerEntity player, Hand hand) {
+    @Redirect(
+            method = "interact",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/Entity;interact(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;"
+            )
+    )
+    private ActionResult canInteractEntity(Entity entity, PlayerEntity player, Hand hand) {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) entity.getEntityWorld(), entity.getBlockPos());
-        if (!claim.isPresent())
+        if (claim.isEmpty())
             return entity.interact(player, hand);
         if (!claim.get().hasPermission(this.getUuid(), "interact_entity." + Registry.ENTITY_TYPE.getId(entity.getType()).getPath()))
         {

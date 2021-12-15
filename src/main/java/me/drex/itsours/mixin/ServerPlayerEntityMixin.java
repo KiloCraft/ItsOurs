@@ -8,13 +8,11 @@ import net.kyori.adventure.text.Component;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,26 +21,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Optional;
-
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer {
 
     @Shadow
     @Final
-    public ServerPlayerInteractionManager interactionManager;
-    @Shadow
-    @Final
     public MinecraftServer server;
     public Pair<BlockPos, BlockPos> positions = new Pair<>(null, null);
-    World pworld;
-    BlockPos ppos;
     private AbstractClaim lastShowClaim;
     private BlockPos lastShowPos;
     private ServerWorld lastShowWorld;
     private int cooldown = 0;
     private boolean select = false;
-    private Optional<AbstractClaim> pclaim = Optional.empty();
 
 
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {

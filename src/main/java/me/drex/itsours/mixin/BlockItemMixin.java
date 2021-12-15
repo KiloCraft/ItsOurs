@@ -2,7 +2,6 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
 import net.kyori.adventure.text.Component;
@@ -37,11 +36,17 @@ public abstract class BlockItemMixin extends Item {
     @Shadow
     public abstract Block getBlock();
 
-    @Redirect(method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemPlacementContext;canPlace()Z"))
-    private boolean itsours$checkCanPlace(ItemPlacementContext context) {
+    @Redirect(
+            method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/item/ItemPlacementContext;canPlace()Z"
+            )
+    )
+    private boolean canPlace(ItemPlacementContext context) {
         if (context.getPlayer() == null) return context.canPlace();
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
-        if (!claim.isPresent()) return context.canPlace();
+        if (claim.isEmpty()) return context.canPlace();
         if (!claim.get().hasPermission(context.getPlayer().getUuid(), "place." + Registry.BLOCK.getId(this.getBlock()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) context.getPlayer();
             claimPlayer.sendError(Component.text("You can't place a block here.").color(Color.RED));
@@ -51,8 +56,14 @@ public abstract class BlockItemMixin extends Item {
     }
 
 
-    @Inject(method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;onPlaced(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;)V"))
-    private void itsours$placeBlock(ItemPlacementContext context, CallbackInfoReturnable<ActionResult> cir) {
+    @Inject(
+            method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/block/Block;onPlaced(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;)V"
+            )
+    )
+    private void onBlockPlace(ItemPlacementContext context, CallbackInfoReturnable<ActionResult> cir) {
         if (context.getPlayer() == null) return;
         Block block = this.getBlock();
         BlockPos blockPos = context.getBlockPos();

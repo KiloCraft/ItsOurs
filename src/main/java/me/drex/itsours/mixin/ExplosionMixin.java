@@ -18,7 +18,7 @@ import java.util.ListIterator;
 import java.util.Optional;
 
 @Mixin(Explosion.class)
-public class ExplosionMixin {
+public abstract class ExplosionMixin {
 
     @Shadow
     @Final
@@ -28,8 +28,11 @@ public class ExplosionMixin {
     @Final
     private List<BlockPos> affectedBlocks;
 
-    @Inject(method = "affectWorld", at = @At(value = "HEAD"))
-    public void onAffect(boolean bl, CallbackInfo ci) {
+    @Inject(
+            method = "affectWorld",
+            at = @At("HEAD")
+    )
+    public void canExplosionAffectBlock(boolean bl, CallbackInfo ci) {
         ListIterator<BlockPos> iterator = this.affectedBlocks.listIterator();
         while (iterator.hasNext()) {
             BlockPos blockPos = iterator.next();

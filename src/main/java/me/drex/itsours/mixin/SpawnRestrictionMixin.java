@@ -17,10 +17,14 @@ import java.util.Optional;
 import java.util.Random;
 
 @Mixin(SpawnRestriction.class)
-public class SpawnRestrictionMixin {
+public abstract class SpawnRestrictionMixin {
 
-    @Inject(method = "canSpawn", at = @At("HEAD"), cancellable = true)
-    private static <T extends Entity> void canSpawnInClaim(EntityType<T> type, ServerWorldAccess serverWorldAccess, SpawnReason spawnReason, BlockPos pos, Random random, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(
+            method = "canSpawn",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private static <T extends Entity> void canMobsSpawn(EntityType<T> type, ServerWorldAccess serverWorldAccess, SpawnReason spawnReason, BlockPos pos, Random random, CallbackInfoReturnable<Boolean> cir) {
         if (ItsOursMod.INSTANCE == null || ItsOursMod.INSTANCE.getClaimList() == null) return;
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get(serverWorldAccess.toServerWorld(), pos);
         if (claim.isPresent() && !claim.get().getSetting("mobspawn")) {

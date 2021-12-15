@@ -11,8 +11,6 @@ import java.util.List;
 public class WorldUtil {
 
     private static final List<RegistryKey<World>> REGISTRY_KEYS = Lists.newArrayList();
-    private static RegistryKey<World> DEFAULT = World.OVERWORLD;
-    public static World DEFAULT_WORLD = ItsOursMod.server.getWorld(DEFAULT);
 
     static {
         REGISTRY_KEYS.addAll(ItsOursMod.server.getWorldRegistryKeys());
@@ -32,6 +30,16 @@ public class WorldUtil {
             if (world == ItsOursMod.server.getWorld(key)) return key.getValue().toString();
         }
         return "";
+    }
+
+    public static boolean isOverworld(ServerWorld world) {
+        return world.getRegistryKey().equals(World.OVERWORLD);
+    }
+    public static boolean isNether(ServerWorld world) {
+        return world.getRegistryKey().equals(World.NETHER);
+    }
+    public static boolean isEnd(ServerWorld world) {
+        return world.getRegistryKey().equals(World.END);
     }
 
 }

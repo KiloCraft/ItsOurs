@@ -15,9 +15,15 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.Optional;
 
 @Mixin(LecternScreenHandler.class)
-public class LecternScreenHandlerMixin {
+public abstract class LecternScreenHandlerMixin {
 
-    @Redirect(method = "onButtonClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;canModifyBlocks()Z"))
+    @Redirect(
+            method = "onButtonClick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/player/PlayerEntity;canModifyBlocks()Z"
+            )
+    )
     public boolean canTakeBook(PlayerEntity player) {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.getEntityWorld(), player.getBlockPos());
         if (!claim.isPresent())

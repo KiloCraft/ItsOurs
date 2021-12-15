@@ -5,10 +5,14 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.claim.permission.RestrictionManager;
 import me.drex.itsours.claim.permission.roles.Role;
+import me.drex.itsours.claim.permission.util.context.ContextEntry;
 import me.drex.itsours.claim.permission.util.context.PermissionContext;
+import me.drex.itsours.claim.permission.util.context.Priority;
 import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.user.PlayerSetting;
+import me.drex.itsours.user.PlayerList;
+import me.drex.itsours.user.Settings;
 import me.drex.itsours.util.Color;
 import me.drex.itsours.util.TextComponentUtil;
 import me.drex.itsours.util.WorldUtil;
@@ -36,15 +40,14 @@ import static me.drex.itsours.claim.AbstractClaim.Util.getPosOnGround;
 public abstract class AbstractClaim {
 
     public static final Pattern NAME = Pattern.compile("\\w{3,16}");
-    private static Block[] showBlocks = {Blocks.GOLD_BLOCK, Blocks.DIAMOND_BLOCK, Blocks.EMERALD_BLOCK, Blocks.REDSTONE_BLOCK, Blocks.LAPIS_BLOCK};
+    private static final Block[] SHOW_BLOCKS = {Blocks.GOLD_BLOCK, Blocks.DIAMOND_BLOCK, Blocks.EMERALD_BLOCK, Blocks.REDSTONE_BLOCK, Blocks.LAPIS_BLOCK};
     public BlockPos min, max, tp;
     private String name;
     private UUID owner;
     private ServerWorld world;
-    private List<Subzone> subzoneList = new ArrayList<>();
-    private Date created;
-    private Date lastEdited;
+    private final List<Subzone> subzoneList = new ArrayList<>();
     private PermissionManager permissionManager;
+    private RestrictionManager restrictionManager;
 
     public AbstractClaim(String name, UUID owner, BlockPos pos1, BlockPos pos2, ServerWorld world, BlockPos tp) {
         this.name = name;
@@ -61,14 +64,19 @@ public abstract class AbstractClaim {
         this.world = world;
         this.tp = tp;
         this.permissionManager = new PermissionManager(new NbtCompound());
+        this.restrictionManager = new RestrictionManager(new NbtCompound());
     }
 
     public AbstractClaim(NbtCompound tag) {
         fromNBT(tag);
     }
 
-    public static boolean isNameValid(String name) {
-        return NAME.matcher(name).matches();
+    public static boolean isNameInvalid(String name) {
+        return !NAME.matcher(name).matches();
+    }
+
+    public RestrictionManager getRestrictionManager() {
+        return restrictionManager;
     }
 
     public void fromNBT(NbtCompound tag) {
@@ -78,16 +86,17 @@ public abstract class AbstractClaim {
         this.min = Util.blockPosFromNBT(position.getCompound("min"));
         this.max = Util.blockPosFromNBT(position.getCompound("max"));
         this.tp = Util.blockPosFromNBT(position.getCompound("tp"));
-        //TODO: Add option to ignore claims which are located in unknown worlds
+        // TODO: Add option to ignore claims which are located in unknown worlds
         this.world = WorldUtil.getWorld(position.getString("world"));
-        if (tag.contains("subzones")) {
-            NbtList list = (NbtList) tag.get("subzones");
+        NbtList list = (NbtList) tag.get("subzones");
+        if (list != null) {
             list.forEach(subzones -> {
                 Subzone subzone = new Subzone((NbtCompound) subzones, this);
                 subzoneList.add(subzone);
             });
         }
         this.permissionManager = new PermissionManager(tag.getCompound("permissions"));
+        this.restrictionManager = new RestrictionManager(tag.getCompound("restrictions"));
     }
 
     public NbtCompound toNBT() {
@@ -104,12 +113,11 @@ public abstract class AbstractClaim {
         tag.put("position", position);
         if (!subzoneList.isEmpty()) {
             NbtList list = new NbtList();
-            subzoneList.forEach(subzone -> {
-                list.add(subzone.toNBT());
-            });
+            subzoneList.forEach(subzone -> list.add(subzone.toNBT()));
             tag.put("subzones", list);
         }
         tag.put("permissions", this.permissionManager.toNBT());
+        tag.put("restrictions", this.restrictionManager.toNBT());
         return tag;
     }
 
@@ -147,19 +155,19 @@ public abstract class AbstractClaim {
         this.subzoneList.remove(subzone);
     }
 
-    public void onEnter(Optional<AbstractClaim> pclaim, ServerPlayerEntity player) {
-        if (!pclaim.isPresent()) {
-            ItsOursMod.INSTANCE.getPlayerList().setBoolean(player.getUuid(), PlayerSetting.CACHED_FLIGHT, player.getAbilities().allowFlying);
+    public void onEnter(Optional<AbstractClaim> previousClaim, ServerPlayerEntity player) {
+        if (previousClaim.isEmpty()) {
+            PlayerList.set(player.getUuid(), Settings.CACHED_FLIGHT, player.getAbilities().allowFlying);
         }
-        boolean hasPermission = ItsOursMod.INSTANCE.getPermissionHandler().hasPermission(player.getCommandSource(), "itsours.fly", 4);
+        boolean hasPermission = ItsOursMod.hasPermission(player.getCommandSource(), "itsours.fly") && player.getServerWorld().equals(player.getServer().getOverworld());
         boolean cachedFlying = hasPermission && player.getAbilities().flying;
-        //update abilities for respective gamemode
+        // Update abilities for respective gamemode
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
-        //enable flying if player enabled it
+        // Enable flying if player enabled it
         if (!player.getAbilities().allowFlying) {
-            player.getAbilities().allowFlying = hasPermission && ItsOursMod.INSTANCE.getPlayerList().getBoolean(player.getUuid(), PlayerSetting.FLIGHT);
+            player.getAbilities().allowFlying = PlayerList.get(player.getUuid(), Settings.FLIGHT) && hasPermission;
         }
-        //set the flight state to what it was before entering
+        // Set the flight state to what it was before entering
         if (player.getAbilities().allowFlying) {
             player.getAbilities().flying = cachedFlying;
         }
@@ -169,17 +177,10 @@ public abstract class AbstractClaim {
     }
 
     public void onLeave(Optional<AbstractClaim> claim, ServerPlayerEntity player) {
-        if (!claim.isPresent()) {
-            //TODO: Make configurable
+        if (claim.isEmpty()) {
             boolean cachedFlying = player.getAbilities().flying;
-            //update abilities for respective gamemode
+            // Update abilities for respective gamemode
             player.interactionManager.getGameMode().setAbilities(player.getAbilities());
-            //check if the player was flying before they entered the claim
-            //TODO: Figure out how to make this possible (Problem: onLeave is executed twice if player leaves nether -> )
-/*        if ((boolean) claimPlayer.getSetting("cached_flight", false)) {
-            player.getAbilities().flying = cachedFlying;
-            player.getAbilities().allowFlying = true;
-        }*/
             if (cachedFlying && !player.getAbilities().flying) {
                 BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
                 if (pos.getY() + 3 < player.getY()) {
@@ -193,41 +194,40 @@ public abstract class AbstractClaim {
     }
 
     protected PermissionContext getPermissionContext(UUID uuid, Permission permission) {
-        PermissionContext context = new PermissionContext();
-            context.combine(this.permissionManager.getPermissionContext(uuid, permission));
-            if (uuid.equals(owner))
-                context.add(permission, PermissionContext.CustomPriority.OWNER, Permission.Value.TRUE);
-            if (ItsOursMod.INSTANCE.getPlayerList().getBoolean(uuid, PlayerSetting.IGNORE))
-                context.add(permission, PermissionContext.CustomPriority.IGNORE, Permission.Value.TRUE);
+        PermissionContext context = new PermissionContext(permission);
+        context.combine(this.permissionManager.getPermissionContext(this, uuid, permission));
+        if (uuid.equals(owner))
+            context.addEntry(ContextEntry.of(this, Priority.OWNER, permission, Permission.Value.TRUE));
+        if (PlayerList.get(uuid, Settings.IGNORE))
+            context.addEntry(ContextEntry.of(this, Priority.IGNORE, permission, Permission.Value.TRUE));
+        context.combine(getRolePermissionContext(uuid, permission));
         return context;
     }
 
     public PermissionContext getContext(UUID uuid, Permission permission) {
         PermissionContext context = getPermissionContext(uuid, permission);
-        context.combine(getRolePermissionContext(uuid, permission));
         return context;
     }
 
     public boolean hasPermission(UUID uuid, String permission) {
         Optional<Permission> optional = Permission.permission(permission);
-        if (optional.isPresent()) return getContext(uuid, optional.get()).getValue().value;
-        return false;
+        return optional.filter(value -> getContext(uuid, value).getValue().value).isPresent();
     }
 
     public boolean getSetting(String setting) {
         Optional<Permission> optional = Permission.setting(setting);
         if (optional.isPresent()) {
-            PermissionContext context = this.permissionManager.settings.getPermission(optional.get(), PermissionContext.CustomPriority.SETTING);
+            PermissionContext context = this.permissionManager.settings.getPermission(this, optional.get(), Priority.SETTING);
             return context.getValue().value;
         } else {
             return false;
         }
     }
 
-    PermissionContext getRolePermissionContext(UUID uuid, Permission permission) {
-        PermissionContext context = new PermissionContext();
+    private PermissionContext getRolePermissionContext(UUID uuid, Permission permission) {
+        PermissionContext context = new PermissionContext(permission);
         for (Object2IntMap.Entry<Role> roleEntry : getRoles(uuid).object2IntEntrySet()) {
-            context.combine(roleEntry.getKey().permissions().getPermission(permission, new PermissionContext.RolePriority(ItsOursMod.INSTANCE.getRoleManager().getRoleID(roleEntry.getKey()), roleEntry.getIntValue())));
+            context.combine(roleEntry.getKey().permissions().getPermission(this, permission, Priority.of(ItsOursMod.INSTANCE.getRoleManager().getRoleID(roleEntry.getKey()), 3, roleEntry.getIntValue())));
         }
         if (permission.nodes() > 1) {
             Permission perm = permission.up();
@@ -237,17 +237,6 @@ public abstract class AbstractClaim {
     }
 
     public abstract Object2IntMap<Role> getRoles(UUID uuid);
-
-    void sendDebug(UUID uuid, String permission, Permission.Value value) {
-        ServerPlayerEntity playerEntity = ItsOursMod.server.getPlayerManager().getPlayer(this.getOwner());
-        if (playerEntity != null && (boolean) ItsOursMod.INSTANCE.getPlayerList().get(uuid, PlayerSetting.DEBUG)) {
-            ((ClaimPlayer) playerEntity)
-                    .sendActionbar(Component.text(this.getFullName() + ": ").color(Color.RED)
-                            .append(Component.text(Objects.requireNonNull(ItsOursMod.server.getPlayerManager().getPlayer(uuid)).getEntityName() + " ").color(Color.BLUE))
-                            .append(Component.text(permission + " ").color(Color.DARK_PURPLE))
-                            .append(value.format()));
-        }
-    }
 
     public PermissionManager getPermissionManager() {
         return this.permissionManager;
@@ -353,7 +342,7 @@ public abstract class AbstractClaim {
     }
 
     public void show(ServerPlayerEntity player, boolean show) {
-        BlockState blockState = show ? showBlocks[Math.min(this.getDepth(), showBlocks.length - 1)].getDefaultState() : null;
+        BlockState blockState = show ? SHOW_BLOCKS[Math.min(this.getDepth(), SHOW_BLOCKS.length - 1)].getDefaultState() : null;
         int y = ((ClaimPlayer) player).getLastShowClaim() != null ? ((ClaimPlayer) player).getLastShowPos().getY() : player.getBlockPos().getY();
         for (int i = min.getX(); i < max.getX(); i++) {
             sendBlockPacket(player, new BlockPos(getPosOnGround(new BlockPos(i, y, min.getZ()), player.getEntityWorld())).down(), blockState);

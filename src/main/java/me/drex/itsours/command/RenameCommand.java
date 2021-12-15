@@ -7,7 +7,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.Color;
@@ -21,7 +20,7 @@ public class RenameCommand extends Command {
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         RequiredArgumentBuilder<ServerCommandSource, String> newOwner = RequiredArgumentBuilder.argument("newName", StringArgumentType.word());
         newOwner.executes(ctx -> rename(ctx.getSource(), getClaim(ctx), StringArgumentType.getString(ctx, "newName")));
-        RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
+        RequiredArgumentBuilder<ServerCommandSource, String> claim = permissionClaimArgument("modify.name");
         claim.then(newOwner);
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("rename");
         command.then(claim);
@@ -38,7 +37,7 @@ public class RenameCommand extends Command {
         } else {
             if (ItsOursMod.INSTANCE.getClaimList().contains(newName)) throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is already taken")).create();
         }
-        if (!AbstractClaim.isNameValid(newName)) throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is to long or contains invalid characters")).create();
+        if (AbstractClaim.isNameInvalid(newName)) throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is to long or contains invalid characters")).create();
         TextComponent text = Component.text("Changed name of ").color(Color.YELLOW)
                 .append(Component.text(claim.getName()).color(Color.ORANGE))
                 .append(Component.text(" to ").color(Color.YELLOW))

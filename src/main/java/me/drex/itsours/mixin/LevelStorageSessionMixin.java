@@ -11,10 +11,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LevelStorage.Session.class)
-public class LevelStorageSessionMixin {
+public abstract class LevelStorageSessionMixin {
 
-    @Inject(method = "backupLevelDataFile(Lnet/minecraft/util/registry/DynamicRegistryManager;Lnet/minecraft/world/SaveProperties;Lnet/minecraft/nbt/NbtCompound;)V", at = @At("HEAD"))
-    public void itsours$onsave(DynamicRegistryManager dynamicRegistryManager, SaveProperties saveProperties, NbtCompound compoundTag, CallbackInfo ci) {
+    @Inject(
+            method = "backupLevelDataFile(Lnet/minecraft/util/registry/DynamicRegistryManager;Lnet/minecraft/world/SaveProperties;Lnet/minecraft/nbt/NbtCompound;)V",
+            at = @At("HEAD")
+    )
+    public void onSave(DynamicRegistryManager dynamicRegistryManager, SaveProperties saveProperties, NbtCompound compoundTag, CallbackInfo ci) {
         if (ItsOursMod.INSTANCE != null) ItsOursMod.INSTANCE.save();
     }
 

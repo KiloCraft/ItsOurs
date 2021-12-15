@@ -11,12 +11,10 @@ public class DataHandler {
 
     //DataVersion
     public int dataVersion = 0;
-    private int currentVersion = 1;
+    private final int currentVersion = 1;
     //Data
     private ClaimList claimList;
     private RoleManager roleManager;
-    private PlayerList playerList;
-
     public ClaimList getClaimList() {
         return claimList;
     }
@@ -25,16 +23,12 @@ public class DataHandler {
         return roleManager;
     }
 
-    public PlayerList getPlayerList() {
-        return playerList;
-    }
-
     public void load(NbtCompound nbtCompound, boolean firstLoad) {
         dataVersion = nbtCompound.contains("dataVersion") ? nbtCompound.getInt("dataVersion") : 0;
         //load data
         roleManager = new RoleManager(nbtCompound.getCompound("roles"));
         claimList = new ClaimList((NbtList) nbtCompound.get("claims"));
-        playerList = new PlayerList(nbtCompound.getCompound("players"));
+        PlayerList.fromNBT(nbtCompound.getCompound("players"));
 
         if (dataVersion != currentVersion && !firstLoad) {
             ItsOursMod.LOGGER.info("Updating data from version " + dataVersion + " -> " + currentVersion);
@@ -47,7 +41,7 @@ public class DataHandler {
         root.putInt("dataVersion", currentVersion);
         root.put("claims", claimList.toNBT());
         root.put("roles", roleManager.toNBT());
-        root.put("players", playerList.toNBT());
+        root.put("players", PlayerList.toNBT());
         return root;
     }
 

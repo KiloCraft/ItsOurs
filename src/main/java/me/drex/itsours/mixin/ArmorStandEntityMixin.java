@@ -29,10 +29,14 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
         super(entityType, world);
     }
 
-    @Inject(method = "interactAt", at = @At(value = "HEAD"), cancellable = true)
-    public void itsours$onInteractAtEntity(PlayerEntity player, Vec3d hitPos, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
+    @Inject(
+            method = "interactAt",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    public void canInteract(PlayerEntity player, Vec3d hitPos, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) this.getEntityWorld(), this.getBlockPos());
-        if (!claim.isPresent()) return;
+        if (claim.isEmpty()) return;
         if (!claim.get().hasPermission(player.getUuid(), "interact_entity." + Registry.ENTITY_TYPE.getId(this.getType()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
             claimPlayer.sendError(Component.text("You can't interact with that entity here.").color(Color.RED));

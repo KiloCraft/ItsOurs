@@ -5,15 +5,14 @@ import me.drex.itsours.claim.permission.PermissionList;
 import me.drex.itsours.claim.permission.roles.RoleManager;
 import me.drex.itsours.command.Manager;
 import me.drex.itsours.data.DataHandler;
-import me.drex.itsours.user.PlayerList;
-import me.drex.itsours.util.PermissionHandler;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.WorldSavePath;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,16 +21,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.UUID;
 
 public class ItsOursMod implements DedicatedServerModInitializer {
 
     public static MinecraftServer server;
     public static Logger LOGGER = LogManager.getLogger();
     public static ItsOursMod INSTANCE;
-    public static final UUID serverUUID = new UUID(0, 0);
-    private PermissionHandler permissionHandler;
-    private DataHandler dataHandler = new DataHandler();
+    private final DataHandler dataHandler = new DataHandler();
 
     @Override
     public void onInitializeServer() {
@@ -54,9 +50,6 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         if (!data.exists()) {
             LOGGER.info("Data file not found.");
             this.dataHandler.load(new NbtCompound(), true);
-            /*this.claimList = new ClaimList(new NbtList());
-            this.roleManager = new RoleManager(new NbtCompound());
-            this.playerList = new PlayerList(new NbtCompound());*/
         } else {
             NbtCompound tag;
             try {
@@ -76,14 +69,17 @@ public class ItsOursMod implements DedicatedServerModInitializer {
             }
             this.dataHandler.load(tag, false);
         }
-        this.permissionHandler = new PermissionHandler();
+    }
+
+    public static boolean hasPermission(ServerCommandSource src, String permission) {
+        return Permissions.check(src, permission, 2);
     }
 
     public void save() {
         NbtCompound root = dataHandler.save();
         File data = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat").toFile();
         File data_backup = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat_old").toFile();
-        //Backup old file
+        // Backup old file
         if (data.exists()) {
             LOGGER.info("Creating backup of: " + data.getName() + " (" + data.length() / 1024 + "kb)");
             if (data_backup.exists()) data_backup.delete();
@@ -105,15 +101,8 @@ public class ItsOursMod implements DedicatedServerModInitializer {
         return this.dataHandler.getClaimList();
     }
 
-    public PlayerList getPlayerList() {
-        return this.dataHandler.getPlayerList();
-    }
-
     public int getDataVersion() {
         return dataHandler.dataVersion;
     }
 
-    public PermissionHandler getPermissionHandler() {
-        return this.permissionHandler;
-    }
 }

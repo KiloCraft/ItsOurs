@@ -2,7 +2,6 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.Claim;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.FluidState;
@@ -18,10 +17,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Optional;
 
 @Mixin(FlowableFluid.class)
-public class FluidMixin {
+public abstract class FluidMixin {
 
-    @Inject(method = "flow", at = @At("HEAD"), cancellable = true)
-    private void dontFlow(WorldAccess world, BlockPos newPos, BlockState state, Direction direction, FluidState fluidState, CallbackInfo ci) {
+    @Inject(
+            method = "flow",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private void canFlowAcrossBorder(WorldAccess world, BlockPos newPos, BlockState state, Direction direction, FluidState fluidState, CallbackInfo ci) {
         BlockPos oldPos = newPos.offset(direction.getOpposite());
         Optional<AbstractClaim> oldClaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, oldPos);
         Optional<AbstractClaim> newClaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, newPos);

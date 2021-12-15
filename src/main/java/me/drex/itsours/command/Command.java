@@ -15,8 +15,9 @@ import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionList;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.command.help.HelpCategory;
+import me.drex.itsours.command.util.SafeConsumer;
 import net.minecraft.command.CommandSource;
-import net.minecraft.command.argument.GameProfileArgumentType;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -25,8 +26,7 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
@@ -72,6 +72,15 @@ public abstract class Command {
         settings.addAll(getPermissions(PermissionList.permission, "", builder.getRemaining()));
         return CommandSource.suggestMatching(settings, builder);
     };
+
+    public static final SuggestionProvider<ServerCommandSource> PLAYER_PROVIDER = (source, builder) -> {
+        List<String> players = new ArrayList<>();
+        for (ServerPlayerEntity player : source.getSource().getServer().getPlayerManager().getPlayerList()) {
+            players.add(player.getEntityName());
+        }
+        return CommandSource.suggestMatching(players, builder);
+    };
+
     public static final SuggestionProvider<ServerCommandSource> PERMISSION_VALUE_PROVIDER = (source, builder) -> CommandSource.suggestMatching(Arrays.asList("true", "false", "unset"), builder);
 
     public static final SuggestionProvider<ServerCommandSource> CATEGORY_PROVIDER = (context, builder) -> {
@@ -82,31 +91,31 @@ public abstract class Command {
         return CommandSource.suggestMatching(categories, builder);
     };
 
-    //TODO: Look at this again, maybe there is a better approach to this
-    public static GameProfile getGameProfile(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
-        AtomicReference<String> exception = new AtomicReference<>();
-        CompletableFuture<GameProfile> completableFuture = CompletableFuture.supplyAsync(() -> {
+    public static void getGameProfile(CommandContext<ServerCommandSource> ctx, String argument, SafeConsumer<GameProfile> consumer) {
+        CompletableFuture.runAsync(() -> {
+            String error;
             try {
-                Collection<GameProfile> profiles = GameProfileArgumentType.getProfileArgument(ctx, name);
-                if (profiles.size() > 1) {
-                    exception.set("Only one selection is allowed!");
-                } else if (profiles.isEmpty()) {
-                    exception.set("At least one selection is required!");
+                String playerName = StringArgumentType.getString(ctx, argument);
+                MinecraftServer server = ctx.getSource().getServer();
+                ServerPlayerEntity player = server.getPlayerManager().getPlayer(playerName);
+                if (player != null) {
+                    consumer.accept(player.getGameProfile());
+                    return;
                 }
-                return profiles.iterator().next();
-            } catch (CommandSyntaxException e) {
-                exception.set(e.getRawMessage().getString());
+                Optional<GameProfile> optional = server.getUserCache().findByName(playerName);
+                if (optional.isPresent()) {
+                    consumer.accept(optional.get());
+                    return;
+                } else {
+                    error = "Unknown player!";
+                }
+            } catch (Exception e) {
+                error = e.getMessage();
             }
-            return null;
+            if (error != null) {
+                ctx.getSource().sendError(new LiteralText(error));
+            }
         });
-        GameProfile profile = null;
-        try {
-            profile = completableFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
-            ItsOursMod.LOGGER.error("Unable to retrieve GameProfile: ", e);
-        }
-        if (exception.get() != null) throw new SimpleCommandExceptionType(new LiteralText(exception.get())).create();
-        return profile;
     }
 
     private static List<String> getPermissions(Node node, String currentID, String input) {
@@ -122,29 +131,36 @@ public abstract class Command {
     }
 
     private static void addSubzones(AbstractClaim claim, String input, List<String> names) {
+        addSubzones(claim, input, names, c -> true);
+    }
+
+    private static void addSubzones(AbstractClaim claim, String input, List<String> names, Predicate<AbstractClaim> predicate) {
         if (input.startsWith(claim.getFullName())) {
             for (Subzone subzone : claim.getSubzones()) {
-                names.add(subzone.getFullName());
+                if (predicate.test(subzone)) names.add(subzone.getFullName());
                 addSubzones(subzone, input, names);
             }
         }
     }
 
-    static AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
+    public static AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get(world, pos);
         if (!claim.isPresent())
             throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim at your position!")).create();
         return claim.get();
     }
 
+    protected static AbstractClaim getAndValidateClaim(ServerCommandSource src) throws CommandSyntaxException {
+        return getAndValidateClaim(src.getWorld(), src.getPlayer().getBlockPos());
+    }
+
     protected static boolean hasPermission(ServerCommandSource src, String permission) {
-        return ItsOursMod.INSTANCE.getPermissionHandler().hasPermission(src, permission, 2);
+        return ItsOursMod.hasPermission(src, permission);
     }
 
     static void validatePermission(AbstractClaim claim, UUID uuid, String permission) throws CommandSyntaxException {
-        //TODO:
-        /*if (!claim.hasPermission(uuid, permission))
-            throw new SimpleCommandExceptionType(new LiteralText("You don't have permission to do that")).create();*/
+        if (!claim.hasPermission(uuid, permission))
+            throw new SimpleCommandExceptionType(new LiteralText("You don't have permission to do that")).create();
     }
 
     public static AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
@@ -176,6 +192,28 @@ public abstract class Command {
         throw new SimpleCommandExceptionType(new LiteralText("Invalid permission value")).create();
     }
 
+    public static RequiredArgumentBuilder<ServerCommandSource, String> permissionClaimArgument(String... permissions) {
+
+        SuggestionProvider<ServerCommandSource> CLAIM_PROVIDER = (source, builder) -> {
+            UUID uuid = source.getSource().getPlayer().getUuid();
+            Predicate<AbstractClaim> predicate = claim -> {
+                for (String permission : permissions) {
+                    if (claim.hasPermission(uuid, permission)) return true;
+                }
+                return false;
+            };
+            List<String> names = new ArrayList<>();
+            if (uuid != null) {
+                for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get().stream().filter(claim -> claim instanceof Claim).collect(Collectors.toList())) {
+                    if (predicate.test(claim)) names.add(claim.getFullName());
+                    addSubzones(claim, builder.getRemaining(), names, predicate);
+                }
+            }
+            return CommandSource.suggestMatching(names, builder);
+        };
+        return argument("claim", word()).suggests(CLAIM_PROVIDER);
+    }
+
     public static RequiredArgumentBuilder<ServerCommandSource, String> ownClaimArgument() {
         return argument("claim", word()).suggests(OWN_CLAIM_PROVIDER);
     }
@@ -205,5 +243,8 @@ public abstract class Command {
         return argument("value", word()).suggests(PERMISSION_VALUE_PROVIDER);
     }
 
+    public static RequiredArgumentBuilder<ServerCommandSource, String> playerArgument(String name) {
+        return argument(name, word()).suggests(PLAYER_PROVIDER);
+    }
 
 }
