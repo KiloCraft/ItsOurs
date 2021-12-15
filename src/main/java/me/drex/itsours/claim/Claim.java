@@ -56,7 +56,7 @@ public class Claim extends AbstractClaim {
         int requiredBlocks = this.getArea() - previousArea;
         if (ItsOursMod.INSTANCE.getPlayerList().getBlocks(uuid) < requiredBlocks) {
             this.undoExpand(direction, amount);
-            throw new SimpleCommandExceptionType(new LiteralText("You don't have enough claim blocks!")).create();
+            throw new SimpleCommandExceptionType(new LiteralText("You need " + (requiredBlocks - ItsOursMod.INSTANCE.getPlayerList().getBlocks(uuid)) + " more claim block(s) to expand that far")).create();
         }
         Optional<AbstractClaim> optional = this.intersects();
         if (optional.isPresent()) {
