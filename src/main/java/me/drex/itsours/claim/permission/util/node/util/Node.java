@@ -8,10 +8,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.Items;
 import net.minecraft.item.SpawnEggItem;
-import net.minecraft.tag.Tag;
-import net.minecraft.tag.TagGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,31 +29,27 @@ public class Node {
         this.id = id;
     }
 
-    public static <T> List<Node> getNodes(@NotNull final Registry<T> registry, TagGroup<T> tagGroup, List<Node> child, Predicate<T> predicate) {
+    public static <T> List<Node> getNodes(@NotNull final Registry<T> registry, List<Node> child, Predicate<T> predicate) {
         Validate.notNull(registry, "Registry must not be null!");
-        Validate.notNull(tagGroup, "Identified tag list must not be null!");
         final List<Node> nodes = Lists.newArrayList();
-        for (Map.Entry<Identifier, Tag<T>> mapEntry : tagGroup.getTags().entrySet()) {
-            Tag<T> tag = mapEntry.getValue();
+        registry.streamTags().forEach(tagKey -> {
             final List<Node> entries = Lists.newArrayList();
             T symbol = null;
-            for (T entry : registry) {
-                if (!predicate.test(entry)) continue;
-                if (tag.contains(entry)) {
-                    if (symbol == null) symbol = entry;
-                    final Identifier identifier = registry.getId(entry);
-                    Validate.notNull(identifier, "%s does not contain entry %s", registry.toString(), entry.toString());
-                    Node n = new Node(identifier.getPath());
-                    addItem(entry, n);
-                    entries.add(n);
-                }
+            for (RegistryEntry<T> entry : registry.iterateEntries(tagKey)) {
+                if (!predicate.test(entry.value())) continue;
+                if (symbol == null) symbol = entry.value();
+                final Identifier identifier = registry.getId(entry.value());
+                Validate.notNull(identifier, "%s does not contain entry %s", registry.toString(), entry.value().toString());
+                Node n = new Node(identifier.getPath());
+                addItem(entry, n);
+                entries.add(n);
             }
             if (!entries.isEmpty()) {
-                GroupNode groupNode = new GroupNode(mapEntry.getKey().getPath().toUpperCase(Locale.ENGLISH), entries);
+                GroupNode groupNode = new GroupNode(tagKey.id().getPath().toUpperCase(Locale.ENGLISH), entries);
                 addItem(symbol, groupNode);
                 nodes.add(groupNode.addNodes(child));
             }
-        }
+        });
         for (T entry : registry) {
             Node n = new Node(
                     Validate.notNull(
@@ -70,34 +65,21 @@ public class Node {
     }
 
     private static <T> void addItem(T entry, Node n) {
-        if (entry instanceof ItemConvertible) {
-            n.item(((ItemConvertible) entry).asItem());
-        } else if (entry instanceof EntityType) {
-            Item item = SpawnEggItem.forEntity((EntityType<?>) entry);
+        if (entry instanceof ItemConvertible convertible) {
+            n.item(convertible.asItem());
+        } else if (entry instanceof EntityType entityType) {
+            Item item = SpawnEggItem.forEntity(entityType);
             if (item == null) item = Items.EGG;
             n.item(item);
         }
     }
 
-    public static <T> List<Node> getNodes(@NotNull final Registry<T> registry, TagGroup<T> tagGroup) {
-        return getNodes(registry, tagGroup, Collections.emptyList(), predicate -> true);
+    public static <T> List<Node> getNodes(@NotNull final Registry<T> registry) {
+        return getNodes(registry, Collections.emptyList(), predicate -> true);
     }
 
-    public static <T> List<Node> getNodes(@NotNull final Registry<T> registry, TagGroup<T> tagGroup, Predicate<T> predicate) {
-        return getNodes(registry, tagGroup, Collections.emptyList(), predicate);
-    }
-
-    private static <T> boolean filter(T entry, Class<?>... filter) {
-        if (filter.length > 0) {
-            for (Class<?> clazz : filter) {
-                if (clazz.isInstance(entry)) {
-                    return false;
-                }
-            }
-        } else {
-            return false;
-        }
-        return true;
+    public static <T> List<Node> getNodes(@NotNull final Registry<T> registry, Predicate<T> predicate) {
+        return getNodes(registry, Collections.emptyList(), predicate);
     }
 
     public Item getItem() {

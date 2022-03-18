@@ -159,7 +159,7 @@ public abstract class AbstractClaim {
         if (previousClaim.isEmpty()) {
             PlayerList.set(player.getUuid(), Settings.CACHED_FLIGHT, player.getAbilities().allowFlying);
         }
-        boolean hasPermission = ItsOursMod.hasPermission(player.getCommandSource(), "itsours.fly") && player.getServerWorld().equals(player.getServer().getOverworld());
+        boolean hasPermission = ItsOursMod.hasPermission(player.getCommandSource(), "itsours.fly") && player.getWorld().equals(player.getServer().getOverworld());
         boolean cachedFlying = hasPermission && player.getAbilities().flying;
         // Update abilities for respective gamemode
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
@@ -182,7 +182,7 @@ public abstract class AbstractClaim {
             // Update abilities for respective gamemode
             player.interactionManager.getGameMode().setAbilities(player.getAbilities());
             if (cachedFlying && !player.getAbilities().flying) {
-                BlockPos pos = getPosOnGround(player.getBlockPos(), player.getServerWorld());
+                BlockPos pos = getPosOnGround(player.getBlockPos(), player.getWorld());
                 if (pos.getY() + 3 < player.getY()) {
                     player.teleport((ServerWorld) player.world, player.getX(), pos.getY(), player.getZ(), player.getYaw(), player.getPitch());
                 }

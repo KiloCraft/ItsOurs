@@ -16,7 +16,11 @@ import me.drex.itsours.claim.permission.PermissionList;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.command.help.HelpCategory;
 import me.drex.itsours.command.util.SafeConsumer;
+import me.drex.itsours.util.TextComponentUtil;
+import net.kyori.adventure.text.Component;
 import net.minecraft.command.CommandSource;
+import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -43,10 +47,10 @@ public abstract class Command {
         UUID uuid = source.getSource().getPlayer().getUuid();
         ServerPlayerEntity player = source.getSource().getPlayer();
         List<String> names = new ArrayList<>();
-        Optional<AbstractClaim> current = ItsOursMod.INSTANCE.getClaimList().get(player.getServerWorld(), player.getBlockPos());
+        Optional<AbstractClaim> current = ItsOursMod.INSTANCE.getClaimList().get(player.getWorld(), player.getBlockPos());
         current.ifPresent(claim -> names.add(claim.getFullName()));
         if (uuid != null) {
-            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get(uuid).stream().filter(claim -> claim instanceof Claim).collect(Collectors.toList())) {
+            for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get(uuid).stream().filter(claim -> claim instanceof Claim).toList()) {
                 names.add(claim.getFullName());
                 addSubzones(claim, builder.getRemaining(), names);
             }
@@ -56,7 +60,7 @@ public abstract class Command {
 
     public static final SuggestionProvider<ServerCommandSource> ALL_CLAIM_PROVIDER = (source, builder) -> {
         List<String> names = new ArrayList<>();
-        for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get().stream().filter(claim -> claim instanceof Claim).collect(Collectors.toList())) {
+        for (AbstractClaim claim : ItsOursMod.INSTANCE.getClaimList().get().stream().filter(claim -> claim instanceof Claim).toList()) {
             names.add(claim.getFullName());
             addSubzones(claim, builder.getRemaining(), names);
         }
@@ -118,6 +122,40 @@ public abstract class Command {
         });
     }
 
+    public static CompletableFuture<Collection<GameProfile>> getGameProfiles(CommandContext<ServerCommandSource> ctx, String argument) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return GameProfileArgumentType.getProfileArgument(ctx, argument);
+            } catch (CommandSyntaxException e) {
+                ctx.getSource().sendError(new LiteralText(e.getMessage()));
+                return Collections.emptyList();
+            }
+        });
+    }
+
+    public static CompletableFuture<Optional<GameProfile>> getGameProfile(CommandContext<ServerCommandSource> ctx, String argument) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                final Collection<GameProfile> profiles = GameProfileArgumentType.getProfileArgument(ctx, argument);
+                if (profiles.size() > 1) {
+                    throw EntityArgumentType.TOO_MANY_PLAYERS_EXCEPTION.create();
+                }
+                return Optional.of(profiles.iterator().next());
+            } catch (CommandSyntaxException e) {
+                ctx.getSource().sendError(new LiteralText(e.getMessage()));
+                return Optional.empty();
+            }
+        });
+    }
+
+    public static CompletableFuture<Collection<GameProfile>> getGameProfiles(CommandContext<ServerCommandSource> ctx) {
+        return getGameProfiles(ctx, "player");
+    }
+
+    public static CompletableFuture<Optional<GameProfile>> getGameProfile(CommandContext<ServerCommandSource> ctx) {
+        return getGameProfile(ctx, "player");
+    }
+
     private static List<String> getPermissions(Node node, String currentID, String input) {
         ArrayList<String> list = new ArrayList<>();
         String newID = currentID.equals("") ? node.getId() : currentID + "." + node.getId();
@@ -145,9 +183,13 @@ public abstract class Command {
 
     public static AbstractClaim getAndValidateClaim(ServerWorld world, BlockPos pos) throws CommandSyntaxException {
         Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get(world, pos);
-        if (!claim.isPresent())
+        if (claim.isEmpty())
             throw new SimpleCommandExceptionType(new LiteralText("Couldn't find a claim at your position!")).create();
         return claim.get();
+    }
+
+    public static void sendFeedback(ServerCommandSource source, Component message) {
+        source.sendFeedback(TextComponentUtil.from(message), false);
     }
 
     protected static AbstractClaim getAndValidateClaim(ServerCommandSource src) throws CommandSyntaxException {
@@ -245,6 +287,14 @@ public abstract class Command {
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> playerArgument(String name) {
         return argument(name, word()).suggests(PLAYER_PROVIDER);
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> players(String name) {
+        return argument(name, GameProfileArgumentType.gameProfile()).suggests(PLAYER_PROVIDER);
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> players() {
+        return players("player");
     }
 
 }

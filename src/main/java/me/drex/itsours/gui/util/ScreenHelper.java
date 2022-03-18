@@ -26,9 +26,9 @@ import java.util.function.Consumer;
 public class ScreenHelper {
 
     public static void addLore(ItemStack item, Component text) {
-        NbtCompound itemTag = item.getTag();
+        NbtCompound itemTag = item.getNbt();
 
-        if (!item.hasTag()) {
+        if (!item.hasNbt()) {
             itemTag = new NbtCompound();
         }
 
@@ -44,7 +44,7 @@ public class ScreenHelper {
 
         lore.add(NbtString.of(Text.Serializer.toJson(TextComponentUtil.from(text))));
         itemTag.getCompound("display").put("Lore", lore);
-        item.setTag(itemTag);
+        item.setNbt(itemTag);
     }
 
     public static void addLore(ItemStack itemStack, String... strings) {
@@ -54,9 +54,9 @@ public class ScreenHelper {
     }
 
     public static void addGlint(ItemStack item) {
-        NbtCompound itemTag = item.getTag();
+        NbtCompound itemTag = item.getNbt();
 
-        if (!item.hasTag()) {
+        if (!item.hasNbt()) {
             itemTag = new NbtCompound();
         }
 
@@ -67,7 +67,7 @@ public class ScreenHelper {
         NbtList enchantments = itemTag.getList("Enchantments", 10);
         enchantments.add(new NbtCompound());
         itemTag.put("Enchantments", enchantments);
-        item.setTag(itemTag);
+        item.setNbt(itemTag);
     }
 
     public static void setCustomName(ItemStack item, Component text) {
@@ -99,7 +99,7 @@ public class ScreenHelper {
     public static ItemStack createPlayerHead(String value, UUID uuid) {
         ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
 
-        NbtCompound ownerTag = stack.getOrCreateSubTag("SkullOwner");
+        NbtCompound ownerTag = stack.getOrCreateSubNbt("SkullOwner");
         ownerTag.putUuid("Id", uuid);
 
         NbtCompound propertiesTag = new NbtCompound();
@@ -117,10 +117,10 @@ public class ScreenHelper {
 
     public static ItemStack createPlayerHead(UUID uuid) {
         ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
-        NbtCompound tag = stack.getTag();
+        NbtCompound tag = stack.getNbt();
         if (tag==null) tag = new NbtCompound();
         tag.putString("SkullOwner", toName(uuid));
-        stack.setTag(tag);
+        stack.setNbt(tag);
         return stack;
     }
 
@@ -132,7 +132,7 @@ public class ScreenHelper {
             MinecraftSessionService sessionService = server.getSessionService();
 
             if (optional.isEmpty()) {
-                itemStack.removeSubTag("SkullOwner");
+                itemStack.removeSubNbt("SkullOwner");
                 return;
             }
             GameProfile profile = optional.get();
@@ -141,13 +141,13 @@ public class ScreenHelper {
             Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> textures = sessionService.getTextures(profile, true);
 
             if (textures.isEmpty()) {
-                itemStack.removeSubTag("SkullOwner");
+                itemStack.removeSubNbt("SkullOwner");
                 return;
             }
 
             MinecraftProfileTexture texture = textures.get(MinecraftProfileTexture.Type.SKIN);
 
-            NbtCompound ownerTag = itemStack.getOrCreateSubTag("SkullOwner");
+            NbtCompound ownerTag = itemStack.getOrCreateSubNbt("SkullOwner");
             ownerTag.putUuid("Id", profile.getId());
             ownerTag.putString("Name", profile.getName());
 

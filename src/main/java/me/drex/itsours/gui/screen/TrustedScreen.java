@@ -42,7 +42,7 @@ public class TrustedScreen extends PagedScreen<ClaimContext> {
     public void draw() {
         AbstractClaim claim = context.getClaim();
         Set<UUID> allUUIDs = TrustedCommand.getAllUUIDs(claim);
-        List<ServerPlayerEntity> players = player.getServerWorld().getPlayers(playerEntity -> playerEntity.squaredDistanceTo(player) < 500);
+        List<ServerPlayerEntity> players = player.getWorld().getPlayers(playerEntity -> playerEntity.squaredDistanceTo(player) < 500);
         for (ServerPlayerEntity entity : players) {
             allUUIDs.add(entity.getUuid());
         }

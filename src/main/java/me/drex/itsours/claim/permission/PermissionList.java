@@ -16,9 +16,6 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.Items;
-import net.minecraft.tag.BlockTags;
-import net.minecraft.tag.EntityTypeTags;
-import net.minecraft.tag.ItemTags;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -50,23 +47,23 @@ public class PermissionList {
 
     public static void register() {
 
-        List<Node> blockNodes = Node.getNodes(Registry.BLOCK, BlockTags.getTagGroup());
+        List<Node> blockNodes = Node.getNodes(Registry.BLOCK);
         registerPermission((PermissionNode) new PermissionNode("place").withInformation("Place blocks").addNodes(blockNodes).item(Items.STONE));
         registerPermission((PermissionNode) new PermissionNode("mine").withInformation("Mine blocks").addNodes(blockNodes).item(Items.DIAMOND_PICKAXE));
 
-        List<Node> interactableBlockNodes = Node.getNodes(Registry.BLOCK, BlockTags.getTagGroup(), interactBlock);
+        List<Node> interactableBlockNodes = Node.getNodes(Registry.BLOCK, interactBlock);
         registerPermission((PermissionNode) new PermissionNode("interact_block").withInformation("Rightclick on blocks").addNodes(interactableBlockNodes).item(Items.FURNACE));
 
-        List<Node> itemBlockNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), useOnBlock);
+        List<Node> itemBlockNodes = Node.getNodes(Registry.ITEM, useOnBlock);
         registerPermission((PermissionNode) new PermissionNode("use_on_block").withInformation("Use an item on a block").addNodes(itemBlockNodes).item(Items.IRON_SHOVEL));
 
-        List<Node> useItemNodes = Node.getNodes(Registry.ITEM, ItemTags.getTagGroup(), useItem);
+        List<Node> useItemNodes = Node.getNodes(Registry.ITEM, useItem);
         registerPermission((PermissionNode) new PermissionNode("use_item").withInformation("Rightclick with an item").addNodes(useItemNodes).item(Items.FIREWORK_ROCKET));
 
-        List<Node> entityNodes = Node.getNodes(Registry.ENTITY_TYPE, EntityTypeTags.getTagGroup()).stream().filter(node -> !node.getId().equals("player")).collect(Collectors.toList());
+        List<Node> entityNodes = Node.getNodes(Registry.ENTITY_TYPE).stream().filter(node -> !node.getId().equals("player")).collect(Collectors.toList());
         registerPermission((PermissionNode) new PermissionNode("damage_entity").withInformation("Hit / damage entities").addNodes(entityNodes).item(Items.DIAMOND_SWORD));
 
-        List<Node> interactableEntityNodes = Node.getNodes(Registry.ENTITY_TYPE, EntityTypeTags.getTagGroup(), interactEntity);
+        List<Node> interactableEntityNodes = Node.getNodes(Registry.ENTITY_TYPE, interactEntity);
         registerPermission((PermissionNode) new PermissionNode("interact_entity").withInformation("Rightclick on entities").addNodes(interactableEntityNodes).item(Items.VILLAGER_SPAWN_EGG));
 
         registerPermission((PermissionNode) new PermissionNode("modify").withInformation("Claim permissions").addSimpleNodes(Arrays.asList("trust", "untrust", "distrust", "size", "permission", "setting", "subzone", "name", "role")).item(Items.REPEATER));
@@ -81,7 +78,7 @@ public class PermissionList {
         try {
             return clazz1.getMethod(methodName, classes).equals(clazz2.getMethod(methodName, classes));
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("An error occured while retrieving " + methodName + " in " + clazz1.getName() + " or " + clazz2.getName() + ", maybe the method name or parameters changed?");
+            throw new RuntimeException("An error occurred while retrieving " + methodName + " in " + clazz1.getName() + " or " + clazz2.getName() + ", maybe the method name or parameters changed?");
         }
     }
 
