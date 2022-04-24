@@ -8,11 +8,8 @@ import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionList;
 import me.drex.itsours.claim.permission.util.context.Priority;
 import me.drex.itsours.claim.permission.util.node.util.Node;
-import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.util.Color;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.Text;
 
 public class SettingCommand extends Command {
 
@@ -41,29 +38,27 @@ public class SettingCommand extends Command {
     }
 
     public static int checkSetting(ServerCommandSource source, AbstractClaim claim, Permission setting) throws CommandSyntaxException {
-        validatePermission(claim, source.getPlayer().getUuid(), "modify.setting");
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Setting (").color(Color.ORANGE)
-                .append(Component.text(setting.asString()).color(Color.YELLOW))
-                .append(Component.text("): ").color(Color.ORANGE))
-                .append((claim.getPermissionManager().settings.getPermission(claim, setting, Priority.SETTING).getValue().format())));
+        validatePermission(claim, source, "modify.setting");
+        source.sendFeedback(Text.translatable("text.itsours.command.setting.check",
+                setting.asString(),
+                claim.getFullName(),
+                claim.getPermissionManager().settings.getPermission(claim, setting, Priority.SETTING).getValue().format()
+        ), false);
         return 1;
     }
 
     public static int setSetting(ServerCommandSource source, AbstractClaim claim, Permission setting, Permission.Value value) throws CommandSyntaxException {
-        validatePermission(claim, source.getPlayer().getUuid(), "modify.setting");
+        validatePermission(claim, source, "modify.setting");
         claim.getPermissionManager().settings.setPermission(setting.asString(), value);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("Set setting ").color(Color.YELLOW)
-                .append(Component.text(setting.asString())).color(Color.ORANGE)
-                .append(Component.text(" to ")).color(Color.YELLOW).append(value.format()));
+        source.sendFeedback(Text.translatable("text.itsours.command.setting.set", setting.asString(), claim.getFullName(), value.format()), false);
         return 0;
     }
 
-    public static int listSettings(ServerCommandSource source) throws CommandSyntaxException {
-        TextComponent.Builder builder = Component.text().content("Settings:\n").color(Color.ORANGE);
-        for (Node node : PermissionList.setting.getNodes()) {
-            builder.append(Component.text(node.getId()).color(Color.LIGHT_GREEN), Component.text(": " + node.getInformation() + "\n").color(Color.LIGHT_GRAY));
+    public static int listSettings(ServerCommandSource source) {
+        source.sendFeedback(Text.translatable("text.itsours.command.setting.list"), false);
+        for (Node node : PermissionList.INSTANCE.setting.getNodes()) {
+            source.sendFeedback(Text.translatable("text.itsours.command.setting.list.entry", node.getId(), node.getInformation()), false);
         }
-        ((ClaimPlayer) source.getPlayer()).sendMessage(builder.build());
         return 1;
     }
 

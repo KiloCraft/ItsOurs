@@ -4,13 +4,13 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.user.Settings;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
@@ -35,7 +35,7 @@ public class Claim extends AbstractClaim {
     @Override
     public Object2IntMap<Role> getRoles(UUID uuid) {
         Object2IntMap<Role> roles = getPermissionManager().getRoles(uuid);
-        Role def = ItsOursMod.INSTANCE.getRoleManager().getRole("default");
+        Role def = ItsOurs.INSTANCE.getRoleManager().getRole("default");
         if (!getPermissionManager().getRemovedRoles(uuid).contains(def)) {
             final Object2IntMap<Role> copy = new Object2IntArrayMap<>();
             copy.putAll(roles);
@@ -58,33 +58,30 @@ public class Claim extends AbstractClaim {
         int requiredBlocks = this.getArea() - previousArea;
         if (PlayerList.get(uuid, Settings.BLOCKS) < requiredBlocks) {
             this.undoExpand(direction, amount);
-            throw new SimpleCommandExceptionType(new LiteralText("You need " + (requiredBlocks - PlayerList.get(uuid, Settings.BLOCKS)) + " more claim block(s) to expand that far")).create();
+            throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.expand.missing_blocks")).create();
         }
         Optional<AbstractClaim> optional = this.intersects();
         if (optional.isPresent()) {
             this.undoExpand(direction, amount);
-            throw new SimpleCommandExceptionType(new LiteralText("You can't expand into " + optional.get().getName())).create();
+            throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.intersects", optional.get().getFullName())).create();
         }
         if (this.max.getY() > this.getWorld().getTopY() || this.min.getY() < this.getWorld().getBottomY()) {
             this.undoExpand(direction, amount);
-            throw new SimpleCommandExceptionType(new LiteralText("You can't expand outside of the world!")).create();
-        }
-        if (max.getX() - min.getX() > 1024 || max.getZ() - min.getZ() > 1024) {
-            this.undoExpand(direction, amount);
-            throw new SimpleCommandExceptionType(new LiteralText("You can't expand further than 1024 blocks")).create();
+            throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.outside_of_world")).create();
         }
         if (max.getX() < min.getX() || max.getY() < min.getY() || max.getZ() < min.getZ()) {
             this.undoExpand(direction, amount);
-            throw new SimpleCommandExceptionType(new LiteralText("You can't shrink your claim that much")).create();
+            throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.cant_shrink")).create();
         }
         for (Subzone subzone : this.getSubzones()) {
             if (!subzone.isInside()) {
                 this.undoExpand(direction, amount);
-                throw new SimpleCommandExceptionType(new LiteralText("Shrinking would result in " + subzone.getName() + " being outside of " + this.getName())).create();
+                throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.subzone_outside", subzone.getFullName(), this.getFullName())).create();
             }
         }
         this.show(true);
-        ItsOursMod.INSTANCE.getClaimList().update();
+        ClaimList.INSTANCE.removeClaim(this);
+        ClaimList.INSTANCE.addClaim(this);
         return requiredBlocks;
     }
 

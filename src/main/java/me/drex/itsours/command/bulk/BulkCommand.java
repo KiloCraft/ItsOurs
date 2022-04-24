@@ -1,3 +1,5 @@
+// TODO: Rewrite
+/*
 package me.drex.itsours.command.bulk;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -18,3 +20,4 @@ public class BulkCommand extends Command {
     }
 
 }
+*/

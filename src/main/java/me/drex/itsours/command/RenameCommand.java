@@ -5,15 +5,12 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.Subzone;
-import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.util.Color;
-import me.drex.itsours.util.TextComponentUtil;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
+import net.minecraft.text.Text;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.util.Formatting;
 
 public class RenameCommand extends Command {
 
@@ -28,21 +25,23 @@ public class RenameCommand extends Command {
     }
 
     public static int rename(ServerCommandSource source, AbstractClaim claim, String newName) throws CommandSyntaxException {
-        validatePermission(claim, source.getPlayer().getUuid(), "modify.name");
+        validatePermission(claim, source, "modify.name");
         if (claim instanceof Subzone) {
             AbstractClaim parent = ((Subzone) claim).getParent();
             for (Subzone subzone : parent.getSubzones()) {
-                if (subzone.getName().equals(newName)) throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is already taken")).create();
+                if (subzone.getName().equals(newName))
+                    throw new SimpleCommandExceptionType(Text.translatable("text.itsours.command.rename.already_taken")).create();
             }
         } else {
-            if (ItsOursMod.INSTANCE.getClaimList().contains(newName)) throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is already taken")).create();
+            if (ClaimList.INSTANCE.getClaim(newName).isPresent())
+                throw new SimpleCommandExceptionType(Text.translatable("text.itsours.command.rename.already_taken")).create();
         }
-        if (AbstractClaim.isNameInvalid(newName)) throw new SimpleCommandExceptionType(TextComponentUtil.error("Claim name is to long or contains invalid characters")).create();
-        TextComponent text = Component.text("Changed name of ").color(Color.YELLOW)
-                .append(Component.text(claim.getName()).color(Color.ORANGE))
-                .append(Component.text(" to ").color(Color.YELLOW))
-                .append(Component.text(newName).color(Color.ORANGE));
-        ((ClaimPlayer)source.getPlayer()).sendMessage(text);
+        if (AbstractClaim.isNameInvalid(newName))
+            throw new SimpleCommandExceptionType(Text.translatable("text.itsours.command.rename.invalid")).create();
+
+        source.sendFeedback(Text.translatable("text.itsours.command.rename",
+                Text.literal(claim.getName()).formatted(Formatting.GOLD), Text.literal(newName).formatted(Formatting.GOLD)
+        ).formatted(Formatting.YELLOW), false);
         claim.setName(newName);
         return 1;
     }

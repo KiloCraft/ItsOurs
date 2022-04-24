@@ -2,17 +2,16 @@ package me.drex.itsours.gui.screen;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.command.PermissionCommand;
 import me.drex.itsours.gui.util.ScreenHelper;
 import me.drex.itsours.gui.util.SlotEntry;
 import me.drex.itsours.gui.util.context.PermissionContext;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
 
 import java.util.Optional;
@@ -22,10 +21,8 @@ public class PermissionScreen extends AbstractMapScreen<PermissionContext> {
     public PermissionScreen(ServerPlayerEntity player, int rows, PermissionContext context, SimpleScreen<?> previous, Node node, Node.CompareMode compareMode, FilterMode filterMode) {
         super(player, rows, context, previous, node, compareMode, filterMode);
         ItemStack info = ScreenHelper.createPlayerHead(context.getUUID());
-        ScreenHelper.setCustomName(info, "Permissions");
-        ScreenHelper.addLore(info, Component.text("This page allows").color(NamedTextColor.WHITE));
-        ScreenHelper.addLore(info, Component.text("you to change").color(NamedTextColor.WHITE));
-        ScreenHelper.addLore(info, Component.text(ScreenHelper.toName(context.getUUID()) + "'s permissions").color(NamedTextColor.WHITE));
+        ScreenHelper.setCustomName(info, Text.translatable("text.itsours.gui.map.permission.info"));
+        ScreenHelper.addLore(info, Text.translatable("text.itsours.gui.map.permission.info.hover", ScreenHelper.toName(context.getUUID())));
         addSlot(new SlotEntry<>(info), 4);
     }
 
@@ -45,7 +42,7 @@ public class PermissionScreen extends AbstractMapScreen<PermissionContext> {
                 player.getCommandSource().sendError(Texts.toText(e.getRawMessage()));
             }
         } else {
-            ItsOursMod.LOGGER.warn("Tried to set invalid permission: " + permission);
+            ItsOurs.LOGGER.warn("Tried to set invalid permission: " + permission);
         }
     }
 

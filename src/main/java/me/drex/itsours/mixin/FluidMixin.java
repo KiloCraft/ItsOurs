@@ -1,7 +1,7 @@
 package me.drex.itsours.mixin;
 
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.ClaimList;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.FluidState;
@@ -26,8 +26,8 @@ public abstract class FluidMixin {
     )
     private void canFlowAcrossBorder(WorldAccess world, BlockPos newPos, BlockState state, Direction direction, FluidState fluidState, CallbackInfo ci) {
         BlockPos oldPos = newPos.offset(direction.getOpposite());
-        Optional<AbstractClaim> oldClaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, oldPos);
-        Optional<AbstractClaim> newClaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, newPos);
+        Optional<AbstractClaim> oldClaim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, oldPos);
+        Optional<AbstractClaim> newClaim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, newPos);
         if (((oldClaim.isPresent() && !oldClaim.get().getSetting("fluid_crosses_borders")) ||
                 (newClaim.isPresent() && !newClaim.get().getSetting("fluid_crosses_borders"))) && !newClaim.equals(oldClaim)) {
             ci.cancel();

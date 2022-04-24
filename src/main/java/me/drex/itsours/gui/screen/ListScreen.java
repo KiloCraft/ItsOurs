@@ -1,8 +1,8 @@
 package me.drex.itsours.gui.screen;
 
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
+import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.gui.util.ScreenHelper;
 import me.drex.itsours.gui.util.SlotEntry;
 import me.drex.itsours.gui.util.context.NoContext;
@@ -56,7 +56,7 @@ public class ListScreen extends PagedScreen<NoContext> {
     public ListScreen(ServerPlayerEntity player, UUID uuid) {
         super(player, 4, new NoContext() {});
         title = ScreenHelper.toName(uuid) + "'s claims";
-        addClaims(ItsOursMod.INSTANCE.getClaimList().get(uuid).stream().filter(abstractClaim -> abstractClaim instanceof Claim).collect(Collectors.toList()));
+        addClaims(ClaimList.INSTANCE.getClaimsFrom(uuid).stream().filter(abstractClaim -> abstractClaim instanceof Claim).collect(Collectors.toList()));
     }
 
     @Override

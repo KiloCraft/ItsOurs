@@ -15,7 +15,6 @@ import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 
@@ -73,7 +72,7 @@ public class SimpleScreen<K extends NoContext> extends GUIScreenHandler {
 
             @Override
             public Text getDisplayName() {
-                return new LiteralText(getTitle());
+                return Text.literal(getTitle());
             }
         };
         player.openHandledScreen(factory);

@@ -1,10 +1,10 @@
 package me.drex.itsours.mixin;
 
-import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.util.Color;
-import net.kyori.adventure.text.Component;
+import net.minecraft.text.Text;
 import net.minecraft.block.AbstractButtonBlock;
 import net.minecraft.block.AbstractPressurePlateBlock;
 import net.minecraft.block.BlockState;
@@ -14,6 +14,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
@@ -36,6 +37,7 @@ public abstract class EntityMixin {
     @Shadow public abstract BlockPos getBlockPos();
 
     public Optional<AbstractClaim> pclaim = Optional.empty();
+
     protected UUID uuid;
     Vec3d ppos;
 
@@ -44,7 +46,7 @@ public abstract class EntityMixin {
         if ((Object) this instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
             if (player.getBlockPos() == null) return;
-            Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
+            Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(player);
             if (!pclaim.equals(claim)) {
                 if (player.networkHandler != null) {
                     pclaim.ifPresent(c -> c.onLeave(claim, player));
@@ -65,7 +67,8 @@ public abstract class EntityMixin {
                     });
                 }
             }
-            pclaim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.world, player.getBlockPos());
+            // TODO: pclaim = claim :thinking:
+            pclaim = ClaimList.INSTANCE.getClaimAt(player);
             ppos = player.getPos();
         }
     }
@@ -83,21 +86,21 @@ public abstract class EntityMixin {
         } else if (entity instanceof ItemEntity && blockState.getBlock() instanceof AbstractPressurePlateBlock) {
             ItemEntity item = (ItemEntity) entity;
             if (item.getThrower() != null) {
-                playerEntity = ItsOursMod.server.getPlayerManager().getPlayer(item.getThrower());
+                playerEntity = ItsOurs.INSTANCE.server.getPlayerManager().getPlayer(item.getThrower());
             }
         }
         if (playerEntity == null) {
             blockState.onEntityCollision(world, pos, entity);
             return;
         }
-        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, pos);
-        if (!claim.isPresent()) {
+        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, pos);
+        if (claim.isEmpty()) {
             blockState.onEntityCollision(world, pos, entity);
             return;
         }
         if (!claim.get().hasPermission(playerEntity.getUuid(), "interact_block." + Registry.BLOCK.getId(blockState.getBlock()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
-            claimPlayer.sendError(Component.text("You can't interact with that block here.").color(Color.RED));
+            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED));
             return;
         }
         blockState.onEntityCollision(world, pos, entity);

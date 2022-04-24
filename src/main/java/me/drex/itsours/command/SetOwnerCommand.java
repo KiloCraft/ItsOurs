@@ -4,18 +4,15 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.util.Color;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
+import net.minecraft.text.Text;
+import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class SetOwnerCommand extends Command {
 
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
-        RequiredArgumentBuilder<ServerCommandSource, String> newOwner = playerArgument("player");
+        RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> newOwner = players();
         newOwner.executes(SetOwnerCommand::setOwner);
         RequiredArgumentBuilder<ServerCommandSource, String> claim = allClaimArgument();
         claim.then(newOwner);
@@ -27,14 +24,16 @@ public class SetOwnerCommand extends Command {
 
     public static int setOwner(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         AbstractClaim claim = getClaim(ctx);
-        getGameProfile(ctx, "player", profile -> {
-            claim.setOwner(profile.getId());
-            ItsOursMod.INSTANCE.getClaimList().update();
-            TextComponent text = Component.text("Set owner of ").color(Color.YELLOW)
-                    .append(Component.text(claim.getName()).color(Color.ORANGE))
-                    .append(Component.text(" to ").color(Color.YELLOW))
-                    .append(Component.text(profile.getName()).color(Color.ORANGE));
-            ((ClaimPlayer)ctx.getSource().getPlayer()).sendMessage(text);
+        getGameProfile(ctx).thenAccept(optional -> {
+           optional.ifPresent(gameProfile -> {
+               claim.setOwner(gameProfile.getId());
+               // TODO:
+               //ItsOurs.INSTANCE.getClaimList().update();
+               ctx.getSource().sendFeedback(Text.translatable("text.itsours.command.set_owner",
+                       claim.getName(),
+                       gameProfile
+               ), false);
+           });
         });
         return 1;
     }

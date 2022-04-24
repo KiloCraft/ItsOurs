@@ -1,13 +1,12 @@
 package me.drex.itsours.mixin;
 
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.util.Color;
-import net.kyori.adventure.text.Component;
+import net.minecraft.text.Text;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.screen.LecternScreenHandler;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -25,12 +24,12 @@ public abstract class LecternScreenHandlerMixin {
             )
     )
     public boolean canTakeBook(PlayerEntity player) {
-        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) player.getEntityWorld(), player.getBlockPos());
-        if (!claim.isPresent())
+        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(player);
+        if (claim.isEmpty())
             return player.canModifyBlocks();
         if (!claim.get().hasPermission(player.getUuid(), "mine.lectern")) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            claimPlayer.sendError(Component.text("You can't do that here.").color(Color.RED));
+            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED));
             return false;
         }
         return player.canModifyBlocks();

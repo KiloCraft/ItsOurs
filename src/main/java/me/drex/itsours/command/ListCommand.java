@@ -8,7 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.gui.screen.ListScreen;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.LiteralText;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 public class ListCommand extends Command {
 
@@ -17,26 +17,21 @@ public class ListCommand extends Command {
         player.requires(src -> hasPermission(src, "itsours.list"));
         player.executes(ListCommand::list);
         LiteralArgumentBuilder<ServerCommandSource> list = LiteralArgumentBuilder.literal("list");
-        list.executes(ctx -> list(ctx.getSource(), ctx.getSource().getPlayer().getGameProfile()));
+        list.executes(ctx -> list(ctx.getSource().getPlayer(), ctx.getSource().getPlayer().getGameProfile()));
         list.then(player);
         command.then(list);
     }
 
-    public static int list(ServerCommandSource source, GameProfile target) throws CommandSyntaxException {
-        ListScreen listScreen = new ListScreen(source.getPlayer(), target.getId());
+    public static int list(ServerPlayerEntity player, GameProfile target) {
+        ListScreen listScreen = new ListScreen(player, target.getId());
         listScreen.render();
         return 1;
     }
 
     public static int list(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayer();
         getGameProfile(ctx).thenAccept(optional -> {
-            optional.ifPresent(gameProfile -> {
-                try {
-                    list(ctx.getSource(), gameProfile);
-                } catch (CommandSyntaxException e) {
-                    ctx.getSource().sendError(new LiteralText(e.getMessage()));
-                }
-            });
+            optional.ifPresent(gameProfile -> list(player, gameProfile));
         });
         return 1;
     }

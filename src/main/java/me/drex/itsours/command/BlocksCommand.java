@@ -6,13 +6,13 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.user.Settings;
-import me.drex.itsours.util.Color;
-import net.kyori.adventure.text.Component;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 public class BlocksCommand extends Command {
 
@@ -52,7 +52,7 @@ public class BlocksCommand extends Command {
 
     public static int check(ServerCommandSource source) throws CommandSyntaxException {
         int blocks = PlayerList.get(source.getPlayer().getUuid(), Settings.BLOCKS);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(Component.text("You have " + blocks + " blocks left").color(Color.LIGHT_GREEN));
+        source.sendFeedback(Text.translatable("text.itsours.command.blocks.check.self", blocks).formatted(Formatting.GREEN), false);
         return blocks;
     }
 
@@ -60,7 +60,7 @@ public class BlocksCommand extends Command {
         getGameProfiles(ctx).thenAccept(gameProfiles -> {
             for (GameProfile profile : gameProfiles) {
                 int blocks = PlayerList.get(profile.getId(), Settings.BLOCKS);
-                sendFeedback(ctx.getSource(), Component.text(profile.getName() + " has " + blocks + " blocks left").color(Color.LIGHT_GREEN));
+                ctx.getSource().sendFeedback(Text.translatable("text.itsours.command.blocks.check.other", profile.getName(), blocks).formatted(Formatting.GREEN), false);
             }
         });
         return 1;
@@ -71,7 +71,7 @@ public class BlocksCommand extends Command {
         getGameProfiles(ctx).thenAccept(gameProfiles -> {
             for (GameProfile profile : gameProfiles) {
                 PlayerList.set(profile.getId(), Settings.BLOCKS, amount);
-                sendFeedback(ctx.getSource(), Component.text("Set " + profile.getName() + "'s claim blocks to " + amount).color(Color.LIGHT_GREEN));
+                ctx.getSource().sendFeedback(Text.translatable("text.itsours.command.blocks.set", profile.getName(), amount).formatted(Formatting.GREEN), false);
             }
         });
         return 1;
@@ -83,7 +83,13 @@ public class BlocksCommand extends Command {
             for (GameProfile profile : gameProfiles) {
                 int blocks = PlayerList.get(profile.getId(), Settings.BLOCKS);
                 PlayerList.set(profile.getId(), Settings.BLOCKS, Math.max(0, blocks + amount));
-                sendFeedback(ctx.getSource(), Component.text((amount > 0 ? ("Added " + amount) : ("Removed " + -amount)) + " claim block(s) " + (amount > 0 ? "to " : "from ") + profile.getName()).color(Color.LIGHT_GREEN));
+                MutableText text;
+                if (amount >= 0) {
+                    text = Text.translatable("text.itsours.command.blocks.add", amount, profile.getName()).formatted(Formatting.GREEN);
+                } else {
+                    text = Text.translatable("text.itsours.command.blocks.remove", -amount, profile.getName()).formatted(Formatting.GREEN);
+                }
+                ctx.getSource().sendFeedback(text, false);
             }
         });
         return 1;

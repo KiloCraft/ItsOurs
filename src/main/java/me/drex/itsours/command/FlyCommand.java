@@ -2,14 +2,15 @@ package me.drex.itsours.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.ItsOursMod;
-import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.user.Settings;
-import me.drex.itsours.util.Color;
-import net.kyori.adventure.text.Component;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.world.World;
 
 public class FlyCommand extends Command {
 
@@ -22,17 +23,22 @@ public class FlyCommand extends Command {
 
     public static int toggleFlight(ServerCommandSource source) throws CommandSyntaxException {
         ServerPlayerEntity player = source.getPlayer();
-        ClaimPlayer claimPlayer = (ClaimPlayer) player;
-        boolean val = !PlayerList.get(player.getUuid(), Settings.FLIGHT);
-        PlayerList.set(player.getUuid(), Settings.FLIGHT, val);
-        if (ItsOursMod.INSTANCE.getClaimList().get(player.getWorld(), player.getBlockPos()).isPresent() && player.getWorld().equals(player.getServer().getOverworld())) {
+        boolean newValue = !PlayerList.get(player.getUuid(), Settings.FLIGHT);
+        PlayerList.set(player.getUuid(), Settings.FLIGHT, newValue);
+        if (ClaimList.INSTANCE.getClaimAt(player).isPresent() && player.getWorld().getRegistryKey().equals(World.OVERWORLD)) {
             player.interactionManager.getGameMode().setAbilities(player.getAbilities());
-            if (val) {
+            if (newValue) {
                 player.getAbilities().allowFlying = true;
             }
             player.sendAbilitiesUpdate();
         }
-        claimPlayer.sendMessage(Component.text("Claim flight " + (val ? "enabled" : "disabled")).color(val ? Color.LIGHT_GREEN : Color.RED));
+        MutableText text;
+        if (newValue) {
+            text = Text.translatable("text.itsours.command.fly.enabled").formatted(Formatting.GREEN);
+        } else {
+            text = Text.translatable("text.itsours.command.fly.disabled").formatted(Formatting.RED);
+        }
+        source.sendFeedback(text, false);
         return 1;
     }
 

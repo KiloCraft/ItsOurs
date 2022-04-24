@@ -7,10 +7,10 @@ import me.drex.itsours.claim.permission.util.context.PermissionContext;
 import me.drex.itsours.claim.permission.util.context.Priority;
 import me.drex.itsours.claim.permission.util.node.util.GroupNode;
 import me.drex.itsours.claim.permission.util.node.util.Node;
-import me.drex.itsours.util.Color;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -71,12 +71,14 @@ public class PermissionMap extends HashMap<String, Boolean> {
         }
     }
 
-    public Component toText() {
-        TextComponent.Builder text = Component.text();
+    public Text toText() {
+        MutableText text = Text.empty();
         for (Entry<String, Boolean> entry : this.entrySet()) {
-            text.append(Component.text(entry.getKey()).color(entry.getValue() ? Color.LIGHT_GREEN : Color.RED).append(Component.text(" ")));
+            text.append(
+                    Text.literal(entry.getKey()).formatted(entry.getValue() ? Formatting.GREEN : Formatting.RED)
+            ).append(" ");
         }
-        return text.build();
+        return text;
     }
 
 }

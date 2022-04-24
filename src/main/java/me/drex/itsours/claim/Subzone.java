@@ -3,14 +3,13 @@ package me.drex.itsours.claim;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.claim.permission.util.context.PermissionContext;
 import me.drex.itsours.claim.permission.util.context.Priority;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
@@ -53,7 +52,7 @@ public class Subzone extends AbstractClaim {
     public Object2IntMap<Role> getRoles(UUID uuid) {
         Object2IntMap<Role> roles = parent.getRoles(uuid);
         for (Role role : getPermissionManager().getRemovedRoles(uuid)) {
-            roles.remove(role);
+            roles.removeInt(role);
         }
         for (Object2IntMap.Entry<Role> entry : getPermissionManager().getRoles(uuid).object2IntEntrySet()) {
             roles.put(entry.getKey(), entry.getIntValue());
@@ -88,29 +87,30 @@ public class Subzone extends AbstractClaim {
         int requiredBlocks = this.getArea() - previousArea;
         if (!this.isInside()) {
             this.undoExpand(direction, amount);
-            throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in " + this.getName() + " being outside of " + this.parent.getName())).create();
+            throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.subzone_outside", this.getFullName(), this.parent.getFullName())).create();
         }
         Optional<AbstractClaim> optional = this.intersects();
         if (optional.isPresent()) {
             this.undoExpand(direction, amount);
-            throw new SimpleCommandExceptionType(new LiteralText("Expansion would result in hitting " + optional.get())).create();
+            throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.intersects", optional.get().getFullName())).create();
         }
         if (this.max.getY() > this.getWorld().getTopY() || this.min.getY() < this.getWorld().getBottomY()) {
             this.undoExpand(direction, amount);
-            throw new SimpleCommandExceptionType(new LiteralText("You can't expand outside of the world!")).create();
+            throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.outside_of_world")).create();
         }
         if (max.getX() < min.getX() || max.getY() < min.getY() || max.getZ() < min.getZ()) {
             this.undoExpand(direction, amount);
-            throw new SimpleCommandExceptionType(new LiteralText("You can't shrink your claim that much")).create();
+            throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.cant_shrink")).create();
         }
         for (Subzone subzone : this.getSubzones()) {
             if (!subzone.isInside()) {
                 this.undoExpand(direction, amount);
-                throw new SimpleCommandExceptionType(new LiteralText("Shrinking would result in " + subzone.getName() + " being outside of " + this.getName())).create();
+                throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.subzone_outside", subzone.getFullName(), this.getFullName())).create();
             }
         }
         this.show(true);
-        ItsOursMod.INSTANCE.getClaimList().update();
+        ClaimList.INSTANCE.removeClaim(this);
+        ClaimList.INSTANCE.addClaim(this);
         return requiredBlocks;
     }
 

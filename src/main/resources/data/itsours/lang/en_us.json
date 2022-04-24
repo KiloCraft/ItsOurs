@@ -1,0 +1,143 @@
+{
+  "text.itsours.select.pos1": "Position #1 set to %1$s %3$s",
+  "text.itsours.select.pos2": "Position #2 set to %1$s %3$s",
+  "text.itsours.select.done": "Area selected! Click this message, to create a claim!",
+  "text.itsours.value.true": "true",
+  "text.itsours.value.false": "false",
+  "text.itsours.value.unset": "unset",
+  "text.itsours.gui.map.item.hover.value": "Value: %s",
+  "text.itsours.gui.map.item.hover.left_click": "Leftclick to cycle",
+  "text.itsours.gui.map.item.hover.right_click": "Rightclick for subnodes",
+  "text.itsours.gui.map.item.hover.changed_subnode": "(%s changed subnodes)",
+  "text.itsours.gui.map.sort": "Sort by",
+  "text.itsours.gui.map.filter": "Filter",
+  "text.itsours.gui.map.permission.info": "Permissions",
+  "text.itsours.gui.map.permission.info.hover": "This page allows you to change %s permissions",
+  "text.itsours.gui.map.settings.info": "Settings",
+  "text.itsours.gui.map.settings.info.hover": "This page allows you to change the default permissions of your claim",
+  "text.itsours.gui.trust.item.hover.trusted": "Trusted",
+  "text.itsours.gui.trust.item.hover.distrusted": "Distrusted",
+  "text.itsours.gui.trust.item.hover.undefined": "Undefined",
+  "text.itsours.gui.trust.item.hover.cycle": "Click to cycle!",
+
+  "text.itsours.claim.enter": "Welcome to %s",
+  "text.itsours.claim.leave": "You left %s",
+
+  "text.itsours.action.disallowed.interact_item": "You can't use that item here.",
+  "text.itsours.action.disallowed.interact_item_on_block": "You can't use that item on this block here.",
+  "text.itsours.action.disallowed.interact_entity": "You can't interact with that entity here.",
+  "text.itsours.action.disallowed.place_block": "You can't place that block here.",
+  "text.itsours.action.disallowed.interact_block": "You can't interact with that block here.",
+  "text.itsours.action.disallowed.break_block": "You can't break that block here.",
+  "text.itsours.action.disallowed.damage_player": "You can't pvp here.",
+  "text.itsours.action.disallowed.damage_entity": "You can't damage that entity here.",
+
+  "text.itsours.commands.exception.no_claim_at_pos": "Couldn't find a claim at your position!",
+  "text.itsours.commands.exception.no_claim_with_name": "Couldn't find a claim with that name!",
+  "text.itsours.commands.exception.no_permission": "You don't have permission to do that!",
+  "text.itsours.commands.exception.unknown_permission": "Unknown permissions!",
+  "text.itsours.commands.exception.unknown_setting": "Unknown setting!",
+  "text.itsours.commands.exception.invalid_permission_value": "Invalid permission value!",
+  "text.itsours.commands.exception.expand.missing_blocks": "You need %s more claim block(s) to expand that far",
+  "text.itsours.commands.exception.intersects": "Expanding would result in intersection with the claim \"%s\"",
+  "text.itsours.commands.exception.outside_of_world": "You can't expand outside of the world!",
+  "text.itsours.commands.exception.cant_shrink": "You can't shrink your claim that much!",
+  "text.itsours.commands.exception.subzone_outside": "Shrinking would result in subzone \"%s\" being outside of \"%s\"",
+  "text.itsours.commands.exception.claim_limit": "You can't have more than %s claims",
+  "text.itsours.commands.exception.invalid_name": "Claim name is to long or contains invalid characters",
+  "text.itsours.commands.exception.invalid_depth": "You can't create subzones with a depth higher than 3",
+  "text.itsours.commands.exception.name_taken": "Claim name is already taken!",
+  "text.itsours.commands.exception.create_intersects": "Claim couldn't be created, because it would overlap with another claim!",
+  "text.itsours.commands.exception.create.missing_blocks": "You need %s more claim blocks!",
+  "text.itsours.commands.exception.remove.cant_delete": "You can't delete that claim!",
+  "text.itsours.commands.exception.role.no_roles": "There is no role with that name!",
+  "text.itsours.commands.exception.trust.self": "You can't trust yourself!",
+
+  "text.itsours.command.blocks.check.self": "You have %d blocks left.",
+  "text.itsours.command.blocks.check.other": "%s has %d blocks left.",
+  "text.itsours.command.blocks.set": "Set %s's claim blocks to %d.",
+  "text.itsours.command.blocks.add": "Added %d claim blocks to %s.",
+  "text.itsours.command.blocks.remove": "Removed %d claim blocks from %s.",
+
+  "text.itsours.command.create": "Claim %s has been created (%d x %d x %d)",
+  "text.itsours.command.create.select_notice": "You need to select the corners of your claim with a golden shovel (left- / right click) first.",
+
+  "text.itsours.command.expand.expanded": "Claim %s was expanded by %d blocks into %s, for %d claim blocks",
+  "text.itsours.command.expand.shrunk": "Claim %s was shrunk by %d blocks into %s, you receive %d claim blocks",
+  "text.itsours.command.expand.syntax": "Wrong syntax! Type /claim <expand/shrink> <amount>, while looking into the direction you want to expand into.",
+
+  "text.itsours.command.fly.enabled": "Claim flight enabled.",
+  "text.itsours.command.fly.disabled": "Claim flight disabled.",
+
+  "text.itsours.command.help.unknown_category": "Unknown help category!",
+
+  "text.itsours.command.help.get_started.basics.title": "How to Claim (Basics)",
+  "text.itsours.command.help.get_started.basics.line1": "How to Claim (Basics)",
+
+  "text.itsours.command.ignore.enabled": "Claim ignore enabled.",
+  "text.itsours.command.ignore.disabled": "Claim ignore disabled.",
+
+  "text.itsours.command.info": "Claim Info:",
+  "text.itsours.command.info.name": "* Name: %s",
+  "text.itsours.command.info.owner": "* Owner: %s",
+  "text.itsours.command.info.size": "* Size: %s",
+  "text.itsours.command.info.size.value": "%d x %d x %d",
+  "text.itsours.command.info.depth": "* Depth: %d",
+  "text.itsours.command.info.settings": "* Settings: %s",
+  "text.itsours.command.info.position": "* Position: %s %s",
+  "text.itsours.command.info.position.min": "Min %s",
+  "text.itsours.command.info.position.max": "Max %s",
+  "text.itsours.command.info.dimension": "* Dimension: %s",
+
+
+  "text.itsours.command.permission": "Permissions:",
+  "text.itsours.command.permission.format": "%s: %s",
+  "text.itsours.command.permission.check": "Permission %s in %s is set to %s for %s",
+  "text.itsours.command.permission.check.hover": "%s(%d) | %s | %s: %s",
+  "text.itsours.command.permission.set": "Set permission %s in %s for %s to %s",
+  "text.itsours.command.permission.list": "Player Info (%s)",
+  "text.itsours.command.permission.list.claim": "* Claim: %s",
+  "text.itsours.command.permission.list.roles": "* Roles: %s",
+  "text.itsours.command.permission.list.permissions": "* Permissions: %s",
+
+  "text.itsours.command.remove.warning": "WARNING: This is not your claim...",
+  "text.itsours.command.remove.info": "Are you sure you want to delete the claim \"%s\"? %s",
+  "text.itsours.command.remove.info.confirm": "[I'M SURE!]",
+  "text.itsours.command.remove.success": "Claim %s deleted!",
+
+  "text.itsours.command.rename": "Changed name of %s to %s.",
+  "text.itsours.command.rename.already_taken": "Claim name is already taken!",
+  "text.itsours.command.rename.invalid": "Claim name is to long or contains invalid characters!",
+
+  "text.itsours.command.role.add": "Added %s role to %s.",
+  "text.itsours.command.role.remove": "Removed %s role from %s.",
+  "text.itsours.command.role.unset": "Unset %s role from %s.",
+  "text.itsours.command.role.no_change": "Nothing changed!",
+
+
+  "text.itsours.command.roles.already_exists": "A role with that name already exists!",
+  "text.itsours.command.roles.unknown": "Unknown role name!",
+  "text.itsours.command.roles.cant_remove": "You can't remove that role!",
+  "text.itsours.command.roles.add": "Role %s has been added.",
+  "text.itsours.command.roles.remove": "Role %s has been removed.",
+  "text.itsours.command.roles.set_permission": "Set %s for %s to %s.",
+  "text.itsours.command.roles.list_permission": "%s\n%s",
+
+  "text.itsours.command.set_owner": "Set owner of %s to %s!",
+
+  "text.itsours.command.trusted.no_one": "No one is trusted in %s!",
+  "text.itsours.command.trusted.title": "Trusted:",
+
+  "text.itsours.info.not_protected": "This %s is not protected, click this message to create a claim, to protect it.",
+
+  "text.itsours.command.select.enabled": "Claim selecting enabled.",
+  "text.itsours.command.select.disabled": "Claim selecting disabled.",
+
+  "text.itsours.command.setting.check": "Setting %s in %s is set to %s",
+  "text.itsours.command.setting.set": "Set Setting %s in %s to %s",
+  "text.itsours.command.setting.list": "Settings:",
+  "text.itsours.command.setting.list.entry": "%s: %s",
+
+  "text.itsours.general.click_to_copy": "Click to copy!"
+
+}

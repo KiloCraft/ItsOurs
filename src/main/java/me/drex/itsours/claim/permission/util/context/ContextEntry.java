@@ -1,6 +1,6 @@
 package me.drex.itsours.claim.permission.util.context;
 
-import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +50,7 @@ public class ContextEntry implements Comparable<ContextEntry> {
             if (o.permission.getNodes().get(l).contains(permission.getNodes().get(l).getId())) return 1;
             if (permission.getNodes().get(l).contains(o.permission.getNodes().get(l).getId())) return -1;
         }
-        ItsOursMod.LOGGER.warn(this + " and " + o + " could not be differentiated!");
+        ItsOurs.LOGGER.warn(this + " and " + o + " could not be differentiated!");
         return 0;
     }
 

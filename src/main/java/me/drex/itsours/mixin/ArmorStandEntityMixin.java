@@ -1,16 +1,16 @@
 package me.drex.itsours.mixin;
 
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.util.Color;
-import net.kyori.adventure.text.Component;
+import net.minecraft.text.Text;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
@@ -35,11 +35,11 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
             cancellable = true
     )
     public void canInteract(PlayerEntity player, Vec3d hitPos, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
-        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) this.getEntityWorld(), this.getBlockPos());
+        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) this.getEntityWorld(), this.getBlockPos());
         if (claim.isEmpty()) return;
         if (!claim.get().hasPermission(player.getUuid(), "interact_entity." + Registry.ENTITY_TYPE.getId(this.getType()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            claimPlayer.sendError(Component.text("You can't interact with that entity here.").color(Color.RED));
+            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_entity").formatted(Formatting.RED));
             cir.setReturnValue(ActionResult.FAIL);
         }
     }

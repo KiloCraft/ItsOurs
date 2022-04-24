@@ -1,7 +1,7 @@
 package me.drex.itsours.claim.permission;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission.Value;
 import me.drex.itsours.claim.permission.roles.PlayerRoleManager;
@@ -98,7 +98,7 @@ public class PermissionManager {
 
     public List<UUID> getPlayersWithRole(String role) {
         List<UUID> list = new ArrayList<>();
-        Role r = ItsOursMod.INSTANCE.getRoleManager().get(role);
+        Role r = ItsOurs.INSTANCE.getRoleManager().get(role);
         if (r == null) return list;
         for (Map.Entry<UUID, PlayerRoleManager> entry : this.roleManager.entrySet()) {
             if (entry.getValue().getRoles().containsKey(r)) list.add(entry.getKey());
@@ -153,7 +153,7 @@ public class PermissionManager {
         List<Map.Entry<Role, Integer>> list = new LinkedList<>(hashMap.entrySet());
         list.sort(Map.Entry.comparingByValue());
         HashMap<Role, Integer> temp = new LinkedHashMap<>();
-        temp.put(ItsOursMod.INSTANCE.getRoleManager().get("default"), -1);
+        temp.put(ItsOurs.INSTANCE.getRoleManager().get("default"), -1);
         for (Map.Entry<Role, Integer> entry : list) {
             temp.put(entry.getKey(), entry.getValue());
         }

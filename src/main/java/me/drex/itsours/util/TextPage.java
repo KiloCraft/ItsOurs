@@ -2,7 +2,6 @@ package me.drex.itsours.util;
 
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.ClickEvent;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -25,11 +24,11 @@ public class TextPage {
     }
 
     public TextPage(String title, List<String> entries, String command) {
-        this.title = TextComponentUtil.toText(title);
+        this.title = Text.literal(title);
         ArrayList<Text> list = new ArrayList<>();
         if (entries != null) {
             for (String entry : entries) {
-                list.add(TextComponentUtil.toText(entry));
+                list.add(Text.literal(entry));
             }
         }
 
@@ -62,21 +61,21 @@ public class TextPage {
     }
 
     public void sendEntries(ServerPlayerEntity player, int page, int maxPage, int from, int to) {
-        MutableText message = new LiteralText("").append(title);
+        MutableText message = Text.empty().append(title);
         int currentIndex = from + 1;
         for (Text text : this.entries.subList(from, to)) {
-            message.append(new LiteralText("\n" + String.format(this.number, currentIndex)).formatted(numberFormat)).append(text);
+            message.append(Text.literal("\n" + String.format(this.number, currentIndex)).formatted(numberFormat)).append(text);
             currentIndex++;
         }
-        message.append(new LiteralText("\n<- ").formatted(Formatting.WHITE).styled(style -> style.withBold(true)))
-                .append(new LiteralText("Prev ").formatted(page > 0 ? Formatting.GOLD : Formatting.GRAY)
+        message.append(Text.literal("\n<- ").formatted(Formatting.WHITE).styled(style -> style.withBold(true)))
+                .append(Text.literal("Prev ").formatted(page > 0 ? Formatting.GOLD : Formatting.GRAY)
                         .styled(style -> page > 0 ? style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format(this.command, page))) : style))
-                .append(new LiteralText(String.valueOf(page + 1)).formatted(Formatting.GREEN))
-                .append(new LiteralText(" / ").formatted(Formatting.GRAY))
-                .append(new LiteralText(String.valueOf(maxPage + 1)).formatted(Formatting.GREEN))
-                .append(new LiteralText(" Next").formatted(page == maxPage ? Formatting.GRAY : Formatting.GOLD)
+                .append(Text.literal(String.valueOf(page + 1)).formatted(Formatting.GREEN))
+                .append(Text.literal(" / ").formatted(Formatting.GRAY))
+                .append(Text.literal(String.valueOf(maxPage + 1)).formatted(Formatting.GREEN))
+                .append(Text.literal(" Next").formatted(page == maxPage ? Formatting.GRAY : Formatting.GOLD)
                         .styled(style -> page == maxPage ? style : style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format(this.command, page + 2)))))
-                .append(new LiteralText(" ->").formatted(Formatting.WHITE).styled(style -> style.withBold(true)));
+                .append(Text.literal(" ->").formatted(Formatting.WHITE).styled(style -> style.withBold(true)));
         player.sendMessage(message, false);
     }
 }

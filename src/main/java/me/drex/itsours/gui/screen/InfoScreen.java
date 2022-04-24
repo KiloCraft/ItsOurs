@@ -21,7 +21,7 @@ public class InfoScreen extends BackScreen<ClaimContext> {
         super(player, 3, context, previous);
         SlotEntry<ClaimContext> settings = new SlotEntry<>(Items.COMPARATOR, "Settings", (claimContext, leftClick, shiftClick) -> {
             player.closeHandledScreen();
-            SettingScreen settingScreen = new SettingScreen(player, 6, context, this, PermissionList.both, Node.CompareMode.ALPHABET_DESC, AbstractMapScreen.FilterMode.ALL);
+            SettingScreen settingScreen = new SettingScreen(player, 6, context, this, PermissionList.INSTANCE.both, Node.CompareMode.ALPHABET_DESC, AbstractMapScreen.FilterMode.ALL);
             settingScreen.render();
         });
         addSlot(settings, 4);

@@ -9,18 +9,12 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.roles.Role;
-import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.util.Color;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.HoverEvent;
+import net.minecraft.text.Text;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.LiteralText;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +29,7 @@ public class RoleCommand extends Command {
     public static final SuggestionProvider<ServerCommandSource> REMOVED_ROLES_PROVIDER = (source, builder) -> {
         List<String> names = new ArrayList<>();
         getGameProfile(source, "player", profile -> {
-            for (Map.Entry<String, Role> entry : ItsOursMod.INSTANCE.getRoleManager().entrySet()) {
+            for (Map.Entry<String, Role> entry : ItsOurs.INSTANCE.getRoleManager().entrySet()) {
                 String roleID = entry.getKey();
                 Role role = entry.getValue();
                 AbstractClaim claim = getClaim(source);
@@ -48,7 +42,7 @@ public class RoleCommand extends Command {
     public static final SuggestionProvider<ServerCommandSource> ADDED_ROLES_PROVIDER = (source, builder) -> {
         List<String> names = new ArrayList<>();
         getGameProfile(source, "player", profile -> {
-            for (Map.Entry<String, Role> entry : ItsOursMod.INSTANCE.getRoleManager().entrySet()) {
+            for (Map.Entry<String, Role> entry : ItsOurs.INSTANCE.getRoleManager().entrySet()) {
                 String roleID = entry.getKey();
                 Role role = entry.getValue();
                 AbstractClaim claim = getClaim(source);
@@ -61,7 +55,7 @@ public class RoleCommand extends Command {
     public static final SuggestionProvider<ServerCommandSource> TO_BE_UNSET_ROLES_PROVIDER = (source, builder) -> {
         List<String> names = new ArrayList<>();
         getGameProfile(source, "player", profile -> {
-            for (Map.Entry<String, Role> entry : ItsOursMod.INSTANCE.getRoleManager().entrySet()) {
+            for (Map.Entry<String, Role> entry : ItsOurs.INSTANCE.getRoleManager().entrySet()) {
                 String roleID = entry.getKey();
                 Role role = entry.getValue();
                 AbstractClaim claim = getClaim(source);
@@ -72,6 +66,7 @@ public class RoleCommand extends Command {
         return CommandSource.suggestMatching(names, builder);
     };
 
+    // TODO: Roles should only be on / off, not 3-state
     public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
         {
@@ -103,13 +98,14 @@ public class RoleCommand extends Command {
             unset.then(player);
             claim.then(unset);
         }
-        {
+        // TODO:
+        /*{
             RequiredArgumentBuilder<ServerCommandSource, String> player = playerArgument("player");
             player.executes(RoleCommand::listRoles);
             LiteralArgumentBuilder<ServerCommandSource> list = LiteralArgumentBuilder.literal("list");
             list.then(player);
             claim.then(list);
-        }
+        }*/
         LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("role");
         command.then(claim);
         literal.then(command);
@@ -125,13 +121,14 @@ public class RoleCommand extends Command {
     }
 
     public static int addRole(ServerCommandSource source, AbstractClaim claim, GameProfile profile, String name, int weight) throws CommandSyntaxException {
-        validatePermission(claim, source.getPlayer().getUuid(), "modify.role");
+        validatePermission(claim, source, "modify.role");
         Role role = validateRole(name);
         boolean changed = claim.getPermissionManager().addRole(profile.getId(), role, weight);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(changed ? Component.text("Added ").color(Color.YELLOW)
-                .append(Component.text(name).color(Color.ORANGE)).append(Component.text(" to ").color(Color.YELLOW))
-                .append(Component.text(profile.getName()).color(Color.ORANGE)) :
-                Component.text("Nothing changed, " + profile.getName() + " already has " + name + " in " + claim.getName()).color(Color.RED));
+        if (changed) {
+            source.sendFeedback(Text.translatable("text.itsours.command.role.add", name, profile), false);
+        } else {
+            source.sendError(Text.translatable("text.itsours.command.role.no_change"));
+        }
         return 1;
     }
 
@@ -144,13 +141,14 @@ public class RoleCommand extends Command {
     }
 
     public static int removeRole(ServerCommandSource source, AbstractClaim claim, GameProfile profile, String name) throws CommandSyntaxException {
-        validatePermission(claim, source.getPlayer().getUuid(), "modify.role");
+        validatePermission(claim, source, "modify.role");
         Role role = validateRole(name);
         boolean changed = claim.getPermissionManager().removeRole(profile.getId(), role);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(changed ? Component.text("Removed ").color(Color.YELLOW)
-                .append(Component.text(name).color(Color.ORANGE)).append(Component.text(" from ").color(Color.YELLOW))
-                .append(Component.text(profile.getName()).color(Color.ORANGE)) :
-                Component.text("Nothing changed, " + profile.getName() + " already has " + name + " removed in " + claim.getName()).color(Color.RED));
+        if (changed) {
+            source.sendFeedback(Text.translatable("text.itsours.command.role.remove", name, profile), false);
+        } else {
+            source.sendError(Text.translatable("text.itsours.command.role.no_change"));
+        }
         return 1;
     }
 
@@ -163,20 +161,21 @@ public class RoleCommand extends Command {
     }
 
     public static int unsetRole(ServerCommandSource source, AbstractClaim claim, GameProfile profile, String name) throws CommandSyntaxException {
-        validatePermission(claim, source.getPlayer().getUuid(), "modify.role");
+        validatePermission(claim, source, "modify.role");
         Role role = validateRole(name);
         boolean changed = claim.getPermissionManager().unsetRole(profile.getId(), role);
-        ((ClaimPlayer) source.getPlayer()).sendMessage(changed ? Component.text("Unset ").color(Color.YELLOW)
-                .append(Component.text(name).color(Color.ORANGE)).append(Component.text(" from ").color(Color.YELLOW))
-                .append(Component.text(profile.getName()).color(Color.ORANGE)) :
-                Component.text("Nothing changed, " + profile.getName() + " didn't have " + name + " added or removed in " + claim.getName()).color(Color.RED));
+        if (changed) {
+            source.sendFeedback(Text.translatable("text.itsours.command.role.unset", name, profile), false);
+        } else {
+            source.sendError(Text.translatable("text.itsours.command.role.no_change"));
+        }
         return 1;
     }
 
-    public static int listRoles(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    /*public static int listRoles(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerCommandSource source = ctx.getSource();
         AbstractClaim claim = getClaim(ctx);
-        validatePermission(claim, source.getPlayer().getUuid(), "modify.role");
+        validatePermission(claim, source, "modify.role");
         getGameProfile(ctx, "player", profile -> {
             //Hover builder
             Object2IntMap<Role> addedRoles = claim.getPermissionManager().getPlayerRoleManager(profile.getId()).getRoles();
@@ -212,12 +211,12 @@ public class RoleCommand extends Command {
         });
 
         return 1;
-    }
+    }*/
 
     private static Role validateRole(String name) throws CommandSyntaxException {
-        if (!ItsOursMod.INSTANCE.getRoleManager().containsKey(name))
-            throw new SimpleCommandExceptionType(new LiteralText("There is no role with that name")).create();
-        else return ItsOursMod.INSTANCE.getRoleManager().get(name);
+        if (!ItsOurs.INSTANCE.getRoleManager().containsKey(name))
+            throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.role.no_roles")).create();
+        else return ItsOurs.INSTANCE.getRoleManager().get(name);
     }
 
 }

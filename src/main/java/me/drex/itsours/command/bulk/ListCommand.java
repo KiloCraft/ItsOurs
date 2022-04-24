@@ -1,3 +1,5 @@
+// TODO:
+/*
 package me.drex.itsours.command.bulk;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -36,3 +38,4 @@ public class ListCommand extends Command {
     }
 
 }
+*/

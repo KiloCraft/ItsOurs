@@ -6,12 +6,12 @@ import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.gui.util.ScreenHelper;
 import me.drex.itsours.gui.util.SlotEntry;
 import me.drex.itsours.gui.util.context.ClaimContext;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,36 +84,25 @@ public abstract class AbstractMapScreen<K extends ClaimContext> extends PagedScr
         if (!(this.node instanceof GroupNode)) {
             String perm = getPermission(node);
             Permission.Value value = getValue(perm);
-            TextComponent val = Component.text("Value: ").color(NamedTextColor.WHITE);
-            switch (value) {
-                case TRUE -> {
-                    ScreenHelper.addGlint(item);
-                    ScreenHelper.addLore(item, val.append(Component.text("True").color(NamedTextColor.GREEN)));
-                }
-                case FALSE -> {
-                    ScreenHelper.addLore(item, val.append(Component.text("False").color(NamedTextColor.RED)));
-                }
-                case UNSET -> {
-                    ScreenHelper.addLore(item, val.append(Component.text("Unset").color(NamedTextColor.GRAY)));
-                }
-                default -> throw new IllegalStateException("Unexpected value: " + value);
-            }
+            MutableText text = Text.translatable("text.itsours.gui.map.item.hover.value", value.format());
+            ScreenHelper.addLore(item, text);
+            if (value == Permission.Value.TRUE) ScreenHelper.addGlint(item);
             ScreenHelper.setCustomName(item, perm);
-            ScreenHelper.addLore(item, "Leftclick to cycle");
+            ScreenHelper.addLore(item, Text.translatable("text.itsours.gui.map.item.hover.left_click"));
             if (!node.getNodes().isEmpty() || node instanceof GroupNode) {
-                ScreenHelper.addLore(item, "Rightclick for subnodes");
+                ScreenHelper.addLore(item, Text.translatable("text.itsours.gui.map.item.hover.right_click"));
             }
             if (filterMode == FilterMode.CHANGED_SUBNODES) {
                 int changed = getChanged(getPermission(), node);
                 if (changed > 0) {
-                    ScreenHelper.addLore(item, Component.text("(" + (changed) + " changed subnodes)").color(NamedTextColor.GOLD));
+                    ScreenHelper.addLore(item, Text.translatable("text.itsours.gui.map.item.hover.changed_subnode", changed).formatted(Formatting.GOLD));
                 }
             }
         } else {
             ScreenHelper.setCustomName(item, node.getId());
         }
         if (!node.getInformation().equals("-"))
-            ScreenHelper.addLore(item, Component.text(node.getInformation()).color(NamedTextColor.AQUA));
+            ScreenHelper.addLore(item, Text.literal(node.getInformation()).formatted(Formatting.AQUA));
         return item;
     }
 
@@ -128,9 +117,9 @@ public abstract class AbstractMapScreen<K extends ClaimContext> extends PagedScr
         filter();
         sort();
         ItemStack orderItem = new ItemStack(Items.COMPASS);
-        ScreenHelper.setCustomName(orderItem, "Sort by");
+        ScreenHelper.setCustomName(orderItem, Text.translatable("text.itsours.gui.map.sort"));
         for (Node.CompareMode value : Node.CompareMode.values()) {
-            ScreenHelper.addLore(orderItem, Component.text(value.getName()).color(value == compareMode ? NamedTextColor.AQUA : NamedTextColor.GRAY));
+            ScreenHelper.addLore(orderItem, Text.literal(value.getName()).formatted(value == compareMode ? Formatting.AQUA : Formatting.GRAY));
         }
         SlotEntry<K> order = new SlotEntry<>(orderItem, (permissionContext, leftClick, shiftClick) -> {
             int length = Node.CompareMode.values().length;
@@ -140,9 +129,9 @@ public abstract class AbstractMapScreen<K extends ClaimContext> extends PagedScr
         addSlot(order, 8);
 
         ItemStack filterItem = new ItemStack(Items.HOPPER);
-        ScreenHelper.setCustomName(filterItem, "Filter");
+        ScreenHelper.setCustomName(filterItem, Text.translatable("text.itsours.gui.map.filter"));
         for (FilterMode value : FilterMode.values()) {
-            ScreenHelper.addLore(filterItem, Component.text(value.getName()).color(value == filterMode ? NamedTextColor.AQUA : NamedTextColor.GRAY));
+            ScreenHelper.addLore(filterItem, Text.literal(value.getName()).formatted(value == filterMode ? Formatting.AQUA : Formatting.GRAY));
         }
         SlotEntry<K> filter = new SlotEntry<>(filterItem, (permissionContext, leftClick, shiftClick) -> {
             int length = FilterMode.values().length;

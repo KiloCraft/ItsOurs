@@ -1,6 +1,6 @@
 package me.drex.itsours.user;
 
-import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.ItsOurs;
 import net.minecraft.nbt.NbtCompound;
 
 import java.util.HashMap;
@@ -28,7 +28,7 @@ public class PlayerList extends HashMap<UUID, NbtCompound> {
             case 3:
                 return tag.getInt(key);
             default:
-                ItsOursMod.LOGGER.error("Illegal type for \"" + key + "\": " + tag.get(key).getType());
+                ItsOurs.LOGGER.error("Illegal type for \"" + key + "\": " + tag.get(key).getType());
                 return null;
         }
     }

@@ -1,7 +1,7 @@
 package me.drex.itsours.util;
 
 import com.google.common.collect.Lists;
-import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.ItsOurs;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -13,13 +13,13 @@ public class WorldUtil {
     private static final List<RegistryKey<World>> REGISTRY_KEYS = Lists.newArrayList();
 
     static {
-        REGISTRY_KEYS.addAll(ItsOursMod.server.getWorldRegistryKeys());
+        REGISTRY_KEYS.addAll(ItsOurs.INSTANCE.server.getWorldRegistryKeys());
     }
 
     public static ServerWorld getWorld(String identifier) {
         for (RegistryKey<World> key : REGISTRY_KEYS) {
             if (identifier.equals(key.getValue().toString())) {
-                return ItsOursMod.server.getWorld(key);
+                return ItsOurs.INSTANCE.server.getWorld(key);
             }
         }
         throw new RuntimeException("Unable to get world: " + identifier);
@@ -27,7 +27,7 @@ public class WorldUtil {
 
     public static String toIdentifier(ServerWorld world) {
         for (RegistryKey<World> key : REGISTRY_KEYS) {
-            if (world == ItsOursMod.server.getWorld(key)) return key.getValue().toString();
+            if (world == ItsOurs.INSTANCE.server.getWorld(key)) return key.getValue().toString();
         }
         return "";
     }

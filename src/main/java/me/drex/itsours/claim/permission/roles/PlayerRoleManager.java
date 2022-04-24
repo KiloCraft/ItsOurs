@@ -2,7 +2,7 @@ package me.drex.itsours.claim.permission.roles;
 
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.ItsOurs;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -68,11 +68,11 @@ public class PlayerRoleManager {
     }
 
     public void fromNBT(NbtCompound tag) {
-        int dataVersion = ItsOursMod.INSTANCE.getDataVersion();
+        int dataVersion = ItsOurs.INSTANCE.getDataVersion();
         if (dataVersion == 0) {
             tag.getKeys().forEach(roleID -> {
                 int weight = tag.getInt(roleID);
-                Role role = ItsOursMod.INSTANCE.getRoleManager().getRole(roleID);
+                Role role = ItsOurs.INSTANCE.getRoleManager().getRole(roleID);
                 if (role != null) {
                     roles.put(role, weight);
                 }
@@ -83,7 +83,7 @@ public class PlayerRoleManager {
                 for (NbtElement nbtElement : nbtList) {
                     if (nbtElement instanceof NbtString) {
                         NbtString nbtString = (NbtString) nbtElement;
-                        Role role = ItsOursMod.INSTANCE.getRoleManager().get(nbtString.asString());
+                        Role role = ItsOurs.INSTANCE.getRoleManager().get(nbtString.asString());
                         if (role != null) {
                             removed.add(role);
                         }
@@ -94,7 +94,7 @@ public class PlayerRoleManager {
                 NbtCompound nbtCompound = tag.getCompound("added");
                 for (String key : nbtCompound.getKeys()) {
                     int weight = nbtCompound.getInt(key);
-                    Role role = ItsOursMod.INSTANCE.getRoleManager().get(key);
+                    Role role = ItsOurs.INSTANCE.getRoleManager().get(key);
                     if (role != null) {
                         roles.put(role, weight);
                     }
@@ -105,18 +105,18 @@ public class PlayerRoleManager {
 
     public NbtCompound toNBT() {
         NbtCompound tag = new NbtCompound();
-        if (ItsOursMod.INSTANCE.getDataVersion() >= 0) {
+        if (ItsOurs.INSTANCE.getDataVersion() >= 0) {
             if (roles.size() > 0) {
                 NbtCompound nbtCompound = new NbtCompound();
                 for (Object2IntMap.Entry<Role> entry : roles.object2IntEntrySet()) {
-                    nbtCompound.putInt(ItsOursMod.INSTANCE.getRoleManager().getRoleID(entry.getKey()), entry.getIntValue());
+                    nbtCompound.putInt(ItsOurs.INSTANCE.getRoleManager().getRoleID(entry.getKey()), entry.getIntValue());
                 }
                 tag.put("added", nbtCompound);
             }
             if (removed.size() > 0) {
                 NbtList nbtList = new NbtList();
                 for (Role role : removed) {
-                    nbtList.add(NbtString.of(ItsOursMod.INSTANCE.getRoleManager().getRoleID(role)));
+                    nbtList.add(NbtString.of(ItsOurs.INSTANCE.getRoleManager().getRoleID(role)));
                 }
                 tag.put("removed", nbtList);
             }

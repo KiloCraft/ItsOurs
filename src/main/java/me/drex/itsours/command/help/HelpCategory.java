@@ -2,7 +2,7 @@ package me.drex.itsours.command.help;
 
 public enum HelpCategory {
 
-    GET_STARTED("getStarted", HelpPage.BASICS, HelpPage.SETTINGS, HelpPage.PERMISSIONS, HelpPage.RESIZING, HelpPage.SUBZONES),
+    GET_STARTED("get_started", HelpPage.BASICS, HelpPage.SETTINGS, HelpPage.PERMISSIONS, HelpPage.RESIZING, HelpPage.SUBZONES),
     COMMAND("commands", HelpPage.COMMAND_1, HelpPage.COMMAND_2, HelpPage.COMMAND_3, HelpPage.COMMAND_4, HelpPage.COMMAND_5);
 
     private final String id;

@@ -1,30 +1,23 @@
 plugins {
-    id 'fabric-loom' version '0.10-SNAPSHOT'
+    id 'fabric-loom' version '0.12-SNAPSHOT'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
+version = project.mod_version + "-mc-" + project.minecraft_version
 group = project.maven_group
-version = "${project.mod_version}-${project.minecraft_version}"
-
-// Shadow stuff
-configurations {
-    dev
-    compile.extendsFrom shade
-    modCompile.extendsFrom modShade
-}
-
-shadowJar {
-    classifier = "shadow"
-    configurations = [project.configurations.shadow]
-}
 
 repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url 'https://maven.nucleoid.xyz/' }
+    mavenCentral()
+}
+
+loom {
+    accessWidenerPath.set(file("src/main/resources/itsours.accesswidener"))
 }
 
 dependencies {
@@ -37,6 +30,7 @@ dependencies {
     Set<String> apiModules = [
             "fabric-api-base",
             "fabric-command-api-v1",
+            "fabric-events-interaction-v0",
             "fabric-lifecycle-events-v1"
     ]
 
@@ -48,25 +42,11 @@ dependencies {
     // Fabric permission api
     modImplementation "me.lucko:fabric-permissions-api:${project.perm_version}"
 
+    // Server translation api
+    modImplementation "fr.catcore:api:${project.translations_version}"
+
     implementation "org.jetbrains:annotations:${project.jetbrains_annotations_version}"
-    implementation "net.luckperms:api:${project.luckperms_version}"
-    implementation "net.kyori:adventure-text-minimessage:${project.kyori_adventure_minimessage_version}"
-    shadow "net.kyori:adventure-text-minimessage:${project.kyori_adventure_minimessage_version}"
-    implementation "net.kyori:adventure-text-serializer-gson:${project.kyori_adventure_serializer_version}"
-    shadow "net.kyori:adventure-text-serializer-gson:${project.kyori_adventure_serializer_version}"
 
-}
-
-// Tasks
-shadowJar {
-    enabled = true
-    // Only shadow implementation/modImplementation
-    configurations = [project.configurations.shade]
-    classifier = "dev"
-}
-
-task remapJar(type: net.fabricmc.loom.task.RemapJarTask, overwrite: true) {
-    from zipTree(shadowJar.archiveFile) dependsOn shadowJar
 }
 
 processResources {
@@ -78,20 +58,15 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    // ensure that the encoding is set to UTF-8, no matter what the system default is
-    // this fixes some edge cases with special characters not displaying correctly
-    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-    // If Javadoc is generated, this must be specified in that task too.
     it.options.encoding = "UTF-8"
-
-    it.options.release = 16
+    it.options.release = 17
 }
 
 // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
 // if it is present.
 // If you remove this task, sources will not be generated.
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = "sources"
+    classifier("sources")
     from sourceSets.main.allSource
 }
 

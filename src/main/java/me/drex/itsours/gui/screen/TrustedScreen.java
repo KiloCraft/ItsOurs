@@ -2,7 +2,7 @@ package me.drex.itsours.gui.screen;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionList;
@@ -17,7 +17,6 @@ import me.drex.itsours.gui.util.context.PermissionContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
 import net.minecraft.util.Formatting;
@@ -49,7 +48,7 @@ public class TrustedScreen extends PagedScreen<ClaimContext> {
         allUUIDs.remove(player.getUuid());
         CompletableFuture.runAsync(() -> {
             for (UUID uuid : allUUIDs) {
-                Role trusted = ItsOursMod.INSTANCE.getRoleManager().getRole("trusted");
+                Role trusted = ItsOurs.INSTANCE.getRoleManager().getRole("trusted");
                 Permission.Value value;
                 if (claim.getPermissionManager().getPlayerRoleManager(uuid).getRemoved().contains(trusted)) {
                     value = Permission.Value.FALSE;
@@ -74,7 +73,7 @@ public class TrustedScreen extends PagedScreen<ClaimContext> {
                                     return uuid;
                                 }
                             },
-                            this, PermissionList.permission, Node.CompareMode.ALPHABET_DESC, AbstractMapScreen.FilterMode.ALL);
+                            this, PermissionList.INSTANCE.permission, Node.CompareMode.ALPHABET_DESC, AbstractMapScreen.FilterMode.ALL);
                     permissionScreen.render();
                 });
                 addPageEntry(slotEntry);
@@ -110,19 +109,19 @@ public class TrustedScreen extends PagedScreen<ClaimContext> {
         switch (value) {
             case TRUE -> {
                 state = new ItemStack(Items.LIME_STAINED_GLASS_PANE);
-                text = new LiteralText("Trusted").formatted(Formatting.GREEN);
+                text = Text.translatable("text.itsours.gui.trust.item.hover.trusted").formatted(Formatting.GREEN);
             }
             case FALSE -> {
                 state = new ItemStack(Items.RED_STAINED_GLASS_PANE);
-                text = new LiteralText("Distrusted").formatted(Formatting.RED);
+                text = Text.translatable("text.itsours.gui.trust.item.hover.distrusted").formatted(Formatting.RED);
             }
             case UNSET -> {
                 state = new ItemStack(Items.GLASS_PANE);
-                text = new LiteralText("Undefined").formatted(Formatting.GRAY);
+                text = Text.translatable("text.itsours.gui.trust.item.hover.undefined").formatted(Formatting.GRAY);
             }
             default -> throw new IllegalStateException("Unexpected value: " + value);
         }
-        ScreenHelper.addLore(state, "Click to cycle");
+        ScreenHelper.addLore(state, Text.translatable("text.itsours.gui.trust.item.hover.cycle"));
         state.setCustomName(text);
         SlotEntry<ClaimContext> slotEntry = new SlotEntry<>(state, (claimContext, leftClick, shiftClick) -> {
             int ordinal = value.ordinal() + 1;

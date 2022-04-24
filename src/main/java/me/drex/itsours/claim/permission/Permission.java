@@ -2,9 +2,8 @@ package me.drex.itsours.claim.permission;
 
 import me.drex.itsours.claim.permission.util.node.util.InvalidPermissionException;
 import me.drex.itsours.claim.permission.util.node.util.Node;
-import me.drex.itsours.util.Color;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +18,7 @@ public class Permission {
 
     public static Optional<Permission> permission(String permission) {
         try {
-            return Optional.of(new Permission(PermissionList.permission.getNodes(permission)));
+            return Optional.of(new Permission(PermissionList.INSTANCE.permission.getNodes(permission)));
         } catch (InvalidPermissionException e) {
             return Optional.empty();
         }
@@ -27,10 +26,10 @@ public class Permission {
 
     public static Optional<Permission> setting(String setting) {
         try {
-            return Optional.of(new Permission(PermissionList.setting.getNodes(setting)));
+            return Optional.of(new Permission(PermissionList.INSTANCE.setting.getNodes(setting)));
         } catch (InvalidPermissionException e) {
             try {
-                return Optional.of(new Permission(PermissionList.permission.getNodes(setting)));
+                return Optional.of(new Permission(PermissionList.INSTANCE.permission.getNodes(setting)));
             } catch (InvalidPermissionException e1) {
                 return Optional.empty();
             }
@@ -81,26 +80,26 @@ public class Permission {
     }
 
     public enum Value {
-        TRUE(true, "true", Color.GREEN),
-        FALSE(false, "false", Color.RED),
-        UNSET(false, "unset", Color.GRAY);
+        TRUE(true, "text.itsours.value.true", Formatting.GREEN),
+        FALSE(false, "text.itsours.value.false", Formatting.RED),
+        UNSET(false, "text.itsours.value.unset", Formatting.GRAY);
 
         public final boolean value;
-        public final String name;
-        public final TextColor color;
+        public final String translationId;
+        public final Formatting formatting;
 
-        Value(boolean value, String name, TextColor color) {
+        Value(boolean value, String translationId, Formatting formatting) {
             this.value = value;
-            this.name = name;
-            this.color = color;
+            this.translationId = translationId;
+            this.formatting = formatting;
         }
 
         public static Value of(boolean value) {
             return value ? TRUE : FALSE;
         }
 
-        public Component format() {
-            return Component.text(this.name).color(this.color);
+        public Text format() {
+            return Text.translatable(this.translationId).formatted(formatting);
         }
     }
 }

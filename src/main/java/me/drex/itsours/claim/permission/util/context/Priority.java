@@ -4,14 +4,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class Priority implements Comparable<Priority> {
 
-    public static Priority DEFAULT = new Priority("Default", 1);
-    public static Priority SETTING = new Priority("Setting", 2);
-    public static Priority PERMISSION = new Priority("Permission", 4);
-    public static Priority OWNER = new Priority("Owner", 5);
-    public static Priority IGNORE = new Priority("Ignore", 6);
+    public static final Priority DEFAULT = new Priority("Default", 1);
+    public static final Priority SETTING = new Priority("Setting", 2);
+    public static final Priority PERMISSION = new Priority("Permission", 4);
+    public static final Priority OWNER = new Priority("Owner", 5);
+    public static final Priority IGNORE = new Priority("Ignore", 6);
     private final String name;
     private final int priority;
     private final int weight;
+
     public Priority(String name, int priority, int weight) {
         this.name = name;
         this.priority = priority;

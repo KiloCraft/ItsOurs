@@ -2,18 +2,17 @@ package me.drex.itsours.gui.screen;
 
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.command.SettingCommand;
 import me.drex.itsours.gui.util.ScreenHelper;
 import me.drex.itsours.gui.util.SlotEntry;
 import me.drex.itsours.gui.util.context.ClaimContext;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
 
 import java.util.Optional;
@@ -23,11 +22,8 @@ public class SettingScreen extends AbstractMapScreen<ClaimContext> {
     public SettingScreen(ServerPlayerEntity player, int rows, ClaimContext context, SimpleScreen<?> previous, Node node, Node.CompareMode compareMode, FilterMode filterMode) {
         super(player, rows, context, previous, node, compareMode, filterMode);
         ItemStack info = new ItemStack(Items.PAPER);
-        ScreenHelper.setCustomName(info, "Settings");
-        ScreenHelper.addLore(info, Component.text("This page allows").color(NamedTextColor.WHITE));
-        ScreenHelper.addLore(info, Component.text("you to change the").color(NamedTextColor.WHITE));
-        ScreenHelper.addLore(info, Component.text("default permissions").color(NamedTextColor.WHITE));
-        ScreenHelper.addLore(info, Component.text("of your claim").color(NamedTextColor.WHITE));
+        ScreenHelper.setCustomName(info, Text.translatable("text.itsours.gui.map.settings.info"));
+        ScreenHelper.addLore(info, Text.translatable("text.itsours.gui.map.settings.info.hover"));
         addSlot(new SlotEntry<>(info), 4);
     }
 
@@ -41,7 +37,7 @@ public class SettingScreen extends AbstractMapScreen<ClaimContext> {
                 player.getCommandSource().sendError(Texts.toText(e.getRawMessage()));
             }
         } else {
-            ItsOursMod.LOGGER.warn("Tried to set invalid permission: " + permission);
+            ItsOurs.LOGGER.warn("Tried to set invalid permission: " + permission);
         }
     }
 

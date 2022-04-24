@@ -1,14 +1,14 @@
 package me.drex.itsours.mixin;
 
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.util.Color;
-import net.kyori.adventure.text.Component;
+import net.minecraft.text.Text;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BoatItem;
 import net.minecraft.item.Item;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.RaycastContext;
@@ -35,12 +35,12 @@ public abstract class BoatItemMixin extends Item {
     )
     private BlockHitResult canUseBoat(World world, PlayerEntity player, RaycastContext.FluidHandling fluidHandling) {
         BlockHitResult hit = Item.raycast(world, player, fluidHandling);
-        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, hit.getBlockPos());
+        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, hit.getBlockPos());
         if (claim.isEmpty())
             return hit;
         if (!claim.get().hasPermission(player.getUuid(), "use_item." + Registry.ITEM.getId(this).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            claimPlayer.sendError(Component.text("You can't use that item here.").color(Color.RED));
+            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED));
             return BlockHitResult.createMissed(hit.getPos(), hit.getSide(), hit.getBlockPos());
         }
         return hit;

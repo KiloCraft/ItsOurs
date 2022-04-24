@@ -1,6 +1,6 @@
 package me.drex.itsours.mixin;
 
-import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.ItsOurs;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.SaveProperties;
@@ -18,7 +18,7 @@ public abstract class LevelStorageSessionMixin {
             at = @At("HEAD")
     )
     public void onSave(DynamicRegistryManager dynamicRegistryManager, SaveProperties saveProperties, NbtCompound compoundTag, CallbackInfo ci) {
-        if (ItsOursMod.INSTANCE != null) ItsOursMod.INSTANCE.save();
+        if (ItsOurs.INSTANCE != null) ItsOurs.INSTANCE.save();
     }
 
 }

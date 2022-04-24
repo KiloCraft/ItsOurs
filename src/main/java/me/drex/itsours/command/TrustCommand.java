@@ -10,7 +10,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 
 public class TrustCommand extends Command {
 
@@ -52,17 +52,17 @@ public class TrustCommand extends Command {
     public static int execute(ServerCommandSource source, AbstractClaim claim, GameProfile target, Permission.Value trust) throws CommandSyntaxException {
         switch (trust) {
             case TRUE -> {
-                validatePermission(claim, source.getPlayer().getUuid(), "modify.trust");
+                validatePermission(claim, source, "modify.trust");
                 if (claim.getOwner().equals(target.getId()))
-                    throw new SimpleCommandExceptionType(new LiteralText("You can't trust that player")).create();
+                    throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.trust.self")).create();
                 RoleCommand.addRole(source, claim, target, "trusted", 0);
             }
             case FALSE -> {
-                validatePermission(claim, source.getPlayer().getUuid(), "modify.distrust");
+                validatePermission(claim, source, "modify.distrust");
                 RoleCommand.removeRole(source, claim, target, "trusted");
             }
             case UNSET -> {
-                validatePermission(claim, source.getPlayer().getUuid(), "modify.untrust");
+                validatePermission(claim, source, "modify.untrust");
                 RoleCommand.unsetRole(source, claim, target, "trusted");
             }
         }

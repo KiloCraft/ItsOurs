@@ -5,7 +5,14 @@ import net.minecraft.nbt.NbtCompound;
 
 public class Role {
 
+    public static final Role TRUSTED = new Role();
+    public static final Role DEFAULT = new Role();
+
     private final PermissionMap permissions = new PermissionMap(new NbtCompound());
+
+    public Role() {
+        this(new NbtCompound());
+    }
 
     public Role(NbtCompound tag) {
         this.fromNBT(tag);

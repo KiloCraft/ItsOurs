@@ -3,10 +3,7 @@ package me.drex.itsours.gui.util;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
-import me.drex.itsours.ItsOursMod;
-import me.drex.itsours.util.TextComponentUtil;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import me.drex.itsours.ItsOurs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -14,6 +11,7 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import org.apache.commons.codec.binary.Base64;
 
 import java.nio.charset.StandardCharsets;
@@ -25,12 +23,10 @@ import java.util.function.Consumer;
 
 public class ScreenHelper {
 
-    public static void addLore(ItemStack item, Component text) {
+    public static void addLore(ItemStack item, Text text) {
         NbtCompound itemTag = item.getNbt();
 
-        if (!item.hasNbt()) {
-            itemTag = new NbtCompound();
-        }
+        if (itemTag == null) itemTag = new NbtCompound();
 
         if (!itemTag.contains("display")) {
             itemTag.put("display", new NbtCompound());
@@ -38,27 +34,24 @@ public class ScreenHelper {
 
         NbtList lore = itemTag.getCompound("display").getList("Lore", 8);
 
-        if (lore == null) {
-            lore = new NbtList();
-        }
+        if (lore == null) lore = new NbtList();
 
-        lore.add(NbtString.of(Text.Serializer.toJson(TextComponentUtil.from(text))));
+
+        lore.add(NbtString.of(Text.Serializer.toJson(text)));
         itemTag.getCompound("display").put("Lore", lore);
         item.setNbt(itemTag);
     }
 
     public static void addLore(ItemStack itemStack, String... strings) {
         for (String string : strings) {
-            addLore(itemStack, Component.text(string).color(NamedTextColor.WHITE));
+            addLore(itemStack, Text.literal(string).formatted(Formatting.WHITE));
         }
     }
 
     public static void addGlint(ItemStack item) {
         NbtCompound itemTag = item.getNbt();
 
-        if (!item.hasNbt()) {
-            itemTag = new NbtCompound();
-        }
+        if (itemTag == null) itemTag = new NbtCompound();
 
         if (!itemTag.contains("Enchantments")) {
             itemTag.put("Enchantments", new NbtList());
@@ -70,22 +63,22 @@ public class ScreenHelper {
         item.setNbt(itemTag);
     }
 
-    public static void setCustomName(ItemStack item, Component text) {
-        item.setCustomName(TextComponentUtil.from(text));
+    public static void setCustomName(ItemStack item, Text text) {
+        item.setCustomName(text);
     }
 
     public static void setCustomName(ItemStack item, String text) {
-        setCustomName(item, Component.text(text).color(NamedTextColor.GRAY));
+        setCustomName(item, Text.literal(text).formatted(Formatting.GRAY));
     }
 
     public static GameProfile getProfile(UUID uuid) {
-        Optional<GameProfile> optional = ItsOursMod.server.getUserCache().getByUuid(uuid);
+        Optional<GameProfile> optional = ItsOurs.INSTANCE.server.getUserCache().getByUuid(uuid);
         if (optional.isEmpty()) return new GameProfile(uuid, "???");
         return optional.get();
     }
 
     public static String toName(UUID uuid) {
-        Optional<GameProfile> optional = ItsOursMod.server.getUserCache().getByUuid(uuid);
+        Optional<GameProfile> optional = ItsOurs.INSTANCE.server.getUserCache().getByUuid(uuid);
         String text;
         if (optional.isPresent() && optional.get().isComplete()) {
             text = optional.get().getName();
@@ -118,7 +111,7 @@ public class ScreenHelper {
     public static ItemStack createPlayerHead(UUID uuid) {
         ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
         NbtCompound tag = stack.getNbt();
-        if (tag==null) tag = new NbtCompound();
+        if (tag == null) tag = new NbtCompound();
         tag.putString("SkullOwner", toName(uuid));
         stack.setNbt(tag);
         return stack;
@@ -162,8 +155,6 @@ public class ScreenHelper {
             ownerTag.put("Properties", propertiesTag);
 
             consumer.accept(itemStack);
-
-
         });
     }
 

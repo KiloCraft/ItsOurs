@@ -2,7 +2,6 @@ package me.drex.itsours.claim.permission.util.node.util;
 
 
 import com.google.common.collect.Lists;
-import me.drex.itsours.claim.permission.Permission;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
@@ -20,7 +19,6 @@ import java.util.function.Predicate;
 public class Node {
 
     protected final String id;
-    final Permission.Value defaultVal = Permission.Value.UNSET;
     final List<Node> nodes = new ArrayList<>();
     Item item = Items.STONE;
     String information = "-";
@@ -145,10 +143,6 @@ public class Node {
 
     public String getName() {
         return getId();
-    }
-
-    public Permission.Value getDefaultValue() {
-        return this.defaultVal;
     }
 
     public List<Node> getNodes(String input) throws InvalidPermissionException {

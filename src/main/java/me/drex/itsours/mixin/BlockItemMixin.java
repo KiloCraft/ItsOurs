@@ -1,11 +1,9 @@
 package me.drex.itsours.mixin;
 
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.util.Color;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
+import net.minecraft.text.Text;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.Blocks;
@@ -13,8 +11,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.ClickEvent;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import org.spongepowered.asm.mixin.Mixin;
@@ -45,11 +44,11 @@ public abstract class BlockItemMixin extends Item {
     )
     private boolean canPlace(ItemPlacementContext context) {
         if (context.getPlayer() == null) return context.canPlace();
-        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), context.getBlockPos());
+        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(context);
         if (claim.isEmpty()) return context.canPlace();
         if (!claim.get().hasPermission(context.getPlayer().getUuid(), "place." + Registry.BLOCK.getId(this.getBlock()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) context.getPlayer();
-            claimPlayer.sendError(Component.text("You can't place a block here.").color(Color.RED));
+            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.place_block").formatted(Formatting.RED));
             return false;
         }
         return context.canPlace();
@@ -67,16 +66,16 @@ public abstract class BlockItemMixin extends Item {
         if (context.getPlayer() == null) return;
         Block block = this.getBlock();
         BlockPos blockPos = context.getBlockPos();
-        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) context.getWorld(), blockPos);
-        if ((block instanceof BlockWithEntity || block == Blocks.CRAFTING_TABLE) && !claim.isPresent()) {
+        Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt(context);
+        if ((block instanceof BlockWithEntity || block == Blocks.CRAFTING_TABLE) && optional.isEmpty()) {
             PlayerEntity playerEntity = context.getPlayer();
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
-            if (claimPlayer != null && ItsOursMod.INSTANCE.getClaimList().get(playerEntity.getUuid()).isEmpty()) {
-                TextComponent.Builder textComponent = Component.text().content("This " + this.getDefaultStack().getName().getString().toLowerCase() + " is not protected,").color(Color.YELLOW).append(Component.text(" click this ").color(Color.ORANGE)).append(Component.text("message to create a claim, to protect it").color(Color.YELLOW));
-                textComponent.clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claim create"));
-                claimPlayer.sendMessage(textComponent.build());
-                claimPlayer.setRightPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
-                claimPlayer.setLeftPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
+            if (claimPlayer != null && ClaimList.INSTANCE.getClaimsFrom(playerEntity.getUuid()).isEmpty()) {
+                claimPlayer.sendMessage(Text.translatable("text.itsours.info.not_protected",
+                        Text.literal(this.getDefaultStack().getName().getString().toLowerCase()).formatted(Formatting.GOLD)
+                ).formatted(Formatting.YELLOW).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/claim create"))));
+                claimPlayer.setFirstPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
+                claimPlayer.setSecondPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
             }
         }
     }

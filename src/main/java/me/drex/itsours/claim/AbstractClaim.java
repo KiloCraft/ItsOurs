@@ -2,7 +2,7 @@ package me.drex.itsours.claim;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import me.drex.itsours.ItsOursMod;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.RestrictionManager;
@@ -13,55 +13,57 @@ import me.drex.itsours.claim.permission.util.context.Priority;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.user.Settings;
-import me.drex.itsours.util.Color;
-import me.drex.itsours.util.TextComponentUtil;
-import me.drex.itsours.util.WorldUtil;
-import net.kyori.adventure.text.Component;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static me.drex.itsours.claim.AbstractClaim.Util.getPosOnGround;
 
 public abstract class AbstractClaim {
 
     public static final Pattern NAME = Pattern.compile("\\w{3,16}");
+    private static final Logger LOGGER = ItsOurs.LOGGER;
     private static final Block[] SHOW_BLOCKS = {Blocks.GOLD_BLOCK, Blocks.DIAMOND_BLOCK, Blocks.EMERALD_BLOCK, Blocks.REDSTONE_BLOCK, Blocks.LAPIS_BLOCK};
     public BlockPos min, max, tp;
     private String name;
     private UUID owner;
-    private ServerWorld world;
+    private RegistryKey<World> dimension;
     private final List<Subzone> subzoneList = new ArrayList<>();
     private PermissionManager permissionManager;
     private RestrictionManager restrictionManager;
 
-    public AbstractClaim(String name, UUID owner, BlockPos pos1, BlockPos pos2, ServerWorld world, BlockPos tp) {
+    public AbstractClaim(String name, UUID owner, BlockPos first, BlockPos second, ServerWorld world, BlockPos tp) {
         this.name = name;
         this.owner = owner;
-        int x, y, z, mx, my, mz;
-        x = Math.min(pos1.getX(), pos2.getX());
-        mx = Math.max(pos1.getX(), pos2.getX());
-        y = Math.min(pos1.getY(), pos2.getY());
-        my = Math.max(pos1.getY(), pos2.getY());
-        z = Math.min(pos1.getZ(), pos2.getZ());
-        mz = Math.max(pos1.getZ(), pos2.getZ());
-        this.min = new BlockPos(x, y, z);
-        this.max = new BlockPos(mx, my, mz);
-        this.world = world;
+        int minX, minY, minZ, maxX, maxY, maxZ;
+        minX = Math.min(first.getX(), second.getX());
+        maxX = Math.max(first.getX(), second.getX());
+        minY = Math.min(first.getY(), second.getY());
+        maxY = Math.max(first.getY(), second.getY());
+        minZ = Math.min(first.getZ(), second.getZ());
+        maxZ = Math.max(first.getZ(), second.getZ());
+        this.min = new BlockPos(minX, minY, minZ);
+        this.max = new BlockPos(maxX, maxY, maxZ);
+        this.dimension = world.getRegistryKey();
         this.tp = tp;
         this.permissionManager = new PermissionManager(new NbtCompound());
         this.restrictionManager = new RestrictionManager(new NbtCompound());
@@ -87,7 +89,7 @@ public abstract class AbstractClaim {
         this.max = Util.blockPosFromNBT(position.getCompound("max"));
         this.tp = Util.blockPosFromNBT(position.getCompound("tp"));
         // TODO: Add option to ignore claims which are located in unknown worlds
-        this.world = WorldUtil.getWorld(position.getString("world"));
+        this.dimension = World.CODEC.parse(NbtOps.INSTANCE, position.get("world")).resultOrPartial(LOGGER::error).orElse(World.OVERWORLD);
         NbtList list = (NbtList) tag.get("subzones");
         if (list != null) {
             list.forEach(subzones -> {
@@ -109,7 +111,8 @@ public abstract class AbstractClaim {
         if (tp != null) {
             position.put("tp", Util.blockPosToNBT(this.tp));
         }
-        position.putString("world", WorldUtil.toIdentifier(this.world));
+        Identifier.CODEC.encodeStart(NbtOps.INSTANCE, this.dimension.getValue()).resultOrPartial(LOGGER::error).ifPresent(nbt -> position.put("world", nbt));
+
         tag.put("position", position);
         if (!subzoneList.isEmpty()) {
             NbtList list = new NbtList();
@@ -139,8 +142,13 @@ public abstract class AbstractClaim {
         this.owner = owner;
     }
 
+    @Nullable
     public ServerWorld getWorld() {
-        return this.world;
+        return ItsOurs.INSTANCE.server.getWorld(this.dimension);
+    }
+
+    public RegistryKey<World> getDimension() {
+        return this.dimension;
     }
 
     public List<Subzone> getSubzones() {
@@ -159,7 +167,7 @@ public abstract class AbstractClaim {
         if (previousClaim.isEmpty()) {
             PlayerList.set(player.getUuid(), Settings.CACHED_FLIGHT, player.getAbilities().allowFlying);
         }
-        boolean hasPermission = ItsOursMod.hasPermission(player.getCommandSource(), "itsours.fly") && player.getWorld().equals(player.getServer().getOverworld());
+        boolean hasPermission = ItsOurs.hasPermission(player.getCommandSource(), "itsours.fly") && player.getWorld().equals(player.getServer().getOverworld());
         boolean cachedFlying = hasPermission && player.getAbilities().flying;
         // Update abilities for respective gamemode
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
@@ -173,7 +181,7 @@ public abstract class AbstractClaim {
         }
         player.sendAbilitiesUpdate();
         player.networkHandler.sendPacket(new TitleFadeS2CPacket(-1, 20, -1));
-        player.networkHandler.sendPacket(new OverlayMessageS2CPacket(TextComponentUtil.from(TextComponentUtil.of("<gradient:" + Color.AQUA.stringValue() + ":" + Color.PURPLE.stringValue() + ">" + "Welcome to " + this.getFullName(), false))));
+        player.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.translatable("text.itsours.claim.enter", this.getFullName())));
     }
 
     public void onLeave(Optional<AbstractClaim> claim, ServerPlayerEntity player) {
@@ -190,7 +198,7 @@ public abstract class AbstractClaim {
             player.sendAbilitiesUpdate();
         }
         player.networkHandler.sendPacket(new TitleFadeS2CPacket(-1, 20, -1));
-        player.networkHandler.sendPacket(new OverlayMessageS2CPacket(TextComponentUtil.from(TextComponentUtil.of("<gradient:" + Color.AQUA.stringValue() + ":" + Color.PURPLE.stringValue() + ">" + "You left " + this.getFullName(), false))));
+        player.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.translatable("text.itsours.claim.leave", this.getFullName())));
     }
 
     protected PermissionContext getPermissionContext(UUID uuid, Permission permission) {
@@ -227,7 +235,7 @@ public abstract class AbstractClaim {
     private PermissionContext getRolePermissionContext(UUID uuid, Permission permission) {
         PermissionContext context = new PermissionContext(permission);
         for (Object2IntMap.Entry<Role> roleEntry : getRoles(uuid).object2IntEntrySet()) {
-            context.combine(roleEntry.getKey().permissions().getPermission(this, permission, Priority.of(ItsOursMod.INSTANCE.getRoleManager().getRoleID(roleEntry.getKey()), 3, roleEntry.getIntValue())));
+            context.combine(roleEntry.getKey().permissions().getPermission(this, permission, Priority.of(ItsOurs.INSTANCE.getRoleManager().getRoleID(roleEntry.getKey()), 3, roleEntry.getIntValue())));
         }
         if (permission.nodes() > 1) {
             Permission perm = permission.up();
@@ -257,7 +265,7 @@ public abstract class AbstractClaim {
     }
 
     public boolean intersects(AbstractClaim claim) {
-        if (!claim.world.equals(this.world)) return false;
+        if (!claim.dimension.equals(this.dimension)) return false;
         BlockPos a = min, b = max, c = new BlockPos(max.getX(), min.getY(), min.getZ()), d = new BlockPos(min.getX(), max.getY(), min.getZ()), e = new BlockPos(min.getX(), min.getY(), max.getZ()), f = new BlockPos(max.getX(), max.getY(), min.getZ()), g = new BlockPos(max.getX(), min.getY(), max.getZ()), h = new BlockPos(min.getX(), max.getY(), max.getZ());
         return claim.contains(a) || claim.contains(b) || claim.contains(c) || claim.contains(d) || claim.contains(e) || claim.contains(f) || claim.contains(g) || claim.contains(h);
     }
@@ -273,7 +281,7 @@ public abstract class AbstractClaim {
 
     void undoExpand(Direction direction, int amount) {
         this.expand(direction, -amount);
-        for (ServerPlayerEntity player : ItsOursMod.server.getPlayerManager().getPlayerList()) {
+        for (ServerPlayerEntity player : ItsOurs.INSTANCE.server.getPlayerManager().getPlayerList()) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
             if (claimPlayer.getLastShowClaim() == this) {
                 this.show(player, true);
@@ -282,12 +290,12 @@ public abstract class AbstractClaim {
     }
 
     public Optional<AbstractClaim> intersects() {
-        for (AbstractClaim value : ItsOursMod.INSTANCE.getClaimList().get().stream().filter(claim -> claim.getWorld().equals(this.getWorld())).collect(Collectors.toList())) {
-            if (value.getDepth() == this.getDepth() && !this.equals(value) && (this.intersects(value) || value.intersects(this))) {
-                return Optional.of(value);
-            }
-        }
-        return Optional.empty();
+        return ClaimList.INSTANCE.getClaims().stream().filter(claim ->
+                claim.dimension.equals(this.dimension) &&
+                        claim.getDepth() == this.getDepth() &&
+                        !this.equals(claim) &&
+                        (this.intersects(claim) || claim.intersects(this))
+        ).findFirst();
     }
 
     void expand(Direction direction, int amount) {
@@ -333,7 +341,7 @@ public abstract class AbstractClaim {
     }
 
     public void show(boolean show) {
-        for (ServerPlayerEntity player : ItsOursMod.server.getPlayerManager().getPlayerList()) {
+        for (ServerPlayerEntity player : ItsOurs.INSTANCE.server.getPlayerManager().getPlayerList()) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
             if (claimPlayer.getLastShowClaim() == this) {
                 this.show(player, show);
@@ -341,6 +349,7 @@ public abstract class AbstractClaim {
         }
     }
 
+    // TODO: Only send packet if chunk is loaded
     public void show(ServerPlayerEntity player, boolean show) {
         BlockState blockState = show ? SHOW_BLOCKS[Math.min(this.getDepth(), SHOW_BLOCKS.length - 1)].getDefaultState() : null;
         int y = ((ClaimPlayer) player).getLastShowClaim() != null ? ((ClaimPlayer) player).getLastShowPos().getY() : player.getBlockPos().getY();

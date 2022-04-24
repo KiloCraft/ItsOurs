@@ -6,10 +6,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.command.Command;
-import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.util.Color;
 import me.drex.itsours.util.TextPage;
-import net.kyori.adventure.text.Component;
+import net.minecraft.text.Text;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.Formatting;
 
@@ -31,8 +29,10 @@ public class HelpCommand extends Command {
     }
 
     public static int sendHelp(ServerCommandSource src, HelpCategory category, int page) throws CommandSyntaxException {
-        if (category == null)
-            ((ClaimPlayer) src.getPlayer()).sendMessage(Component.text("Unknown help category!").color(Color.RED));
+        if (category == null) {
+            src.sendError(Text.translatable("text.itsours.command.help.unknown_category"));
+            return 0;
+        }
         List<String> lines = new ArrayList<>();
         int from = 0;
         for (int i = 0; i < category.getPages().length; i++) {
@@ -41,7 +41,7 @@ public class HelpCommand extends Command {
             lines.addAll(Arrays.asList(helpPage.getLines()));
         }
         int to = from + category.getPages()[page].getLines().length;
-        TextPage textPage = new TextPage("<green>" + category.getPages()[page].getTitle(), lines, category.getCommand());
+        TextPage textPage = new TextPage("" + category.getPages()[page].getTitle(), lines, category.getCommand());
         textPage.setNumberFormatting("", Formatting.YELLOW);
         textPage.sendEntries(src.getPlayer(), page, category.getPages().length - 1, from, to);
         return 1;

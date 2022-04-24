@@ -1,3 +1,5 @@
+// TODO:
+/*
 package me.drex.itsours.command.bulk;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -80,3 +82,4 @@ public class UpdateCommand extends Command {
         return 1;
     }
 }
+*/

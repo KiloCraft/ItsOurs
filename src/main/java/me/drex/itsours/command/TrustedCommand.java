@@ -3,15 +3,15 @@ package me.drex.itsours.command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.ItsOursMod;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Subzone;
-import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.util.Color;
-import me.drex.itsours.util.TextComponentUtil;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
+import me.drex.itsours.util.Colors;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.util.Formatting;
 
 import java.util.*;
 
@@ -28,23 +28,22 @@ public class TrustedCommand extends Command {
 
     public static int trusted(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
         List<UUID> trusted = getAllTrusted(claim);
-        ClaimPlayer player = (ClaimPlayer) source.getPlayer();
         if (trusted.isEmpty()) {
-            player.sendMessage(Component.text("No one is trusted in " + claim.getName() + ".").color(Color.RED));
+            throw new SimpleCommandExceptionType(Text.translatable("text.itsours.command.trusted.no_one", claim.getName())).create();
         } else {
-            TextComponent.Builder builder = Component.text().content("Trusted:\n").color(Color.ORANGE);
+            MutableText text = Text.translatable("text.itsours.command.trusted.title").formatted(Colors.TITLE_COLOR);
+            text.append("\n");
             for (int i = 0; i < trusted.size(); i++) {
-                builder.append(TextComponentUtil.toName(trusted.get(i), Color.YELLOW));
-                if (i + 1 < trusted.size()) builder.append(Component.text(", ").color(Color.GRAY));
+                text.append(Text.literal(String.valueOf(trusted.get(i))));
+                if (i < trusted.size() - 1) text.append(Text.literal(", ").formatted(Formatting.GRAY));
             }
-            player.sendMessage(builder.build());
+            source.sendFeedback(text, false);
         }
         return trusted.size();
     }
 
     public static Set<UUID> getAllUUIDs(AbstractClaim claim) {
-        if (claim instanceof Subzone) {
-            Subzone subzone = (Subzone) claim;
+        if (claim instanceof Subzone subzone) {
             Set<UUID> set = new HashSet<>(subzone.getPermissionManager().roleManager.keySet());
             set.addAll(getAllUUIDs(subzone.getParent()));
             return set;
@@ -56,7 +55,7 @@ public class TrustedCommand extends Command {
     public static List<UUID> getAllTrusted(AbstractClaim claim) {
         List<UUID> trusted = new ArrayList<>();
         for (UUID uuid : getAllUUIDs(claim)) {
-            if (claim.getRoles(uuid).containsKey(ItsOursMod.INSTANCE.getRoleManager().get("trusted"))) trusted.add(uuid);
+            if (claim.getRoles(uuid).containsKey(ItsOurs.INSTANCE.getRoleManager().get("trusted"))) trusted.add(uuid);
         }
         return trusted;
     }

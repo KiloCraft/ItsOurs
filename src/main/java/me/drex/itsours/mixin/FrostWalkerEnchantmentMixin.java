@@ -1,7 +1,7 @@
 package me.drex.itsours.mixin;
 
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.ClaimList;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.FrostWalkerEnchantment;
 import net.minecraft.entity.LivingEntity;
@@ -39,7 +39,7 @@ public abstract class FrostWalkerEnchantmentMixin {
             )
     )
     private static boolean canFreezeWater(BlockState blockState, WorldView world, BlockPos pos) {
-        Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) world, pos);
+        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, pos);
         return claim.isEmpty() || !(livingEntity instanceof ServerPlayerEntity) || claim.get().hasPermission(livingEntity.getUuid(), "place.frosted_ice");
     }
 

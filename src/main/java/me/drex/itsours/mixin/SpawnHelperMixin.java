@@ -1,7 +1,7 @@
 package me.drex.itsours.mixin;
 
-import me.drex.itsours.ItsOursMod;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.ClaimList;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.FluidState;
@@ -26,8 +26,7 @@ public abstract class SpawnHelperMixin {
     )
     private static void canPhantomsSpawn(BlockView blockView, BlockPos pos, BlockState state, FluidState fluidState, EntityType<?> entityType, CallbackInfoReturnable<Boolean> cir) {
         if (blockView instanceof ServerWorld) {
-            if (ItsOursMod.INSTANCE == null || ItsOursMod.INSTANCE.getClaimList() == null) return;
-            Optional<AbstractClaim> claim = ItsOursMod.INSTANCE.getClaimList().get((ServerWorld) blockView, pos);
+            Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) blockView, pos);
             if (claim.isPresent() && !claim.get().getSetting("mobspawn") && entityType.equals(EntityType.PHANTOM)) {
                 cir.setReturnValue(false);
             }
