@@ -14,6 +14,10 @@ import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionList;
+import me.drex.itsours.claim.permission.rework.PermissionInterface;
+import me.drex.itsours.claim.permission.rework.PermissionRework;
+import me.drex.itsours.claim.permission.rework.Value;
+import me.drex.itsours.claim.permission.util.node.util.InvalidPermissionException;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.command.help.HelpCategory;
 import me.drex.itsours.command.util.SafeConsumer;
@@ -69,6 +73,7 @@ public abstract class Command {
         List<String> permissions = new ArrayList<>(getPermissions(PermissionList.INSTANCE.permission, "", builder.getRemaining()));
         return CommandSource.suggestMatching(permissions, builder);
     };
+
     public static final SuggestionProvider<ServerCommandSource> SETTING_PROVIDER = (source, builder) -> {
         List<String> settings = new ArrayList<>(getPermissions(PermissionList.INSTANCE.setting, "", builder.getRemaining()));
         settings.addAll(getPermissions(PermissionList.INSTANCE.permission, "", builder.getRemaining()));
@@ -212,11 +217,19 @@ public abstract class Command {
         throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.no_claim_with_name")).create();
     }
 
-    public static Permission getPermission(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    /*public static Permission getPermission(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         Optional<Permission> permission = Permission.permission(StringArgumentType.getString(ctx, "perm"));
         if (permission.isEmpty())
             throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.unknown_permission")).create();
         return permission.get();
+    }*/
+
+    public static PermissionInterface getPermission(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        try {
+            return PermissionRework.permission(StringArgumentType.getString(ctx, "perm"));
+        } catch (InvalidPermissionException e) {
+            throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.unknown_permission")).create();
+        }
     }
 
     public static Permission getSetting(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
@@ -226,10 +239,10 @@ public abstract class Command {
         return setting.get();
     }
 
-    public static Permission.Value getPermissionValue(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    public static Value getPermissionValue(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         String value = StringArgumentType.getString(ctx, "value");
-        for (Permission.Value val : Permission.Value.values()) {
-            if (val.translationId.equalsIgnoreCase(value)) return val;
+        for (Value val : Value.values()) {
+            if (val.literal.equalsIgnoreCase(value)) return val;
         }
         throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.invalid_permission_value")).create();
     }

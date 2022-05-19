@@ -4,8 +4,8 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionList;
+import me.drex.itsours.claim.permission.rework.Value;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.command.TrustCommand;
@@ -49,13 +49,13 @@ public class TrustedScreen extends PagedScreen<ClaimContext> {
         CompletableFuture.runAsync(() -> {
             for (UUID uuid : allUUIDs) {
                 Role trusted = ItsOurs.INSTANCE.getRoleManager().getRole("trusted");
-                Permission.Value value;
+                Value value;
                 if (claim.getPermissionManager().getPlayerRoleManager(uuid).getRemoved().contains(trusted)) {
-                    value = Permission.Value.FALSE;
+                    value = Value.DENY;
                 } else if (claim.getPermissionManager().getPlayerRoleManager(uuid).getRoles().containsKey(trusted)) {
-                    value = Permission.Value.TRUE;
+                    value = Value.ALLOW;
                 } else {
-                    value = Permission.Value.UNSET;
+                    value = Value.UNSET;
                 }
                 ItemStack playerHead = new ItemStack(Items.PLAYER_HEAD);
                 String name = ScreenHelper.toName(uuid);
@@ -103,15 +103,15 @@ public class TrustedScreen extends PagedScreen<ClaimContext> {
         return "Player Manager (" + context.getClaim().getName() + ")";
     }
 
-    private void addToggle(UUID uuid, Permission.Value value) {
+    private void addToggle(UUID uuid, Value value) {
         Text text;
         ItemStack state;
         switch (value) {
-            case TRUE -> {
+            case ALLOW -> {
                 state = new ItemStack(Items.LIME_STAINED_GLASS_PANE);
                 text = Text.translatable("text.itsours.gui.trust.item.hover.trusted").formatted(Formatting.GREEN);
             }
-            case FALSE -> {
+            case DENY -> {
                 state = new ItemStack(Items.RED_STAINED_GLASS_PANE);
                 text = Text.translatable("text.itsours.gui.trust.item.hover.distrusted").formatted(Formatting.RED);
             }
@@ -125,7 +125,7 @@ public class TrustedScreen extends PagedScreen<ClaimContext> {
         state.setCustomName(text);
         SlotEntry<ClaimContext> slotEntry = new SlotEntry<>(state, (claimContext, leftClick, shiftClick) -> {
             int ordinal = value.ordinal() + 1;
-            Permission.Value next = Permission.Value.values()[ordinal % 3];
+            Value next = Value.values()[ordinal % 3];
             GameProfile target = ScreenHelper.getProfile(uuid);
             try {
                 TrustCommand.execute(player.getCommandSource(), claimContext.getClaim(), target, next);

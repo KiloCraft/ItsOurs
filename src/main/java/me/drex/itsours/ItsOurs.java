@@ -1,6 +1,7 @@
 package me.drex.itsours;
 
 import me.drex.itsours.claim.permission.PermissionList;
+import me.drex.itsours.claim.permission.rework.PermissionManager;
 import me.drex.itsours.claim.permission.roles.RoleManager;
 import me.drex.itsours.command.CommandManager;
 import me.drex.itsours.data.DataHandler;
@@ -33,12 +34,14 @@ public class ItsOurs {
     protected void registerEvents() {
         ServerLifecycleEvents.SERVER_STARTING.register(server -> this.server = server);
         CommandRegistrationCallback.EVENT.register(CommandManager::register);
+        CommandRegistrationCallback.EVENT.register(me.drex.itsours.command.rework.CommandManager.INSTANCE::register);
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerReady);
     }
 
     public void onServerReady(MinecraftServer server) {
         PermissionList.INSTANCE.register();
         PlayerEventListener.registerPlayerListeners();
+        PermissionManager.register();
         load(server);
     }
 

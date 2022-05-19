@@ -2,6 +2,7 @@ package me.drex.itsours.claim;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import me.drex.itsours.util.ClaimBox;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
@@ -26,7 +27,7 @@ public class ClaimList {
     private ClaimList() {
     }
 
-    public void fromNBT(@Nullable NbtList tag) {
+    public void load(@Nullable NbtList tag) {
         if (tag == null) return;
         for (NbtElement element : tag) {
             Claim claim = new Claim((NbtCompound) element);
@@ -37,7 +38,7 @@ public class ClaimList {
         }
     }
 
-    public NbtList toNBT() {
+    public NbtList save() {
         NbtList list = new NbtList();
         for (AbstractClaim claim : claims) {
             // Main claims handle serialization of subzones
@@ -55,8 +56,8 @@ public class ClaimList {
         ownerClaims.add(claim);
         byOwner.put(claim.getOwner(), ownerClaims);
 
-        BlockPos min = claim.min;
-        BlockPos max = claim.max;
+        BlockPos min = claim.getBox().getMin();
+        BlockPos max  = claim.getBox().getMax();
         for (int x = min.getX() >> FACTOR; x <= max.getX() >> FACTOR; x++) {
             for (int z = min.getZ() >> FACTOR; z <= max.getZ() >> FACTOR; z++) {
                 long l = ChunkPos.toLong(x, z);
@@ -74,8 +75,8 @@ public class ClaimList {
         ownerClaims.remove(claim);
         byOwner.put(claim.getOwner(), ownerClaims);
 
-        BlockPos min = claim.min;
-        BlockPos max = claim.max;
+        BlockPos min = claim.getBox().getMin();
+        BlockPos max  = claim.getBox().getMax();
         for (int x = min.getX() >> FACTOR; x <= max.getX() >> FACTOR; x++) {
             for (int z = min.getZ() >> FACTOR; z <= max.getZ() >> FACTOR; z++) {
                 long l = ChunkPos.toLong(x, z);

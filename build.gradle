@@ -16,10 +16,6 @@ repositories {
     mavenCentral()
 }
 
-loom {
-    accessWidenerPath.set(file("src/main/resources/itsours.accesswidener"))
-}
-
 dependencies {
     //to change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"

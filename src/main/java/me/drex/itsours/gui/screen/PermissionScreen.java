@@ -1,20 +1,13 @@
 package me.drex.itsours.gui.screen;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.ItsOurs;
-import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.claim.permission.rework.Value;
 import me.drex.itsours.claim.permission.util.node.util.Node;
-import me.drex.itsours.command.PermissionCommand;
 import me.drex.itsours.gui.util.ScreenHelper;
 import me.drex.itsours.gui.util.SlotEntry;
 import me.drex.itsours.gui.util.context.PermissionContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
-
-import java.util.Optional;
 
 public class PermissionScreen extends AbstractMapScreen<PermissionContext> {
 
@@ -32,23 +25,31 @@ public class PermissionScreen extends AbstractMapScreen<PermissionContext> {
     }
 
     @Override
-    public void executeSet(String permission, Permission.Value value) {
-        GameProfile target = ScreenHelper.getProfile(context.getUUID());
-        Optional<Permission> optional = Permission.permission(permission);
+    public void executeSet(String id, Value value) {
+        /*GameProfile target = ScreenHelper.getProfile(context.getUUID());
+        try {
+            PermissionRework permission = PermissionRework.permission(id);
+            //PermissionCommand.setPermission(player.getCommandSource(), context.getClaim(), target, permission, value);
+        } catch (InvalidPermissionException e) {
+            ItsOurs.LOGGER.warn(e);
+        }
+        Optional<Permission> optional = Permission.permission(id);
         if (optional.isPresent()) {
             try {
-                PermissionCommand.setPermission(player.getCommandSource(), context.getClaim(), target, optional.get(), value);
+                //PermissionCommand.setPermission(player.getCommandSource(), context.getClaim(), target, optional.get(), value);
             } catch (CommandSyntaxException e) {
                 player.getCommandSource().sendError(Texts.toText(e.getRawMessage()));
             }
         } else {
-            ItsOurs.LOGGER.warn("Tried to set invalid permission: " + permission);
-        }
+            ItsOurs.LOGGER.warn("Tried to set invalid permission: " + id);
+        }*/
     }
 
     @Override
-    public Permission.Value getValue(String perm) {
-        return context.getClaim().getPermissionManager().getPlayerPermission(context.getUUID()).getValue(perm);
+    public Value getValue(String perm) {
+        // TODO:
+        return Value.UNSET;
+        //return context.getClaim().getPermissionManager().getPlayerPermission(context.getUUID()).getValue(perm);
     }
 
     @Override

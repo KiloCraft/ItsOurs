@@ -71,35 +71,11 @@ public class Permission {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Permission) {
-            Permission other = (Permission) obj;
+        if (obj instanceof Permission other) {
             return other.asString().equals(this.asString());
         } else {
             return false;
         }
     }
 
-    public enum Value {
-        TRUE(true, "text.itsours.value.true", Formatting.GREEN),
-        FALSE(false, "text.itsours.value.false", Formatting.RED),
-        UNSET(false, "text.itsours.value.unset", Formatting.GRAY);
-
-        public final boolean value;
-        public final String translationId;
-        public final Formatting formatting;
-
-        Value(boolean value, String translationId, Formatting formatting) {
-            this.value = value;
-            this.translationId = translationId;
-            this.formatting = formatting;
-        }
-
-        public static Value of(boolean value) {
-            return value ? TRUE : FALSE;
-        }
-
-        public Text format() {
-            return Text.translatable(this.translationId).formatted(formatting);
-        }
-    }
 }

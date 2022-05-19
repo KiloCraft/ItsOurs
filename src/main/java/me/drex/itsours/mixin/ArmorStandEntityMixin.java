@@ -39,7 +39,7 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
         if (claim.isEmpty()) return;
         if (!claim.get().hasPermission(player.getUuid(), "interact_entity." + Registry.ENTITY_TYPE.getId(this.getType()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_entity").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.interact_entity").formatted(Formatting.RED));
             cir.setReturnValue(ActionResult.FAIL);
         }
     }

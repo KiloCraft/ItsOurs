@@ -3,19 +3,22 @@ package me.drex.itsours.claim.permission;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.permission.Permission.Value;
+import me.drex.itsours.claim.permission.rework.Value;
+import me.drex.itsours.claim.permission.rework.PermissionInterface;
+import me.drex.itsours.claim.permission.rework.PermissionStorage;
+import me.drex.itsours.claim.permission.rework.PermissionVisitor;
+import me.drex.itsours.claim.permission.rework.context.PersonalContext;
+import me.drex.itsours.claim.permission.rework.context.GlobalContext;
 import me.drex.itsours.claim.permission.roles.PlayerRoleManager;
 import me.drex.itsours.claim.permission.roles.Role;
-import me.drex.itsours.claim.permission.util.PermissionMap;
-import me.drex.itsours.claim.permission.util.context.PermissionContext;
-import me.drex.itsours.claim.permission.util.context.Priority;
 import net.minecraft.nbt.NbtCompound;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class PermissionManager {
-    public PermissionMap settings = new PermissionMap(new NbtCompound());
-    public HashMap<UUID, PermissionMap> playerPermission = new HashMap<>();
+    public PermissionStorage settings = PermissionStorage.storage();
+    public HashMap<UUID, PermissionStorage> playerPermission = new HashMap<>();
     public HashMap<UUID, PlayerRoleManager> roleManager = new HashMap<>();
 
     public PermissionManager(NbtCompound tag) {
@@ -23,13 +26,13 @@ public class PermissionManager {
     }
 
     private void fromNBT(NbtCompound tag) {
-        if (tag.contains("settings")) settings.fromNBT(tag.getCompound("settings"));
+        if (tag.contains("settings")) settings.load(tag.getCompound("settings"));
         if (tag.contains("players")) {
             NbtCompound players = tag.getCompound("players");
             players.getKeys().forEach(uuid -> {
                 NbtCompound player = players.getCompound(uuid);
                 if (player.contains("permission"))
-                    playerPermission.put(UUID.fromString(uuid), new PermissionMap(player.getCompound("permission")));
+                    playerPermission.put(UUID.fromString(uuid), PermissionStorage.fromNbt(player.getCompound("permission")));
                 if (player.contains("role")) {
                     roleManager.put(UUID.fromString(uuid), new PlayerRoleManager(player.getCompound("role")));
                 }
@@ -47,10 +50,10 @@ public class PermissionManager {
         for (UUID uuid : uuidSet) {
             boolean shouldSave = false;
             NbtCompound player = new NbtCompound();
-            PermissionMap pm = playerPermission.get(uuid);
-            if (pm != null) {
-                player.put("permission", pm.toNBT());
-                if (pm.size() > 0) shouldSave = true;
+            PermissionStorage storage = playerPermission.get(uuid);
+            if (storage != null) {
+                player.put("permission", storage.save());
+                if (storage.size() > 0) shouldSave = true;
             }
             PlayerRoleManager prm = roleManager.get(uuid);
             if (prm != null) {
@@ -60,7 +63,7 @@ public class PermissionManager {
             if (shouldSave) players.put(uuid.toString(), player);
         }
 
-        if (!settings.isEmpty()) tag.put("settings", settings.toNBT());
+        if (!settings.isEmpty()) tag.put("settings", settings.save());
         tag.put("players", players);
         return tag;
     }
@@ -106,39 +109,34 @@ public class PermissionManager {
         return list;
     }
 
-    public List<UUID> getTrustedPlayers() {
-        return getPlayersWithRole("trusted");
+    public void visit(AbstractClaim claim, @Nullable UUID uuid, PermissionInterface permission, PermissionVisitor visitor) {
+        settings.visit(claim, permission, GlobalContext.INSTANCE, visitor);
+        if (uuid != null) {
+            PermissionStorage playerPermissionStorage = playerPermission.get(uuid);
+            if (playerPermissionStorage != null) {
+                playerPermissionStorage.visit(claim, permission, new PersonalContext(uuid), visitor);
+                // TODO: roles
+            }
+        }
     }
 
-    public PermissionContext getPermissionContext(AbstractClaim claim, UUID uuid, Permission permission) {
-        PermissionContext context = new PermissionContext(permission);
-        context.combine(settings.getPermission(claim, permission, Priority.SETTING));
-        if (playerPermission.get(uuid) != null) {
-            context.combine(playerPermission.get(uuid).getPermission(claim, permission, Priority.PERMISSION));
+    public void setPermission(UUID uuid, PermissionInterface permission, Value value) {
+        PermissionStorage storage = playerPermission.get(uuid);
+        if (storage == null) {
+            storage = PermissionStorage.storage();
+            playerPermission.put(uuid, storage);
         }
-        if (permission.nodes() > 1) {
-            Permission perm = permission.up();
-            context.combine(getPermissionContext(claim, uuid, perm));
-        }
-        return context;
+        storage.set(permission, value);
     }
 
-
-    public void setPlayerPermission(UUID uuid, Permission permission, Value value) {
-        PermissionMap pm = playerPermission.get(uuid);
-        if (pm == null) {
-            pm = new PermissionMap(new NbtCompound());
-            playerPermission.put(uuid, pm);
-        }
-        pm.setPermission(permission.asString(), value);
+    public Value getPermission(UUID uuid, PermissionInterface permission) {
+        return getPermission(uuid).get(permission);
     }
 
-    public PermissionMap getPlayerPermission(UUID uuid) {
-        PermissionMap pm = playerPermission.get(uuid);
-        if (pm == null) {
-            pm = new PermissionMap(new NbtCompound());
-        }
-        return pm;
+    public PermissionStorage getPermission(UUID uuid) {
+        PermissionStorage storage = playerPermission.get(uuid);
+        if (storage == null) return PermissionStorage.storage();
+        return storage;
     }
 
     public PlayerRoleManager getPlayerRoleManager(UUID uuid) {

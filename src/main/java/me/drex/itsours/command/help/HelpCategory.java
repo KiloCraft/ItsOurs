@@ -25,7 +25,7 @@ public enum HelpCategory {
     }
 
     public String getCommand() {
-        return "/claim help " + this.id + " %s";
+        return "claim help " + this.id + " %s";
     }
 
     public HelpPage[] getPages() {

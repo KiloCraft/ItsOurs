@@ -6,7 +6,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionList;
-import me.drex.itsours.claim.permission.util.context.Priority;
+import me.drex.itsours.claim.permission.rework.Value;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -39,17 +39,19 @@ public class SettingCommand extends Command {
 
     public static int checkSetting(ServerCommandSource source, AbstractClaim claim, Permission setting) throws CommandSyntaxException {
         validatePermission(claim, source, "modify.setting");
-        source.sendFeedback(Text.translatable("text.itsours.command.setting.check",
+        // TODO:
+        /*source.sendFeedback(Text.translatable("text.itsours.command.setting.check",
                 setting.asString(),
                 claim.getFullName(),
                 claim.getPermissionManager().settings.getPermission(claim, setting, Priority.SETTING).getValue().format()
-        ), false);
+        ), false);*/
         return 1;
     }
 
-    public static int setSetting(ServerCommandSource source, AbstractClaim claim, Permission setting, Permission.Value value) throws CommandSyntaxException {
+    public static int setSetting(ServerCommandSource source, AbstractClaim claim, Permission setting, Value value) throws CommandSyntaxException {
         validatePermission(claim, source, "modify.setting");
-        claim.getPermissionManager().settings.setPermission(setting.asString(), value);
+        // TODO:
+        //claim.getPermissionManager().settings.setPermission(setting.asString(), value);
         source.sendFeedback(Text.translatable("text.itsours.command.setting.set", setting.asString(), claim.getFullName(), value.format()), false);
         return 0;
     }

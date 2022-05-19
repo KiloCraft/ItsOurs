@@ -48,7 +48,7 @@ public class ExpandCommand extends Command {
         distance *= expand ? 1 : -1;
         Direction direction = Direction.getEntityFacingOrder(source.getPlayer())[0];
         claim.show(source.getPlayer(), false);
-        int amount = claim.expand(uuid, direction, distance);
+        int amount = /*claim.expand(uuid, direction, distance);*/0;
         claim.show(source.getPlayer(), true);
         if (claim instanceof Claim) {
             int blocks = PlayerList.get(uuid, Settings.BLOCKS);

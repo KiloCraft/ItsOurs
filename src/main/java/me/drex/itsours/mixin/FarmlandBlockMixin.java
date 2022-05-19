@@ -31,7 +31,7 @@ public abstract class FarmlandBlockMixin {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, pos);
         if (claim.isPresent() && entity instanceof ServerPlayerEntity && !claim.get().hasPermission(entity.getUuid(), "mine.farmland")) {
             ClaimPlayer claimPlayer = (ClaimPlayer) entity;
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.break_block").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.break_block").formatted(Formatting.RED));
             ci.cancel();
         }
     }

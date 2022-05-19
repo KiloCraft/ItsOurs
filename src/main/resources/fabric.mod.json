@@ -25,7 +25,6 @@
   "mixins": [
     "itsours.mixins.json"
   ],
-  "accessWidener": "itsours.accesswidener",
   "depends": {
     "fabricloader": ">=0.9.0",
     "fabric-api-base": "*",

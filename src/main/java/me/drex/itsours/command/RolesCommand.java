@@ -7,11 +7,11 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.claim.permission.rework.Value;
 import me.drex.itsours.claim.permission.roles.Role;
 import net.minecraft.text.Text;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 
@@ -41,7 +41,8 @@ public class RolesCommand extends Command {
         }
         {
             RequiredArgumentBuilder<ServerCommandSource, String> value = permissionValueArgument();
-            value.executes(ctx -> setPermission(ctx.getSource(), StringArgumentType.getString(ctx, "name"), getPermission(ctx), getPermissionValue(ctx)));
+            // TODO:
+            //value.executes(ctx -> setPermission(ctx.getSource(), StringArgumentType.getString(ctx, "name"), getPermission(ctx), getPermissionValue(ctx)));
             RequiredArgumentBuilder<ServerCommandSource, String> perm = permissionArgument();
             RequiredArgumentBuilder<ServerCommandSource, String> name = roleArgument();
             name.executes(ctx -> listPermission(ctx.getSource(), StringArgumentType.getString(ctx, "name")));
@@ -74,11 +75,12 @@ public class RolesCommand extends Command {
         return 1;
     }
 
-    public static int setPermission(ServerCommandSource source, String name, Permission permission, Permission.Value value) throws CommandSyntaxException {
+    public static int setPermission(ServerCommandSource source, String name, Permission permission, Value value) throws CommandSyntaxException {
         if (!ItsOurs.INSTANCE.getRoleManager().containsKey(name))
             throw UNKNOWN_ROLE.create();
         Role role = ItsOurs.INSTANCE.getRoleManager().get(name);
-        role.permissions().setPermission(permission.asString(), value);
+        // TODO:
+        //role.permissions().setPermission(permission.asString(), value);
         source.sendFeedback(Text.translatable("text.itsours.command.roles.set_permission", permission.asString(), name, value).formatted(Formatting.GREEN), false);
         return 1;
     }

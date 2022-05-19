@@ -12,7 +12,6 @@ public class CommandManager {
         LiteralArgumentBuilder<ServerCommandSource> main = LiteralArgumentBuilder.literal("claim");
         main.executes(ctx -> HelpCommand.sendHelp(ctx.getSource(), HelpCategory.GET_STARTED, 0));
         BlocksCommand.register(main);
-        //BulkCommand.register(main);
         CreateCommand.register(main);
         ExpandCommand.register(main);
         FlyCommand.register(main);

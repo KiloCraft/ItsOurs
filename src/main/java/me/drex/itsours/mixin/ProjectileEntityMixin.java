@@ -46,14 +46,14 @@ public abstract class ProjectileEntityMixin extends Entity {
         }
         ClaimPlayer claimPlayer = (ClaimPlayer) entity.getOwner();
         if (!claim.get().getSetting("pvp") && hitResult.getEntity() instanceof PlayerEntity) {
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_player").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.damage_player").formatted(Formatting.RED));
             if (entity instanceof PersistentProjectileEntity) {
                 if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill();
             }
             return;
         }
         if (!claim.get().hasPermission(entity.getOwner().getUuid(), "damage_entity." + Registry.ENTITY_TYPE.getId(hitResult.getEntity().getType()).getPath()) && !(hitResult.getEntity() instanceof PlayerEntity)) {
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_entity").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.damage_entity").formatted(Formatting.RED));
             if (entity instanceof PersistentProjectileEntity) {
                 if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill();
             }

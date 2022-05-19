@@ -4,6 +4,7 @@ package me.drex.itsours.gui.screen;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.claim.permission.rework.Value;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.command.SettingCommand;
 import me.drex.itsours.gui.util.ScreenHelper;
@@ -28,7 +29,7 @@ public class SettingScreen extends AbstractMapScreen<ClaimContext> {
     }
 
     @Override
-    public void executeSet(String permission, Permission.Value value) {
+    public void executeSet(String permission, Value value) {
         Optional<Permission> optional = Permission.setting(permission);
         if (optional.isPresent()) {
             try {
@@ -42,8 +43,10 @@ public class SettingScreen extends AbstractMapScreen<ClaimContext> {
     }
 
     @Override
-    public Permission.Value getValue(String perm) {
-        return context.getClaim().getPermissionManager().settings.getValue(perm);
+    public Value getValue(String perm) {
+        //return context.getClaim().getPermissionManager().settings.getValue(perm);
+        // TODO:
+        return Value.UNSET;
     }
 
     @Override

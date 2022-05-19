@@ -44,7 +44,7 @@ public class PlayerRoleManager {
     public boolean removeRole(Role role) {
         boolean changed = false;
         if (roles.containsKey(role)) {
-            roles.remove(role);
+            roles.removeInt(role);
             changed = true;
         }
         if (!removed.contains(role)) {
@@ -57,7 +57,7 @@ public class PlayerRoleManager {
     public boolean unsetRole(Role role) {
         boolean changed = false;
         if (roles.containsKey(role)) {
-            roles.remove(role);
+            roles.removeInt(role);
             changed = true;
         }
         if (removed.contains(role)) {
@@ -81,8 +81,7 @@ public class PlayerRoleManager {
             if (tag.contains("removed")) {
                 NbtList nbtList = tag.getList("removed", 8);
                 for (NbtElement nbtElement : nbtList) {
-                    if (nbtElement instanceof NbtString) {
-                        NbtString nbtString = (NbtString) nbtElement;
+                    if (nbtElement instanceof NbtString nbtString) {
                         Role role = ItsOurs.INSTANCE.getRoleManager().get(nbtString.asString());
                         if (role != null) {
                             removed.add(role);

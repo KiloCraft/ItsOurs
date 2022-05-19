@@ -43,18 +43,18 @@ public abstract class EntityMixin {
 
     @Inject(method = "setPos", at = @At("RETURN"))
     public void itsours$doPostPosActions(CallbackInfo ci) {
-        if ((Object) this instanceof ServerPlayerEntity) {
-            ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
+        if ((Object) this instanceof ServerPlayerEntity player) {
             if (player.getBlockPos() == null) return;
             Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(player);
             if (!pclaim.equals(claim)) {
                 if (player.networkHandler != null) {
-                    pclaim.ifPresent(c -> c.onLeave(claim, player));
+                    // TODO: Cleaner solution
+                    pclaim.ifPresent(c -> c.onLeave(claim.orElse(null), player));
                     claim.ifPresent(c -> {
                         if (c.getRestrictionManager().canEnter(player.getUuid())) {
                             if (pclaim.isPresent()) {
                                 if (pclaim.get().getRestrictionManager().canEnter(player.getUuid())) {
-                                    c.onEnter(pclaim, player);
+                                    c.onEnter(pclaim.get(), player);
                                 } else {
                                     player.requestTeleport(ppos.getX(), ppos.getY(), ppos.getZ());
                                 }
@@ -62,7 +62,7 @@ public abstract class EntityMixin {
                                 player.requestTeleport(ppos.getX(), ppos.getY(), ppos.getZ());
                             }
                         } else {
-                            c.onEnter(pclaim, player);
+                            c.onEnter(pclaim.orElse(null), player);
                         }
                     });
                 }
@@ -83,8 +83,7 @@ public abstract class EntityMixin {
             }
         } else if (entity instanceof ServerPlayerEntity && blockState.getBlock() instanceof AbstractPressurePlateBlock) {
             playerEntity = (ServerPlayerEntity) entity;
-        } else if (entity instanceof ItemEntity && blockState.getBlock() instanceof AbstractPressurePlateBlock) {
-            ItemEntity item = (ItemEntity) entity;
+        } else if (entity instanceof ItemEntity item && blockState.getBlock() instanceof AbstractPressurePlateBlock) {
             if (item.getThrower() != null) {
                 playerEntity = ItsOurs.INSTANCE.server.getPlayerManager().getPlayer(item.getThrower());
             }
@@ -100,7 +99,7 @@ public abstract class EntityMixin {
         }
         if (!claim.get().hasPermission(playerEntity.getUuid(), "interact_block." + Registry.BLOCK.getId(blockState.getBlock()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED));
             return;
         }
         blockState.onEntityCollision(world, pos, entity);

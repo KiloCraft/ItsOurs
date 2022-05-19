@@ -42,11 +42,11 @@ public abstract class PlayerEntityMixin extends LivingEntity {
             return entity.isAttackable();
         }
         if (!claim.get().getSetting("pvp") && entity instanceof PlayerEntity) {
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_player").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.damage_player").formatted(Formatting.RED));
             return false;
         }
         if (!claim.get().hasPermission(this.getUuid(), "damage_entity." + Registry.ENTITY_TYPE.getId(entity.getType()).getPath()) && !(entity instanceof PlayerEntity)) {
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_entity").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.damage_entity").formatted(Formatting.RED));
             return false;
         }
         return entity.isAttackable();
@@ -66,11 +66,11 @@ public abstract class PlayerEntityMixin extends LivingEntity {
             return livingEntity.damage(DamageSource.player((PlayerEntity) (Object)this), amount);
         }
         if (!claim.get().getSetting("pvp") && livingEntity instanceof PlayerEntity) {
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_player").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.damage_player").formatted(Formatting.RED));
             return false;
         }
         if (!claim.get().hasPermission(this.getUuid(), "damage_entity." + Registry.ENTITY_TYPE.getId(livingEntity.getType()).getPath()) && !(livingEntity instanceof PlayerEntity)) {
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_entity").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.damage_entity").formatted(Formatting.RED));
             return false;
         }
         return livingEntity.damage(DamageSource.player((PlayerEntity) (Object)this), amount);
@@ -90,7 +90,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         if (!claim.get().hasPermission(this.getUuid(), "interact_entity." + Registry.ENTITY_TYPE.getId(entity.getType()).getPath()))
         {
             ClaimPlayer claimPlayer = (ClaimPlayer) this;
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_entity").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.interact_entity").formatted(Formatting.RED));
             return ActionResult.FAIL;
         }
         return entity.interact(player, hand);

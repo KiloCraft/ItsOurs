@@ -6,16 +6,14 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionList;
-import me.drex.itsours.claim.permission.util.context.ContextEntry;
-import me.drex.itsours.claim.permission.util.context.PermissionContext;
+import me.drex.itsours.claim.permission.rework.PermissionInterface;
+import me.drex.itsours.claim.permission.rework.Value;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.util.Colors;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
 
 public class PermissionCommand extends Command {
 
@@ -52,11 +50,12 @@ public class PermissionCommand extends Command {
         ServerCommandSource source = ctx.getSource();
         AbstractClaim claim = getClaim(ctx);
         validatePermission(claim, source, "modify.permission");
-        Permission permission = getPermission(ctx);
+        PermissionInterface permission = getPermission(ctx);
 
         getGameProfile(ctx).thenAccept(optional -> {
             optional.ifPresent(gameProfile -> {
-                PermissionContext context = claim.getContext(gameProfile.getId(), permission);
+                // TODO:
+                /*PermissionContext context = claim.getContext(gameProfile.getId(), permission);
                 MutableText hover = Text.empty();
                 MutableText builder = Text.empty();
                 for (ContextEntry entry : context.getEntries()) {
@@ -68,21 +67,21 @@ public class PermissionCommand extends Command {
                             entry.getValue().format()
                     ));
                     hover.append("\n");
-                }
-                ctx.getSource().sendFeedback(Text.translatable("text.itsours.command.permission.check",
+                }*/
+                /*ctx.getSource().sendFeedback(Text.translatable("text.itsours.command.permission.check",
                         permission.asString(),
                         claim.getFullName(),
                         context.getValue().format(),
                         gameProfile
-                ).styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover))), false);
+                ).styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover))), false);*/
             });
         });
         return 1;
     }
 
-    public static void setPermission(ServerCommandSource source, AbstractClaim claim, GameProfile profile, Permission permission, Permission.Value value) throws CommandSyntaxException {
+    public static void setPermission(ServerCommandSource source, AbstractClaim claim, GameProfile profile, PermissionInterface permission, Value value) throws CommandSyntaxException {
         validatePermission(claim, source, "modify.permission");
-        claim.getPermissionManager().setPlayerPermission(profile.getId(), permission, value);
+        claim.getPermissionManager().setPermission(profile.getId(), permission, value);
         source.sendFeedback(Text.translatable("text.itsours.command.permission.set",
                 permission.asString(),
                 claim.getFullName(),
@@ -94,8 +93,8 @@ public class PermissionCommand extends Command {
     public static int setPermission(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerCommandSource source = ctx.getSource();
         AbstractClaim claim = getClaim(ctx);
-        Permission permission = getPermission(ctx);
-        Permission.Value value = getPermissionValue(ctx);
+        PermissionInterface permission = getPermission(ctx);
+        Value value = getPermissionValue(ctx);
         getGameProfile(ctx).thenAccept(optional -> {
             optional.ifPresent(gameProfile -> {
                 try {
@@ -114,9 +113,9 @@ public class PermissionCommand extends Command {
         getGameProfile(ctx).thenAccept(optional -> {
             optional.ifPresent(gameProfile -> {
                 ctx.getSource().sendFeedback(Text.translatable("text.itsours.command.permission.list", gameProfile).formatted(Colors.TITLE_COLOR), false);
-                ctx.getSource().sendFeedback(Text.translatable("text.itsours.command.permission.list.claim", claim.getFullName()).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/claim info %s", claim.getFullName())))), false);
+                ctx.getSource().sendFeedback(Text.translatable("text.itsours.command.permission.list.claim", claim.getFullName()).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("claim info %s", claim.getFullName())))), false);
                 //ctx.getSource().sendFeedback(Text.translatable("text.itsours.command.permission.list.roles", claim.getFullName()).onClick(ClickEvent.Action.RUN_COMMAND, String.format("/claim info %s", claim.getFullName())), false);
-                ctx.getSource().sendFeedback(Text.translatable("text.itsours.command.permission.list.permissions", claim.getPermissionManager().getPlayerPermission(gameProfile.getId()).toText()), false);
+                ctx.getSource().sendFeedback(Text.translatable("text.itsours.command.permission.list.permissions", claim.getPermissionManager().getPermission(gameProfile.getId()).toText()), false);
             });
         });
         return 1;

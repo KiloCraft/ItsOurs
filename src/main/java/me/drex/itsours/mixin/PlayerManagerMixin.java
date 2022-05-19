@@ -24,7 +24,7 @@ public abstract class PlayerManagerMixin {
     )
     public void onPlayerConnect(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
         Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt(player);
-        optional.ifPresent(claim -> claim.onEnter(Optional.empty(), player));
+        optional.ifPresent(claim -> claim.onEnter(null, player));
     }
 
 }

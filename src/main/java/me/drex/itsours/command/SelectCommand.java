@@ -24,9 +24,9 @@ public class SelectCommand extends Command {
         claimPlayer.setSelecting(newValue);
         MutableText text;
         if (newValue) {
-            text = Text.translatable("text.itsours.command.fly.enabled").formatted(Formatting.GREEN);
+            text = Text.translatable("text.itsours.command.select.enabled").formatted(Formatting.GREEN);
         } else {
-            text = Text.translatable("text.itsours.command.fly.disabled").formatted(Formatting.RED);
+            text = Text.translatable("text.itsours.command.select.disabled").formatted(Formatting.RED);
         }
         source.sendFeedback(text, false);
         return 1;

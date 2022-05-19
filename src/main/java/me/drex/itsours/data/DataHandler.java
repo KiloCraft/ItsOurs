@@ -23,7 +23,7 @@ public class DataHandler {
         dataVersion = nbtCompound.contains("dataVersion") ? nbtCompound.getInt("dataVersion") : 0;
         // Load data
         roleManager = new RoleManager(nbtCompound.getCompound("roles"));
-        ClaimList.INSTANCE.fromNBT(nbtCompound.getList("claims", NbtElement.COMPOUND_TYPE));
+        ClaimList.INSTANCE.load(nbtCompound.getList("claims", NbtElement.COMPOUND_TYPE));
         PlayerList.fromNBT(nbtCompound.getCompound("players"));
 
         if (dataVersion != currentVersion && !firstLoad) {
@@ -35,7 +35,7 @@ public class DataHandler {
     public NbtCompound save() {
         NbtCompound root = new NbtCompound();
         root.putInt("dataVersion", currentVersion);
-        root.put("claims", ClaimList.INSTANCE.toNBT());
+        root.put("claims", ClaimList.INSTANCE.save());
         if (this.roleManager != null) root.put("roles", roleManager.toNBT());
         root.put("players", PlayerList.toNBT());
         return root;

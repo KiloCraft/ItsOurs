@@ -10,6 +10,7 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 
 public class InfoCommand extends Command {
 
@@ -23,9 +24,9 @@ public class InfoCommand extends Command {
     }
 
     public static int info(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
-        BlockPos size = claim.getSize();
+        Vec3i size = claim.getSize();
         String world = claim.getDimension().getValue().toString();
-        BlockPos tpPos = new BlockPos((claim.min.getX() + claim.max.getX()) / 2, 0, (claim.min.getZ() + claim.max.getZ()) / 2);
+        BlockPos tpPos = new BlockPos((claim.getBox().getMinX() + claim.getBox().getMaxX()) / 2, 0, (claim.getBox().getMinZ() + claim.getBox().getMaxZ()) / 2);
         String tpCommand = String.format("/execute in %s run tp @s %d ~ %d", world, tpPos.getX(), tpPos.getZ());
         source.sendFeedback(Text.translatable("text.itsours.command.info").formatted(Colors.TITLE_COLOR), false);
         source.sendFeedback(Text.translatable("text.itsours.command.info.name", claim.getName()), false);
@@ -44,10 +45,10 @@ public class InfoCommand extends Command {
         ), false);
         source.sendFeedback(Text.translatable("text.itsours.command.info.position",
                 Text.translatable("text.itsours.command.info.position.min",
-                        claim.min
+                        claim.getBox().getMin()
                 ).formatted(Formatting.WHITE),
                 Text.translatable("text.itsours.command.info.position.max",
-                        claim.max
+                        claim.getBox().getMax()
                 ).formatted(Formatting.WHITE)
         ).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, tpCommand))), false);
         source.sendFeedback(Text.translatable("text.itsours.command.info.dimension", world), false);

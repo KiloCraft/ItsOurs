@@ -29,7 +29,7 @@ public abstract class LecternScreenHandlerMixin {
             return player.canModifyBlocks();
         if (!claim.get().hasPermission(player.getUuid(), "mine.lectern")) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED));
             return false;
         }
         return player.canModifyBlocks();

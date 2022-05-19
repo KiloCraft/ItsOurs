@@ -36,7 +36,7 @@ public class RemoveCommand extends Command {
         source.sendFeedback(Text.translatable("text.itsours.command.remove.info",
                 claim.getFullName(),
                 Text.translatable("text.itsours.command.remove.info.confirm")
-                        .styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/claim remove %s confirm", claim.getFullName()))))
+                        .styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("claim remove %s confirm", claim.getFullName()))))
                         .formatted(Formatting.RED, Formatting.BOLD)
                 ).formatted(Formatting.RED), false);
        return 0;

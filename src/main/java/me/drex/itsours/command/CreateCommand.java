@@ -17,6 +17,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -58,7 +59,7 @@ public class CreateCommand extends Command {
             max = new BlockPos(max.getX(), source.getWorld().getTopY(), max.getZ());
             if (AbstractClaim.isNameInvalid(name))
                 throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.invalid_name")).create();
-            AbstractClaim claim = new Claim(name, uuid, min, max, source.getWorld(), null);
+            AbstractClaim claim = new Claim(name, uuid, min, max, source.getWorld());
             AbstractClaim show = claim;
             if (claim.intersects().isPresent()) {
                 Optional<AbstractClaim> parent = ClaimList.INSTANCE.getClaimAt(source.getWorld(), min);
@@ -70,7 +71,7 @@ public class CreateCommand extends Command {
                         if (subzone.getName().equals(name))
                             throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.name_taken")).create();
                     }
-                    claim = new Subzone(name, uuid, min, max, source.getWorld(), null, parent.get());
+                    claim = new Subzone(name, uuid, min, max, source.getWorld(), parent.get());
                     show = parent.get();
                 } else {
                     throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.create_intersects")).create();
@@ -81,7 +82,7 @@ public class CreateCommand extends Command {
                 if (ClaimList.INSTANCE.getClaim(name).isPresent())
                     throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.name_taken")).create();
                 PlayerList.set(uuid, Settings.BLOCKS, PlayerList.get(uuid, Settings.BLOCKS) - claim.getArea());
-                BlockPos size = claim.getSize();
+                Vec3i size = claim.getSize();
                 source.sendFeedback(Text.translatable("text.itsours.command.create", name, size.getZ(), size.getY(), size.getZ()).formatted(Formatting.GREEN), false);
             }
             if (claimPlayer.getLastShowClaim() != null) claimPlayer.getLastShowClaim().show(source.getPlayer(), false);
@@ -90,7 +91,7 @@ public class CreateCommand extends Command {
             show.show(source.getPlayer(), true);
 
 
-            //reset positions
+            // reset positions
             claimPlayer.setSecondPosition(null);
             claimPlayer.setFirstPosition(null);
             claimPlayer.setSelecting(false);

@@ -22,7 +22,7 @@ public class RoleManager extends HashMap<String, Role> {
 
     public NbtCompound toNBT() {
         NbtCompound tag = new NbtCompound();
-        this.forEach((id, role) -> tag.put(id, role.toNBT()));
+        this.forEach((id, role) -> tag.put(id, role.save()));
         return tag;
     }
 

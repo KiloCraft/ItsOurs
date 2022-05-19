@@ -43,7 +43,7 @@ public class PlayerEventListener {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         final BlockPos pos = hitResult.getBlockPos();
         if (shouldSelect(player, hand, claimPlayer.getSecondPosition(), pos)) {
-            claimPlayer.sendMessage(Text.translatable("text.itsours.select.pos2", pos.getX(), pos.getY(), pos.getZ()).formatted(Formatting.GREEN));
+            claimPlayer.sendText(Text.translatable("text.itsours.select.pos2", pos.getX(), pos.getY(), pos.getZ()).formatted(Formatting.GREEN));
             claimPlayer.setSecondPosition(pos);
             onSelectCorner(player);
             return ActionResult.SUCCESS;
@@ -63,7 +63,7 @@ public class PlayerEventListener {
     private static ActionResult onBlockAttack(PlayerEntity player, World world, Hand hand, BlockPos pos, Direction direction) {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         if (shouldSelect(player, hand, claimPlayer.getFirstPosition(), pos)) {
-            claimPlayer.sendMessage(Text.translatable("text.itsours.select.pos1", pos.getX(), pos.getY(), pos.getZ()).formatted(Formatting.GREEN));
+            claimPlayer.sendText(Text.translatable("text.itsours.select.pos1", pos.getX(), pos.getY(), pos.getZ()).formatted(Formatting.GREEN));
             claimPlayer.setFirstPosition(pos);
             onSelectCorner(player);
             return ActionResult.SUCCESS;
@@ -78,7 +78,7 @@ public class PlayerEventListener {
             return TypedActionResult.pass(stack);
         if (!claim.get().hasPermission(player.getUuid(), String.format("use_item.%s", toItemId(stack)))) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED));
             return TypedActionResult.fail(stack);
         }
         return TypedActionResult.pass(stack);
@@ -93,11 +93,11 @@ public class PlayerEventListener {
         if (claimPlayer.arePositionsSet()) {
             MutableText text = Text.translatable("text.itsours.select.done").formatted(Formatting.GOLD);
             if (ClaimList.INSTANCE.getClaimsFrom(player.getUuid()).isEmpty()) {
-                text.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/claim create %s", player.getEntityName()))));
+                text.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("claim create %s", player.getEntityName()))));
             } else {
                 text.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/claim create name")));
             }
-            claimPlayer.sendMessage(text);
+            claimPlayer.sendText(text);
         }
     }
 

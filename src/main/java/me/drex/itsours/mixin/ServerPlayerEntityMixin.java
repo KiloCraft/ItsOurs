@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -11,9 +12,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer {
+
+    @Shadow public abstract void sendMessage(Text message);
+
+    public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile, @Nullable PlayerPublicKey playerPublicKey) {
+        super(world, pos, yaw, profile, playerPublicKey);
+    }
 
     @Nullable
     private BlockPos firstPos = null;
@@ -23,11 +31,6 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     private BlockPos lastShowPos;
     private ServerWorld lastShowWorld;
     private boolean select = false;
-
-
-    public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
-        super(world, pos, yaw, profile);
-    }
 
     @Override
     public void setLastShow(AbstractClaim claim, BlockPos pos, ServerWorld world) {
@@ -87,8 +90,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     }
 
     @Override
-    public void sendMessage(Text message) {
-        this.sendMessage(message, false);
+    public void sendText(Text message) {
+        this.sendMessage(message);
     }
 
 }

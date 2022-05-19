@@ -1,6 +1,6 @@
 package me.drex.itsours.claim.permission.roles;
 
-import me.drex.itsours.claim.permission.util.PermissionMap;
+import me.drex.itsours.claim.permission.rework.PermissionStorage;
 import net.minecraft.nbt.NbtCompound;
 
 public class Role {
@@ -8,25 +8,25 @@ public class Role {
     public static final Role TRUSTED = new Role();
     public static final Role DEFAULT = new Role();
 
-    private final PermissionMap permissions = new PermissionMap(new NbtCompound());
+    private final PermissionStorage permissions = PermissionStorage.storage();
 
     public Role() {
         this(new NbtCompound());
     }
 
     public Role(NbtCompound tag) {
-        this.fromNBT(tag);
+        this.load(tag);
     }
 
-    public void fromNBT(NbtCompound tag) {
-        permissions.fromNBT(tag);
+    public void load(NbtCompound tag) {
+        permissions.load(tag);
     }
 
-    public NbtCompound toNBT() {
-        return permissions.toNBT();
+    public NbtCompound save() {
+        return permissions.save();
     }
 
-    public PermissionMap permissions() {
+    public PermissionStorage permissions() {
         return this.permissions;
     }
 }

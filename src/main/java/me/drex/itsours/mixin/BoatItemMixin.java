@@ -40,7 +40,7 @@ public abstract class BoatItemMixin extends Item {
             return hit;
         if (!claim.get().hasPermission(player.getUuid(), "use_item." + Registry.ITEM.getId(this).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED));
             return BlockHitResult.createMissed(hit.getPos(), hit.getSide(), hit.getBlockPos());
         }
         return hit;

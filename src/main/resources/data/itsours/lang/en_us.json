@@ -1,9 +1,71 @@
 {
+
+  "text.itsours.format.vec3i": "%d x %d x %d",
+  "text.itsours.format.box": "Min %s Max %s",
+
+  "text.itsours.permission.context.ignore": "Ignore",
+  "text.itsours.permission.context.ignore.hover": "Admin setting - Supersedes *all* settings",
+  "text.itsours.permission.context.owner": "Owner",
+  "text.itsours.permission.context.owner.hover": "Claim Owner - Supersedes all Claim settings",
+  "text.itsours.permission.context.global": "Global",
+  "text.itsours.permission.context.global.hover": "Global setting - Global Claim settings that apply to all players",
+  "text.itsours.permission.context.personal": "Personal",
+  "text.itsours.permission.context.personal.hover": "Personal setting - Personal Claim settings that apply to a specific player",
+
+  "text.itsours.argument.claim.unknown": "Unknown claim %s!",
+  "text.itsours.argument.claim.noClaimAtPos": "Couldn't find a claim at your position!",
+  "text.itsours.argument.claim.invalidName": "Claim name is to long or contains invalid character!",
+  "text.itsours.argument.claim.nameTaken": "Claim name is already taken!",
+  "text.itsours.argument.permission.unknown": "Unknown permission %s!",
+  "text.itsours.argument.permission.value.unknown": "Unknown permission value %s!",
+  "text.itsours.argument.permission.forbidden": "You can't do that!",
+
+  "text.itsours.commands.personalSetting.set": "Set personal setting %s for %s in %s to %s",
+  "text.itsours.commands.personalSetting.check": "Personal setting %s in %s is set to %s for %s",
+
+  "text.itsours.commands.globalSetting.set": "Set global setting %s in %s to %s",
+  "text.itsours.commands.globalSetting.check": "Global setting %s in %s is set to %s",
+
+  "text.itsours.commands.check.entry": " * %s %s -> %s",
+  "text.itsours.commands.check.result": "Result: %s",
+
+  "text.itsours.commands.fly.enabled": "Claim flight enabled",
+  "text.itsours.commands.fly.disabled": "Claim flight disabled",
+
+  "text.itsours.commands.select.enabled": "Claim select enabled",
+  "text.itsours.commands.select.disabled": "Claim select disabled",
+
+  "text.itsours.commands.ignore.enabled": "Claim ignore enabled",
+  "text.itsours.commands.ignore.disabled": "Claim ignore disabled",
+
+  "text.itsours.commands.info": "Claim Info:\n* Name: %s\n* Owner: %s\n* Size: %s\n* Depth: %s\n* Settings: %s\n* Position: %s\n* Dimension: %s",
+
+  "text.itsours.commands.blocks": "%s has %d claim blocks left.",
+  "text.itsours.commands.blocks.add": "Added %d claim blocks to %s.",
+  "text.itsours.commands.blocks.set": "Set %s's claim blocks to %d.",
+  "text.itsours.commands.blocks.remove": "Removed %d claim blocks from %s.",
+
+  "text.itsours.commands.setOwner": "Set owner of %s to %s",
+
+  "text.itsours.commands.expand": "Claim %s was expanded by %d blocks into %s, for %d claim blocks",
+  "text.itsours.commands.expand.missingClaimBlocks": "You don't have enough claim blocks, to expand that far. You need %d more claim blocks.",
+  "text.itsours.commands.expand.outOfWorld": "You can't expand above / underneath the world!",
+  "text.itsours.commands.expand.subzoneOutside": "This action would result in subzone %s being outside of it's parent claim.",
+  "text.itsours.commands.expand.intersects": "Expanding would result in an intersection with the claim \"%s\"",
+  "text.itsours.commands.shrink": "Claim %s was shrunk by %d blocks into %s, you receive %d claim blocks",
+  "text.itsours.commands.shrink.toFar": "You can't shrink your claim that far!",
+
+  "text.itsours.commands.create.selectFirst": "You need to select the corners of your claim with a golden shovel (left- / right click) first.",
+  "text.itsours.commands.create.intersects": "Claim couldn't be created, because it would overlap with \"%s\"!",
+
+  "text.itsours.commands.list": "%s's claims: %s",
+  "text.itsours.commands.list.noClaims": "%s doesn't have any claims",
+
   "text.itsours.select.pos1": "Position #1 set to %1$s %3$s",
   "text.itsours.select.pos2": "Position #2 set to %1$s %3$s",
   "text.itsours.select.done": "Area selected! Click this message, to create a claim!",
-  "text.itsours.value.true": "true",
-  "text.itsours.value.false": "false",
+  "text.itsours.value.allow": "allow",
+  "text.itsours.value.deny": "deny",
   "text.itsours.value.unset": "unset",
   "text.itsours.gui.map.item.hover.value": "Value: %s",
   "text.itsours.gui.map.item.hover.left_click": "Leftclick to cycle",

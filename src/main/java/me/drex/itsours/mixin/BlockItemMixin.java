@@ -48,7 +48,7 @@ public abstract class BlockItemMixin extends Item {
         if (claim.isEmpty()) return context.canPlace();
         if (!claim.get().hasPermission(context.getPlayer().getUuid(), "place." + Registry.BLOCK.getId(this.getBlock()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) context.getPlayer();
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.place_block").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.place_block").formatted(Formatting.RED));
             return false;
         }
         return context.canPlace();
@@ -71,9 +71,9 @@ public abstract class BlockItemMixin extends Item {
             PlayerEntity playerEntity = context.getPlayer();
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
             if (claimPlayer != null && ClaimList.INSTANCE.getClaimsFrom(playerEntity.getUuid()).isEmpty()) {
-                claimPlayer.sendMessage(Text.translatable("text.itsours.info.not_protected",
+                claimPlayer.sendText(Text.translatable("text.itsours.info.not_protected",
                         Text.literal(this.getDefaultStack().getName().getString().toLowerCase()).formatted(Formatting.GOLD)
-                ).formatted(Formatting.YELLOW).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/claim create"))));
+                ).formatted(Formatting.YELLOW).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "claim create"))));
                 claimPlayer.setFirstPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
                 claimPlayer.setSecondPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
             }

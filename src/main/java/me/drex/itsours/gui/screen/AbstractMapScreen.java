@@ -1,6 +1,6 @@
 package me.drex.itsours.gui.screen;
 
-import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.claim.permission.rework.Value;
 import me.drex.itsours.claim.permission.util.node.util.GroupNode;
 import me.drex.itsours.claim.permission.util.node.util.Node;
 import me.drex.itsours.gui.util.ScreenHelper;
@@ -42,7 +42,7 @@ public abstract class AbstractMapScreen<K extends ClaimContext> extends PagedScr
             nodes = new ArrayList<>(node.getNodes());
         }
         if (filterMode == FilterMode.CHANGED) {
-            nodes.removeIf(next -> getValue(getPermission(next)).equals(Permission.Value.UNSET));
+            nodes.removeIf(next -> getValue(getPermission(next)).equals(Value.UNSET));
         } else if (filterMode == FilterMode.CHANGED_SUBNODES) {
             nodes.removeIf(next -> getChanged(getPermission(), next) < 2);
         }
@@ -51,7 +51,7 @@ public abstract class AbstractMapScreen<K extends ClaimContext> extends PagedScr
     private int getChanged(String perm, Node node) {
         int result = 0;
         String s = perm.equals("") ? node.getId() : perm + "." + node.getId();
-        if (!getValue(s).equals(Permission.Value.UNSET)) {
+        if (!getValue(s).equals(Value.UNSET)) {
             result++;
         }
         for (Node child : node.getNodes()) {
@@ -83,10 +83,10 @@ public abstract class AbstractMapScreen<K extends ClaimContext> extends PagedScr
         if (item.isEmpty()) item = new ItemStack(Items.BARRIER);
         if (!(this.node instanceof GroupNode)) {
             String perm = getPermission(node);
-            Permission.Value value = getValue(perm);
+            Value value = getValue(perm);
             MutableText text = Text.translatable("text.itsours.gui.map.item.hover.value", value.format());
             ScreenHelper.addLore(item, text);
-            if (value == Permission.Value.TRUE) ScreenHelper.addGlint(item);
+            if (value == Value.ALLOW) ScreenHelper.addGlint(item);
             ScreenHelper.setCustomName(item, perm);
             ScreenHelper.addLore(item, Text.translatable("text.itsours.gui.map.item.hover.left_click"));
             if (!node.getNodes().isEmpty() || node instanceof GroupNode) {
@@ -106,9 +106,9 @@ public abstract class AbstractMapScreen<K extends ClaimContext> extends PagedScr
         return item;
     }
 
-    public abstract void executeSet(String permission, Permission.Value value);
+    public abstract void executeSet(String permission, Value value);
 
-    public abstract Permission.Value getValue(String perm);
+    public abstract Value getValue(String perm);
 
     public abstract AbstractMapScreen<K> buildScreen(ServerPlayerEntity player, int rows, K context, SimpleScreen<?> previous, Node node, Node.CompareMode compareMode, FilterMode filterMode);
 
@@ -146,9 +146,9 @@ public abstract class AbstractMapScreen<K extends ClaimContext> extends PagedScr
                     //Switch state
                     String s = getPermission();
                     String perm = s.equals("") ? n.getId() : s + "." + n.getId();
-                    Permission.Value value = getValue(perm);
+                    Value value = getValue(perm);
                     int ordinal = value.ordinal() + 1;
-                    Permission.Value next = Permission.Value.values()[ordinal % 3];
+                    Value next = Value.values()[ordinal % 3];
                     executeSet(perm, next);
                     draw();
                 } else if (!n.getNodes().isEmpty() || n instanceof GroupNode) {

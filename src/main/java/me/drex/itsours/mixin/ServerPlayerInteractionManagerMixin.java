@@ -90,7 +90,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
         if (claim.isEmpty()) return playerEntity.isBlockBreakingRestricted(world, pos, gameMode);
         if (!claim.get().hasPermission(playerEntity.getUuid(), "mine." + Registry.BLOCK.getId(this.world.getBlockState(pos).getBlock()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.break_block").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.break_block").formatted(Formatting.RED));
             return true;
         }
         return playerEntity.isBlockBreakingRestricted(world, pos, gameMode);
@@ -109,7 +109,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
             return blockState.onUse(world, playerEntity, hand, hit);
         if (!claim.get().hasPermission(playerEntity.getUuid(), "interact_block." + Registry.BLOCK.getId(blockState.getBlock()).getPath())) {
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED));
             return ActionResult.FAIL;
         }
         return blockState.onUse(world, playerEntity, hand, hit);
@@ -128,7 +128,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
         if (claim.isEmpty() || !PermissionList.filter(itemStack.getItem(), PermissionList.USE_ON_BLOCK))
             return itemStack.useOnBlock(context);
         if (!claim.get().hasPermission(player.getUuid(), "use_on_block." + Registry.ITEM.getId(itemStack.getItem()).getPath())) {
-            claimPlayer.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_item_on_block").formatted(Formatting.RED));
+            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.interact_item_on_block").formatted(Formatting.RED));
             return ActionResult.FAIL;
         }
         return itemStack.useOnBlock(context);
