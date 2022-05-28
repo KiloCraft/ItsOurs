@@ -1,9 +1,11 @@
 package me.drex.itsours.claim.permission.rework.context;
 
+import me.drex.itsours.claim.permission.rework.roles.RoleRework;
+import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
-public record RoleContext(int roleWeight) implements WeightedContext {
+public record RoleContext(RoleRework role) implements WeightedContext {
 
     @Override
     public long getWeight() {
@@ -13,13 +15,17 @@ public record RoleContext(int roleWeight) implements WeightedContext {
     @Override
     public Text toText() {
         // TODO:
-        return Text.empty();
+        return Text.translatable("text.itsours.permission.context.role", role.getId()).styled(
+                style -> style
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                Text.translatable("text.itsours.permission.context.personal.hover")))
+        );
     }
 
     @Override
     public int compareTo(@NotNull WeightedContext other) {
         if (other instanceof RoleContext roleContext) {
-            return Integer.compare(roleWeight, roleContext.roleWeight);
+            return this.role.compareTo(roleContext.role);
         }
         return WeightedContext.super.compareTo(other);
     }

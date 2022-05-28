@@ -3,6 +3,7 @@ package me.drex.itsours.claim.permission.rework;
 import com.google.common.collect.Lists;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.permission.rework.context.GlobalContext;
+import me.drex.itsours.claim.permission.rework.node.AbstractNode;
 import me.drex.itsours.claim.permission.rework.node.Node;
 import me.drex.itsours.claim.permission.rework.node.RootNode;
 import me.drex.itsours.claim.permission.rework.node.builder.AbstractNodeBuilder;
@@ -50,6 +51,14 @@ public class PermissionManager {
             return !overrides(entity.getClass(), Entity.class, "method_5688", PlayerEntity.class, Hand.class) || !overrides(entity.getClass(), Entity.class, "method_5664", PlayerEntity.class, Vec3d.class, Hand.class);
         }
     };
+
+    // TODO: Put all nodes like this
+    public static final AbstractNode MODIFY = Node.single("modify")
+            .description("text.itsours.permission.modify.description")
+            .icon(Items.REPEATER)
+            .predicate(context -> context.context() != GlobalContext.INSTANCE)
+            .then(Arrays.stream(Modify.values()).map(Modify::buildNode).toList())
+            .build();
 
     public static void register() {
         // place
@@ -101,12 +110,7 @@ public class PermissionManager {
                 .then(interactableEntityNodes);
         registerPermission(INTERACT_ENTITY.build());
         // modify
-        final AbstractNodeBuilder MODIFY = Node.single("modify")
-                .description("text.itsours.permission.modify.description")
-                .icon(Items.REPEATER)
-                .predicate(context -> context.context() != GlobalContext.INSTANCE)
-                .then(Arrays.stream(Modify.values()).map(Modify::buildNode).toList());
-        registerPermission(MODIFY.build());
+        registerPermission(MODIFY);
 
         final AbstractNodeBuilder PVP = Node.single("pvp")
                 .description("text.itsours.setting.pvp.description")
@@ -120,7 +124,6 @@ public class PermissionManager {
                 .description("text.itsours.setting.fluid_crosses_borders.description")
                 .icon(Items.WATER_BUCKET);
         registerSetting(FLUID_CROSSES_BORDERS.build());
-
     }
 
     private static void registerPermission(Node node) {

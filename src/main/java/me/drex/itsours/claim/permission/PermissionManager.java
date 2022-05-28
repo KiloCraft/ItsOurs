@@ -9,6 +9,10 @@ import me.drex.itsours.claim.permission.rework.PermissionStorage;
 import me.drex.itsours.claim.permission.rework.PermissionVisitor;
 import me.drex.itsours.claim.permission.rework.context.PersonalContext;
 import me.drex.itsours.claim.permission.rework.context.GlobalContext;
+import me.drex.itsours.claim.permission.rework.context.RoleContext;
+import me.drex.itsours.claim.permission.rework.roles.PlayerRoleStorage;
+import me.drex.itsours.claim.permission.rework.roles.RoleManagerRework;
+import me.drex.itsours.claim.permission.rework.roles.RoleRework;
 import me.drex.itsours.claim.permission.roles.PlayerRoleManager;
 import me.drex.itsours.claim.permission.roles.Role;
 import net.minecraft.nbt.NbtCompound;
@@ -17,9 +21,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class PermissionManager {
+
     public PermissionStorage settings = PermissionStorage.storage();
-    public HashMap<UUID, PermissionStorage> playerPermission = new HashMap<>();
-    public HashMap<UUID, PlayerRoleManager> roleManager = new HashMap<>();
+    public Map<UUID, PermissionStorage> playerPermission = new HashMap<>();
+    public Map<UUID, PlayerRoleStorage> roles = new HashMap<>();
 
     public PermissionManager(NbtCompound tag) {
         fromNBT(tag);
@@ -34,7 +39,7 @@ public class PermissionManager {
                 if (player.contains("permission"))
                     playerPermission.put(UUID.fromString(uuid), PermissionStorage.fromNbt(player.getCompound("permission")));
                 if (player.contains("role")) {
-                    roleManager.put(UUID.fromString(uuid), new PlayerRoleManager(player.getCompound("role")));
+                    roles.put(UUID.fromString(uuid), new PlayerRoleStorage(player.get("role")));
                 }
             });
         }
@@ -46,7 +51,7 @@ public class PermissionManager {
 
         List<UUID> uuidSet = new ArrayList<>();
         uuidSet.addAll(playerPermission.keySet());
-        uuidSet.addAll(roleManager.keySet());
+        uuidSet.addAll(roles.keySet());
         for (UUID uuid : uuidSet) {
             boolean shouldSave = false;
             NbtCompound player = new NbtCompound();
@@ -55,10 +60,10 @@ public class PermissionManager {
                 player.put("permission", storage.save());
                 if (storage.size() > 0) shouldSave = true;
             }
-            PlayerRoleManager prm = roleManager.get(uuid);
-            if (prm != null) {
-                player.put("role", prm.toNBT());
-                if (prm.getRoles().size() > 0 || prm.getRemoved().size() > 0) shouldSave = true;
+            PlayerRoleStorage roleStorage = roles.get(uuid);
+            if (roleStorage != null) {
+                player.put("role", roleStorage.toNbt());
+                if (roleStorage.getSize() > 0) shouldSave = true;
             }
             if (shouldSave) players.put(uuid.toString(), player);
         }
@@ -68,64 +73,90 @@ public class PermissionManager {
         return tag;
     }
 
+    public boolean addRole(UUID uuid, RoleRework role) {
+        PlayerRoleStorage roleStorage = this.roles.computeIfAbsent(uuid, ignored -> new PlayerRoleStorage());
+        return roleStorage.addRole(role);
+    }
+
+    public boolean removeRole(UUID uuid, RoleRework role) {
+        PlayerRoleStorage roleStorage = this.roles.computeIfAbsent(uuid, ignored -> new PlayerRoleStorage());
+        return roleStorage.removeRole(role);
+    }
+
+    public List<RoleRework> getRolesNew(UUID uuid) {
+        PlayerRoleStorage roleStorage = this.roles.get(uuid);
+        if (roleStorage != null) {
+            return roleStorage.getRoles();
+        }
+        return Collections.emptyList();
+    }
+
+    public Map<UUID, PlayerRoleStorage> getRoles() {
+        return roles;
+    }
+
+    @Deprecated
     public boolean addRole(UUID uuid, Role role, int weight) {
-        PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
+        throw new UnsupportedOperationException();
+        /*PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
         boolean changed = playerRoleManager.addRole(role, weight);
         this.roleManager.put(uuid, playerRoleManager);
-        return changed;
+        return changed;*/
     }
 
     public boolean removeRole(UUID uuid, Role role) {
-        PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
+        throw new UnsupportedOperationException();
+        /*PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
         boolean changed = playerRoleManager.removeRole(role);
         this.roleManager.put(uuid, playerRoleManager);
-        return changed;
+        return changed;*/
     }
 
+    @Deprecated
     public boolean unsetRole(UUID uuid, Role role) {
-        PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
+        throw new UnsupportedOperationException();
+        /*PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
         boolean changed = playerRoleManager.unsetRole(role);
         this.roleManager.put(uuid, playerRoleManager);
-        return changed;
+        return changed;*/
     }
 
+    @Deprecated
     public Object2IntMap<Role> getRoles(UUID uuid) {
-        PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
-        return playerRoleManager.getRoles();
+        throw new UnsupportedOperationException();
+        /*PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
+        return playerRoleManager.getRoles();*/
     }
 
+    @Deprecated
     public List<Role> getRemovedRoles(UUID uuid) {
-        PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
-        return playerRoleManager.getRemoved();
-    }
-
-    public List<UUID> getPlayersWithRole(String role) {
-        List<UUID> list = new ArrayList<>();
-        Role r = ItsOurs.INSTANCE.getRoleManager().get(role);
-        if (r == null) return list;
-        for (Map.Entry<UUID, PlayerRoleManager> entry : this.roleManager.entrySet()) {
-            if (entry.getValue().getRoles().containsKey(r)) list.add(entry.getKey());
-        }
-        return list;
+        throw new UnsupportedOperationException();
+        /*PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
+        return playerRoleManager.getRemoved();*/
     }
 
     public void visit(AbstractClaim claim, @Nullable UUID uuid, PermissionInterface permission, PermissionVisitor visitor) {
         settings.visit(claim, permission, GlobalContext.INSTANCE, visitor);
         if (uuid != null) {
-            PermissionStorage playerPermissionStorage = playerPermission.get(uuid);
-            if (playerPermissionStorage != null) {
-                playerPermissionStorage.visit(claim, permission, new PersonalContext(uuid), visitor);
+            PermissionStorage permissionStorage = playerPermission.get(uuid);
+            if (permissionStorage != null) {
+                permissionStorage.visit(claim, permission, new PersonalContext(uuid), visitor);
                 // TODO: roles
+            }
+            PlayerRoleStorage roleStorage = roles.get(uuid);
+            if (roleStorage != null) {
+                RoleRework defaultRole = RoleManagerRework.INSTANCE.getRole(RoleManagerRework.DEFAULT_ID);
+                assert defaultRole != null;
+                defaultRole.permissions().visit(claim, permission, new RoleContext(defaultRole), visitor);
+                for (RoleRework role : roleStorage.getRoles()) {
+                    role.permissions().visit(claim, permission, new RoleContext(role), visitor);
+                }
             }
         }
     }
 
     public void setPermission(UUID uuid, PermissionInterface permission, Value value) {
-        PermissionStorage storage = playerPermission.get(uuid);
-        if (storage == null) {
-            storage = PermissionStorage.storage();
-            playerPermission.put(uuid, storage);
-        }
+        PermissionStorage storage = playerPermission.computeIfAbsent(uuid, ignored -> PermissionStorage.storage());
         storage.set(permission, value);
     }
 
@@ -134,28 +165,29 @@ public class PermissionManager {
     }
 
     public PermissionStorage getPermission(UUID uuid) {
-        PermissionStorage storage = playerPermission.get(uuid);
-        if (storage == null) return PermissionStorage.storage();
-        return storage;
+        return playerPermission.computeIfAbsent(uuid, ignored -> PermissionStorage.storage());
     }
 
     public PlayerRoleManager getPlayerRoleManager(UUID uuid) {
-        PlayerRoleManager prm = roleManager.get(uuid);
+        throw new UnsupportedOperationException();
+        /*PlayerRoleManager prm = roleManager.get(uuid);
         if (prm == null) {
             prm = new PlayerRoleManager(new NbtCompound());
         }
-        return prm;
+        return prm;*/
     }
 
+    @Deprecated
     private HashMap<Role, Integer> sort(HashMap<Role, Integer> hashMap) {
-        List<Map.Entry<Role, Integer>> list = new LinkedList<>(hashMap.entrySet());
+        throw new UnsupportedOperationException();
+        /*List<Map.Entry<Role, Integer>> list = new LinkedList<>(hashMap.entrySet());
         list.sort(Map.Entry.comparingByValue());
         HashMap<Role, Integer> temp = new LinkedHashMap<>();
         temp.put(ItsOurs.INSTANCE.getRoleManager().get("default"), -1);
         for (Map.Entry<Role, Integer> entry : list) {
             temp.put(entry.getKey(), entry.getValue());
         }
-        return temp;
+        return temp;*/
     }
 
 }

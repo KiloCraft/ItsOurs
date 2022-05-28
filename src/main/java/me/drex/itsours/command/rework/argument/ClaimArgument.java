@@ -28,14 +28,15 @@ public class ClaimArgument {
     public static final CommandSyntaxException INVALID_NAME = new SimpleCommandExceptionType(Text.translatable("text.itsours.argument.claim.invalidName")).create();
     public static final CommandSyntaxException NAME_TAKEN = new SimpleCommandExceptionType(Text.translatable("text.itsours.argument.claim.nameTaken")).create();
     public static final DynamicCommandExceptionType UNKNOWN_CLAIM = new DynamicCommandExceptionType(name -> Text.translatable("text.itsours.argument.claim.unknown", name));
+    private static final String DEFAULT_NAME = "claim";
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> ownClaims() {
-        return ownClaims("claim");
+        return ownClaims(DEFAULT_NAME);
     }
 
     // TODO:
     public static RequiredArgumentBuilder<ServerCommandSource, String> allClaims() {
-        return ownClaims("claim");
+        return ownClaims(DEFAULT_NAME);
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> ownClaims(String name) {
@@ -43,7 +44,7 @@ public class ClaimArgument {
     }
 
     public static AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        return getClaim(ctx, "claim");
+        return getClaim(ctx, DEFAULT_NAME);
     }
 
     public static AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {

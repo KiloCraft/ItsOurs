@@ -17,6 +17,8 @@ public interface ClaimPlayer {
 
     boolean arePositionsSet();
 
+    void resetSelection();
+
     void setSecondPosition(BlockPos pos);
 
     void setFirstPosition(BlockPos pos);

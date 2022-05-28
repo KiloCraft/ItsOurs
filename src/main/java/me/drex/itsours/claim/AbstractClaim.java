@@ -105,7 +105,7 @@ public abstract class AbstractClaim {
             tag.put("subzones", list);
         }
         tag.put("permissions", this.permissionManager.toNBT());
-        tag.put("restrictions", this.restrictionManager.toNBT());
+        //tag.put("restrictions", this.restrictionManager.toNBT());
         return tag;
     }
 

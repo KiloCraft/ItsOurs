@@ -42,14 +42,16 @@ public class TrustedCommand extends Command {
         return trusted.size();
     }
 
+    @Deprecated
     public static Set<UUID> getAllUUIDs(AbstractClaim claim) {
-        if (claim instanceof Subzone subzone) {
+        throw new UnsupportedOperationException();
+        /*if (claim instanceof Subzone subzone) {
             Set<UUID> set = new HashSet<>(subzone.getPermissionManager().roleManager.keySet());
             set.addAll(getAllUUIDs(subzone.getParent()));
             return set;
         } else {
             return new HashSet<>(claim.getPermissionManager().roleManager.keySet());
-        }
+        }*/
     }
 
     public static List<UUID> getAllTrusted(AbstractClaim claim) {

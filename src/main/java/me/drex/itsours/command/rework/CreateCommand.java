@@ -73,6 +73,8 @@ public class CreateCommand extends AbstractCommand {
         if (ClaimList.INSTANCE.getClaim(claimName).isPresent()) throw ClaimArgument.NAME_TAKEN;
         ClaimList.INSTANCE.addClaim(claim);
         claim.show(player, true);
+        // reset positions
+        claimPlayer.resetSelection();
         return 1;
     }
 
@@ -87,6 +89,8 @@ public class CreateCommand extends AbstractCommand {
         Subzone subzone = new Subzone(claimName, player.getUuid(), claimBox.getMin().withY(parent.getBox().getMinY()), claimBox.getMax().withY(parent.getBox().getMaxY()), player.getWorld(), parent);
         ClaimList.INSTANCE.addClaim(subzone);
         parent.getMainClaim().show(player, true);
+        // reset positions
+        ((ClaimPlayer)player).resetSelection();
         return 1;
     }
 

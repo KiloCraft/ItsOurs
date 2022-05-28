@@ -60,6 +60,13 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     }
 
     @Override
+    public void resetSelection() {
+        this.firstPos = null;
+        this.secondPos = null;
+        this.select = false;
+    }
+
+    @Override
     public BlockPos getSecondPosition() {
         return secondPos;
     }

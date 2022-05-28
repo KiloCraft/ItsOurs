@@ -11,6 +11,8 @@
   "text.itsours.permission.context.global.hover": "Global setting - Global Claim settings that apply to all players",
   "text.itsours.permission.context.personal": "Personal",
   "text.itsours.permission.context.personal.hover": "Personal setting - Personal Claim settings that apply to a specific player",
+  "text.itsours.permission.context.role": "Role - %s",
+  "text.itsours.permission.context.role.hover": "Roles - A list of personal setting",
 
   "text.itsours.argument.claim.unknown": "Unknown claim %s!",
   "text.itsours.argument.claim.noClaimAtPos": "Couldn't find a claim at your position!",
@@ -19,6 +21,8 @@
   "text.itsours.argument.permission.unknown": "Unknown permission %s!",
   "text.itsours.argument.permission.value.unknown": "Unknown permission value %s!",
   "text.itsours.argument.permission.forbidden": "You can't do that!",
+  "text.itsours.argument.role.unknown": "Unknown role %s!",
+  "text.itsours.argument.role.already_exists": "A role with that name already exists!",
 
   "text.itsours.commands.personalSetting.set": "Set personal setting %s for %s in %s to %s",
   "text.itsours.commands.personalSetting.check": "Personal setting %s in %s is set to %s for %s",
@@ -45,6 +49,13 @@
   "text.itsours.commands.blocks.set": "Set %s's claim blocks to %d.",
   "text.itsours.commands.blocks.remove": "Removed %d claim blocks from %s.",
 
+  "text.itsours.commands.roles": "Roles:",
+  "text.itsours.commands.roles.entry": "%s %s %s",
+  "text.itsours.commands.roles.entry.up": "↑",
+  "text.itsours.commands.roles.entry.down": "↓",
+  "text.itsours.commands.roles.add": "Successfully added role %s.",
+  "text.itsours.commands.roles.remove": "Successfully removed role %s.",
+
   "text.itsours.commands.setOwner": "Set owner of %s to %s",
 
   "text.itsours.commands.expand": "Claim %s was expanded by %d blocks into %s, for %d claim blocks",
@@ -60,6 +71,14 @@
 
   "text.itsours.commands.list": "%s's claims: %s",
   "text.itsours.commands.list.noClaims": "%s doesn't have any claims",
+
+  "text.itsours.commands.trust": "Trusted %s to %s",
+  "text.itsours.commands.trust.nothing_changed": "Nothing changed, %s is already trusted",
+  "text.itsours.commands.distrust": "Distrusted %s from %s",
+  "text.itsours.commands.distrust.nothing_changed": "Nothing changed, %s was not trusted",
+
+  "text.itsours.commands.trusted": "Trusted:\n%s",
+  "text.itsours.commands.trusted.nobody_trusted": "Nobody is trusted",
 
   "text.itsours.select.pos1": "Position #1 set to %1$s %3$s",
   "text.itsours.select.pos2": "Position #2 set to %1$s %3$s",
@@ -175,7 +194,6 @@
   "text.itsours.command.role.remove": "Removed %s role from %s.",
   "text.itsours.command.role.unset": "Unset %s role from %s.",
   "text.itsours.command.role.no_change": "Nothing changed!",
-
 
   "text.itsours.command.roles.already_exists": "A role with that name already exists!",
   "text.itsours.command.roles.unknown": "Unknown role name!",

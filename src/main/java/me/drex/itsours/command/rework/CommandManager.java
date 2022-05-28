@@ -8,11 +8,13 @@ public class CommandManager {
 
     public static final CommandManager INSTANCE = new CommandManager();
 
+    public static final String LITERAL = "claim_rework";
+
     private CommandManager() {
     }
 
     public void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
-        LiteralArgumentBuilder<ServerCommandSource> claim = LiteralArgumentBuilder.literal("claim_rework");
+        LiteralArgumentBuilder<ServerCommandSource> claim = LiteralArgumentBuilder.literal(LITERAL);
 
         final AbstractCommand[] commands = new AbstractCommand[]{
                 BlocksCommand.INSTANCE,
@@ -26,10 +28,14 @@ public class CommandManager {
                 InfoCommand.INSTANCE,
                 ListCommand.INSTANCE,
                 PersonalSettingCommand.INSTANCE,
+                RolesCommand.INSTANCE,
                 SelectCommand.INSTANCE,
                 SetOwnerCommand.INSTANCE,
                 ShowCommand.HIDE,
                 ShowCommand.SHOW,
+                TrustCommand.TRUST,
+                TrustCommand.DISTRUST,
+                TrustedCommand.INSTANCE,
         };
 
         for (AbstractCommand command : commands) {

@@ -23,7 +23,7 @@ public class PermissionRework implements PermissionInterface {
 
     private PermissionRework(List<Node> nodes) {
         this.nodes = nodes;
-        this.permission = String.join(SEPARATOR, (String[]) nodes.stream().map(Node::getId).toArray());
+        this.permission = String.join(SEPARATOR, nodes.stream().map(Node::getId).toList());
     }
 
     public static PermissionRework permission(String permission) throws InvalidPermissionException {
@@ -40,6 +40,10 @@ public class PermissionRework implements PermissionInterface {
 
     public static PermissionRework of(String permission, RootNode rootNode) throws InvalidPermissionException {
         return new PermissionRework(permission, rootNode);
+    }
+
+    public static PermissionRework of(List<Node> nodes) {
+        return new PermissionRework(nodes);
     }
 
     private List<Node> parse(RootNode rootNode) throws InvalidPermissionException {

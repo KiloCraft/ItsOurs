@@ -36,7 +36,11 @@ dependencies {
     }
 
     // Fabric permission api
-    modImplementation "me.lucko:fabric-permissions-api:${project.perm_version}"
+    modImplementation include("me.lucko:fabric-permissions-api:${project.perm_version}")
+
+    // gui
+    // TODO: wait for 1.19 version
+    //modImplementation include("eu.pb4:sgui:${project.sgui_version}")
 
     // Server translation api
     modImplementation "fr.catcore:api:${project.translations_version}"
