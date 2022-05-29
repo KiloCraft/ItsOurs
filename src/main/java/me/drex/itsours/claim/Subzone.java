@@ -1,9 +1,7 @@
 package me.drex.itsours.claim;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import me.drex.itsours.claim.permission.rework.PermissionInterface;
-import me.drex.itsours.claim.permission.rework.PermissionVisitor;
-import me.drex.itsours.claim.permission.roles.Role;
+import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.claim.permission.visitor.PermissionVisitor;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -41,18 +39,6 @@ public class Subzone extends AbstractClaim {
         return getParent().getMainClaim();
     }
 
-    @Override
-    public Object2IntMap<Role> getRoles(UUID uuid) {
-        Object2IntMap<Role> roles = parent.getRoles(uuid);
-        for (Role role : getPermissionManager().getRemovedRoles(uuid)) {
-            roles.removeInt(role);
-        }
-        for (Object2IntMap.Entry<Role> entry : getPermissionManager().getRoles(uuid).object2IntEntrySet()) {
-            roles.put(entry.getKey(), entry.getIntValue());
-        }
-        return roles;
-    }
-
     /*@Override
     public boolean getSetting(String setting) {
         Optional<Permission> optional = Permission.setting(setting);
@@ -73,7 +59,7 @@ public class Subzone extends AbstractClaim {
     }
 
     @Override
-    public void visit(@Nullable UUID uuid, PermissionInterface permission, PermissionVisitor visitor) {
+    public void visit(@Nullable UUID uuid, Permission permission, PermissionVisitor visitor) {
         this.parent.visit(uuid, permission, visitor);
         super.visit(uuid, permission, visitor);
     }

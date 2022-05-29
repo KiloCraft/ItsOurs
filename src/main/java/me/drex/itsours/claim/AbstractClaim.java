@@ -1,14 +1,16 @@
 package me.drex.itsours.claim;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import me.drex.itsours.ItsOurs;
-import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.RestrictionManager;
-import me.drex.itsours.claim.permission.rework.*;
-import me.drex.itsours.claim.permission.rework.context.IgnoreContext;
-import me.drex.itsours.claim.permission.rework.context.OwnerContext;
-import me.drex.itsours.claim.permission.roles.Role;
-import me.drex.itsours.claim.permission.util.node.util.InvalidPermissionException;
+import me.drex.itsours.claim.permission.*;
+import me.drex.itsours.claim.permission.holder.ClaimPermissionHolder;
+import me.drex.itsours.claim.permission.context.IgnoreContext;
+import me.drex.itsours.claim.permission.context.OwnerContext;
+import me.drex.itsours.claim.permission.holder.RestrictionHolder;
+import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.permission.util.InvalidPermissionException;
+import me.drex.itsours.claim.permission.util.Value;
+import me.drex.itsours.claim.permission.visitor.PermissionVisitor;
+import me.drex.itsours.claim.permission.visitor.PermissionVisitorImpl;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.user.Settings;
@@ -49,16 +51,16 @@ public abstract class AbstractClaim {
     private UUID owner;
     private RegistryKey<World> dimension;
     private final List<Subzone> subzoneList = new ArrayList<>();
-    private PermissionManager permissionManager;
-    private RestrictionManager restrictionManager;
+    private ClaimPermissionHolder permissionManager;
+    private RestrictionHolder restrictionManager;
 
     public AbstractClaim(String name, UUID owner, BlockPos first, BlockPos second, ServerWorld world) {
         this.name = name;
         this.owner = owner;
         this.box = ClaimBox.create(first, second);
         this.dimension = world.getRegistryKey();
-        this.permissionManager = new PermissionManager(new NbtCompound());
-        this.restrictionManager = new RestrictionManager(new NbtCompound());
+        this.permissionManager = new ClaimPermissionHolder(new NbtCompound());
+        this.restrictionManager = new RestrictionHolder(new NbtCompound());
     }
 
     public AbstractClaim(NbtCompound tag) {
@@ -69,7 +71,7 @@ public abstract class AbstractClaim {
         return !NAME.matcher(name).matches();
     }
 
-    public RestrictionManager getRestrictionManager() {
+    public RestrictionHolder getRestrictionManager() {
         return restrictionManager;
     }
 
@@ -78,7 +80,6 @@ public abstract class AbstractClaim {
         this.owner = tag.getUuid("owner");
         NbtCompound position = tag.getCompound("position");
         this.box = ClaimBox.load(position);
-        // TODO: Add option to ignore claims which are located in unknown worlds
         this.dimension = World.CODEC.parse(NbtOps.INSTANCE, position.get("world")).resultOrPartial(LOGGER::error).orElse(World.OVERWORLD);
         NbtList list = (NbtList) tag.get("subzones");
         if (list != null) {
@@ -87,8 +88,8 @@ public abstract class AbstractClaim {
                 subzoneList.add(subzone);
             });
         }
-        this.permissionManager = new PermissionManager(tag.getCompound("permissions"));
-        this.restrictionManager = new RestrictionManager(tag.getCompound("restrictions"));
+        this.permissionManager = new ClaimPermissionHolder(tag.getCompound("permissions"));
+        this.restrictionManager = new RestrictionHolder(tag.getCompound("restrictions"));
     }
 
     public NbtCompound toNBT() {
@@ -201,13 +202,17 @@ public abstract class AbstractClaim {
         }
     }
 
-    public boolean hasPermission(@Nullable UUID uuid, PermissionInterface permission) {
+    public boolean hasPermission(@Nullable UUID uuid, Permission permission) {
         PermissionVisitorImpl visitor = new PermissionVisitorImpl();
         visit(uuid, permission, visitor);
         return visitor.getResult().value;
     }
 
-    public void visit(@Nullable UUID uuid, PermissionInterface permission, PermissionVisitor visitor) {
+    public boolean hasPermission(@Nullable UUID uuid, Node... nodes) {
+        return hasPermission(uuid, PermissionImpl.withNodes(nodes));
+    }
+
+    public void visit(@Nullable UUID uuid, Permission permission, PermissionVisitor visitor) {
         if (Objects.equals(uuid, owner)) visitor.visit(this, permission, OwnerContext.INSTANCE, Value.ALLOW);
         if (PlayerList.get(uuid, Settings.IGNORE)) visitor.visit(this, permission, IgnoreContext.INSTANCE, Value.ALLOW);
         this.permissionManager.visit(this, uuid, permission, visitor);
@@ -216,7 +221,7 @@ public abstract class AbstractClaim {
     @Deprecated
     public boolean hasPermission(UUID uuid, String permission) {
         try {
-            return hasPermission(uuid, PermissionRework.of(permission));
+            return hasPermission(uuid, PermissionImpl.fromId(permission));
         } catch (InvalidPermissionException e) {
             // TODO:
             LOGGER.warn(e);
@@ -226,7 +231,7 @@ public abstract class AbstractClaim {
 
     public boolean getSetting(String setting) {
         try {
-            return hasPermission(null, PermissionRework.setting(setting));
+            return hasPermission(null, PermissionImpl.setting(setting));
         } catch (InvalidPermissionException e) {
             // TODO:
             LOGGER.warn(e);
@@ -234,9 +239,7 @@ public abstract class AbstractClaim {
         }
     }
 
-    public abstract Object2IntMap<Role> getRoles(UUID uuid);
-
-    public PermissionManager getPermissionManager() {
+    public ClaimPermissionHolder getPermissionManager() {
         return this.permissionManager;
     }
 

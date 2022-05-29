@@ -96,9 +96,4 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
         this.select = value;
     }
 
-    @Override
-    public void sendText(Text message) {
-        this.sendMessage(message);
-    }
-
 }

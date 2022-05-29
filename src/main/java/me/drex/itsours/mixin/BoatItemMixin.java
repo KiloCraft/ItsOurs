@@ -2,6 +2,8 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.claim.permission.node.Node;
 import me.drex.itsours.user.ClaimPlayer;
 import net.minecraft.text.Text;
 import net.minecraft.entity.player.PlayerEntity;
@@ -38,9 +40,8 @@ public abstract class BoatItemMixin extends Item {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, hit.getBlockPos());
         if (claim.isEmpty())
             return hit;
-        if (!claim.get().hasPermission(player.getUuid(), "use_item." + Registry.ITEM.getId(this).getPath())) {
-            ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED));
+        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.USE_ITEM, Node.dummy(Registry.ITEM, this))) {
+            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED));
             return BlockHitResult.createMissed(hit.getPos(), hit.getSide(), hit.getBlockPos());
         }
         return hit;

@@ -1,81 +1,70 @@
 package me.drex.itsours.command;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.permission.rework.Value;
+import me.drex.itsours.claim.permission.holder.ClaimPermissionHolder;
+import me.drex.itsours.claim.permission.roles.RoleManager;
+import me.drex.itsours.claim.permission.roles.Role;
+import me.drex.itsours.command.argument.ClaimArgument;
+import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import net.minecraft.text.Texts;
+import org.jetbrains.annotations.NotNull;
 
-public class TrustCommand extends Command {
+import java.util.Collection;
 
-    public static void register(LiteralArgumentBuilder<ServerCommandSource> literal, CommandDispatcher<ServerCommandSource> dispatcher) {
-        {
-            LiteralArgumentBuilder<ServerCommandSource> trust = LiteralArgumentBuilder.literal("trust");
-            RequiredArgumentBuilder<ServerCommandSource, String> player = playerArgument("player");
-            player.executes(ctx -> execute(ctx, Value.ALLOW));
-            RequiredArgumentBuilder<ServerCommandSource, String> claim = permissionClaimArgument("modify.trust");
+import static net.minecraft.server.command.CommandManager.argument;
 
-            claim.then(player);
-            trust.then(claim);
-            dispatcher.register(trust);
-            literal.then(trust);
-        }
-        {
-            RequiredArgumentBuilder<ServerCommandSource, String> player = playerArgument("player");
-            player.executes(ctx -> execute(ctx, Value.DENY));
-            RequiredArgumentBuilder<ServerCommandSource, String> claim = permissionClaimArgument("modify.distrust");
-            LiteralArgumentBuilder<ServerCommandSource> distrust = LiteralArgumentBuilder.literal("distrust");
+public class TrustCommand extends AbstractCommand {
 
-            claim.then(player);
-            distrust.then(claim);
-            literal.then(distrust);
-        }
-        {
-            LiteralArgumentBuilder<ServerCommandSource> untrust = LiteralArgumentBuilder.literal("untrust");
-            RequiredArgumentBuilder<ServerCommandSource, String> player = playerArgument("player");
-            player.executes(ctx -> execute(ctx, Value.UNSET));
-            RequiredArgumentBuilder<ServerCommandSource, String> claim = permissionClaimArgument("modify.untrust");
+    public static final TrustCommand TRUST = new TrustCommand("trust", true);
+    public static final TrustCommand DISTRUST = new TrustCommand("distrust", false);
 
-            claim.then(player);
-            untrust.then(claim);
-            dispatcher.register(untrust);
-            literal.then(untrust);
-        }
+    private final boolean trust;
+
+    private TrustCommand(@NotNull String literal, boolean trust) {
+        super(literal);
+        this.trust = trust;
     }
 
-    public static int execute(ServerCommandSource source, AbstractClaim claim, GameProfile target, Value trust) throws CommandSyntaxException {
-        switch (trust) {
-            case ALLOW -> {
-                validatePermission(claim, source, "modify.trust");
-                if (claim.getOwner().equals(target.getId()))
-                    throw new SimpleCommandExceptionType(Text.translatable("text.itsours.commands.exception.trust.self")).create();
-                RoleCommand.addRole(source, claim, target, "trusted", 0);
+    @Override
+    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+        literal.then(
+                ClaimArgument.ownClaims()
+                        .then(
+                                argument("targets", GameProfileArgumentType.gameProfile())
+                                        .executes(ctx -> executeTrust(ctx.getSource(), ClaimArgument.getClaim(ctx), GameProfileArgumentType.getProfileArgument(ctx, "targets")))
+                        )
+        );
+    }
+
+    private int executeTrust(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets) {
+        ClaimPermissionHolder permissionManager = claim.getPermissionManager();
+        Role trusted = RoleManager.INSTANCE.getRole(RoleManager.TRUSTED_ID);
+        int result = 0;
+        if (trust) {
+            for (GameProfile target : targets) {
+                if (permissionManager.addRole(target.getId(), trusted)) {
+                    src.sendFeedback(Text.translatable("text.itsours.commands.trust", Texts.toText(target), claim.getName()), false);
+                    result++;
+                } else {
+                    src.sendError(Text.translatable("text.itsours.commands.trust.nothing_changed", Texts.toText(target)));
+                }
             }
-            case DENY -> {
-                validatePermission(claim, source, "modify.distrust");
-                RoleCommand.removeRole(source, claim, target, "trusted");
-            }
-            case UNSET -> {
-                validatePermission(claim, source, "modify.untrust");
-                RoleCommand.unsetRole(source, claim, target, "trusted");
+        } else {
+            for (GameProfile target : targets) {
+                if (permissionManager.removeRole(target.getId(), trusted)) {
+                    src.sendFeedback(Text.translatable("text.itsours.commands.distrust", Texts.toText(target), claim.getName()), false);
+                    result++;
+                } else {
+                    src.sendError(Text.translatable("text.itsours.commands.distrust.nothing_changed", Texts.toText(target)));
+                }
             }
         }
-        return 1;
+        return result;
     }
 
-    public static int execute(CommandContext<ServerCommandSource> ctx, Value trust) throws CommandSyntaxException {
-        return execute(ctx, getClaim(ctx), trust);
-    }
 
-    public static int execute(CommandContext<ServerCommandSource> ctx, AbstractClaim claim, Value trust) {
-        ServerCommandSource src = ctx.getSource();
-        getGameProfile(ctx, "player", profile -> execute(src, claim, profile, trust));
-        return 1;
-    }
 }

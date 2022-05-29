@@ -31,6 +31,4 @@ public interface ClaimPlayer {
 
     boolean isSelecting();
 
-    void sendText(Text text);
-
 }

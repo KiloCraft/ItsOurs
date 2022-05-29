@@ -1,59 +1,44 @@
 package me.drex.itsours.command;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.util.Colors;
+import me.drex.itsours.command.argument.ClaimArgument;
+import me.drex.itsours.util.Components;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.text.Texts;
 
-public class InfoCommand extends Command {
+import java.util.Optional;
 
-    public static void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
-        RequiredArgumentBuilder<ServerCommandSource, String> claim = ownClaimArgument();
-        claim.executes(ctx -> info(ctx.getSource(), getClaim(ctx)));
-        LiteralArgumentBuilder<ServerCommandSource> command = LiteralArgumentBuilder.literal("info");
-        command.executes(ctx -> info(ctx.getSource(), getAndValidateClaim(ctx.getSource())));
-        command.then(claim);
-        literal.then(command);
+public class InfoCommand extends AbstractCommand {
+
+    public static final InfoCommand INSTANCE = new InfoCommand();
+
+    private InfoCommand() {
+        super("info");
     }
 
-    public static int info(ServerCommandSource source, AbstractClaim claim) throws CommandSyntaxException {
-        Vec3i size = claim.getSize();
-        String world = claim.getDimension().getValue().toString();
-        BlockPos tpPos = new BlockPos((claim.getBox().getMinX() + claim.getBox().getMaxX()) / 2, 0, (claim.getBox().getMinZ() + claim.getBox().getMaxZ()) / 2);
-        String tpCommand = String.format("/execute in %s run tp @s %d ~ %d", world, tpPos.getX(), tpPos.getZ());
-        source.sendFeedback(Text.translatable("text.itsours.command.info").formatted(Colors.TITLE_COLOR), false);
-        source.sendFeedback(Text.translatable("text.itsours.command.info.name", claim.getName()), false);
-        source.sendFeedback(Text.translatable("text.itsours.command.info.owner",
-                claim.getOwner()
-        ), false);
-        source.sendFeedback(Text.translatable("text.itsours.command.info.size",
-                Text.translatable("text.itsours.command.info.size.value", size.getX(), size.getY(), size.getZ()).formatted(Formatting.GREEN)
-        ), false);
-        source.sendFeedback(Text.translatable("text.itsours.command.info.depth",
-                Text.literal(String.valueOf(claim.getDepth()))
-        ), false);
+    @Override
+    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+        literal.then(
+                        ClaimArgument.ownClaims()
+                                .executes(ctx -> executeInfo(ctx.getSource(), ClaimArgument.getClaim(ctx)))
+                )
+                .executes(ctx -> executeInfo(ctx.getSource(), getClaim(ctx.getSource().getPlayer())));
+    }
 
-        source.sendFeedback(Text.translatable("text.itsours.command.info.settings",
-                claim.getPermissionManager().settings.toText()
+    private int executeInfo(ServerCommandSource src, AbstractClaim claim) {
+        Optional<GameProfile> optional = src.getServer().getUserCache().getByUuid(claim.getOwner());
+        src.sendFeedback(Text.translatable("text.itsours.commands.info",
+                claim.getFullName(),
+                Texts.toText(optional.orElse(new GameProfile(claim.getOwner(), null))),
+                Components.toText(claim.getSize()),
+                claim.getDepth(),
+                claim.getPermissionManager().settings.toText(),
+                Components.toText(claim.getBox()),
+                claim.getDimension().getValue().toString()
         ), false);
-        source.sendFeedback(Text.translatable("text.itsours.command.info.position",
-                Text.translatable("text.itsours.command.info.position.min",
-                        claim.getBox().getMin()
-                ).formatted(Formatting.WHITE),
-                Text.translatable("text.itsours.command.info.position.max",
-                        claim.getBox().getMax()
-                ).formatted(Formatting.WHITE)
-        ).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, tpCommand))), false);
-        source.sendFeedback(Text.translatable("text.itsours.command.info.dimension", world), false);
-
-
         return 1;
     }
 

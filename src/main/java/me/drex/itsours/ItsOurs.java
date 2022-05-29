@@ -1,8 +1,6 @@
 package me.drex.itsours;
 
-import me.drex.itsours.claim.permission.PermissionList;
-import me.drex.itsours.claim.permission.rework.PermissionManager;
-import me.drex.itsours.claim.permission.roles.RoleManager;
+import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.command.CommandManager;
 import me.drex.itsours.data.DataHandler;
 import me.drex.itsours.listener.PlayerEventListener;
@@ -33,13 +31,11 @@ public class ItsOurs {
 
     protected void registerEvents() {
         ServerLifecycleEvents.SERVER_STARTING.register(server -> this.server = server);
-        CommandRegistrationCallback.EVENT.register(CommandManager::register);
-        CommandRegistrationCallback.EVENT.register(me.drex.itsours.command.rework.CommandManager.INSTANCE::register);
+        CommandRegistrationCallback.EVENT.register(CommandManager.INSTANCE::register);
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerReady);
     }
 
     public void onServerReady(MinecraftServer server) {
-        PermissionList.INSTANCE.register();
         PlayerEventListener.registerPlayerListeners();
         PermissionManager.register();
         load(server);
@@ -93,10 +89,6 @@ public class ItsOurs {
         } catch (IOException e) {
             LOGGER.error("Could not save " + data.getName(), e);
         }
-    }
-
-    public RoleManager getRoleManager() {
-        return this.dataHandler.getRoleManager();
     }
 
     public int getDataVersion() {

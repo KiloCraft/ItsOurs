@@ -19,7 +19,6 @@
     "PlayerEntityMixin",
     "PlayerManagerMixin",
     "ProjectileEntityMixin",
-    "ScreenHandlerMixin",
     "ServerPlayerEntityMixin",
     "ServerPlayerInteractionManagerMixin"
   ],

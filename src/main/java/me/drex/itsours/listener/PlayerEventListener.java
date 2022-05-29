@@ -2,7 +2,11 @@ package me.drex.itsours.listener;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
-import me.drex.itsours.claim.permission.PermissionList;
+import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.claim.permission.PermissionImpl;
+import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.command.CommandManager;
+import me.drex.itsours.command.CreateCommand;
 import me.drex.itsours.user.ClaimPlayer;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
@@ -43,19 +47,10 @@ public class PlayerEventListener {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         final BlockPos pos = hitResult.getBlockPos();
         if (shouldSelect(player, hand, claimPlayer.getSecondPosition(), pos)) {
-            claimPlayer.sendText(Text.translatable("text.itsours.select.pos2", pos.getX(), pos.getY(), pos.getZ()).formatted(Formatting.GREEN));
+            player.sendMessage(Text.translatable("text.itsours.select.pos2", pos.getX(), pos.getY(), pos.getZ()).formatted(Formatting.GREEN));
             claimPlayer.setSecondPosition(pos);
             onSelectCorner(player);
             return ActionResult.SUCCESS;
-        } else {
-            /*ItemStack stack = player.getStackInHand(hand);
-            Optional<AbstractClaim> claim = MOD.getClaimList().get((ServerWorld) player.getWorld(), hitResult.getBlockPos());
-            if (claim.isEmpty() || !PermissionList.filter(stack.getItem(), PermissionList.useOnBlock))
-                return ActionResult.PASS;
-            if (!claim.get().hasPermission(player.getUuid(), String.format("use_on_block.%s", toItemId(stack)))) {
-                claimPlayer.sendMessage(Text.translatable("interact_item_on_block").formatted(Formatting.RED));
-                return ActionResult.FAIL;
-            }*/
         }
         return ActionResult.PASS;
     }
@@ -63,7 +58,7 @@ public class PlayerEventListener {
     private static ActionResult onBlockAttack(PlayerEntity player, World world, Hand hand, BlockPos pos, Direction direction) {
         ClaimPlayer claimPlayer = (ClaimPlayer) player;
         if (shouldSelect(player, hand, claimPlayer.getFirstPosition(), pos)) {
-            claimPlayer.sendText(Text.translatable("text.itsours.select.pos1", pos.getX(), pos.getY(), pos.getZ()).formatted(Formatting.GREEN));
+            player.sendMessage(Text.translatable("text.itsours.select.pos1", pos.getX(), pos.getY(), pos.getZ()).formatted(Formatting.GREEN));
             claimPlayer.setFirstPosition(pos);
             onSelectCorner(player);
             return ActionResult.SUCCESS;
@@ -74,18 +69,13 @@ public class PlayerEventListener {
     private static TypedActionResult<ItemStack> onInteractItem(PlayerEntity player, World world, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(player);
-        if (claim.isEmpty() || !PermissionList.filter(stack.getItem(), PermissionList.USE_ITEM))
+        if (claim.isEmpty() || !PermissionManager.USE_ITEM_PREDICATE.test(stack.getItem()))
             return TypedActionResult.pass(stack);
-        if (!claim.get().hasPermission(player.getUuid(), String.format("use_item.%s", toItemId(stack)))) {
-            ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED));
+        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.USE_ITEM, Node.dummy(Registry.ITEM, stack.getItem()))) {
+            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED));
             return TypedActionResult.fail(stack);
         }
         return TypedActionResult.pass(stack);
-    }
-
-    private static String toItemId(ItemStack stack) {
-        return Registry.ITEM.getId(stack.getItem()).getPath();
     }
 
     private static void onSelectCorner(PlayerEntity player) {
@@ -93,11 +83,11 @@ public class PlayerEventListener {
         if (claimPlayer.arePositionsSet()) {
             MutableText text = Text.translatable("text.itsours.select.done").formatted(Formatting.GOLD);
             if (ClaimList.INSTANCE.getClaimsFrom(player.getUuid()).isEmpty()) {
-                text.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("claim create %s", player.getEntityName()))));
+                text.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/%s %s %s", CommandManager.LITERAL, CreateCommand.LITERAL, player.getEntityName()))));
             } else {
-                text.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/claim create name")));
+                text.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, String.format("/%s %s name", CommandManager.LITERAL, CreateCommand.LITERAL))));
             }
-            claimPlayer.sendText(text);
+            player.sendMessage(text);
         }
     }
 

@@ -3,6 +3,8 @@ package me.drex.itsours.mixin;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.claim.permission.node.Node;
 import me.drex.itsours.user.ClaimPlayer;
 import net.minecraft.text.Text;
 import net.minecraft.block.AbstractButtonBlock;
@@ -97,9 +99,8 @@ public abstract class EntityMixin {
             blockState.onEntityCollision(world, pos, entity);
             return;
         }
-        if (!claim.get().hasPermission(playerEntity.getUuid(), "interact_block." + Registry.BLOCK.getId(blockState.getBlock()).getPath())) {
-            ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
-            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED));
+        if (!claim.get().hasPermission(playerEntity.getUuid(), PermissionManager.INTERACT_BLOCK, Node.dummy(Registry.BLOCK, blockState.getBlock()))) {
+            playerEntity.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED));
             return;
         }
         blockState.onEntityCollision(world, pos, entity);

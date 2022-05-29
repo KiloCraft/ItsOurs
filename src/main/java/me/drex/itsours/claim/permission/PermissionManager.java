@@ -1,193 +1,215 @@
 package me.drex.itsours.claim.permission;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import com.google.common.collect.Lists;
 import me.drex.itsours.ItsOurs;
-import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.permission.rework.Value;
-import me.drex.itsours.claim.permission.rework.PermissionInterface;
-import me.drex.itsours.claim.permission.rework.PermissionStorage;
-import me.drex.itsours.claim.permission.rework.PermissionVisitor;
-import me.drex.itsours.claim.permission.rework.context.PersonalContext;
-import me.drex.itsours.claim.permission.rework.context.GlobalContext;
-import me.drex.itsours.claim.permission.rework.context.RoleContext;
-import me.drex.itsours.claim.permission.rework.roles.PlayerRoleStorage;
-import me.drex.itsours.claim.permission.rework.roles.RoleManagerRework;
-import me.drex.itsours.claim.permission.rework.roles.RoleRework;
-import me.drex.itsours.claim.permission.roles.PlayerRoleManager;
-import me.drex.itsours.claim.permission.roles.Role;
-import net.minecraft.nbt.NbtCompound;
-import org.jetbrains.annotations.Nullable;
+import me.drex.itsours.claim.permission.util.Modify;
+import me.drex.itsours.claim.permission.context.GlobalContext;
+import me.drex.itsours.claim.permission.node.AbstractNode;
+import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.permission.node.RootNode;
+import me.drex.itsours.claim.permission.node.builder.AbstractNodeBuilder;
+import me.drex.itsours.claim.permission.node.builder.GroupNodeBuilder;
+import me.drex.itsours.claim.permission.node.builder.SingleNodeBuilder;
+import net.minecraft.block.AbstractButtonBlock;
+import net.minecraft.block.AbstractPressurePlateBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.*;
+import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Predicate;
 
 public class PermissionManager {
 
-    public PermissionStorage settings = PermissionStorage.storage();
-    public Map<UUID, PermissionStorage> playerPermission = new HashMap<>();
-    public Map<UUID, PlayerRoleStorage> roles = new HashMap<>();
+    public static final RootNode PERMISSION = Node.root("permission").build();
+    public static final RootNode SETTING = Node.root("setting").build();
+    public static final RootNode COMBINED = Node.root("combined").build();
 
-    public PermissionManager(NbtCompound tag) {
-        fromNBT(tag);
-    }
-
-    private void fromNBT(NbtCompound tag) {
-        if (tag.contains("settings")) settings.load(tag.getCompound("settings"));
-        if (tag.contains("players")) {
-            NbtCompound players = tag.getCompound("players");
-            players.getKeys().forEach(uuid -> {
-                NbtCompound player = players.getCompound(uuid);
-                if (player.contains("permission"))
-                    playerPermission.put(UUID.fromString(uuid), PermissionStorage.fromNbt(player.getCompound("permission")));
-                if (player.contains("role")) {
-                    roles.put(UUID.fromString(uuid), new PlayerRoleStorage(player.get("role")));
-                }
-            });
+    public static final Predicate<Item> USE_ITEM_PREDICATE = item -> !overrides(item.getClass(), Item.class, "method_7836", World.class, PlayerEntity.class, Hand.class) || item.isFood();
+    public static final Predicate<Item> USE_ON_BLOCK_PREDICATE = item -> (!overrides(item.getClass(), Item.class, "method_7884", ItemUsageContext.class)) && !(item instanceof BlockItem);
+    public static final Predicate<Block> INTERACT_BLOCK_PREDICATE = block -> (!overrides(block.getClass(), Block.class, "method_9534", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class) || block instanceof AbstractButtonBlock || block instanceof AbstractPressurePlateBlock);
+    public static final Predicate<EntityType<?>> INTERACT_ENTITY_PREDICATE = entityType -> {
+        Entity entity = entityType.create(ItsOurs.INSTANCE.server.getOverworld());
+        if (entity == null) {
+            return false;
+        } else {
+            return !overrides(entity.getClass(), Entity.class, "method_5688", PlayerEntity.class, Hand.class) || !overrides(entity.getClass(), Entity.class, "method_5664", PlayerEntity.class, Vec3d.class, Hand.class);
         }
+    };
+
+    public static final List<Node> BLOCK_NODES = getNodes(Registry.BLOCK);
+    public static final List<Node> INTERACT_BLOCK_NODES = getNodes(Registry.BLOCK, INTERACT_BLOCK_PREDICATE);
+    public static final List<Node> ITEM_BLOCK_NODES = getNodes(Registry.ITEM, USE_ON_BLOCK_PREDICATE);
+    public static final List<Node> USE_ITEM_NODES = getNodes(Registry.ITEM, USE_ITEM_PREDICATE);
+    public static final List<Node> DAMAGE_ENTITY_NODES = getNodes(Registry.ENTITY_TYPE, entityType -> !entityType.equals(EntityType.PLAYER));
+    public static final List<Node> INTERACT_ENTITY_NODES = getNodes(Registry.ENTITY_TYPE, INTERACT_ENTITY_PREDICATE);
+
+    // TODO: Put all nodes like this
+
+    public static final AbstractNode PLACE = Node.single("place")
+            .description("text.itsours.permission.place.description")
+            .icon(Items.MANGROVE_PLANKS)
+            .then(BLOCK_NODES)
+            .build();
+
+    public static final AbstractNode MINE = Node.single("mine")
+            .description("text.itsours.permission.mine.description")
+            .icon(Items.NETHERITE_PICKAXE)
+            .then(BLOCK_NODES)
+            .build();
+
+    public static final AbstractNode INTERACT_BLOCK = Node.single("interact_block")
+            .description("text.itsours.permission.interact_block.description")
+            .icon(Items.FURNACE)
+            .then(INTERACT_BLOCK_NODES)
+            .build();
+
+    public static final AbstractNode USE_ON_BLOCK = Node.single("use_on_block")
+            .description("text.itsours.permission.use_on_block.description")
+            .icon(Items.IRON_SHOVEL)
+            .then(ITEM_BLOCK_NODES)
+            .build();
+
+    public static final AbstractNode USE_ITEM = Node.single("use_item")
+            .description("text.itsours.permission.use_item.description")
+            .icon(Items.FIREWORK_ROCKET)
+            .then(USE_ITEM_NODES)
+            .build();
+
+    public static final AbstractNode DAMAGE_ENTITY = Node.single("damage_entity")
+            .description("text.itsours.permission.damage_entity.description")
+            .icon(Items.DIAMOND_SWORD)
+            .then(DAMAGE_ENTITY_NODES)
+            .build();
+
+    public static final AbstractNode INTERACT_ENTITY = Node.single("interact_entity")
+            .description("text.itsours.permission.interact_entity.description")
+            .icon(Items.VILLAGER_SPAWN_EGG)
+            .then(INTERACT_ENTITY_NODES)
+            .build();
+
+    public static final AbstractNode MODIFY = Node.single("modify")
+            .description("text.itsours.permission.modify.description")
+            .icon(Items.REPEATER)
+            .predicate(context -> context.context() != GlobalContext.INSTANCE)
+            .then(Arrays.stream(Modify.values()).map(Modify::buildNode).toList())
+            .build();
+
+    public static final AbstractNode PVP = Node.single("pvp")
+            .description("text.itsours.setting.pvp.description")
+            .icon(Items.BOW)
+            .build();
+
+    public static final AbstractNode EXPLOSIONS = Node.single("explosions")
+            .description("text.itsours.setting.explosions.description")
+            .icon(Items.TNT)
+            .build();
+
+    public static final AbstractNode FLUID_CROSSES_BORDERS = Node.single("fluid_crosses_borders")
+            .description("text.itsours.setting.fluid_crosses_borders.description")
+            .icon(Items.WATER_BUCKET)
+            .build();
+
+    public static void register() {
+        registerPermission(PLACE);
+        registerPermission(MINE);
+        registerPermission(INTERACT_BLOCK);
+        registerPermission(USE_ON_BLOCK);
+        registerPermission(USE_ON_BLOCK);
+        registerPermission(USE_ITEM);
+        registerPermission(DAMAGE_ENTITY);
+        registerPermission(INTERACT_ENTITY);
+        registerPermission(MODIFY);
+        // Settings
+        registerSetting(PVP);
+        registerSetting(EXPLOSIONS);
+        registerSetting(FLUID_CROSSES_BORDERS);
     }
 
-    public NbtCompound toNBT() {
-        NbtCompound tag = new NbtCompound();
-        NbtCompound players = new NbtCompound();
+    private static void registerPermission(Node node) {
+        PERMISSION.addNode(node);
+        COMBINED.addNode(node);
+    }
 
-        List<UUID> uuidSet = new ArrayList<>();
-        uuidSet.addAll(playerPermission.keySet());
-        uuidSet.addAll(roles.keySet());
-        for (UUID uuid : uuidSet) {
-            boolean shouldSave = false;
-            NbtCompound player = new NbtCompound();
-            PermissionStorage storage = playerPermission.get(uuid);
-            if (storage != null) {
-                player.put("permission", storage.save());
-                if (storage.size() > 0) shouldSave = true;
+    private static void registerSetting(Node node) {
+        SETTING.addNode(node);
+        COMBINED.addNode(node);
+    }
+
+    private static <T> List<Node> getNodes(@NotNull final Registry<T> registry) {
+        return getNodes(registry, Collections.emptyList(), predicate -> true);
+    }
+
+    private static <T> List<Node> getNodes(@NotNull final Registry<T> registry, Predicate<T> predicate) {
+        return getNodes(registry, Collections.emptyList(), predicate);
+    }
+
+    private static <T> List<Node> getNodes(@NotNull final Registry<T> registry, List<Node> child, Predicate<T> predicate) {
+        List<Node> nodes = new LinkedList<>();
+        // Group nodes
+        registry.streamTags().forEach(tagKey -> {
+            final List<Node> entries = Lists.newArrayList();
+            T symbol = null;
+            for (RegistryEntry<T> entry : registry.iterateEntries(tagKey)) {
+                if (!predicate.test(entry.value())) continue;
+                if (symbol == null) symbol = entry.value();
+                final Identifier identifier = registry.getId(entry.value());
+                Validate.notNull(identifier, "%s does not contain entry %s", registry.toString(), entry.value().toString());
+                SingleNodeBuilder builder = Node.single(identifier.getPath());
+                addItem(entry, builder);
+                entries.add(builder.build());
             }
-            PlayerRoleStorage roleStorage = roles.get(uuid);
-            if (roleStorage != null) {
-                player.put("role", roleStorage.toNbt());
-                if (roleStorage.getSize() > 0) shouldSave = true;
+            if (!entries.isEmpty()) {
+                GroupNodeBuilder builder = Node.group(tagKey.id().getPath());
+                builder.contained(entries);
+                addItem(symbol, builder);
+                nodes.add(builder.then(child).build());
             }
-            if (shouldSave) players.put(uuid.toString(), player);
+        });
+
+        // Single nodes
+        for (T entry : registry) {
+            assert registry.getId(entry) != null;
+            AbstractNodeBuilder builder = Node.single(registry.getId(entry).getPath()).then(child);
+            addItem(entry, builder);
+            if (!predicate.test(entry)) continue;
+            nodes.add(builder.build());
         }
-
-        if (!settings.isEmpty()) tag.put("settings", settings.save());
-        tag.put("players", players);
-        return tag;
+        return nodes;
     }
 
-    public boolean addRole(UUID uuid, RoleRework role) {
-        PlayerRoleStorage roleStorage = this.roles.computeIfAbsent(uuid, ignored -> new PlayerRoleStorage());
-        return roleStorage.addRole(role);
-    }
-
-    public boolean removeRole(UUID uuid, RoleRework role) {
-        PlayerRoleStorage roleStorage = this.roles.computeIfAbsent(uuid, ignored -> new PlayerRoleStorage());
-        return roleStorage.removeRole(role);
-    }
-
-    public List<RoleRework> getRolesNew(UUID uuid) {
-        PlayerRoleStorage roleStorage = this.roles.get(uuid);
-        if (roleStorage != null) {
-            return roleStorage.getRoles();
-        }
-        return Collections.emptyList();
-    }
-
-    public Map<UUID, PlayerRoleStorage> getRoles() {
-        return roles;
-    }
-
-    @Deprecated
-    public boolean addRole(UUID uuid, Role role, int weight) {
-        throw new UnsupportedOperationException();
-        /*PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
-        boolean changed = playerRoleManager.addRole(role, weight);
-        this.roleManager.put(uuid, playerRoleManager);
-        return changed;*/
-    }
-
-    public boolean removeRole(UUID uuid, Role role) {
-        throw new UnsupportedOperationException();
-        /*PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
-        boolean changed = playerRoleManager.removeRole(role);
-        this.roleManager.put(uuid, playerRoleManager);
-        return changed;*/
-    }
-
-    @Deprecated
-    public boolean unsetRole(UUID uuid, Role role) {
-        throw new UnsupportedOperationException();
-        /*PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
-        boolean changed = playerRoleManager.unsetRole(role);
-        this.roleManager.put(uuid, playerRoleManager);
-        return changed;*/
-    }
-
-    @Deprecated
-    public Object2IntMap<Role> getRoles(UUID uuid) {
-        throw new UnsupportedOperationException();
-        /*PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
-        return playerRoleManager.getRoles();*/
-    }
-
-    @Deprecated
-    public List<Role> getRemovedRoles(UUID uuid) {
-        throw new UnsupportedOperationException();
-        /*PlayerRoleManager playerRoleManager = this.roleManager.getOrDefault(uuid, new PlayerRoleManager(new NbtCompound()));
-        return playerRoleManager.getRemoved();*/
-    }
-
-    public void visit(AbstractClaim claim, @Nullable UUID uuid, PermissionInterface permission, PermissionVisitor visitor) {
-        settings.visit(claim, permission, GlobalContext.INSTANCE, visitor);
-        if (uuid != null) {
-            PermissionStorage permissionStorage = playerPermission.get(uuid);
-            if (permissionStorage != null) {
-                permissionStorage.visit(claim, permission, new PersonalContext(uuid), visitor);
-                // TODO: roles
-            }
-            PlayerRoleStorage roleStorage = roles.get(uuid);
-            if (roleStorage != null) {
-                RoleRework defaultRole = RoleManagerRework.INSTANCE.getRole(RoleManagerRework.DEFAULT_ID);
-                assert defaultRole != null;
-                defaultRole.permissions().visit(claim, permission, new RoleContext(defaultRole), visitor);
-                for (RoleRework role : roleStorage.getRoles()) {
-                    role.permissions().visit(claim, permission, new RoleContext(role), visitor);
-                }
-            }
+    private static <T> void addItem(T entry, AbstractNodeBuilder builder) {
+        if (entry instanceof ItemConvertible convertible) {
+            builder.icon(convertible.asItem());
+        } else if (entry instanceof EntityType entityType) {
+            Item item = SpawnEggItem.forEntity(entityType);
+            if (item == null) item = Items.EGG;
+            builder.icon(item);
         }
     }
 
-    public void setPermission(UUID uuid, PermissionInterface permission, Value value) {
-        PermissionStorage storage = playerPermission.computeIfAbsent(uuid, ignored -> PermissionStorage.storage());
-        storage.set(permission, value);
-    }
-
-    public Value getPermission(UUID uuid, PermissionInterface permission) {
-        return getPermission(uuid).get(permission);
-    }
-
-    public PermissionStorage getPermission(UUID uuid) {
-        return playerPermission.computeIfAbsent(uuid, ignored -> PermissionStorage.storage());
-    }
-
-    public PlayerRoleManager getPlayerRoleManager(UUID uuid) {
-        throw new UnsupportedOperationException();
-        /*PlayerRoleManager prm = roleManager.get(uuid);
-        if (prm == null) {
-            prm = new PlayerRoleManager(new NbtCompound());
+    private static boolean overrides(Class<?> clazz1, Class<?> clazz2, String methodName, Class<?>... classes) {
+        try {
+            return clazz1.getMethod(methodName, classes).equals(clazz2.getMethod(methodName, classes));
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("An error occurred while retrieving " + methodName + " in " + clazz1.getName() + " or " + clazz2.getName() + ", maybe the method name or parameters changed?");
         }
-        return prm;*/
-    }
-
-    @Deprecated
-    private HashMap<Role, Integer> sort(HashMap<Role, Integer> hashMap) {
-        throw new UnsupportedOperationException();
-        /*List<Map.Entry<Role, Integer>> list = new LinkedList<>(hashMap.entrySet());
-        list.sort(Map.Entry.comparingByValue());
-        HashMap<Role, Integer> temp = new LinkedHashMap<>();
-        temp.put(ItsOurs.INSTANCE.getRoleManager().get("default"), -1);
-        for (Map.Entry<Role, Integer> entry : list) {
-            temp.put(entry.getKey(), entry.getValue());
-        }
-        return temp;*/
     }
 
 }

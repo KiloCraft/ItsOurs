@@ -2,40 +2,48 @@ package me.drex.itsours.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import me.drex.itsours.command.help.HelpCategory;
-import me.drex.itsours.command.help.HelpCommand;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class CommandManager {
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
-        LiteralArgumentBuilder<ServerCommandSource> main = LiteralArgumentBuilder.literal("claim");
-        main.executes(ctx -> HelpCommand.sendHelp(ctx.getSource(), HelpCategory.GET_STARTED, 0));
-        BlocksCommand.register(main);
-        CreateCommand.register(main);
-        ExpandCommand.register(main);
-        FlyCommand.register(main);
-        GUICommand.register(main);
-        HelpCommand.register(main);
-        IgnoreCommand.register(main);
-        InfoCommand.register(main);
-        ListCommand.register(main);
-        PermissionCommand.register(main);
-        RemoveCommand.register(main);
-        RenameCommand.register(main);
-        //RestrictionCommand.register(main);
-        RoleCommand.register(main);
-        RolesCommand.register(main);
-        SelectCommand.register(main);
-        // TODO:
-        //SetOwnerCommand.register(main);
-        SettingCommand.register(main);
-        ShowCommand.register(main);
-        TrustCommand.register(main, dispatcher);
-        TrustedCommand.register(main);
+    public static final CommandManager INSTANCE = new CommandManager();
 
+    public static final String LITERAL = "claim_rework";
 
-        dispatcher.register(main);
+    private CommandManager() {
+    }
+
+    public void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
+        LiteralArgumentBuilder<ServerCommandSource> claim = LiteralArgumentBuilder.literal(LITERAL);
+
+        final AbstractCommand[] commands = new AbstractCommand[]{
+                BlocksCommand.INSTANCE,
+                CheckCommand.INSTANCE,
+                CreateCommand.INSTANCE,
+                ExpandCommand.EXPAND,
+                ExpandCommand.SHRINK,
+                FlyCommand.INSTANCE,
+                GlobalSettingCommand.INSTANCE,
+                IgnoreCommand.INSTANCE,
+                InfoCommand.INSTANCE,
+                ListCommand.INSTANCE,
+                PersonalSettingCommand.INSTANCE,
+                RemoveCommand.INSTANCE,
+                RenameCommand.INSTANCE,
+                RolesCommand.INSTANCE,
+                SelectCommand.INSTANCE,
+                SetOwnerCommand.INSTANCE,
+                ShowCommand.HIDE,
+                ShowCommand.SHOW,
+                TrustCommand.TRUST,
+                TrustCommand.DISTRUST,
+                TrustedCommand.INSTANCE,
+        };
+
+        for (AbstractCommand command : commands) {
+            command.registerCommand(claim);
+        }
+        dispatcher.register(claim);
     }
 
 }

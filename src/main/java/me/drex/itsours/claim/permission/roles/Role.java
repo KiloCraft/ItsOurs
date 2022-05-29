@@ -1,20 +1,23 @@
 package me.drex.itsours.claim.permission.roles;
 
-import me.drex.itsours.claim.permission.rework.PermissionStorage;
+import me.drex.itsours.claim.permission.holder.PermissionHolder;
 import net.minecraft.nbt.NbtCompound;
+import org.jetbrains.annotations.NotNull;
 
-public class Role {
+import java.util.List;
 
-    public static final Role TRUSTED = new Role();
-    public static final Role DEFAULT = new Role();
+public class Role implements Comparable<Role> {
 
-    private final PermissionStorage permissions = PermissionStorage.storage();
+    private final String id;
+    private final PermissionHolder permissions;
 
-    public Role() {
-        this(new NbtCompound());
+    public Role(String id, PermissionHolder permissions) {
+        this.id = id;
+        this.permissions = permissions;
     }
 
-    public Role(NbtCompound tag) {
+    public Role(String id, NbtCompound tag) {
+        this(id, PermissionHolder.storage());
         this.load(tag);
     }
 
@@ -22,11 +25,23 @@ public class Role {
         permissions.load(tag);
     }
 
+    public String getId() {
+        return id;
+    }
+
     public NbtCompound save() {
         return permissions.save();
     }
 
-    public PermissionStorage permissions() {
+    public PermissionHolder permissions() {
         return this.permissions;
     }
+
+    @Override
+    public int compareTo(@NotNull Role other) {
+        List<Role> orderedRoles = RoleManager.INSTANCE.getOrderedRoles();
+        // Compare index in role orders (lower is better)
+        return Integer.compare(orderedRoles.indexOf(other), orderedRoles.indexOf(this));
+    }
+
 }

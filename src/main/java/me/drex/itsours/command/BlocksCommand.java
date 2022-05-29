@@ -3,96 +3,93 @@ package me.drex.itsours.command;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.user.Settings;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.text.Texts;
+import net.minecraft.util.math.MathHelper;
 
-public class BlocksCommand extends Command {
+import java.util.Collection;
+import java.util.Collections;
 
-    public static void register(LiteralArgumentBuilder<ServerCommandSource> command) {
-        LiteralArgumentBuilder<ServerCommandSource> blocks = LiteralArgumentBuilder.literal("blocks");
-        blocks.executes(context -> check(context.getSource()));
-        {
-            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = players();
-            player.executes(BlocksCommand::checkOther);
-            LiteralArgumentBuilder<ServerCommandSource> check = LiteralArgumentBuilder.literal("check");
-            check.requires(src -> hasPermission(src, "itsours.blocks.check"));
-            check.then(player);
-            blocks.then(check);
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
+
+public class BlocksCommand extends AbstractCommand {
+
+    public static final BlocksCommand INSTANCE = new BlocksCommand();
+
+    private BlocksCommand() {
+        super("blocks");
+    }
+
+    @Override
+    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+        literal.then(
+                        literal("add").then(
+                                argument("targets", GameProfileArgumentType.gameProfile()).then(
+                                        argument("blocks", IntegerArgumentType.integer())
+                                                .executes(ctx -> addBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), IntegerArgumentType.getInteger(ctx, "blocks")))
+                                )
+                        ).requires(src -> Permissions.check(src, "itsours.blocks.add"))
+                )
+                .then(literal("check").then(
+                                argument("targets", GameProfileArgumentType.gameProfile())
+                                        .executes(ctx -> checkBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets")))
+
+                        )
+                ).requires(src -> Permissions.check(src, "itsours.blocks.check"))
+                .then(
+                        // TODO:
+                        literal("set").then(
+                                argument("targets", GameProfileArgumentType.gameProfile()).then(
+                                        argument("blocks", IntegerArgumentType.integer())
+                                                .executes(ctx -> setBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), IntegerArgumentType.getInteger(ctx, "blocks")))
+                                )
+                        ).requires(src -> Permissions.check(src, "itsours.blocks.set"))
+                )
+                .executes(ctx -> checkBlocks(ctx.getSource(), Collections.singleton(ctx.getSource().getPlayer().getGameProfile())));
+    }
+
+    private int checkBlocks(ServerCommandSource src, Collection<GameProfile> targets) {
+        int result = 0;
+        for (GameProfile target : targets) {
+            int blocks = PlayerList.get(target.getId(), Settings.BLOCKS);
+            result += blocks;
+            src.sendFeedback(Text.translatable("text.itsours.commands.blocks", Texts.toText(target), blocks), false);
         }
-        {
-            RequiredArgumentBuilder<ServerCommandSource, Integer> amount = RequiredArgumentBuilder.argument("amount", IntegerArgumentType.integer());
-            amount.executes(BlocksCommand::set);
-            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = players();
-            LiteralArgumentBuilder<ServerCommandSource> set = LiteralArgumentBuilder.literal("set");
-            set.requires(src -> hasPermission(src, "itsours.blocks.set"));
-            player.then(amount);
-            set.then(player);
-            blocks.then(set);
+        return result;
+    }
+
+    private int addBlocks(ServerCommandSource src, Collection<GameProfile> targets, int amount) {
+        int i = 0;
+        for (GameProfile target : targets) {
+            int blocks = PlayerList.get(target.getId(), Settings.BLOCKS);
+            int newAmount = MathHelper.clamp(blocks + amount, 0, Integer.MAX_VALUE);
+            if (blocks == newAmount) continue;
+            PlayerList.set(target.getId(), Settings.BLOCKS, newAmount);
+            i++;
+            if (amount >= 0) {
+                src.sendFeedback(Text.translatable("text.itsours.commands.blocks.add", amount, Texts.toText(target)), false);
+            } else {
+                src.sendFeedback(Text.translatable("text.itsours.commands.blocks.remove", -amount, Texts.toText(target)), false);
+            }
         }
-        {
-            RequiredArgumentBuilder<ServerCommandSource, Integer> amount = RequiredArgumentBuilder.argument("amount", IntegerArgumentType.integer());
-            amount.executes(BlocksCommand::add);
-            RequiredArgumentBuilder<ServerCommandSource, GameProfileArgumentType.GameProfileArgument> player = players();
-            LiteralArgumentBuilder<ServerCommandSource> add = LiteralArgumentBuilder.literal("add");
-            add.requires(src -> hasPermission(src, "itsours.blocks.add"));
-            player.then(amount);
-            add.then(player);
-            blocks.then(add);
+        return i;
+    }
+
+    private int setBlocks(ServerCommandSource src, Collection<GameProfile> targets, int amount) {
+        int i = 0;
+        for (GameProfile target : targets) {
+            int newAmount = MathHelper.clamp(amount, 0, Integer.MAX_VALUE);
+            PlayerList.set(target.getId(), Settings.BLOCKS, newAmount);
+            src.sendFeedback(Text.translatable("text.itsours.commands.blocks.set", Texts.toText(target), amount), false);
+            i++;
         }
-        command.then(blocks);
-    }
-
-    public static int check(ServerCommandSource source) throws CommandSyntaxException {
-        int blocks = PlayerList.get(source.getPlayer().getUuid(), Settings.BLOCKS);
-        source.sendFeedback(Text.translatable("text.itsours.command.blocks.check.self", blocks).formatted(Formatting.GREEN), false);
-        return blocks;
-    }
-
-    public static int checkOther(CommandContext<ServerCommandSource> ctx) {
-        getGameProfiles(ctx).thenAccept(gameProfiles -> {
-            for (GameProfile profile : gameProfiles) {
-                int blocks = PlayerList.get(profile.getId(), Settings.BLOCKS);
-                ctx.getSource().sendFeedback(Text.translatable("text.itsours.command.blocks.check.other", profile.getName(), blocks).formatted(Formatting.GREEN), false);
-            }
-        });
-        return 1;
-    }
-
-    public static int set(CommandContext<ServerCommandSource> ctx) {
-        int amount = IntegerArgumentType.getInteger(ctx, "amount");
-        getGameProfiles(ctx).thenAccept(gameProfiles -> {
-            for (GameProfile profile : gameProfiles) {
-                PlayerList.set(profile.getId(), Settings.BLOCKS, amount);
-                ctx.getSource().sendFeedback(Text.translatable("text.itsours.command.blocks.set", profile.getName(), amount).formatted(Formatting.GREEN), false);
-            }
-        });
-        return 1;
-    }
-
-    public static int add(CommandContext<ServerCommandSource> ctx) {
-        int amount = IntegerArgumentType.getInteger(ctx, "amount");
-        getGameProfiles(ctx).thenAccept(gameProfiles -> {
-            for (GameProfile profile : gameProfiles) {
-                int blocks = PlayerList.get(profile.getId(), Settings.BLOCKS);
-                PlayerList.set(profile.getId(), Settings.BLOCKS, Math.max(0, blocks + amount));
-                MutableText text;
-                if (amount >= 0) {
-                    text = Text.translatable("text.itsours.command.blocks.add", amount, profile.getName()).formatted(Formatting.GREEN);
-                } else {
-                    text = Text.translatable("text.itsours.command.blocks.remove", -amount, profile.getName()).formatted(Formatting.GREEN);
-                }
-                ctx.getSource().sendFeedback(text, false);
-            }
-        });
-        return 1;
+        return i;
     }
 
 }

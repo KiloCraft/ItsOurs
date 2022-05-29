@@ -2,6 +2,9 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.claim.permission.PermissionImpl;
+import me.drex.itsours.claim.permission.node.Node;
 import me.drex.itsours.user.ClaimPlayer;
 import net.minecraft.text.Text;
 import net.minecraft.entity.EntityType;
@@ -37,9 +40,9 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
     public void canInteract(PlayerEntity player, Vec3d hitPos, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) this.getEntityWorld(), this.getBlockPos());
         if (claim.isEmpty()) return;
-        if (!claim.get().hasPermission(player.getUuid(), "interact_entity." + Registry.ENTITY_TYPE.getId(this.getType()).getPath())) {
-            ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.interact_entity").formatted(Formatting.RED));
+
+        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.INTERACT_ENTITY, Node.dummy(Registry.ENTITY_TYPE, this.getType()))) {
+            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_entity").formatted(Formatting.RED));
             cir.setReturnValue(ActionResult.FAIL);
         }
     }

@@ -72,6 +72,16 @@
   "text.itsours.commands.list": "%s's claims: %s",
   "text.itsours.commands.list.noClaims": "%s doesn't have any claims",
 
+  "text.itsours.commands.remove.warning": "WARNING: This is not your claim...",
+  "text.itsours.commands.remove.error": "You can't delete that claim!",
+  "text.itsours.commands.remove.info": "Are you sure you want to delete the claim \"%s\"? %s",
+  "text.itsours.commands.remove.info.confirm": "[I'M SURE!]",
+  "text.itsours.commands.remove.info.confirm.hover": "Click to confirm!",
+  "text.itsours.commands.remove.success": "Claim %s has been removed!",
+
+  "text.itsours.commands.rename.success": "Claim %s has been renamed to %s!",
+  "text.itsours.commands.rename.error": "You can't rename that claim!",
+
   "text.itsours.commands.trust": "Trusted %s to %s",
   "text.itsours.commands.trust.nothing_changed": "Nothing changed, %s is already trusted",
   "text.itsours.commands.distrust": "Distrusted %s from %s",

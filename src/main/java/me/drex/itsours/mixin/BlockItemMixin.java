@@ -2,6 +2,8 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.claim.permission.node.Node;
 import me.drex.itsours.user.ClaimPlayer;
 import net.minecraft.text.Text;
 import net.minecraft.block.Block;
@@ -46,9 +48,8 @@ public abstract class BlockItemMixin extends Item {
         if (context.getPlayer() == null) return context.canPlace();
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(context);
         if (claim.isEmpty()) return context.canPlace();
-        if (!claim.get().hasPermission(context.getPlayer().getUuid(), "place." + Registry.BLOCK.getId(this.getBlock()).getPath())) {
-            ClaimPlayer claimPlayer = (ClaimPlayer) context.getPlayer();
-            claimPlayer.sendText(Text.translatable("text.itsours.action.disallowed.place_block").formatted(Formatting.RED));
+        if (!claim.get().hasPermission(context.getPlayer().getUuid(), PermissionManager.PLACE, Node.dummy(Registry.BLOCK, this.getBlock()))) {
+            context.getPlayer().sendMessage(Text.translatable("text.itsours.action.disallowed.place_block").formatted(Formatting.RED));
             return false;
         }
         return context.canPlace();
@@ -71,7 +72,7 @@ public abstract class BlockItemMixin extends Item {
             PlayerEntity playerEntity = context.getPlayer();
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
             if (claimPlayer != null && ClaimList.INSTANCE.getClaimsFrom(playerEntity.getUuid()).isEmpty()) {
-                claimPlayer.sendText(Text.translatable("text.itsours.info.not_protected",
+                playerEntity.sendMessage(Text.translatable("text.itsours.info.not_protected",
                         Text.literal(this.getDefaultStack().getName().getString().toLowerCase()).formatted(Formatting.GOLD)
                 ).formatted(Formatting.YELLOW).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "claim create"))));
                 claimPlayer.setFirstPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
