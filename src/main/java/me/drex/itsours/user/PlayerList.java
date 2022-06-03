@@ -1,6 +1,5 @@
 package me.drex.itsours.user;
 
-import me.drex.itsours.ItsOurs;
 import net.minecraft.nbt.NbtCompound;
 
 import java.util.HashMap;

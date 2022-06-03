@@ -26,7 +26,6 @@ public class RemoveCommand extends AbstractCommand {
     public static final String LITERAL = "remove";
     public static final String LITERAL_CONFIRM = "confirm";
 
-    // TODO:
     private RemoveCommand() {
         super(LITERAL);
     }

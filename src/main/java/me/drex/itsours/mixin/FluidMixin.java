@@ -2,6 +2,7 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.permission.PermissionManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.FluidState;
@@ -28,8 +29,8 @@ public abstract class FluidMixin {
         BlockPos oldPos = newPos.offset(direction.getOpposite());
         Optional<AbstractClaim> oldClaim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, oldPos);
         Optional<AbstractClaim> newClaim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, newPos);
-        if (((oldClaim.isPresent() && !oldClaim.get().getSetting("fluid_crosses_borders")) ||
-                (newClaim.isPresent() && !newClaim.get().getSetting("fluid_crosses_borders"))) && !newClaim.equals(oldClaim)) {
+        if (((oldClaim.isPresent() && !oldClaim.get().hasPermission(null, PermissionManager.FLUID_CROSSES_BORDERS)) ||
+                (newClaim.isPresent() && !newClaim.get().hasPermission(null, PermissionManager.FLUID_CROSSES_BORDERS))) && !newClaim.equals(oldClaim)) {
             ci.cancel();
         }
     }

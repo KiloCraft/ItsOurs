@@ -1,10 +1,11 @@
 package me.drex.itsours.claim.permission.roles;
 
-import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.permission.PermissionImpl;
+import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.holder.PermissionHolder;
-import me.drex.itsours.claim.permission.util.Value;
 import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.permission.util.Value;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -22,26 +23,39 @@ public class RoleManager {
     public static final String TRUSTED_ID = "trusted";
     public static final String DEFAULT_ID = "default";
     private static final Map<String, Supplier<Role>> DEFAULT_ROLES = new HashMap<>();
+
     static {
         DEFAULT_ROLES.put(TRUSTED_ID, RoleManager::defaultTrustedRole);
         DEFAULT_ROLES.put(DEFAULT_ID, () -> new Role(DEFAULT_ID, new NbtCompound()));
     }
+
     private final Map<String, Role> id2Role = new HashMap<>();
     private final List<Role> orderedRoles = new LinkedList<>();
 
-    public void load(NbtList tag) {
+    public void load(NbtElement element) {
         // Load default roles
         for (Map.Entry<String, Supplier<Role>> entry : DEFAULT_ROLES.entrySet()) {
             addRole(entry.getValue().get());
         }
-        for (NbtElement nbtElement : tag) {
-            if (nbtElement instanceof NbtCompound nbtCompound) {
+        if (ItsOurs.INSTANCE.getDataVersion() > 1) {
+            if (!(element instanceof NbtList list))
+                throw new IllegalArgumentException("Expected nbt compound, but received " + element);
+
+            for (NbtElement nbtElement : list) {
+                if (!(nbtElement instanceof NbtCompound nbtCompound))
+                    throw new IllegalArgumentException("Expected nbt compound, but received " + nbtElement);
+
                 for (String id : nbtCompound.getKeys()) {
                     Role role = new Role(id, nbtCompound.getCompound(id));
                     addRole(role);
                 }
-            } else {
-                throw new IllegalArgumentException("Expected nbt compound, but received " + nbtElement);
+            }
+        } else {
+            if (!(element instanceof NbtCompound nbtCompound))
+                throw new IllegalArgumentException("Expected nbt compound, but received " + element);
+            for (String id : nbtCompound.getKeys()) {
+                Role role = new Role(id, nbtCompound.getCompound(id));
+                addRole(role);
             }
         }
     }
@@ -75,7 +89,6 @@ public class RoleManager {
         return false;
     }
 
-    // TODO: remove role
     public NbtList save() {
         NbtList nbtList = new NbtList();
         for (Role role : orderedRoles) {

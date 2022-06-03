@@ -4,14 +4,13 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.node.Node;
-import me.drex.itsours.user.ClaimPlayer;
-import net.minecraft.text.Text;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.registry.Registry;
@@ -46,7 +45,7 @@ public abstract class ProjectileEntityMixin extends Entity {
             this.onEntityHit(hitResult);
             return;
         }
-        if (!claim.get().getSetting("pvp") && hitResult.getEntity() instanceof PlayerEntity) {
+        if (!claim.get().hasPermission(null, PermissionManager.PVP) && hitResult.getEntity() instanceof PlayerEntity) {
             entity.getOwner().sendMessage(Text.translatable("text.itsours.action.disallowed.damage_player").formatted(Formatting.RED));
             if (entity instanceof PersistentProjectileEntity) {
                 if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill();

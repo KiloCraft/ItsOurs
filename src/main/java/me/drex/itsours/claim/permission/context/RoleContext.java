@@ -14,7 +14,6 @@ public record RoleContext(Role role) implements WeightedContext {
 
     @Override
     public Text toText() {
-        // TODO:
         return Text.translatable("text.itsours.permission.context.role", role.getId()).styled(
                 style -> style
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,

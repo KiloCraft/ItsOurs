@@ -2,7 +2,6 @@ package me.drex.itsours.user;
 
 import me.drex.itsours.claim.AbstractClaim;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
 public interface ClaimPlayer {

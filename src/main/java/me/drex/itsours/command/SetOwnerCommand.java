@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.command.argument.ClaimArgument;
+import me.drex.itsours.util.Components;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -39,7 +40,7 @@ public class SetOwnerCommand extends AbstractCommand {
         if (targets.size() > 1) throw EntityArgumentType.TOO_MANY_PLAYERS_EXCEPTION.create();
         GameProfile profile = targets.iterator().next();
         claim.setOwner(profile.getId());
-        src.sendFeedback(Text.translatable("text.itsours.commands.setOwner", claim.getFullName(), Texts.toText(profile)), false);
+        src.sendFeedback(Text.translatable("text.itsours.commands.setOwner", claim.getFullName(), Components.toText(profile)), false);
         return 1;
     }
 

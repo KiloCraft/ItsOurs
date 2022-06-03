@@ -8,7 +8,7 @@ public class CommandManager {
 
     public static final CommandManager INSTANCE = new CommandManager();
 
-    public static final String LITERAL = "claim_rework";
+    public static final String LITERAL = "claim";
 
     private CommandManager() {
     }
@@ -27,6 +27,7 @@ public class CommandManager {
                 IgnoreCommand.INSTANCE,
                 InfoCommand.INSTANCE,
                 ListCommand.INSTANCE,
+                MessageCommand.INSTANCE,
                 PersonalSettingCommand.INSTANCE,
                 RemoveCommand.INSTANCE,
                 RenameCommand.INSTANCE,

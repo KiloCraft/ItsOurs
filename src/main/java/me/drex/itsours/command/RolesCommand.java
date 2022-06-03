@@ -5,10 +5,16 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.claim.permission.context.RoleContext;
 import me.drex.itsours.claim.permission.holder.PermissionHolder;
-import me.drex.itsours.claim.permission.roles.RoleManager;
+import me.drex.itsours.claim.permission.node.Node;
 import me.drex.itsours.claim.permission.roles.Role;
+import me.drex.itsours.claim.permission.roles.RoleManager;
+import me.drex.itsours.claim.permission.util.Value;
+import me.drex.itsours.command.argument.PermissionArgument;
 import me.drex.itsours.command.argument.RoleArgument;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
@@ -34,16 +40,15 @@ public class RolesCommand extends AbstractCommand {
 
     @Override
     protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
-        // TODO: check permissions
         literal
                 .then(
                         literal(LITERAL_UPDATE_ORDER)
                                 .then(
-                                    RoleArgument.roles()
-                                            .then(
-                                                    argument("offset", IntegerArgumentType.integer())
-                                                            .executes(ctx -> executeUpdateOffset(ctx.getSource(), RoleArgument.getRole(ctx), IntegerArgumentType.getInteger(ctx, "offset")))
-                                            )
+                                        RoleArgument.roles()
+                                                .then(
+                                                        argument("offset", IntegerArgumentType.integer())
+                                                                .executes(ctx -> executeUpdateOffset(ctx.getSource(), RoleArgument.getRole(ctx), IntegerArgumentType.getInteger(ctx, "offset")))
+                                                )
                                 )
                 )
                 .then(
@@ -60,12 +65,35 @@ public class RolesCommand extends AbstractCommand {
                                                 .executes(ctx -> executeRemoveRole(ctx.getSource(), RoleArgument.getRole(ctx)))
                                 )
                 )
-                /*.then(
-                        // TODO:
-                        argument("role", StringArgumentType.string())
-                                .executes(ctx -> executeOpenGui(ctx.getSource(), StringArgumentType.getString(ctx, "role")))
-                )*/
+                .then(
+                        literal("set")
+                                .then(
+                                        RoleArgument.roles()
+                                                .then(
+                                                        PermissionArgument.permission()
+                                                                .then(PermissionArgument.value()
+                                                                        .executes(ctx -> executeSet(ctx.getSource(), RoleArgument.getRole(ctx), PermissionArgument.getPermission(ctx), PermissionArgument.getValue(ctx))))
+                                                )
+                                )
+                )
+                .then(
+                        literal("unset")
+                                .then(
+                                        RoleArgument.roles()
+                                                .then(
+                                                        PermissionArgument.permission()
+                                                                .executes(ctx -> executeSet(ctx.getSource(), RoleArgument.getRole(ctx), PermissionArgument.getPermission(ctx), Value.UNSET)))
+                                )
+                )
+                .requires(src -> Permissions.check(src, "itsours.roles"))
                 .executes(ctx -> executeListRoles(ctx.getSource()));
+    }
+
+    private int executeSet(ServerCommandSource src, Role role, Permission permission, Value value) throws CommandSyntaxException {
+        permission.validateContext(new Node.ChangeContext(null, new RoleContext(role), value, src));
+        role.permissions().set(permission, value);
+        src.sendFeedback(Text.translatable("text.itsours.commands.roles.set", permission.asString(), RoleManager.INSTANCE.getName(role), value.format()), false);
+        return 1;
     }
 
     private int executeListRoles(ServerCommandSource src) {
@@ -110,5 +138,8 @@ public class RolesCommand extends AbstractCommand {
         RoleManager.INSTANCE.updateRoleOrder(role, offset);
         return executeListRoles(src);
     }
+
+    // TODO: add modify
+    // if (!node.canChange(new Node.ChangeContext(claim, new RoleContext(role), value, src))) throw PermissionArgument.FORBIDDEN;
 
 }

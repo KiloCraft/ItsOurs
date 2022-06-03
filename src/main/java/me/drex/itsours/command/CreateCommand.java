@@ -9,6 +9,8 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.Subzone;
+import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.claim.permission.util.Modify;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.user.PlayerList;
@@ -70,7 +72,6 @@ public class CreateCommand extends AbstractCommand {
         int blocks = PlayerList.get(uuid, Settings.BLOCKS);
         if (requiredBlocks > blocks) throw ExpandCommand.MISSING_CLAIM_BLOCKS.create(requiredBlocks - blocks);
         PlayerList.set(uuid, Settings.BLOCKS, blocks - requiredBlocks);
-        // TODO: Name taken
         if (ClaimList.INSTANCE.getClaim(claimName).isPresent()) throw ClaimArgument.NAME_TAKEN;
         ClaimList.INSTANCE.addClaim(claim);
         claimPlayer.setLastShow(claim, src.getPlayer().getBlockPos(), src.getWorld());
@@ -87,7 +88,7 @@ public class CreateCommand extends AbstractCommand {
             if (subzone.getBox().intersects(claimBox)) throw INTERSECTS.create(subzone.getFullName());
             if (subzone.getName().equals(claimName)) throw ClaimArgument.NAME_TAKEN;
         }
-        // TODO: Validate permission
+        parent.hasPermission(player.getUuid(), PermissionManager.MODIFY, Modify.SUBZONE.buildNode());
         Subzone subzone = new Subzone(claimName, player.getUuid(), claimBox.getMin().withY(parent.getBox().getMinY()), claimBox.getMax().withY(parent.getBox().getMaxY()), player.getWorld(), parent);
         ClaimList.INSTANCE.addClaim(subzone);
         parent.getMainClaim().show(player, true);

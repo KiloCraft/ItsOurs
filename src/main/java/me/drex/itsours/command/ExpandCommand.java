@@ -9,6 +9,8 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.Subzone;
+import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.claim.permission.util.Modify;
 import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.user.Settings;
 import me.drex.itsours.util.ClaimBox;
@@ -46,16 +48,15 @@ public class ExpandCommand extends AbstractCommand {
     protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         literal.then(
                 argument("distance", IntegerArgumentType.integer(1))
-                        .executes(ctx -> execute(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "distance")))
+                        .executes(ctx -> execute(ctx.getSource(), getClaim(ctx.getSource().getEntity()), IntegerArgumentType.getInteger(ctx, "distance")))
         );
     }
 
-    private int execute(ServerCommandSource source, int distance) throws CommandSyntaxException {
-        ServerPlayerEntity player = source.getPlayer();
+    private int execute(ServerCommandSource src, AbstractClaim claim, int distance) throws CommandSyntaxException {
+        validatePermission(src, claim, PermissionManager.MODIFY, Modify.SIZE.buildNode());
+        ServerPlayerEntity player = src.getPlayer();
         ServerWorld world = player.getWorld();
         UUID uuid = player.getUuid();
-        AbstractClaim claim = getClaim(player);
-        // TODO: Validate permission
         Direction direction = Direction.getEntityFacingOrder(player)[0];
         ClaimBox originalBox = claim.getBox();
         int originalArea = originalBox.getArea();
@@ -63,7 +64,6 @@ public class ExpandCommand extends AbstractCommand {
         int newArea = newBox.getArea();
         if (!expand && !originalBox.contains(newBox)) throw SHRUNK_TO_FAR;
         int areaIncrease = newArea - originalArea;
-        // TODO: Check intersections
         for (AbstractClaim other : ClaimList.INSTANCE.getClaims()) {
             if (
                     claim.getDimension().equals(other.getDimension()) &&
@@ -71,7 +71,7 @@ public class ExpandCommand extends AbstractCommand {
                             !claim.equals(other) &&
                             newBox.intersects(other.getBox())
             ) {
-                // TODO: Implement this
+                // Idea: draw intersection bounding box
                 //ClaimBox intersection = newBox.intersection(other.getBox());
                 //intersection.drawOutline(player, Blocks.REDSTONE_BLOCK.getDefaultState());
                 other.getBox().drawOutline(player, Blocks.REDSTONE_BLOCK.getDefaultState());
@@ -94,7 +94,7 @@ public class ExpandCommand extends AbstractCommand {
         claim.getMainClaim().show(false);
         claim.setBox(newBox);
         claim.getMainClaim().show(player, true);
-        source.sendFeedback(Text.translatable("text.itsours.commands." + literal, claim.getFullName(), distance, direction.getName(), expand ? areaIncrease : -areaIncrease), false);
+        src.sendFeedback(Text.translatable("text.itsours.commands." + literal, claim.getFullName(), distance, direction.getName(), expand ? areaIncrease : -areaIncrease), false);
         return areaIncrease;
     }
 

@@ -34,13 +34,16 @@ public class ClaimArgument {
         return ownClaims(DEFAULT_NAME);
     }
 
-    // TODO:
     public static RequiredArgumentBuilder<ServerCommandSource, String> allClaims() {
-        return ownClaims(DEFAULT_NAME);
+        return allClaims(DEFAULT_NAME);
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, String> allClaims(String name) {
+        return argument(name, StringArgumentType.word()).suggests(ALL_CLAIMS_PROVIDER);
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> ownClaims(String name) {
-        return argument(name, StringArgumentType.word()).suggests(OWN_CLAIM_PROVIDER);
+        return argument(name, StringArgumentType.word()).suggests(OWN_CLAIMS_PROVIDER);
     }
 
     public static AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
@@ -53,7 +56,16 @@ public class ClaimArgument {
         return optional.orElseThrow(() -> UNKNOWN_CLAIM.create(string));
     }
 
-    public static final SuggestionProvider<ServerCommandSource> OWN_CLAIM_PROVIDER = (source, builder) -> {
+    public static final SuggestionProvider<ServerCommandSource> ALL_CLAIMS_PROVIDER = (source, builder) -> {
+        final List<String> result = new ArrayList<>();
+        for (AbstractClaim claim : ClaimList.INSTANCE.getClaims().stream().filter(claim -> claim instanceof Claim).toList()) {
+            result.add(claim.getFullName());
+            addSubzones(claim, builder.getRemaining(), result);
+        }
+        return CommandSource.suggestMatching(result, builder);
+    };
+
+    public static final SuggestionProvider<ServerCommandSource> OWN_CLAIMS_PROVIDER = (source, builder) -> {
         final List<String> result = new ArrayList<>();
         ServerPlayerEntity player = source.getSource().getPlayer();
         ClaimList.INSTANCE.getClaimAt(player)

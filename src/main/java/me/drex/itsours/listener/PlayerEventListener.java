@@ -3,7 +3,6 @@ package me.drex.itsours.listener;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.PermissionImpl;
 import me.drex.itsours.claim.permission.node.Node;
 import me.drex.itsours.command.CommandManager;
 import me.drex.itsours.command.CreateCommand;

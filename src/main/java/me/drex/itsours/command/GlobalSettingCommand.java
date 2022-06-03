@@ -4,9 +4,11 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
-import me.drex.itsours.claim.permission.util.Value;
+import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.context.GlobalContext;
 import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.permission.util.Modify;
+import me.drex.itsours.claim.permission.util.Value;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.command.argument.PermissionArgument;
 import net.minecraft.server.command.ServerCommandSource;
@@ -48,11 +50,8 @@ public class GlobalSettingCommand extends AbstractCommand {
     }
 
     public int executeSet(ServerCommandSource src, AbstractClaim claim, Permission permission, Value value) throws CommandSyntaxException {
-        // TODO: Check if executor has permission to change permission
-        for (Node node : permission.getNodes()) {
-            // TODO: Add to other contexts
-            if (!node.canChange(new Node.ChangeContext(claim, GlobalContext.INSTANCE, value, src))) throw PermissionArgument.FORBIDDEN;
-        }
+        validatePermission(src, claim, PermissionManager.MODIFY, Modify.SETTING.buildNode());
+        permission.validateContext(new Node.ChangeContext(claim, GlobalContext.INSTANCE, value, src));
         claim.getPermissionManager().settings.set(permission, value);
         src.sendFeedback(Text.translatable("text.itsours.commands.globalSetting.set",
                 permission.asString(), claim.getFullName(), value.format()
@@ -60,8 +59,8 @@ public class GlobalSettingCommand extends AbstractCommand {
         return 1;
     }
 
-    public int executeCheck(ServerCommandSource src, AbstractClaim claim, Permission permission) {
-        // TODO: Check if executor has permission to check permission
+    public int executeCheck(ServerCommandSource src, AbstractClaim claim, Permission permission) throws CommandSyntaxException {
+        validatePermission(src, claim, PermissionManager.MODIFY, Modify.SETTING.buildNode());
         Value value = claim.getPermissionManager().settings.get(permission);
         src.sendFeedback(Text.translatable("text.itsours.commands.globalSetting.check", permission.asString(), claim.getFullName(), value.format()), false);
         return 1;

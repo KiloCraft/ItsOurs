@@ -87,7 +87,6 @@ public class PermissionHolder {
     }
 
     public Text toText() {
-        // TODO:
         return Texts.join(storage.entrySet().stream().toList(), entry -> Text.literal(entry.getKey().asString()).formatted(Value.of(entry.getValue()).formatting));
     }
 

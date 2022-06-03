@@ -3,8 +3,11 @@ package me.drex.itsours.command;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.claim.permission.util.Modify;
 import me.drex.itsours.claim.permission.visitor.PermissionVisitorImpl;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.command.argument.PermissionArgument;
@@ -37,8 +40,8 @@ public class CheckCommand extends AbstractCommand {
         literal.then(claim);
     }
 
-    private int execute(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Permission permission) {
-        // TODO: Check permission
+    private int execute(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Permission permission) throws CommandSyntaxException {
+        validatePermission(src, claim, PermissionManager.MODIFY, Modify.CHECK.buildNode());
         for (GameProfile target : targets) {
             PermissionVisitorImpl visitor = new PermissionVisitorImpl();
             claim.visit(target.getId(), permission, visitor);

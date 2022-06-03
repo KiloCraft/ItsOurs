@@ -1,8 +1,11 @@
 package me.drex.itsours.claim.permission;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.drex.itsours.claim.permission.context.GlobalContext;
 import me.drex.itsours.claim.permission.node.Node;
 import me.drex.itsours.claim.permission.node.RootNode;
 import me.drex.itsours.claim.permission.util.InvalidPermissionException;
+import me.drex.itsours.command.argument.PermissionArgument;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -72,6 +75,13 @@ public class PermissionImpl implements Permission {
             }
         }
         return true;
+    }
+
+    @Override
+    public void validateContext(Node.ChangeContext context) throws CommandSyntaxException {
+        for (Node node : getNodes()) {
+            if (!node.canChange(context)) throw PermissionArgument.FORBIDDEN;
+        }
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.util.Components;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -39,12 +40,11 @@ public class ListCommand extends AbstractCommand {
             List<AbstractClaim> claims = ClaimList.INSTANCE.getClaimsFrom(target.getId()).stream().filter(claim -> claim instanceof Claim).toList();
             i += claims.size();
             if (claims.isEmpty()) {
-                src.sendError(Text.translatable("text.itsours.commands.list.noClaims", Texts.toText(target)));
+                src.sendError(Text.translatable("text.itsours.commands.list.noClaims", Components.toText(target)));
             } else {
-                // TODO: Add hover
                 src.sendFeedback(Text.translatable("text.itsours.commands.list",
-                        Texts.toText(target),
-                        Texts.join(claims, claim -> Text.literal(claim.getName()))), false);
+                        Components.toText(target),
+                        Texts.join(claims, Components::toText)), false);
             }
         }
         return i;

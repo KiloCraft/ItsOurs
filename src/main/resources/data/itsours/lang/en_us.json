@@ -2,6 +2,9 @@
 
   "text.itsours.format.vec3i": "%d x %d x %d",
   "text.itsours.format.box": "Min %s Max %s",
+  "text.itsours.format.claim.hover": "Click for more information!",
+  "text.itsours.format.profile.hover": "Click to copy!",
+  "text.itsours.format.profile.unknown": "(Unknown)",
 
   "text.itsours.permission.context.ignore": "Ignore",
   "text.itsours.permission.context.ignore.hover": "Admin setting - Supersedes *all* settings",
@@ -14,6 +17,20 @@
   "text.itsours.permission.context.role": "Role - %s",
   "text.itsours.permission.context.role.hover": "Roles - A list of personal setting",
 
+  "text.itsours.permission.place.description": "Block placement (eg. placing stone)",
+  "text.itsours.permission.mine.description": "Block mining (eg. mining dirt)",
+  "text.itsours.permission.interact_block.description": "Right click blocks (eg. opening chest)",
+  "text.itsours.permission.use_on_block.description": "Use item on blocks (eg. use hoe on dirt)",
+  "text.itsours.permission.use_item.description": "Right click items (eg. eating)",
+  "text.itsours.permission.damage_entity.description": "Hurting entities (eg. hitting a pig)",
+  "text.itsours.permission.interact_entity.description": "Right clicking entities (eg. trading with villager)",
+  "text.itsours.permission.modify.description": "Claim permission (eg. expanding claim)",
+  "text.itsours.setting.pvp.description": "Player vs Player",
+  "text.itsours.setting.explosion.description": "Explosion block damage (eg. creeper explosion)",
+  "text.itsours.setting.fluid_crosses_borders.description": "Fluids flowing across claim borders (eg. water flowing)",
+  "text.itsours.setting.mob_spawn.description": "Mob spawning (eg. zombie spawning)",
+
+  "text.itsours.argument.general.noPermission": "You don't have permission to do that!",
   "text.itsours.argument.claim.unknown": "Unknown claim %s!",
   "text.itsours.argument.claim.noClaimAtPos": "Couldn't find a claim at your position!",
   "text.itsours.argument.claim.invalidName": "Claim name is to long or contains invalid character!",
@@ -48,12 +65,16 @@
   "text.itsours.commands.blocks.add": "Added %d claim blocks to %s.",
   "text.itsours.commands.blocks.set": "Set %s's claim blocks to %d.",
   "text.itsours.commands.blocks.remove": "Removed %d claim blocks from %s.",
+  "text.itsours.commands.blocks.give": "You gave %d claim blocks to %s.",
+  "text.itsours.commands.blocks.give.received": "You received %d claim blocks from %s.",
+  "text.itsours.commands.blocks.give.notEnough": "You don't have enough claim blocks.",
 
   "text.itsours.commands.roles": "Roles:",
   "text.itsours.commands.roles.entry": "%s %s %s",
   "text.itsours.commands.roles.entry.up": "↑",
   "text.itsours.commands.roles.entry.down": "↓",
   "text.itsours.commands.roles.add": "Successfully added role %s.",
+  "text.itsours.commands.roles.set": "Set %s for %s to %s",
   "text.itsours.commands.roles.remove": "Successfully removed role %s.",
 
   "text.itsours.commands.setOwner": "Set owner of %s to %s",
@@ -72,6 +93,11 @@
   "text.itsours.commands.list": "%s's claims: %s",
   "text.itsours.commands.list.noClaims": "%s doesn't have any claims",
 
+  "text.itsours.commands.message.enter": "Changed claim enter message to \"%s\"",
+  "text.itsours.commands.message.enter.reset": "Reset claim enter message",
+  "text.itsours.commands.message.leave": "Changed claim leave message to \"%s\"",
+  "text.itsours.commands.message.leave.reset": "Reset claim leave message",
+
   "text.itsours.commands.remove.warning": "WARNING: This is not your claim...",
   "text.itsours.commands.remove.error": "You can't delete that claim!",
   "text.itsours.commands.remove.info": "Are you sure you want to delete the claim \"%s\"? %s",
@@ -83,9 +109,9 @@
   "text.itsours.commands.rename.error": "You can't rename that claim!",
 
   "text.itsours.commands.trust": "Trusted %s to %s",
-  "text.itsours.commands.trust.nothing_changed": "Nothing changed, %s is already trusted",
+  "text.itsours.commands.trust.nothingChanged": "Nothing changed, %s is already trusted",
   "text.itsours.commands.distrust": "Distrusted %s from %s",
-  "text.itsours.commands.distrust.nothing_changed": "Nothing changed, %s was not trusted",
+  "text.itsours.commands.distrust.nothingChanged": "Nothing changed, %s was not trusted",
 
   "text.itsours.commands.trusted": "Trusted:\n%s",
   "text.itsours.commands.trusted.nobody_trusted": "Nobody is trusted",

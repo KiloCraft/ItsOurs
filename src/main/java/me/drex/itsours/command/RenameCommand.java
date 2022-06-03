@@ -5,6 +5,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.claim.permission.util.Modify;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
@@ -16,7 +18,6 @@ public class RenameCommand extends AbstractCommand {
 
     public static final RenameCommand INSTANCE = new RenameCommand();
 
-    // TODO:
     private RenameCommand() {
         super("rename");
     }

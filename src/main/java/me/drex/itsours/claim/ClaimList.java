@@ -2,7 +2,6 @@ package me.drex.itsours.claim;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import me.drex.itsours.util.ClaimBox;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
@@ -28,6 +27,10 @@ public class ClaimList {
     }
 
     public void load(@Nullable NbtList tag) {
+        // Clear previous data
+        byPosition.clear();
+        byOwner.clear();
+        claims.clear();
         if (tag == null) return;
         for (NbtElement element : tag) {
             Claim claim = new Claim((NbtCompound) element);
@@ -123,40 +126,11 @@ public class ClaimList {
         return claim;
     }
 
-    // TODO: Rewrite
     public Optional<? extends AbstractClaim> getClaim(String name) {
-        if (name.contains(".")) {
-            String[] names = name.split("\\.");
-            for (AbstractClaim claim : claims) {
-                if (claim.getName().equals(names[0])) {
-                    Optional<Subzone> subzone = getSubzone(claim, name);
-                    if (subzone.isPresent()) return subzone;
-                }
-            }
-        } else {
-            for (AbstractClaim claim : claims.stream().filter(claim -> claim instanceof Claim).toList()) {
-                if (claim.getName().equals(name)) return Optional.of(claim);
-            }
+        for (AbstractClaim claim : claims) {
+            if (claim.getFullName().equals(name)) return Optional.of(claim);
         }
         return Optional.empty();
     }
-
-    private Optional<Subzone> getSubzone(AbstractClaim claim, String name) {
-        String[] names = name.split("\\.");
-        for (Subzone subzone : claim.getSubzones()) {
-            if (subzone.getDepth() > names.length) {
-                return Optional.empty();
-            }
-            if (subzone.getName().equals(names[subzone.getDepth()])) {
-                if (subzone.getDepth() == names.length - 1) {
-                    return Optional.of(subzone);
-                } else {
-                    return getSubzone(subzone, name);
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
 
 }

@@ -4,14 +4,13 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.node.Node;
-import me.drex.itsours.user.ClaimPlayer;
-import net.minecraft.text.Text;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -45,7 +44,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         if (claim.isEmpty()) {
             return entity.isAttackable();
         }
-        if (!claim.get().getSetting("pvp") && entity instanceof PlayerEntity) {
+        if (!claim.get().hasPermission(null, PermissionManager.PVP) && entity instanceof PlayerEntity) {
             this.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_player").formatted(Formatting.RED));
             return false;
         }
@@ -68,7 +67,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         if (claim.isEmpty()) {
             return livingEntity.damage(DamageSource.player((PlayerEntity) (Object)this), amount);
         }
-        if (!claim.get().getSetting("pvp") && livingEntity instanceof PlayerEntity) {
+        if (!claim.get().hasPermission(null, PermissionManager.PVP) && livingEntity instanceof PlayerEntity) {
             this.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_player").formatted(Formatting.RED));
             return false;
         }

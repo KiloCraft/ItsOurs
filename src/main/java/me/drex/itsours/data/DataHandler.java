@@ -17,7 +17,7 @@ public class DataHandler {
     public void load(NbtCompound nbtCompound, boolean firstLoad) {
         dataVersion = nbtCompound.contains("dataVersion") ? nbtCompound.getInt("dataVersion") : 0;
         // Load data
-        RoleManager.INSTANCE.load(nbtCompound.getList("roles", NbtElement.COMPOUND_TYPE));
+        RoleManager.INSTANCE.load(nbtCompound.get("roles"));
         ClaimList.INSTANCE.load(nbtCompound.getList("claims", NbtElement.COMPOUND_TYPE));
         PlayerList.fromNBT(nbtCompound.getCompound("players"));
 

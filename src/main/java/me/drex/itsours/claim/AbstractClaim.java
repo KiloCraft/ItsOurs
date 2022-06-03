@@ -1,13 +1,12 @@
 package me.drex.itsours.claim;
 
 import me.drex.itsours.ItsOurs;
-import me.drex.itsours.claim.permission.*;
-import me.drex.itsours.claim.permission.holder.ClaimPermissionHolder;
+import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.claim.permission.PermissionImpl;
 import me.drex.itsours.claim.permission.context.IgnoreContext;
 import me.drex.itsours.claim.permission.context.OwnerContext;
-import me.drex.itsours.claim.permission.holder.RestrictionHolder;
+import me.drex.itsours.claim.permission.holder.ClaimPermissionHolder;
 import me.drex.itsours.claim.permission.node.Node;
-import me.drex.itsours.claim.permission.util.InvalidPermissionException;
 import me.drex.itsours.claim.permission.util.Value;
 import me.drex.itsours.claim.permission.visitor.PermissionVisitor;
 import me.drex.itsours.claim.permission.visitor.PermissionVisitorImpl;
@@ -44,15 +43,15 @@ public abstract class AbstractClaim {
     public static final Pattern NAME = Pattern.compile("\\w{3,16}");
     private static final Logger LOGGER = ItsOurs.LOGGER;
     private static final Block[] SHOW_BLOCKS = {Blocks.GOLD_BLOCK, Blocks.DIAMOND_BLOCK, Blocks.REDSTONE_BLOCK, Blocks.LAPIS_BLOCK, Blocks.NETHERITE_BLOCK};
-    public BlockPos min;
-    public BlockPos max;
     private ClaimBox box;
     private String name;
     private UUID owner;
     private RegistryKey<World> dimension;
     private final List<Subzone> subzoneList = new ArrayList<>();
     private ClaimPermissionHolder permissionManager;
-    private RestrictionHolder restrictionManager;
+    // TODO: Allow placeholders
+    private String enterMessage = null;
+    private String leaveMessage = null;
 
     public AbstractClaim(String name, UUID owner, BlockPos first, BlockPos second, ServerWorld world) {
         this.name = name;
@@ -60,7 +59,6 @@ public abstract class AbstractClaim {
         this.box = ClaimBox.create(first, second);
         this.dimension = world.getRegistryKey();
         this.permissionManager = new ClaimPermissionHolder(new NbtCompound());
-        this.restrictionManager = new RestrictionHolder(new NbtCompound());
     }
 
     public AbstractClaim(NbtCompound tag) {
@@ -69,10 +67,6 @@ public abstract class AbstractClaim {
 
     public static boolean isNameInvalid(String name) {
         return !NAME.matcher(name).matches();
-    }
-
-    public RestrictionHolder getRestrictionManager() {
-        return restrictionManager;
     }
 
     public void fromNBT(NbtCompound tag) {
@@ -89,7 +83,11 @@ public abstract class AbstractClaim {
             });
         }
         this.permissionManager = new ClaimPermissionHolder(tag.getCompound("permissions"));
-        this.restrictionManager = new RestrictionHolder(tag.getCompound("restrictions"));
+        if (tag.contains("messages")) {
+            NbtCompound messages = tag.getCompound("messages");
+            if (messages.contains("leave")) leaveMessage = messages.getString("leave");
+            if (messages.contains("enter")) enterMessage = messages.getString("enter");
+        }
     }
 
     public NbtCompound toNBT() {
@@ -106,7 +104,10 @@ public abstract class AbstractClaim {
             tag.put("subzones", list);
         }
         tag.put("permissions", this.permissionManager.toNBT());
-        //tag.put("restrictions", this.restrictionManager.toNBT());
+        NbtCompound messages = new NbtCompound();
+        if (leaveMessage != null) messages.putString("leave", leaveMessage);
+        if (enterMessage != null) messages.putString("enter", enterMessage);
+        if (!messages.isEmpty()) tag.put("messages", messages);
         return tag;
     }
 
@@ -140,6 +141,14 @@ public abstract class AbstractClaim {
         ClaimList.INSTANCE.removeClaim(this);
         this.owner = owner;
         ClaimList.INSTANCE.addClaim(this);
+    }
+
+    public void setEnterMessage(String enterMessage) {
+        this.enterMessage = enterMessage;
+    }
+
+    public void setLeaveMessage(String leaveMessage) {
+        this.leaveMessage = leaveMessage;
     }
 
     @Nullable
@@ -182,7 +191,7 @@ public abstract class AbstractClaim {
         }
         player.sendAbilitiesUpdate();
         player.networkHandler.sendPacket(new TitleFadeS2CPacket(-1, 20, -1));
-        player.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.translatable("text.itsours.claim.enter", this.getFullName())));
+        player.networkHandler.sendPacket(new OverlayMessageS2CPacket(enterMessage != null ? Text.literal(enterMessage) : Text.translatable("text.itsours.claim.enter", this.getFullName())));
     }
 
     public void onLeave(@Nullable AbstractClaim nextClaim, ServerPlayerEntity player) {
@@ -198,7 +207,7 @@ public abstract class AbstractClaim {
             }
             player.sendAbilitiesUpdate();
             player.networkHandler.sendPacket(new TitleFadeS2CPacket(-1, 20, -1));
-            player.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.translatable("text.itsours.claim.leave", this.getFullName())));
+            player.networkHandler.sendPacket(new OverlayMessageS2CPacket(leaveMessage != null ? Text.literal(leaveMessage) : Text.translatable("text.itsours.claim.leave", this.getFullName())));
         }
     }
 
@@ -208,6 +217,11 @@ public abstract class AbstractClaim {
         return visitor.getResult().value;
     }
 
+    /**
+     * @param uuid  The uuid of the player that should be checked or null if action is not player specific
+     * @param nodes A list of nodes that form the permission that shall be checked
+     * @return true if the requested action should proceed
+     */
     public boolean hasPermission(@Nullable UUID uuid, Node... nodes) {
         return hasPermission(uuid, PermissionImpl.withNodes(nodes));
     }
@@ -216,27 +230,6 @@ public abstract class AbstractClaim {
         if (Objects.equals(uuid, owner)) visitor.visit(this, permission, OwnerContext.INSTANCE, Value.ALLOW);
         if (PlayerList.get(uuid, Settings.IGNORE)) visitor.visit(this, permission, IgnoreContext.INSTANCE, Value.ALLOW);
         this.permissionManager.visit(this, uuid, permission, visitor);
-    }
-
-    @Deprecated
-    public boolean hasPermission(UUID uuid, String permission) {
-        try {
-            return hasPermission(uuid, PermissionImpl.fromId(permission));
-        } catch (InvalidPermissionException e) {
-            // TODO:
-            LOGGER.warn(e);
-            return false;
-        }
-    }
-
-    public boolean getSetting(String setting) {
-        try {
-            return hasPermission(null, PermissionImpl.setting(setting));
-        } catch (InvalidPermissionException e) {
-            // TODO:
-            LOGGER.warn(e);
-            return false;
-        }
     }
 
     public ClaimPermissionHolder getPermissionManager() {
@@ -255,21 +248,6 @@ public abstract class AbstractClaim {
 
     public boolean contains(BlockPos pos) {
         return box.contains(pos);
-    }
-
-    public boolean intersects(AbstractClaim claim) {
-        if (!claim.dimension.equals(this.dimension)) return false;
-        return box.intersects(claim.getBox());
-        // TODO: Test new intersects implementation
-    }
-
-    public Optional<AbstractClaim> intersects() {
-        return ClaimList.INSTANCE.getClaims().stream().filter(claim ->
-                claim.dimension.equals(this.dimension) &&
-                        claim.getDepth() == this.getDepth() &&
-                        !this.equals(claim) &&
-                        (this.intersects(claim) || claim.intersects(this))
-        ).findFirst();
     }
 
     public void show(boolean show) {

@@ -2,7 +2,6 @@ package me.drex.itsours.claim.permission;
 
 import com.google.common.collect.Lists;
 import me.drex.itsours.ItsOurs;
-import me.drex.itsours.claim.permission.util.Modify;
 import me.drex.itsours.claim.permission.context.GlobalContext;
 import me.drex.itsours.claim.permission.node.AbstractNode;
 import me.drex.itsours.claim.permission.node.Node;
@@ -10,6 +9,8 @@ import me.drex.itsours.claim.permission.node.RootNode;
 import me.drex.itsours.claim.permission.node.builder.AbstractNodeBuilder;
 import me.drex.itsours.claim.permission.node.builder.GroupNodeBuilder;
 import me.drex.itsours.claim.permission.node.builder.SingleNodeBuilder;
+import me.drex.itsours.claim.permission.util.Modify;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.block.AbstractButtonBlock;
 import net.minecraft.block.AbstractPressurePlateBlock;
 import net.minecraft.block.Block;
@@ -59,8 +60,6 @@ public class PermissionManager {
     public static final List<Node> USE_ITEM_NODES = getNodes(Registry.ITEM, USE_ITEM_PREDICATE);
     public static final List<Node> DAMAGE_ENTITY_NODES = getNodes(Registry.ENTITY_TYPE, entityType -> !entityType.equals(EntityType.PLAYER));
     public static final List<Node> INTERACT_ENTITY_NODES = getNodes(Registry.ENTITY_TYPE, INTERACT_ENTITY_PREDICATE);
-
-    // TODO: Put all nodes like this
 
     public static final AbstractNode PLACE = Node.single("place")
             .description("text.itsours.permission.place.description")
@@ -126,6 +125,12 @@ public class PermissionManager {
             .icon(Items.WATER_BUCKET)
             .build();
 
+    public static final AbstractNode MOB_SPAWN = Node.single("mob_spawn")
+            .description("text.itsours.setting.mob_spawn.description")
+            .icon(Items.ZOMBIE_SPAWN_EGG)
+            .predicate(changeContext -> Permissions.check(changeContext.source(), "itsours.mob_spawn"))
+            .build();
+
     public static void register() {
         registerPermission(PLACE);
         registerPermission(MINE);
@@ -140,6 +145,7 @@ public class PermissionManager {
         registerSetting(PVP);
         registerSetting(EXPLOSIONS);
         registerSetting(FLUID_CROSSES_BORDERS);
+        registerSetting(MOB_SPAWN);
     }
 
     private static void registerPermission(Node node) {

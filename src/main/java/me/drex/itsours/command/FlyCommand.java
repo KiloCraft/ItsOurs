@@ -1,8 +1,10 @@
 package me.drex.itsours.command;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.user.Settings;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.World;
@@ -10,6 +12,11 @@ import net.minecraft.world.World;
 public class FlyCommand extends ToggleCommand {
 
     public static final FlyCommand INSTANCE = new FlyCommand();
+
+    @Override
+    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+        super.register(literal.requires(src -> Permissions.check(src, "itsours.fly")));
+    }
 
     private FlyCommand() {
         super("fly", Settings.FLIGHT, "text.itsours.commands.fly");

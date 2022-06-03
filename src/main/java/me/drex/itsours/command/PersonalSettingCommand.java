@@ -5,11 +5,14 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
-import me.drex.itsours.claim.permission.util.Value;
+import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.context.PersonalContext;
 import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.permission.util.Modify;
+import me.drex.itsours.claim.permission.util.Value;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.command.argument.PermissionArgument;
+import me.drex.itsours.util.Components;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -58,25 +61,22 @@ public class PersonalSettingCommand extends AbstractCommand {
     }
 
     private int executeSet(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Permission permission, Value value) throws CommandSyntaxException {
-        // TODO: Check if executor has permission to change permission
-        for (Node node : permission.getNodes()) {
-            // TODO: Add to other contexts
-            if (!node.canChange(new Node.ChangeContext(claim, new PersonalContext(src.getPlayer().getUuid()), value, src))) throw PermissionArgument.FORBIDDEN;
-        }
+        validatePermission(src, claim, PermissionManager.MODIFY, Modify.PERMISSION.buildNode());
+        permission.validateContext(new Node.ChangeContext(claim, new PersonalContext(src.getPlayer().getUuid()), value, src));
         for (GameProfile target : targets) {
             claim.getPermissionManager().setPermission(target.getId(), permission, value);
             src.sendFeedback(Text.translatable("text.itsours.commands.personalSetting.set",
-                    permission.asString(), Texts.toText(target), claim.getFullName(), value.format()
+                    permission.asString(), Components.toText(target), claim.getFullName(), value.format()
             ), false);
         }
         return 1;
     }
 
-    private int executeCheck(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Permission permission) {
-        // TODO: Check if executor has permission to check permission
+    private int executeCheck(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Permission permission) throws CommandSyntaxException {
+        validatePermission(src, claim, PermissionManager.MODIFY, Modify.PERMISSION.buildNode());
         for (GameProfile target : targets) {
             Value value = claim.getPermissionManager().getPermission(target.getId(), permission);
-            src.sendFeedback(Text.translatable("text.itsours.commands.personalSetting.check", permission.asString(), claim.getFullName(), value.format(), Texts.toText(target)), false);
+            src.sendFeedback(Text.translatable("text.itsours.commands.personalSetting.check", permission.asString(), claim.getFullName(), value.format(), Components.toText(target)), false);
         }
         return 1;
     }

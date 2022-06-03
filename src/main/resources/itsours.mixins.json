@@ -20,7 +20,9 @@
     "PlayerManagerMixin",
     "ProjectileEntityMixin",
     "ServerPlayerEntityMixin",
-    "ServerPlayerInteractionManagerMixin"
+    "ServerPlayerInteractionManagerMixin",
+    "SpawnHelperMixin",
+    "SpawnRestrictionMixin"
   ],
   "injectors": {
     "defaultRequire": 1
