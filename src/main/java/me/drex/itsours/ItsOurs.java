@@ -5,7 +5,7 @@ import me.drex.itsours.command.CommandManager;
 import me.drex.itsours.data.DataHandler;
 import me.drex.itsours.listener.PlayerEventListener;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
@@ -68,10 +68,6 @@ public class ItsOurs {
         }
     }
 
-    public static boolean hasPermission(ServerCommandSource src, String permission) {
-        return Permissions.check(src, permission, 2);
-    }
-
     public void save() {
         if (server == null) return;
         NbtCompound root = dataHandler.save();
@@ -93,6 +89,13 @@ public class ItsOurs {
 
     public int getDataVersion() {
         return dataHandler.dataVersion;
+    }
+
+    public static boolean hasPermission(ServerCommandSource src, String permission) {
+        if (src.getEntity() != null) {
+            return Permissions.check(src, "itsours." + permission, 2);
+        }
+        return true;
     }
 
 }

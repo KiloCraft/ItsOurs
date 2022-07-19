@@ -2,6 +2,7 @@ package me.drex.itsours.claim;
 
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.visitor.PermissionVisitor;
+import me.drex.itsours.util.ClaimBox;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -13,8 +14,8 @@ public class Subzone extends AbstractClaim {
 
     final AbstractClaim parent;
 
-    public Subzone(String name, UUID owner, BlockPos min, BlockPos max, ServerWorld world, AbstractClaim parent) {
-        super(name, owner, min, max, world);
+    public Subzone(String name, UUID owner, ClaimBox box, ServerWorld world, AbstractClaim parent) {
+        super(name, owner, box, world);
         // Make sure the parent isn't also in the subzone list (getDepth() would get an infinite loop)
         this.parent = parent;
         this.parent.addSubzone(this);

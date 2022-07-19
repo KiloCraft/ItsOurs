@@ -16,12 +16,12 @@ import net.minecraft.text.Text;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
-public class GlobalSettingCommand extends AbstractCommand {
+public class SettingCommand extends AbstractCommand {
 
-    public static final GlobalSettingCommand INSTANCE = new GlobalSettingCommand();
+    public static final SettingCommand INSTANCE = new SettingCommand();
 
-    public GlobalSettingCommand() {
-        super("globalSetting");
+    public SettingCommand() {
+        super("settings");
     }
 
     @Override
@@ -52,7 +52,7 @@ public class GlobalSettingCommand extends AbstractCommand {
     public int executeSet(ServerCommandSource src, AbstractClaim claim, Permission permission, Value value) throws CommandSyntaxException {
         validatePermission(src, claim, PermissionManager.MODIFY, Modify.SETTING.buildNode());
         permission.validateContext(new Node.ChangeContext(claim, GlobalContext.INSTANCE, value, src));
-        claim.getPermissionManager().settings.set(permission, value);
+        claim.getPermissionHolder().getSettings().set(permission, value);
         src.sendFeedback(Text.translatable("text.itsours.commands.globalSetting.set",
                 permission.asString(), claim.getFullName(), value.format()
         ), false);
@@ -61,7 +61,7 @@ public class GlobalSettingCommand extends AbstractCommand {
 
     public int executeCheck(ServerCommandSource src, AbstractClaim claim, Permission permission) throws CommandSyntaxException {
         validatePermission(src, claim, PermissionManager.MODIFY, Modify.SETTING.buildNode());
-        Value value = claim.getPermissionManager().settings.get(permission);
+        Value value = claim.getPermissionHolder().getSettings().get(permission);
         src.sendFeedback(Text.translatable("text.itsours.commands.globalSetting.check", permission.asString(), claim.getFullName(), value.format()), false);
         return 1;
     }

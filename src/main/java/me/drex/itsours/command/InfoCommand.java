@@ -7,7 +7,6 @@ import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.util.Components;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
 
 import java.util.Optional;
 
@@ -36,7 +35,7 @@ public class InfoCommand extends AbstractCommand {
                 Components.toText(optional.orElse(new GameProfile(claim.getOwner(), null))),
                 Components.toText(claim.getSize()),
                 claim.getDepth(),
-                claim.getPermissionManager().settings.toText(),
+                claim.getPermissionHolder().getSettings().toText(),
                 Components.toText(claim.getBox()),
                 claim.getDimension().getValue().toString()
         ), false);

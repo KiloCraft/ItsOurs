@@ -1,10 +1,40 @@
 {
+  "text.itsours.info.notProtected": "This %s is not protected, click this message to create a claim, to protect it.",
 
+  "text.itsours.format.separator": " - ",
   "text.itsours.format.vec3i": "%d x %d x %d",
   "text.itsours.format.box": "Min %s Max %s",
   "text.itsours.format.claim.hover": "Click for more information!",
   "text.itsours.format.profile.hover": "Click to copy!",
   "text.itsours.format.profile.unknown": "(Unknown)",
+
+  "text.itsours.gui.leftClick": "Left-click: %s",
+  "text.itsours.gui.rightClick": "Right-click: %s",
+  "text.itsours.gui.page": "Page %s / %s",
+  "text.itsours.gui.sortMode": "Sort Mode",
+  "text.itsours.gui.sortMode.ascending": "Ascending",
+  "text.itsours.gui.sortMode.descending": "Descending",
+
+  "text.itsours.gui.roles": "Player Role Manager",
+  "text.itsours.gui.roles.description": "View, trust and distrust players",
+  "text.itsours.gui.roles.trust": "Trust",
+  "text.itsours.gui.roles.distrust": "Distrust",
+  "text.itsours.gui.roles.permission": "View and change player claim permissions",
+  "text.itsours.gui.roles.addTrust": "Trust Player",
+
+  "text.itsours.gui.playerSelector": "Player Selector",
+
+  "text.itsours.gui.permission": "Player Permission Manager",
+
+  "text.itsours.gui.claimInfo": "Claim Info",
+
+  "text.itsours.gui.settings": "Global Permission Manager",
+  "text.itsours.gui.settings.description": "View and change claim wide settings",
+
+  "text.itsours.gui.claimList.claims.title": "Claims from %s",
+  "text.itsours.gui.claimList.subzones.title": "Subzones of %s",
+  "text.itsours.gui.claimList.element.lore.subzones": "View Subzones",
+  "text.itsours.gui.claimList.element.lore.info": "View Claim info",
 
   "text.itsours.permission.context.ignore": "Ignore",
   "text.itsours.permission.context.ignore.hover": "Admin setting - Supersedes *all* settings",
@@ -26,7 +56,7 @@
   "text.itsours.permission.interact_entity.description": "Right clicking entities (eg. trading with villager)",
   "text.itsours.permission.modify.description": "Claim permission (eg. expanding claim)",
   "text.itsours.setting.pvp.description": "Player vs Player",
-  "text.itsours.setting.explosion.description": "Explosion block damage (eg. creeper explosion)",
+  "text.itsours.setting.explosions.description": "Explosion block damage (eg. creeper explosion)",
   "text.itsours.setting.fluid_crosses_borders.description": "Fluids flowing across claim borders (eg. water flowing)",
   "text.itsours.setting.mob_spawn.description": "Mob spawning (eg. zombie spawning)",
 
@@ -89,6 +119,7 @@
 
   "text.itsours.commands.create.selectFirst": "You need to select the corners of your claim with a golden shovel (left- / right click) first.",
   "text.itsours.commands.create.intersects": "Claim couldn't be created, because it would overlap with \"%s\"!",
+  "text.itsours.commands.create.limit": "You can't have more than %s claims!",
 
   "text.itsours.commands.list": "%s's claims: %s",
   "text.itsours.commands.list.noClaims": "%s doesn't have any claims",
@@ -168,92 +199,6 @@
   "text.itsours.commands.exception.create.missing_blocks": "You need %s more claim blocks!",
   "text.itsours.commands.exception.remove.cant_delete": "You can't delete that claim!",
   "text.itsours.commands.exception.role.no_roles": "There is no role with that name!",
-  "text.itsours.commands.exception.trust.self": "You can't trust yourself!",
-
-  "text.itsours.command.blocks.check.self": "You have %d blocks left.",
-  "text.itsours.command.blocks.check.other": "%s has %d blocks left.",
-  "text.itsours.command.blocks.set": "Set %s's claim blocks to %d.",
-  "text.itsours.command.blocks.add": "Added %d claim blocks to %s.",
-  "text.itsours.command.blocks.remove": "Removed %d claim blocks from %s.",
-
-  "text.itsours.command.create": "Claim %s has been created (%d x %d x %d)",
-  "text.itsours.command.create.select_notice": "You need to select the corners of your claim with a golden shovel (left- / right click) first.",
-
-  "text.itsours.command.expand.expanded": "Claim %s was expanded by %d blocks into %s, for %d claim blocks",
-  "text.itsours.command.expand.shrunk": "Claim %s was shrunk by %d blocks into %s, you receive %d claim blocks",
-  "text.itsours.command.expand.syntax": "Wrong syntax! Type /claim <expand/shrink> <amount>, while looking into the direction you want to expand into.",
-
-  "text.itsours.command.fly.enabled": "Claim flight enabled.",
-  "text.itsours.command.fly.disabled": "Claim flight disabled.",
-
-  "text.itsours.command.help.unknown_category": "Unknown help category!",
-
-  "text.itsours.command.help.get_started.basics.title": "How to Claim (Basics)",
-  "text.itsours.command.help.get_started.basics.line1": "How to Claim (Basics)",
-
-  "text.itsours.command.ignore.enabled": "Claim ignore enabled.",
-  "text.itsours.command.ignore.disabled": "Claim ignore disabled.",
-
-  "text.itsours.command.info": "Claim Info:",
-  "text.itsours.command.info.name": "* Name: %s",
-  "text.itsours.command.info.owner": "* Owner: %s",
-  "text.itsours.command.info.size": "* Size: %s",
-  "text.itsours.command.info.size.value": "%d x %d x %d",
-  "text.itsours.command.info.depth": "* Depth: %d",
-  "text.itsours.command.info.settings": "* Settings: %s",
-  "text.itsours.command.info.position": "* Position: %s %s",
-  "text.itsours.command.info.position.min": "Min %s",
-  "text.itsours.command.info.position.max": "Max %s",
-  "text.itsours.command.info.dimension": "* Dimension: %s",
-
-
-  "text.itsours.command.permission": "Permissions:",
-  "text.itsours.command.permission.format": "%s: %s",
-  "text.itsours.command.permission.check": "Permission %s in %s is set to %s for %s",
-  "text.itsours.command.permission.check.hover": "%s(%d) | %s | %s: %s",
-  "text.itsours.command.permission.set": "Set permission %s in %s for %s to %s",
-  "text.itsours.command.permission.list": "Player Info (%s)",
-  "text.itsours.command.permission.list.claim": "* Claim: %s",
-  "text.itsours.command.permission.list.roles": "* Roles: %s",
-  "text.itsours.command.permission.list.permissions": "* Permissions: %s",
-
-  "text.itsours.command.remove.warning": "WARNING: This is not your claim...",
-  "text.itsours.command.remove.info": "Are you sure you want to delete the claim \"%s\"? %s",
-  "text.itsours.command.remove.info.confirm": "[I'M SURE!]",
-  "text.itsours.command.remove.success": "Claim %s deleted!",
-
-  "text.itsours.command.rename": "Changed name of %s to %s.",
-  "text.itsours.command.rename.already_taken": "Claim name is already taken!",
-  "text.itsours.command.rename.invalid": "Claim name is to long or contains invalid characters!",
-
-  "text.itsours.command.role.add": "Added %s role to %s.",
-  "text.itsours.command.role.remove": "Removed %s role from %s.",
-  "text.itsours.command.role.unset": "Unset %s role from %s.",
-  "text.itsours.command.role.no_change": "Nothing changed!",
-
-  "text.itsours.command.roles.already_exists": "A role with that name already exists!",
-  "text.itsours.command.roles.unknown": "Unknown role name!",
-  "text.itsours.command.roles.cant_remove": "You can't remove that role!",
-  "text.itsours.command.roles.add": "Role %s has been added.",
-  "text.itsours.command.roles.remove": "Role %s has been removed.",
-  "text.itsours.command.roles.set_permission": "Set %s for %s to %s.",
-  "text.itsours.command.roles.list_permission": "%s\n%s",
-
-  "text.itsours.command.set_owner": "Set owner of %s to %s!",
-
-  "text.itsours.command.trusted.no_one": "No one is trusted in %s!",
-  "text.itsours.command.trusted.title": "Trusted:",
-
-  "text.itsours.info.not_protected": "This %s is not protected, click this message to create a claim, to protect it.",
-
-  "text.itsours.command.select.enabled": "Claim selecting enabled.",
-  "text.itsours.command.select.disabled": "Claim selecting disabled.",
-
-  "text.itsours.command.setting.check": "Setting %s in %s is set to %s",
-  "text.itsours.command.setting.set": "Set Setting %s in %s to %s",
-  "text.itsours.command.setting.list": "Settings:",
-  "text.itsours.command.setting.list.entry": "%s: %s",
-
-  "text.itsours.general.click_to_copy": "Click to copy!"
+  "text.itsours.commands.exception.trust.self": "You can't trust yourself!"
 
 }

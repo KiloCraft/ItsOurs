@@ -3,6 +3,7 @@ package me.drex.itsours.command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.PermissionManager;
@@ -35,7 +36,7 @@ public class RenameCommand extends AbstractCommand {
     }
 
     private int executeRename(ServerCommandSource src, AbstractClaim claim, String newName) throws CommandSyntaxException {
-        if (claim.getOwner().equals(src.getEntityOrThrow().getUuid()) || Permissions.check(src, "itsours.rename")) {
+        if (claim.getOwner().equals(src.getEntityOrThrow().getUuid()) || ItsOurs.hasPermission(src, "rename")) {
             if (AbstractClaim.isNameInvalid(newName)) throw ClaimArgument.INVALID_NAME;
             if (ClaimList.INSTANCE.getClaim(newName).isPresent()) throw ClaimArgument.NAME_TAKEN;
             String originalName = claim.getFullName();

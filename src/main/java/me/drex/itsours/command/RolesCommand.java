@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.context.RoleContext;
 import me.drex.itsours.claim.permission.holder.PermissionHolder;
@@ -85,7 +86,7 @@ public class RolesCommand extends AbstractCommand {
                                                                 .executes(ctx -> executeSet(ctx.getSource(), RoleArgument.getRole(ctx), PermissionArgument.getPermission(ctx), Value.UNSET)))
                                 )
                 )
-                .requires(src -> Permissions.check(src, "itsours.roles"))
+                .requires(src -> ItsOurs.hasPermission(src, "roles"))
                 .executes(ctx -> executeListRoles(ctx.getSource()));
     }
 
@@ -138,8 +139,5 @@ public class RolesCommand extends AbstractCommand {
         RoleManager.INSTANCE.updateRoleOrder(role, offset);
         return executeListRoles(src);
     }
-
-    // TODO: add modify
-    // if (!node.canChange(new Node.ChangeContext(claim, new RoleContext(role), value, src))) throw PermissionArgument.FORBIDDEN;
 
 }

@@ -7,6 +7,8 @@ import me.drex.itsours.claim.permission.node.Node;
 import me.drex.itsours.command.CommandManager;
 import me.drex.itsours.command.CreateCommand;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.PlayerList;
+import me.drex.itsours.user.Settings;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
@@ -91,7 +93,7 @@ public class PlayerEventListener {
     }
 
     private static boolean shouldSelect(PlayerEntity player, Hand hand, BlockPos prevPos, BlockPos pos) {
-        if (player.getStackInHand(hand).isOf(SELECT_ITEM) || ((ClaimPlayer) player).isSelecting()) {
+        if (player.getStackInHand(hand).isOf(SELECT_ITEM) || PlayerList.get(player.getUuid(), Settings.SELECT)) {
             return !Objects.equals(prevPos, pos);
         }
         return false;

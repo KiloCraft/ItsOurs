@@ -3,6 +3,8 @@ package me.drex.itsours.mixin;
 import com.mojang.authlib.GameProfile;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.PlayerList;
+import me.drex.itsours.user.Settings;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -30,7 +32,6 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     private AbstractClaim lastShowClaim;
     private BlockPos lastShowPos;
     private ServerWorld lastShowWorld;
-    private boolean select = false;
 
     @Override
     public void setLastShow(AbstractClaim claim, BlockPos pos, ServerWorld world) {
@@ -63,7 +64,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     public void resetSelection() {
         this.firstPos = null;
         this.secondPos = null;
-        this.select = false;
+        PlayerList.set(uuid, Settings.SELECT, false);
     }
 
     @Override
@@ -84,16 +85,6 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     @Override
     public void setSecondPosition(BlockPos pos) {
         secondPos = pos;
-    }
-
-    @Override
-    public boolean isSelecting() {
-        return this.select;
-    }
-
-    @Override
-    public void setSelecting(boolean value) {
-        this.select = value;
     }
 
 }

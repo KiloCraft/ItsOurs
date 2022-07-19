@@ -8,7 +8,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.SpawnRestriction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.AbstractRandom;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.ServerWorldAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,7 +25,7 @@ public abstract class SpawnRestrictionMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    private static <T extends Entity> void canMobsSpawn(EntityType<T> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, AbstractRandom random, CallbackInfoReturnable<Boolean> cir) {
+    private static <T extends Entity> void canMobsSpawn(EntityType<T> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random, CallbackInfoReturnable<Boolean> cir) {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(world.toServerWorld(), pos);
         if (claim.isPresent() && !claim.get().hasPermission(null, PermissionManager.MOB_SPAWN)) {
             cir.setReturnValue(false);

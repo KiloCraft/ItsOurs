@@ -4,6 +4,7 @@ import me.drex.itsours.claim.permission.node.AbstractNode;
 import me.drex.itsours.claim.permission.node.Node;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.Items;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
 import java.util.Collection;
@@ -14,7 +15,7 @@ import java.util.function.Predicate;
 public abstract class AbstractNodeBuilder {
 
     protected final String id;
-    protected Text description = Text.empty();
+    protected MutableText description = Text.empty();
     protected final List<Node> childNodes = new LinkedList<>();
     protected ItemConvertible icon = Items.STONE;
     protected Predicate<Node.ChangeContext> changePredicate = context -> true;
@@ -28,7 +29,7 @@ public abstract class AbstractNodeBuilder {
         return this;
     }
 
-    public AbstractNodeBuilder description(Text description) {
+    public AbstractNodeBuilder description(MutableText description) {
         this.description = description;
         return this;
     }

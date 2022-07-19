@@ -16,19 +16,18 @@ import me.drex.itsours.util.Components;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
 
 import java.util.Collection;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
-public class PersonalSettingCommand extends AbstractCommand {
+public class PermissionsCommand extends AbstractCommand {
 
-    public static final PersonalSettingCommand INSTANCE = new PersonalSettingCommand();
+    public static final PermissionsCommand INSTANCE = new PermissionsCommand();
 
-    public PersonalSettingCommand() {
-        super("personalSetting");
+    public PermissionsCommand() {
+        super("permissions");
     }
 
     @Override
@@ -60,11 +59,11 @@ public class PersonalSettingCommand extends AbstractCommand {
         );
     }
 
-    private int executeSet(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Permission permission, Value value) throws CommandSyntaxException {
+    public int executeSet(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Permission permission, Value value) throws CommandSyntaxException {
         validatePermission(src, claim, PermissionManager.MODIFY, Modify.PERMISSION.buildNode());
         permission.validateContext(new Node.ChangeContext(claim, new PersonalContext(src.getPlayer().getUuid()), value, src));
         for (GameProfile target : targets) {
-            claim.getPermissionManager().setPermission(target.getId(), permission, value);
+            claim.getPermissionHolder().setPermission(target.getId(), permission, value);
             src.sendFeedback(Text.translatable("text.itsours.commands.personalSetting.set",
                     permission.asString(), Components.toText(target), claim.getFullName(), value.format()
             ), false);
@@ -75,7 +74,7 @@ public class PersonalSettingCommand extends AbstractCommand {
     private int executeCheck(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Permission permission) throws CommandSyntaxException {
         validatePermission(src, claim, PermissionManager.MODIFY, Modify.PERMISSION.buildNode());
         for (GameProfile target : targets) {
-            Value value = claim.getPermissionManager().getPermission(target.getId(), permission);
+            Value value = claim.getPermissionHolder().getPermission(target.getId(), permission);
             src.sendFeedback(Text.translatable("text.itsours.commands.personalSetting.check", permission.asString(), claim.getFullName(), value.format(), Components.toText(target)), false);
         }
         return 1;

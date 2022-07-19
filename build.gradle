@@ -25,7 +25,7 @@ dependencies {
     // Make a collection of all api modules we wish to use
     Set<String> apiModules = [
             "fabric-api-base",
-            "fabric-command-api-v1",
+            "fabric-command-api-v2",
             "fabric-events-interaction-v0",
             "fabric-lifecycle-events-v1"
     ]
@@ -39,8 +39,7 @@ dependencies {
     modImplementation include("me.lucko:fabric-permissions-api:${project.perm_version}")
 
     // gui
-    // TODO: wait for 1.19 version
-    //modImplementation include("eu.pb4:sgui:${project.sgui_version}")
+    modImplementation include("eu.pb4:sgui:${project.sgui_version}")
 
     // Server translation api
     modImplementation "fr.catcore:api:${project.translations_version}"

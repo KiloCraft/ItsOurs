@@ -1,12 +1,12 @@
 package me.drex.itsours.command;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.holder.PlayerRoleHolder;
 import me.drex.itsours.claim.permission.roles.Role;
 import me.drex.itsours.claim.permission.roles.RoleManager;
 import me.drex.itsours.command.argument.ClaimArgument;
+import me.drex.itsours.util.Components;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
@@ -31,19 +31,18 @@ public class TrustedCommand extends AbstractCommand {
     }
 
     private int executeTrusted(ServerCommandSource src, AbstractClaim claim) {
-        Map<UUID, PlayerRoleHolder> roles = claim.getPermissionManager().getRoles();
-        List<GameProfile> profiles = new LinkedList<>();
+        Map<UUID, PlayerRoleHolder> roles = claim.getPermissionHolder().getRoles();
+        List<UUID> trusted = new LinkedList<>();
         for (Map.Entry<UUID, PlayerRoleHolder> entry : roles.entrySet()) {
-            Role trusted = RoleManager.INSTANCE.getRole(RoleManager.TRUSTED_ID);
-            if (entry.getValue().getRoles().contains(trusted)) {
-                Optional<GameProfile> optional = src.getServer().getUserCache().getByUuid(entry.getKey());
-                profiles.add(optional.orElse(new GameProfile(entry.getKey(), null)));
+            Role trustedRole = RoleManager.INSTANCE.getRole(RoleManager.TRUSTED_ID);
+            if (entry.getValue().getRoles().contains(trustedRole)) {
+                trusted.add(entry.getKey());
             }
         }
 
-        if (profiles.isEmpty()) src.sendError(Text.translatable("text.itsours.commands.trusted.nobody_trusted"));
+        if (trusted.isEmpty()) src.sendError(Text.translatable("text.itsours.commands.trusted.nobody_trusted"));
         else src.sendFeedback(Text.translatable("text.itsours.commands.trusted",
-                Texts.join(profiles, Texts::toText)
+                Texts.join(trusted, Components::toText)
         ), false);
         return 1;
     }

@@ -26,8 +26,4 @@ public interface ClaimPlayer {
 
     BlockPos getFirstPosition();
 
-    void setSelecting(boolean value);
-
-    boolean isSelecting();
-
 }

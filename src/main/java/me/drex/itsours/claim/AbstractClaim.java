@@ -36,8 +36,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static me.drex.itsours.claim.AbstractClaim.Util.getPosOnGround;
-
 public abstract class AbstractClaim {
 
     public static final Pattern NAME = Pattern.compile("\\w{3,16}");
@@ -53,10 +51,10 @@ public abstract class AbstractClaim {
     private String enterMessage = null;
     private String leaveMessage = null;
 
-    public AbstractClaim(String name, UUID owner, BlockPos first, BlockPos second, ServerWorld world) {
+    public AbstractClaim(String name, UUID owner, ClaimBox box, ServerWorld world) {
         this.name = name;
         this.owner = owner;
-        this.box = ClaimBox.create(first, second);
+        this.box = box;
         this.dimension = world.getRegistryKey();
         this.permissionManager = new ClaimPermissionHolder(new NbtCompound());
     }
@@ -173,11 +171,7 @@ public abstract class AbstractClaim {
     }
 
     public void onEnter(@Nullable AbstractClaim previousClaim, ServerPlayerEntity player) {
-        if (previousClaim == null) {
-            PlayerList.set(player.getUuid(), Settings.CACHED_FLIGHT, player.getAbilities().allowFlying);
-        }
-        assert player.getServer() != null;
-        boolean hasPermission = ItsOurs.hasPermission(player.getCommandSource(), "itsours.fly") && player.getWorld().equals(player.getServer().getOverworld());
+        boolean hasPermission = ItsOurs.hasPermission(player.getCommandSource(), "fly") && player.getWorld().getRegistryKey().equals(World.OVERWORLD);
         boolean cachedFlying = hasPermission && player.getAbilities().flying;
         // Update abilities for respective gamemode
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
@@ -232,7 +226,7 @@ public abstract class AbstractClaim {
         this.permissionManager.visit(this, uuid, permission, visitor);
     }
 
-    public ClaimPermissionHolder getPermissionManager() {
+    public ClaimPermissionHolder getPermissionHolder() {
         return this.permissionManager;
     }
 
@@ -279,21 +273,17 @@ public abstract class AbstractClaim {
         return String.format("%s[name=%s, owner=%s]", this.getClass().getSimpleName(), this.name, this.getOwner());
     }
 
-    public static class Util {
+    public static BlockPos getPosOnGround(BlockPos pos, World world) {
+        BlockPos blockPos = new BlockPos(pos.getX(), pos.getY() + 10, pos.getZ());
 
-        // TODO: remove
-        public static BlockPos getPosOnGround(BlockPos pos, World world) {
-            BlockPos blockPos = new BlockPos(pos.getX(), pos.getY() + 10, pos.getZ());
+        do {
+            blockPos = blockPos.down();
+            if (blockPos.getY() < 1) {
+                return pos;
+            }
+        } while (!world.getBlockState(blockPos).isFullCube(world, pos));
 
-            do {
-                blockPos = blockPos.down();
-                if (blockPos.getY() < 1) {
-                    return pos;
-                }
-            } while (!world.getBlockState(blockPos).isFullCube(world, pos));
-
-            return blockPos.up();
-        }
+        return blockPos.up();
     }
 
 }

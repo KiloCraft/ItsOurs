@@ -2,6 +2,7 @@ package me.drex.itsours.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.ClaimList;
@@ -56,7 +57,7 @@ public class RemoveCommand extends AbstractCommand {
         if (claim.getOwner().equals(src.getEntityOrThrow().getUuid())) {
             src.sendFeedback(text, false);
             return 1;
-        } else if (Permissions.check(src, "itsours.remove")) {
+        } else if (ItsOurs.hasPermission(src, "remove")) {
             src.sendFeedback(Text.translatable("text.itsours.commands.remove.warning").formatted(Formatting.DARK_RED, Formatting.BOLD), false);
             src.sendFeedback(text, false);
             return 2;
@@ -67,7 +68,7 @@ public class RemoveCommand extends AbstractCommand {
     }
 
     private int executeRemoveConfirmed(ServerCommandSource src, AbstractClaim claim) throws CommandSyntaxException {
-        if (claim.getOwner().equals(src.getEntityOrThrow().getUuid()) || Permissions.check(src, "itsours.remove")) {
+        if (claim.getOwner().equals(src.getEntityOrThrow().getUuid()) || ItsOurs.hasPermission(src, "remove")) {
             removeClaim(claim);
             src.sendFeedback(Text.translatable("text.itsours.commands.remove.success", claim.getFullName()), false);
             return 1;

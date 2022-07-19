@@ -125,17 +125,22 @@ public class PermissionManager {
             .icon(Items.WATER_BUCKET)
             .build();
 
+    // TODO: Description
+    public static final AbstractNode SCULK_CROSSES_BORDERS = Node.single("sculk_crosses_borders")
+            .description("text.itsours.setting.todo.description")
+            .icon(Items.SCULK_VEIN)
+            .build();
+
     public static final AbstractNode MOB_SPAWN = Node.single("mob_spawn")
             .description("text.itsours.setting.mob_spawn.description")
             .icon(Items.ZOMBIE_SPAWN_EGG)
-            .predicate(changeContext -> Permissions.check(changeContext.source(), "itsours.mob_spawn"))
+            .predicate(changeContext -> ItsOurs.hasPermission(changeContext.source(), "itsours.mob_spawn"))
             .build();
 
     public static void register() {
         registerPermission(PLACE);
         registerPermission(MINE);
         registerPermission(INTERACT_BLOCK);
-        registerPermission(USE_ON_BLOCK);
         registerPermission(USE_ON_BLOCK);
         registerPermission(USE_ITEM);
         registerPermission(DAMAGE_ENTITY);
@@ -145,6 +150,7 @@ public class PermissionManager {
         registerSetting(PVP);
         registerSetting(EXPLOSIONS);
         registerSetting(FLUID_CROSSES_BORDERS);
+        registerSetting(SCULK_CROSSES_BORDERS);
         registerSetting(MOB_SPAWN);
     }
 
@@ -178,7 +184,7 @@ public class PermissionManager {
                 final Identifier identifier = registry.getId(entry.value());
                 Validate.notNull(identifier, "%s does not contain entry %s", registry.toString(), entry.value().toString());
                 SingleNodeBuilder builder = Node.single(identifier.getPath());
-                addItem(entry, builder);
+                addItem(entry.value(), builder);
                 entries.add(builder.build());
             }
             if (!entries.isEmpty()) {
@@ -202,6 +208,7 @@ public class PermissionManager {
 
     private static <T> void addItem(T entry, AbstractNodeBuilder builder) {
         if (entry instanceof ItemConvertible convertible) {
+            if (convertible.asItem().equals(Items.AIR)) return;
             builder.icon(convertible.asItem());
         } else if (entry instanceof EntityType entityType) {
             Item item = SpawnEggItem.forEntity(entityType);

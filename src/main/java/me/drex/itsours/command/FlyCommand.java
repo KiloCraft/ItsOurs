@@ -2,6 +2,7 @@ package me.drex.itsours.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.user.Settings;
 import me.lucko.fabric.api.permissions.v0.Permissions;
@@ -15,7 +16,7 @@ public class FlyCommand extends ToggleCommand {
 
     @Override
     protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
-        super.register(literal.requires(src -> Permissions.check(src, "itsours.fly")));
+        super.register(literal.requires(src -> ItsOurs.hasPermission(src, "fly")));
     }
 
     private FlyCommand() {

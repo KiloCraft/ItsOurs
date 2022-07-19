@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.user.Settings;
 import me.drex.itsours.util.Components;
@@ -37,14 +38,14 @@ public class BlocksCommand extends AbstractCommand {
                                         argument("blocks", IntegerArgumentType.integer())
                                                 .executes(ctx -> addBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), IntegerArgumentType.getInteger(ctx, "blocks")))
                                 )
-                        ).requires(src -> Permissions.check(src, "itsours.blocks.add"))
+                        ).requires(src -> ItsOurs.hasPermission(src, "blocks.add"))
                 )
                 .then(
                         literal("check").then(
                                 argument("targets", GameProfileArgumentType.gameProfile())
                                         .executes(ctx -> checkBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets")))
 
-                        ).requires(src -> Permissions.check(src, "itsours.blocks.check"))
+                        ).requires(src -> ItsOurs.hasPermission(src, "blocks.check"))
                 )
                 .then(
                         literal("set").then(
@@ -52,7 +53,7 @@ public class BlocksCommand extends AbstractCommand {
                                         argument("blocks", IntegerArgumentType.integer())
                                                 .executes(ctx -> setBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), IntegerArgumentType.getInteger(ctx, "blocks")))
                                 )
-                        ).requires(src -> Permissions.check(src, "itsours.blocks.set"))
+                        ).requires(src -> ItsOurs.hasPermission(src, "blocks.set"))
                 )
                 .then(
                         literal("give").then(
@@ -60,7 +61,7 @@ public class BlocksCommand extends AbstractCommand {
                                         argument("blocks", IntegerArgumentType.integer(1))
                                                 .executes(ctx -> giveBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), IntegerArgumentType.getInteger(ctx, "blocks")))
                                 )
-                        ).requires(src -> Permissions.check(src, "itsours.blocks.give"))
+                        ).requires(src -> ItsOurs.hasPermission(src, "blocks.give"))
                 )
                 .executes(ctx -> checkBlocks(ctx.getSource(), Collections.singleton(ctx.getSource().getPlayer().getGameProfile())));
     }
@@ -95,8 +96,10 @@ public class BlocksCommand extends AbstractCommand {
     private int giveBlocks(ServerCommandSource src, Collection<GameProfile> targets, int amount) throws CommandSyntaxException {
         int requiredAmount = targets.size() * amount;
         int donatorBlocks = PlayerList.get(src.getPlayer().getUuid(), Settings.BLOCKS);
-        if (requiredAmount > donatorBlocks)
+        if (requiredAmount > donatorBlocks) {
             src.sendError(Text.translatable("text.itsours.commands.blocks.give.notEnough"));
+            return -1;
+        }
         PlayerList.set(src.getPlayer().getUuid(), Settings.BLOCKS, donatorBlocks - requiredAmount);
         int i = 0;
         for (GameProfile target : targets) {

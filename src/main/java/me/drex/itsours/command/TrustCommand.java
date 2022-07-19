@@ -14,7 +14,6 @@ import me.drex.itsours.util.Components;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -44,9 +43,9 @@ public class TrustCommand extends AbstractCommand {
         );
     }
 
-    private int executeTrust(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets) throws CommandSyntaxException {
+    public int executeTrust(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets) throws CommandSyntaxException {
         validatePermission(src, claim, PermissionManager.MODIFY, (trust ? Modify.TRUST : Modify.DISTRUST).buildNode());
-        ClaimPermissionHolder permissionHolder = claim.getPermissionManager();
+        ClaimPermissionHolder permissionHolder = claim.getPermissionHolder();
         Role trusted = RoleManager.INSTANCE.getRole(RoleManager.TRUSTED_ID);
         int result = 0;
         if (trust) {

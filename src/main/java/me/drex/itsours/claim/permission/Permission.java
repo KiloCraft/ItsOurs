@@ -11,7 +11,11 @@ public interface Permission {
 
     void validateContext(Node.ChangeContext context) throws CommandSyntaxException;
 
+    Permission withNode(Node node);
+
     List<Node> getNodes();
+
+    Node getLastNode();
 
     String asString();
 

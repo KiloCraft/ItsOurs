@@ -4,6 +4,8 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.command.CommandManager;
+import me.drex.itsours.command.CreateCommand;
 import me.drex.itsours.user.ClaimPlayer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockWithEntity;
@@ -72,9 +74,9 @@ public abstract class BlockItemMixin extends Item {
             PlayerEntity playerEntity = context.getPlayer();
             ClaimPlayer claimPlayer = (ClaimPlayer) playerEntity;
             if (claimPlayer != null && ClaimList.INSTANCE.getClaimsFrom(playerEntity.getUuid()).isEmpty()) {
-                playerEntity.sendMessage(Text.translatable("text.itsours.info.not_protected",
+                playerEntity.sendMessage(Text.translatable("text.itsours.info.notProtected",
                         Text.literal(this.getDefaultStack().getName().getString().toLowerCase()).formatted(Formatting.GOLD)
-                ).formatted(Formatting.YELLOW).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "claim create"))));
+                ).formatted(Formatting.YELLOW).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/%s %s", CommandManager.LITERAL, CreateCommand.LITERAL)))));
                 claimPlayer.setFirstPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
                 claimPlayer.setSecondPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
             }

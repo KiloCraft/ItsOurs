@@ -1,6 +1,7 @@
 package me.drex.itsours.claim.permission.node;
 
 import net.minecraft.item.ItemConvertible;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
 import java.util.Collection;
@@ -11,7 +12,7 @@ public class GroupNode extends AbstractNode {
 
     private final Collection<Node> contained;
 
-    public GroupNode(String id, Text description, List<Node> nodes, ItemConvertible icon, Predicate<ChangeContext> changePredicate, Collection<Node> contained) {
+    public GroupNode(String id, MutableText description, List<Node> nodes, ItemConvertible icon, Predicate<ChangeContext> changePredicate, Collection<Node> contained) {
         super(id, description, nodes, icon, changePredicate);
         this.contained = contained;
     }
@@ -19,6 +20,10 @@ public class GroupNode extends AbstractNode {
     @Override
     public String getId() {
         return super.getId().toUpperCase();
+    }
+
+    public Collection<Node> getContained() {
+        return contained;
     }
 
     @Override

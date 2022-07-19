@@ -4,6 +4,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.util.Modify;
@@ -48,7 +49,7 @@ public class MessageCommand extends AbstractCommand {
                                         )
 
                         )
-        ).requires(src -> Permissions.check(src, "itsours.message"));
+        ).requires(src -> ItsOurs.hasPermission(src, "message"));
     }
 
     private int execute(ServerCommandSource src, AbstractClaim claim, String message, boolean enter) throws CommandSyntaxException {
