@@ -23,7 +23,7 @@ public abstract class SculkSpreadManagerCursorMixin {
      * Sculk veins may still generate on the border of claims.
     * */
     @Inject(method = "getSpreadPos", at = @At("TAIL"), cancellable = true)
-    private static void dontSpreadCrossBorder(WorldAccess world, BlockPos oldPos, Random random, CallbackInfoReturnable<BlockPos> cir) {
+    private static void itsours$dontSpreadCrossBorder(WorldAccess world, BlockPos oldPos, Random random, CallbackInfoReturnable<BlockPos> cir) {
         BlockPos returnValue = cir.getReturnValue();
         if (returnValue == null) return;
         // TODO: WorldAccess can't reliable be cast to (ServerWorld)

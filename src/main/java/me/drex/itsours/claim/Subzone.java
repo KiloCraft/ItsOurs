@@ -5,7 +5,6 @@ import me.drex.itsours.claim.permission.visitor.PermissionVisitor;
 import me.drex.itsours.util.ClaimBox;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;

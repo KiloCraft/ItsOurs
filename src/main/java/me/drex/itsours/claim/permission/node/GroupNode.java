@@ -2,7 +2,6 @@ package me.drex.itsours.claim.permission.node;
 
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
 
 import java.util.Collection;
 import java.util.List;

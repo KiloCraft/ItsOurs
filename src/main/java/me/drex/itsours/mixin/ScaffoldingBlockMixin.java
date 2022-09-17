@@ -22,11 +22,11 @@ import java.util.Optional;
 public abstract class ScaffoldingBlockMixin {
 
     @Inject(method = "getPlacementState", at = @At("HEAD"), cancellable = true)
-    public void preventScaffoldingInClaim(ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> cir) {
+    public void itsours$preventScaffoldingInClaim(ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> cir) {
         if (ctx.getPlayer() == null) return;
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) ctx.getWorld(), ctx.getBlockPos());
         if (claim.isPresent() && !claim.get().hasPermission(ctx.getPlayer().getUuid(), PermissionManager.PLACE, Node.dummy(Registry.BLOCK, (ScaffoldingBlock) (Object) this))) {
-            ctx.getPlayer().sendMessage(Text.translatable("text.itsours.action.disallowed.place_block").formatted(Formatting.RED));
+            ctx.getPlayer().sendMessage(Text.translatable("text.itsours.action.disallowed.place_block").formatted(Formatting.RED), true);
             cir.setReturnValue(null);
         }
     }

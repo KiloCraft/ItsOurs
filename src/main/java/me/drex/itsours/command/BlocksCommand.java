@@ -8,12 +8,10 @@ import me.drex.itsours.ItsOurs;
 import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.user.Settings;
 import me.drex.itsours.util.Components;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.Collection;
@@ -111,7 +109,7 @@ public class BlocksCommand extends AbstractCommand {
             src.sendFeedback(Text.translatable("text.itsours.commands.blocks.give", amount, Components.toText(target)), false);
             ServerPlayerEntity player = src.getServer().getPlayerManager().getPlayer(target.getId());
             if (player != null)
-                player.sendMessage(Text.translatable("text.itsours.commands.blocks.give.received", amount, src.getPlayer().getEntityName()));
+                player.sendMessage(Text.translatable("text.itsours.commands.blocks.give.received", amount, src.getPlayer().getEntityName()), true);
         }
         return i;
     }

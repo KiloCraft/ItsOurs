@@ -73,7 +73,7 @@ public class PlayerEventListener {
         if (claim.isEmpty() || !PermissionManager.USE_ITEM_PREDICATE.test(stack.getItem()))
             return TypedActionResult.pass(stack);
         if (!claim.get().hasPermission(player.getUuid(), PermissionManager.USE_ITEM, Node.dummy(Registry.ITEM, stack.getItem()))) {
-            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED));
+            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED), true);
             return TypedActionResult.fail(stack);
         }
         return TypedActionResult.pass(stack);

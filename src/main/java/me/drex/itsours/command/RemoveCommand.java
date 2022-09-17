@@ -10,7 +10,6 @@ import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.user.PlayerList;
 import me.drex.itsours.user.Settings;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;

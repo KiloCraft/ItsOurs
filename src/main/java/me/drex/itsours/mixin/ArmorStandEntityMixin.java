@@ -35,12 +35,12 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
             at = @At("HEAD"),
             cancellable = true
     )
-    public void canInteract(PlayerEntity player, Vec3d hitPos, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
+    public void itsours$canInteract(PlayerEntity player, Vec3d hitPos, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) this.getEntityWorld(), this.getBlockPos());
         if (claim.isEmpty()) return;
 
         if (!claim.get().hasPermission(player.getUuid(), PermissionManager.INTERACT_ENTITY, Node.dummy(Registry.ENTITY_TYPE, this.getType()))) {
-            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_entity").formatted(Formatting.RED));
+            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_entity").formatted(Formatting.RED), true);
             cir.setReturnValue(ActionResult.FAIL);
         }
     }

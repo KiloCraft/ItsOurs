@@ -1,7 +1,6 @@
 package me.drex.itsours.claim.permission;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.claim.permission.context.GlobalContext;
 import me.drex.itsours.claim.permission.node.Node;
 import me.drex.itsours.claim.permission.node.RootNode;
 import me.drex.itsours.claim.permission.util.InvalidPermissionException;

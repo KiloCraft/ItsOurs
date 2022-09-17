@@ -1,5 +1,6 @@
 package me.drex.itsours.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.PermissionManager;
@@ -12,29 +13,28 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.registry.Registry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.Optional;
 
 @Mixin(LecternScreenHandler.class)
 public abstract class LecternScreenHandlerMixin {
 
-    @Redirect(
+    @ModifyExpressionValue(
             method = "onButtonClick",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/player/PlayerEntity;canModifyBlocks()Z"
             )
     )
-    public boolean canTakeBook(PlayerEntity player) {
+    public boolean itsours$canTakeBook(boolean original, PlayerEntity player) {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(player);
         if (claim.isEmpty())
-            return player.canModifyBlocks();
+            return original;
         if (!claim.get().hasPermission(player.getUuid(), PermissionManager.MINE, Node.dummy(Registry.BLOCK, Blocks.LECTERN))) {
-            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED));
+            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED), true);
             return false;
         }
-        return player.canModifyBlocks();
+        return original;
     }
 
 

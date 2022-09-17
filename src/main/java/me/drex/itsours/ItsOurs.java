@@ -75,7 +75,7 @@ public class ItsOurs {
         File data_backup = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat_old").toFile();
         // Backup old file
         if (data.exists()) {
-            LOGGER.info("Creating backup of: " + data.getName() + " (" + data.length() / 1024 + "kb)");
+            LOGGER.debug("Creating backup of: " + data.getName() + " (" + data.length() / 1024 + "kb)");
             if (data_backup.exists()) data_backup.delete();
             data.renameTo(data_backup);
         }

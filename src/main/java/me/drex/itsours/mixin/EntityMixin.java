@@ -1,5 +1,7 @@
 package me.drex.itsours.mixin;
 
+import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
@@ -21,7 +23,6 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Objects;
@@ -47,8 +48,14 @@ public abstract class EntityMixin {
         }
     }
 
-    @Redirect(method = "checkBlockCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V"))
-    private void itsours$onBlockCollision(BlockState blockState, World world, BlockPos pos, Entity entity) {
+    @WrapWithCondition(
+            method = "checkBlockCollision",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V"
+            )
+    )
+    private boolean itsours$onBlockCollision(BlockState blockState, World world, BlockPos pos, Entity entity) {
         ServerPlayerEntity playerEntity = null;
         if (entity instanceof ProjectileEntity projectileEntity && (blockState.getBlock() instanceof AbstractButtonBlock || blockState.getBlock() instanceof AbstractPressurePlateBlock)) {
             if (projectileEntity.getOwner() != null && projectileEntity.getOwner() instanceof ServerPlayerEntity) {
@@ -62,19 +69,17 @@ public abstract class EntityMixin {
             }
         }
         if (playerEntity == null) {
-            blockState.onEntityCollision(world, pos, entity);
-            return;
+            return true;
         }
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, pos);
         if (claim.isEmpty()) {
-            blockState.onEntityCollision(world, pos, entity);
-            return;
+            return true;
         }
         if (!claim.get().hasPermission(playerEntity.getUuid(), PermissionManager.INTERACT_BLOCK, Node.dummy(Registry.BLOCK, blockState.getBlock()))) {
-            playerEntity.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED));
-            return;
+            playerEntity.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED), true);
+            return false;
         }
-        blockState.onEntityCollision(world, pos, entity);
+        return true;
     }
 
 }

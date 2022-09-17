@@ -3,7 +3,6 @@ package me.drex.itsours.command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.user.Settings;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class IgnoreCommand extends ToggleCommand {

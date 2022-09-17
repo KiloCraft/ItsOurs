@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 
+// TODO:
 @Mixin(SpawnHelper.class)
 public abstract class SpawnHelperMixin {
 
@@ -25,7 +26,7 @@ public abstract class SpawnHelperMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    private static void canPhantomsSpawn(BlockView blockView, BlockPos pos, BlockState state, FluidState fluidState, EntityType<?> entityType, CallbackInfoReturnable<Boolean> cir) {
+    private static void itsours$canPhantomsSpawn(BlockView blockView, BlockPos pos, BlockState state, FluidState fluidState, EntityType<?> entityType, CallbackInfoReturnable<Boolean> cir) {
         if (blockView instanceof ServerWorld) {
             Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) blockView, pos);
             if (claim.isPresent() && !claim.get().hasPermission(null, PermissionManager.MOB_SPAWN) && entityType.equals(EntityType.PHANTOM)) {

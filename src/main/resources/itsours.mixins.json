@@ -14,7 +14,6 @@
     "FluidMixin",
     "FrostWalkerEnchantmentMixin",
     "LecternScreenHandlerMixin",
-    "LevelStorageSessionMixin",
     "NoiseChunkGeneratorAccessor",
     "PlayerEntityInvoker",
     "PlayerEntityMixin",

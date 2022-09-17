@@ -18,8 +18,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
-import java.util.UUID;
 
 public class ClaimGui extends SimpleGui {
 

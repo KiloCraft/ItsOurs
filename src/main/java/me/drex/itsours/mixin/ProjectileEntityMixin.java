@@ -32,6 +32,7 @@ public abstract class ProjectileEntityMixin extends Entity {
     @Shadow
     protected abstract void onEntityHit(EntityHitResult entityHitResult);
 
+    // TODO: No redirect, prevent onCollision call :thinking:
     @Redirect(
             method = "onCollision",
             at = @At(
@@ -39,21 +40,25 @@ public abstract class ProjectileEntityMixin extends Entity {
                     target = "Lnet/minecraft/entity/projectile/ProjectileEntity;onEntityHit(Lnet/minecraft/util/hit/EntityHitResult;)V"
             )
     )
-    public void canDamageEntity(ProjectileEntity entity, EntityHitResult hitResult) {
+    public void itsours$canDamageEntity(ProjectileEntity entity, EntityHitResult hitResult) {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(hitResult.getEntity());
         if (claim.isEmpty() || !(entity.getOwner() instanceof ServerPlayerEntity)) {
             this.onEntityHit(hitResult);
             return;
         }
         if (!claim.get().hasPermission(null, PermissionManager.PVP) && hitResult.getEntity() instanceof PlayerEntity) {
-            entity.getOwner().sendMessage(Text.translatable("text.itsours.action.disallowed.damage_player").formatted(Formatting.RED));
+            if (entity.getOwner() instanceof PlayerEntity player) {
+                player.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_player").formatted(Formatting.RED), true);
+            }
             if (entity instanceof PersistentProjectileEntity) {
                 if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill();
             }
             return;
         }
         if (!claim.get().hasPermission(entity.getOwner().getUuid(), PermissionManager.DAMAGE_ENTITY, Node.dummy(Registry.ENTITY_TYPE, hitResult.getEntity().getType())) && !(hitResult.getEntity() instanceof PlayerEntity)) {
-            entity.getOwner().sendMessage(Text.translatable("text.itsours.action.disallowed.damage_entity").formatted(Formatting.RED));
+            if (entity.getOwner() instanceof PlayerEntity player) {
+                player.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_entity").formatted(Formatting.RED), true);
+            }
             if (entity instanceof PersistentProjectileEntity) {
                 if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill();
             }

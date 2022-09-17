@@ -1,5 +1,6 @@
 package me.drex.itsours.mixin;
 
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
 import net.minecraft.network.ClientConnection;
@@ -22,9 +23,14 @@ public abstract class PlayerManagerMixin {
                     target = "Lnet/minecraft/server/network/ServerPlayerEntity;onSpawn()V"
             )
     )
-    public void onPlayerConnect(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+    public void itsours$onPlayerConnect(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
         Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt(player);
         optional.ifPresent(claim -> claim.onEnter(null, player));
+    }
+
+    @Inject(method = "saveAllPlayerData", at = @At("HEAD"))
+    public void itsours$onSave(CallbackInfo ci) {
+        ItsOurs.INSTANCE.save();
     }
 
 }

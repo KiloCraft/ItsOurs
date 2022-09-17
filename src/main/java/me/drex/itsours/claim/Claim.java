@@ -3,7 +3,6 @@ package me.drex.itsours.claim;
 import me.drex.itsours.util.ClaimBox;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 
 import java.util.UUID;
 

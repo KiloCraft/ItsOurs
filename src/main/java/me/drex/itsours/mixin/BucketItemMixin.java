@@ -1,5 +1,6 @@
 package me.drex.itsours.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.PermissionManager;
@@ -12,11 +13,9 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.Optional;
 
@@ -27,23 +26,22 @@ public abstract class BucketItemMixin extends Item {
         super(settings);
     }
 
-    @Redirect(
+    @ModifyExpressionValue(
             method = "use",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/item/BucketItem;raycast(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/RaycastContext$FluidHandling;)Lnet/minecraft/util/hit/BlockHitResult;"
             )
     )
-    private BlockHitResult canUseBucket(World world, PlayerEntity player, RaycastContext.FluidHandling fluidHandling) {
-        BlockHitResult hit = Item.raycast(world, player, fluidHandling);
-        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, hit.getBlockPos());
+    private BlockHitResult itsours$canUseBucket(BlockHitResult original, World world, PlayerEntity player) {
+        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, original.getBlockPos());
         if (claim.isEmpty())
-            return hit;
+            return original;
         if (!claim.get().hasPermission(player.getUuid(), PermissionManager.USE_ITEM, Node.dummy(Registry.ITEM, this))) {
-            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED));
-            return BlockHitResult.createMissed(hit.getPos(), hit.getSide(), hit.getBlockPos());
+            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED), true);
+            return BlockHitResult.createMissed(original.getPos(), original.getSide(), original.getBlockPos());
         }
-        return hit;
+        return original;
     }
 
 }

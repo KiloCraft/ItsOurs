@@ -10,7 +10,6 @@ import me.drex.itsours.claim.permission.node.builder.AbstractNodeBuilder;
 import me.drex.itsours.claim.permission.node.builder.GroupNodeBuilder;
 import me.drex.itsours.claim.permission.node.builder.SingleNodeBuilder;
 import me.drex.itsours.claim.permission.util.Modify;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.block.AbstractButtonBlock;
 import net.minecraft.block.AbstractPressurePlateBlock;
 import net.minecraft.block.Block;

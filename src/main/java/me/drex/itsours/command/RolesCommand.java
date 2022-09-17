@@ -15,7 +15,6 @@ import me.drex.itsours.claim.permission.roles.RoleManager;
 import me.drex.itsours.claim.permission.util.Value;
 import me.drex.itsours.command.argument.PermissionArgument;
 import me.drex.itsours.command.argument.RoleArgument;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;

@@ -33,7 +33,7 @@ public abstract class ExplosionMixin {
             method = "affectWorld",
             at = @At("HEAD")
     )
-    public void canExplosionAffectBlock(boolean bl, CallbackInfo ci) {
+    public void itsours$canExplosionAffectBlock(boolean bl, CallbackInfo ci) {
         ListIterator<BlockPos> iterator = this.affectedBlocks.listIterator();
         while (iterator.hasNext()) {
             BlockPos blockPos = iterator.next();
