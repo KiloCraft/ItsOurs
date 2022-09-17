@@ -30,13 +30,13 @@ public class GuiCommand extends AbstractCommand {
                                 .executes(ctx -> executeOpenGui(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "target")))
                                 .requires(src -> ItsOurs.hasPermission(src, "gui.others"))
                 )
-                .executes(ctx -> executeOpenGui(ctx.getSource(), List.of(ctx.getSource().getPlayer().getGameProfile())));
+                .executes(ctx -> executeOpenGui(ctx.getSource(), List.of(ctx.getSource().getPlayerOrThrow().getGameProfile())));
     }
 
     private int executeOpenGui(ServerCommandSource src, Collection<GameProfile> targets) throws CommandSyntaxException {
         if (targets.isEmpty()) throw EntityArgumentType.PLAYER_NOT_FOUND_EXCEPTION.create();
         if (targets.size() > 1) throw EntityArgumentType.TOO_MANY_PLAYERS_EXCEPTION.create();
-        new ClaimListGui(src.getPlayer(), null, targets.iterator().next().getId()).open();
+        new ClaimListGui(src.getPlayerOrThrow(), null, targets.iterator().next().getId()).open();
         return 1;
     }
 

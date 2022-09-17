@@ -36,13 +36,13 @@ dependencies {
     }
 
     // Fabric permission api
-    modImplementation include("me.lucko:fabric-permissions-api:${project.perm_version}")
+    modImplementation include("me.lucko:fabric-permissions-api:${project.permission_version}")
 
     // gui
     modImplementation include("eu.pb4:sgui:${project.sgui_version}")
 
     // Server translation api
-    modImplementation "fr.catcore:api:${project.translations_version}"
+    modImplementation "fr.catcore:server-translations-api:${project.translations_version}"
 
     implementation "org.jetbrains:annotations:${project.jetbrains_annotations_version}"
 
