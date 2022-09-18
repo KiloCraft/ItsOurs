@@ -30,7 +30,7 @@ public abstract class TurtleEggBlockMixin {
                     value = "INVOKE", target = "Lnet/minecraft/block/TurtleEggBlock;breaksEgg(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;)Z"
             )
     )
-    public boolean canPlayerBreakEgg(boolean original, World world, BlockState state, BlockPos pos, Entity entity) {
+    public boolean itsours$canPlayerBreakEgg(boolean original, World world, BlockState state, BlockPos pos, Entity entity) {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, pos);
         if (claim.isPresent() && entity instanceof PlayerEntity player && !claim.get().hasPermission(entity.getUuid(), PermissionManager.MINE, Node.dummy(Registry.BLOCK, (TurtleEggBlock) (Object) this))) {
             player.sendMessage(Text.translatable("text.itsours.action.disallowed.break_block").formatted(Formatting.RED), true);

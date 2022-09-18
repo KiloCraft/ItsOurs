@@ -17,7 +17,6 @@
     "NoiseChunkGeneratorAccessor",
     "PickUpBlockGoalMixin",
     "PlaceBlockGoalMixin",
-    "PlayerEntityInvoker",
     "PlayerEntityMixin",
     "PlayerManagerMixin",
     "ProjectileEntityMixin",

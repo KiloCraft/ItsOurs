@@ -33,7 +33,7 @@ public abstract class BoatItemMixin extends Item {
                     target = "Lnet/minecraft/item/BoatItem;raycast(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/RaycastContext$FluidHandling;)Lnet/minecraft/util/hit/BlockHitResult;"
             )
     )
-    private BlockHitResult canUseBoat(BlockHitResult original, World world, PlayerEntity player) {
+    private BlockHitResult itsours$canUseBoat(BlockHitResult original, World world, PlayerEntity player) {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, original.getBlockPos());
         if (claim.isEmpty())
             return original;

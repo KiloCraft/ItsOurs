@@ -1,5 +1,7 @@
 package me.drex.itsours;
 
+import eu.pb4.common.protection.api.CommonProtection;
+import me.drex.itsours.claim.ItsoursProtectionProvider;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.command.CommandManager;
 import me.drex.itsours.data.DataHandler;
@@ -11,6 +13,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,13 +26,15 @@ import java.io.IOException;
 public class ItsOurs {
 
     public MinecraftServer server;
-    public static final Logger LOGGER = LogManager.getLogger("itsours");
+    public static final String MOD_ID = "itsours";
+    public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
     public static final ItsOurs INSTANCE = new ItsOurs();
     private final DataHandler dataHandler = new DataHandler();
 
     private ItsOurs() {}
 
     protected void registerEvents() {
+        CommonProtection.register(new Identifier(MOD_ID, "claim_protection"), ItsoursProtectionProvider.INSTANCE);
         ServerLifecycleEvents.SERVER_STARTING.register(server -> this.server = server);
         CommandRegistrationCallback.EVENT.register(CommandManager.INSTANCE::register);
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerReady);

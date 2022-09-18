@@ -40,14 +40,11 @@ dependencies {
     implementation include("com.github.LlamaLad7:MixinExtras:${project.mixin_extras_version}")
     annotationProcessor("com.github.LlamaLad7:MixinExtras:${project.mixin_extras_version}")
 
-    // Fabric permission api
+    // Mod dependencies
     modImplementation include("me.lucko:fabric-permissions-api:${project.permission_version}")
-
-    // gui
     modImplementation include("eu.pb4:sgui:${project.sgui_version}")
-
-    // Server translation api
-    modImplementation "fr.catcore:server-translations-api:${project.translations_version}"
+    modImplementation include("eu.pb4:common-protection-api:${project.common_protection_api_version}")
+    modImplementation include("fr.catcore:server-translations-api:${project.translations_version}")
 
     implementation "org.jetbrains:annotations:${project.jetbrains_annotations_version}"
 
