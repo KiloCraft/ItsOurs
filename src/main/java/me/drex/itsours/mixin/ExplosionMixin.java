@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.ListIterator;
 import java.util.Optional;
 
-@Mixin(Explosion.class)
+@Mixin(value = Explosion.class, priority = 500)
 public abstract class ExplosionMixin {
 
     @Shadow
