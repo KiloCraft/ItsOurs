@@ -1,3 +1,4 @@
+/*
 package me.drex.itsours.mixin;
 
 import net.minecraft.block.BlockState;
@@ -12,3 +13,4 @@ public interface NoiseChunkGeneratorAccessor {
     BlockState getDefaultBlock();
 
 }
+*/

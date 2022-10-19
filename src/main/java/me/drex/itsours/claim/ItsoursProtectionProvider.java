@@ -56,7 +56,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canBreakBlock(World world, BlockPos pos, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt(serverWorld, pos);
-            return optional.isPresent() && optional.get().hasPermission(profile.getId(), PermissionManager.MINE);
+            return optional.map(claim -> claim.hasPermission(profile.getId(), PermissionManager.MINE)).orElse(true);
         }
         return false;
     }
@@ -65,7 +65,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canExplodeBlock(World world, BlockPos pos, Explosion explosion, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt(serverWorld, pos);
-            return optional.isPresent() && optional.get().hasPermission(null, PermissionManager.EXPLOSIONS);
+            return optional.map(claim -> claim.hasPermission(null, PermissionManager.EXPLOSIONS)).orElse(true);
         }
         return false;
     }
@@ -74,7 +74,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canPlaceBlock(World world, BlockPos pos, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt(serverWorld, pos);
-            return optional.isPresent() && optional.get().hasPermission(profile.getId(), PermissionManager.PLACE);
+            return optional.map(claim -> claim.hasPermission(profile.getId(), PermissionManager.PLACE)).orElse(true);
         }
         return false;
     }
@@ -83,7 +83,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canInteractBlock(World world, BlockPos pos, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt(serverWorld, pos);
-            return optional.isPresent() && optional.get().hasPermission(profile.getId(), PermissionManager.INTERACT_BLOCK);
+            return optional.map(claim -> claim.hasPermission(profile.getId(), PermissionManager.INTERACT_BLOCK)).orElse(true);
         }
         return false;
     }
@@ -92,7 +92,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canInteractEntity(World world, Entity entity, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt(serverWorld, entity.getBlockPos());
-            return optional.isPresent() && optional.get().hasPermission(profile.getId(), PermissionManager.INTERACT_ENTITY, Node.dummy(Registry.ENTITY_TYPE, entity.getType()));
+            return optional.map(claim -> claim.hasPermission(profile.getId(),PermissionManager.INTERACT_ENTITY, Node.dummy(Registry.ENTITY_TYPE, entity.getType()))).orElse(true);
         }
         return false;
     }
@@ -101,7 +101,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canDamageEntity(World world, Entity entity, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt(serverWorld, entity.getBlockPos());
-            return optional.isPresent() && optional.get().hasPermission(profile.getId(), PermissionManager.DAMAGE_ENTITY, Node.dummy(Registry.ENTITY_TYPE, entity.getType()));
+            return optional.map(claim -> claim.hasPermission(profile.getId(),PermissionManager.DAMAGE_ENTITY, Node.dummy(Registry.ENTITY_TYPE, entity.getType()))).orElse(true);
         }
         return false;
     }

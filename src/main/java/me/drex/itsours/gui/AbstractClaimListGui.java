@@ -4,14 +4,11 @@ import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.mixin.NoiseChunkGeneratorAccessor;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractClaimListGui<T extends AbstractClaim> extends PagedGui<T> {
@@ -43,7 +40,7 @@ public abstract class AbstractClaimListGui<T extends AbstractClaim> extends Page
     }
 
     private Item getIcon(T abstractClaim) {
-        try {
+        /*try {
             ServerWorld world = player.server.getWorld(abstractClaim.getDimension());
             if (world != null) {
                 ChunkGenerator chunkGenerator = world.getChunkManager().getChunkGenerator();
@@ -53,7 +50,7 @@ public abstract class AbstractClaimListGui<T extends AbstractClaim> extends Page
             }
         } catch (Exception ignored) {
             // If any problems occur, just return the default icon
-        }
+        }*/
         return Items.GRASS_BLOCK;
     }
 

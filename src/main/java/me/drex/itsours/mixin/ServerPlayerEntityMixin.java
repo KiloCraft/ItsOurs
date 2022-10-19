@@ -21,8 +21,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
 
     @Shadow public abstract void sendMessage(Text message);
 
-    public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile, @Nullable PlayerPublicKey playerPublicKey) {
-        super(world, pos, yaw, profile, playerPublicKey);
+    public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
+        super(world, pos, yaw, profile);
     }
 
     @Nullable
