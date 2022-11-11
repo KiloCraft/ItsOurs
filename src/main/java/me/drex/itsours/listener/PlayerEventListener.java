@@ -26,7 +26,7 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.world.World;
 
 import java.util.Objects;
@@ -72,7 +72,7 @@ public class PlayerEventListener {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(player);
         if (claim.isEmpty() || !PermissionManager.USE_ITEM_PREDICATE.test(stack.getItem()))
             return TypedActionResult.pass(stack);
-        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.USE_ITEM, Node.dummy(Registry.ITEM, stack.getItem()))) {
+        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.USE_ITEM, Node.dummy(Registries.ITEM, stack.getItem()))) {
             player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED), true);
             return TypedActionResult.fail(stack);
         }

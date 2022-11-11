@@ -9,12 +9,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.FarmlandBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,7 +29,7 @@ public abstract class FarmlandBlockMixin {
     )
     private boolean itsours$canPlayerTrample(BlockState state, World world, BlockPos pos, World world_, BlockState state_, BlockPos pos_, Entity entity) {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, pos);
-        if (claim.isPresent() && entity instanceof PlayerEntity player && !claim.get().hasPermission(entity.getUuid(), PermissionManager.MINE, Node.dummy(Registry.BLOCK, (FarmlandBlock) (Object) this))) {
+        if (claim.isPresent() && entity instanceof PlayerEntity player && !claim.get().hasPermission(entity.getUuid(), PermissionManager.MINE, Node.dummy(Registries.BLOCK, (FarmlandBlock) (Object) this))) {
             player.sendMessage(Text.translatable("text.itsours.action.disallowed.break_block").formatted(Formatting.RED), true);
             return false;
         }

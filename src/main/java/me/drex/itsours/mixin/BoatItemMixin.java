@@ -12,7 +12,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,7 +37,7 @@ public abstract class BoatItemMixin extends Item {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, original.getBlockPos());
         if (claim.isEmpty())
             return original;
-        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.USE_ITEM, Node.dummy(Registry.ITEM, this))) {
+        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.USE_ITEM, Node.dummy(Registries.ITEM, this))) {
             player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED), true);
             return BlockHitResult.createMissed(original.getPos(), original.getSide(), original.getBlockPos());
         }

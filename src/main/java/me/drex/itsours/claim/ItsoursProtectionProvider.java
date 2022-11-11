@@ -11,7 +11,7 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import org.jetbrains.annotations.Nullable;
@@ -92,7 +92,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canInteractEntity(World world, Entity entity, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt(serverWorld, entity.getBlockPos());
-            return optional.map(claim -> claim.hasPermission(profile.getId(),PermissionManager.INTERACT_ENTITY, Node.dummy(Registry.ENTITY_TYPE, entity.getType()))).orElse(true);
+            return optional.map(claim -> claim.hasPermission(profile.getId(),PermissionManager.INTERACT_ENTITY, Node.dummy(Registries.ENTITY_TYPE, entity.getType()))).orElse(true);
         }
         return false;
     }
@@ -101,7 +101,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canDamageEntity(World world, Entity entity, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt(serverWorld, entity.getBlockPos());
-            return optional.map(claim -> claim.hasPermission(profile.getId(),PermissionManager.DAMAGE_ENTITY, Node.dummy(Registry.ENTITY_TYPE, entity.getType()))).orElse(true);
+            return optional.map(claim -> claim.hasPermission(profile.getId(),PermissionManager.DAMAGE_ENTITY, Node.dummy(Registries.ENTITY_TYPE, entity.getType()))).orElse(true);
         }
         return false;
     }

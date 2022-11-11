@@ -14,7 +14,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -39,7 +39,7 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) this.getEntityWorld(), this.getBlockPos());
         if (claim.isEmpty()) return;
 
-        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.INTERACT_ENTITY, Node.dummy(Registry.ENTITY_TYPE, this.getType()))) {
+        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.INTERACT_ENTITY, Node.dummy(Registries.ENTITY_TYPE, this.getType()))) {
             player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_entity").formatted(Formatting.RED), true);
             cir.setReturnValue(ActionResult.FAIL);
         }

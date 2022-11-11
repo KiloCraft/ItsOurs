@@ -16,7 +16,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -50,7 +50,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
             this.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_player").formatted(Formatting.RED), true);
             return false;
         }
-        if (!claim.get().hasPermission(this.getUuid(), PermissionManager.DAMAGE_ENTITY, Node.dummy(Registry.ENTITY_TYPE, entity.getType())) && !(entity instanceof PlayerEntity)) {
+        if (!claim.get().hasPermission(this.getUuid(), PermissionManager.DAMAGE_ENTITY, Node.dummy(Registries.ENTITY_TYPE, entity.getType())) && !(entity instanceof PlayerEntity)) {
             this.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_entity").formatted(Formatting.RED), true);
             return false;
         }
@@ -73,7 +73,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
             this.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_player").formatted(Formatting.RED), true);
             return Double.MAX_VALUE;
         }
-        if (!claim.get().hasPermission(this.getUuid(), PermissionManager.DAMAGE_ENTITY, Node.dummy(Registry.ENTITY_TYPE, entity.getType())) && !(entity instanceof PlayerEntity)) {
+        if (!claim.get().hasPermission(this.getUuid(), PermissionManager.DAMAGE_ENTITY, Node.dummy(Registries.ENTITY_TYPE, entity.getType())) && !(entity instanceof PlayerEntity)) {
             this.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_entity").formatted(Formatting.RED), true);
             return Double.MAX_VALUE;
         }
@@ -91,7 +91,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(entity);
         if (claim.isEmpty())
             return original.call(entity, player, hand);
-        if (!claim.get().hasPermission(this.getUuid(), PermissionManager.INTERACT_ENTITY, Node.dummy(Registry.ENTITY_TYPE, entity.getType()))) {
+        if (!claim.get().hasPermission(this.getUuid(), PermissionManager.INTERACT_ENTITY, Node.dummy(Registries.ENTITY_TYPE, entity.getType()))) {
             player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_entity").formatted(Formatting.RED), true);
             return ActionResult.FAIL;
         }

@@ -20,7 +20,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -50,7 +50,7 @@ public abstract class BlockItemMixin extends Item {
         if (context.getPlayer() == null) return original;
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(context);
         if (claim.isEmpty()) return original;
-        if (!claim.get().hasPermission(context.getPlayer().getUuid(), PermissionManager.PLACE, Node.dummy(Registry.BLOCK, this.getBlock()))) {
+        if (!claim.get().hasPermission(context.getPlayer().getUuid(), PermissionManager.PLACE, Node.dummy(Registries.BLOCK, this.getBlock()))) {
             context.getPlayer().sendMessage(Text.translatable("text.itsours.action.disallowed.place_block").formatted(Formatting.RED), true);
             return false;
         }

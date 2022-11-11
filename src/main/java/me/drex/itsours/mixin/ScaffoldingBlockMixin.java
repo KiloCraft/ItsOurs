@@ -10,7 +10,7 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,7 +25,7 @@ public abstract class ScaffoldingBlockMixin {
     public void itsours$preventScaffoldingInClaim(ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> cir) {
         if (ctx.getPlayer() == null) return;
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) ctx.getWorld(), ctx.getBlockPos());
-        if (claim.isPresent() && !claim.get().hasPermission(ctx.getPlayer().getUuid(), PermissionManager.PLACE, Node.dummy(Registry.BLOCK, (ScaffoldingBlock) (Object) this))) {
+        if (claim.isPresent() && !claim.get().hasPermission(ctx.getPlayer().getUuid(), PermissionManager.PLACE, Node.dummy(Registries.BLOCK, (ScaffoldingBlock) (Object) this))) {
             ctx.getPlayer().sendMessage(Text.translatable("text.itsours.action.disallowed.place_block").formatted(Formatting.RED), true);
             cir.setReturnValue(null);
         }

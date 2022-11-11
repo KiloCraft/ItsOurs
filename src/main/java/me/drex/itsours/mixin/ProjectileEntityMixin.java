@@ -13,7 +13,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -55,7 +55,7 @@ public abstract class ProjectileEntityMixin extends Entity {
             }
             return;
         }
-        if (!claim.get().hasPermission(entity.getOwner().getUuid(), PermissionManager.DAMAGE_ENTITY, Node.dummy(Registry.ENTITY_TYPE, hitResult.getEntity().getType())) && !(hitResult.getEntity() instanceof PlayerEntity)) {
+        if (!claim.get().hasPermission(entity.getOwner().getUuid(), PermissionManager.DAMAGE_ENTITY, Node.dummy(Registries.ENTITY_TYPE, hitResult.getEntity().getType())) && !(hitResult.getEntity() instanceof PlayerEntity)) {
             if (entity.getOwner() instanceof PlayerEntity player) {
                 player.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_entity").formatted(Formatting.RED), true);
             }

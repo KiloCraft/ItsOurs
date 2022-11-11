@@ -10,10 +10,10 @@ import me.drex.itsours.claim.permission.node.builder.AbstractNodeBuilder;
 import me.drex.itsours.claim.permission.node.builder.GroupNodeBuilder;
 import me.drex.itsours.claim.permission.node.builder.SingleNodeBuilder;
 import me.drex.itsours.claim.permission.util.Modify;
-import net.minecraft.block.AbstractButtonBlock;
 import net.minecraft.block.AbstractPressurePlateBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.ButtonBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -23,6 +23,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.World;
@@ -43,7 +44,7 @@ public class PermissionManager {
 
     public static final Predicate<Item> USE_ITEM_PREDICATE = item -> !overrides(item.getClass(), Item.class, "method_7836", World.class, PlayerEntity.class, Hand.class) || item.isFood();
     public static final Predicate<Item> USE_ON_BLOCK_PREDICATE = item -> (!overrides(item.getClass(), Item.class, "method_7884", ItemUsageContext.class)) && !(item instanceof BlockItem);
-    public static final Predicate<Block> INTERACT_BLOCK_PREDICATE = block -> (!overrides(block.getClass(), Block.class, "method_9534", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class) || block instanceof AbstractButtonBlock || block instanceof AbstractPressurePlateBlock);
+    public static final Predicate<Block> INTERACT_BLOCK_PREDICATE = block -> (!overrides(block.getClass(), Block.class, "method_9534", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class) || block instanceof ButtonBlock || block instanceof AbstractPressurePlateBlock);
     public static final Predicate<EntityType<?>> INTERACT_ENTITY_PREDICATE = entityType -> {
         Entity entity = entityType.create(ItsOurs.INSTANCE.server.getOverworld());
         if (entity == null) {
@@ -53,12 +54,12 @@ public class PermissionManager {
         }
     };
 
-    public static final List<Node> BLOCK_NODES = getNodes(Registry.BLOCK);
-    public static final List<Node> INTERACT_BLOCK_NODES = getNodes(Registry.BLOCK, INTERACT_BLOCK_PREDICATE);
-    public static final List<Node> ITEM_BLOCK_NODES = getNodes(Registry.ITEM, USE_ON_BLOCK_PREDICATE);
-    public static final List<Node> USE_ITEM_NODES = getNodes(Registry.ITEM, USE_ITEM_PREDICATE);
-    public static final List<Node> DAMAGE_ENTITY_NODES = getNodes(Registry.ENTITY_TYPE, entityType -> !entityType.equals(EntityType.PLAYER));
-    public static final List<Node> INTERACT_ENTITY_NODES = getNodes(Registry.ENTITY_TYPE, INTERACT_ENTITY_PREDICATE);
+    public static final List<Node> BLOCK_NODES = getNodes(Registries.BLOCK);
+    public static final List<Node> INTERACT_BLOCK_NODES = getNodes(Registries.BLOCK, INTERACT_BLOCK_PREDICATE);
+    public static final List<Node> ITEM_BLOCK_NODES = getNodes(Registries.ITEM, USE_ON_BLOCK_PREDICATE);
+    public static final List<Node> USE_ITEM_NODES = getNodes(Registries.ITEM, USE_ITEM_PREDICATE);
+    public static final List<Node> DAMAGE_ENTITY_NODES = getNodes(Registries.ENTITY_TYPE, entityType -> !entityType.equals(EntityType.PLAYER));
+    public static final List<Node> INTERACT_ENTITY_NODES = getNodes(Registries.ENTITY_TYPE, INTERACT_ENTITY_PREDICATE);
 
     public static final AbstractNode PLACE = Node.single("place")
             .description("text.itsours.permission.place.description")

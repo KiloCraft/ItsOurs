@@ -1,15 +1,14 @@
 package me.drex.itsours.mixin;
 
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.node.Node;
-import net.minecraft.block.AbstractButtonBlock;
 import net.minecraft.block.AbstractPressurePlateBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.ButtonBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -18,7 +17,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.Registries;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -57,7 +56,7 @@ public abstract class EntityMixin {
     )
     private boolean itsours$onBlockCollision(BlockState blockState, World world, BlockPos pos, Entity entity) {
         ServerPlayerEntity playerEntity = null;
-        if (entity instanceof ProjectileEntity projectileEntity && (blockState.getBlock() instanceof AbstractButtonBlock || blockState.getBlock() instanceof AbstractPressurePlateBlock)) {
+        if (entity instanceof ProjectileEntity projectileEntity && (blockState.getBlock() instanceof ButtonBlock || blockState.getBlock() instanceof AbstractPressurePlateBlock)) {
             if (projectileEntity.getOwner() != null && projectileEntity.getOwner() instanceof ServerPlayerEntity) {
                 playerEntity = (ServerPlayerEntity) projectileEntity.getOwner();
             }
@@ -75,7 +74,7 @@ public abstract class EntityMixin {
         if (claim.isEmpty()) {
             return true;
         }
-        if (!claim.get().hasPermission(playerEntity.getUuid(), PermissionManager.INTERACT_BLOCK, Node.dummy(Registry.BLOCK, blockState.getBlock()))) {
+        if (!claim.get().hasPermission(playerEntity.getUuid(), PermissionManager.INTERACT_BLOCK, Node.dummy(Registries.BLOCK, blockState.getBlock()))) {
             playerEntity.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED), true);
             return false;
         }
