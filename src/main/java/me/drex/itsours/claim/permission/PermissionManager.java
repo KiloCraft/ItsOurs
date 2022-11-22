@@ -44,7 +44,7 @@ public class PermissionManager {
 
     public static final Predicate<Item> USE_ITEM_PREDICATE = item -> !overrides(item.getClass(), Item.class, "method_7836", World.class, PlayerEntity.class, Hand.class) || item.isFood();
     public static final Predicate<Item> USE_ON_BLOCK_PREDICATE = item -> (!overrides(item.getClass(), Item.class, "method_7884", ItemUsageContext.class)) && !(item instanceof BlockItem);
-    public static final Predicate<Block> INTERACT_BLOCK_PREDICATE = block -> (!overrides(block.getClass(), Block.class, "method_9534", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class) || block instanceof ButtonBlock || block instanceof AbstractPressurePlateBlock);
+    public static final Predicate<Block> INTERACT_BLOCK_PREDICATE = block -> (!overrides(block.getClass(), Block.class, "method_9534", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class) || !overrides(block.getClass(), Block.class, "method_9606", BlockState.class, World.class, BlockPos.class, PlayerEntity.class) || block instanceof ButtonBlock || block instanceof AbstractPressurePlateBlock);
     public static final Predicate<EntityType<?>> INTERACT_ENTITY_PREDICATE = entityType -> {
         Entity entity = entityType.create(ItsOurs.INSTANCE.server.getOverworld());
         if (entity == null) {

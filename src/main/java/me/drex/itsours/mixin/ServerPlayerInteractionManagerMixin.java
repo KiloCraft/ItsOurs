@@ -78,6 +78,26 @@ public abstract class ServerPlayerInteractionManagerMixin {
     }
 
     @WrapOperation(
+            method = "processBlockBreakingAction",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/block/BlockState;onBlockBreakStart(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/player/PlayerEntity;)V"
+            )
+    )
+    private void itsours$canInteractBlock2(BlockState blockState, World world, BlockPos pos, PlayerEntity playerEntity, Operation<Void> original) {
+        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, pos);
+        if (claim.isEmpty() || !PermissionManager.INTERACT_BLOCK_PREDICATE.test(blockState.getBlock())) {
+            original.call(blockState, world, pos, playerEntity);
+            return;
+        }
+        if (!claim.get().hasPermission(playerEntity.getUuid(), PermissionManager.INTERACT_BLOCK, Node.dummy(Registries.BLOCK, blockState.getBlock()))) {
+            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED), true);
+            return;
+        }
+        original.call(blockState, world, pos, playerEntity);
+    }
+
+    @WrapOperation(
             method = "interactBlock",
             at = @At(
                     value = "INVOKE",
