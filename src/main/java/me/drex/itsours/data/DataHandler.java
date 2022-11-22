@@ -6,6 +6,9 @@ import me.drex.itsours.claim.permission.roles.RoleManager;
 import me.drex.itsours.user.PlayerList;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+
+import java.util.Objects;
 
 public class DataHandler {
 
@@ -17,9 +20,9 @@ public class DataHandler {
     public void load(NbtCompound nbtCompound, boolean firstLoad) {
         dataVersion = nbtCompound.contains("dataVersion") ? nbtCompound.getInt("dataVersion") : 0;
         // Load data
-        RoleManager.INSTANCE.load(nbtCompound.get("roles"));
-        ClaimList.INSTANCE.load(nbtCompound.getList("claims", NbtElement.COMPOUND_TYPE));
-        PlayerList.fromNBT(nbtCompound.getCompound("players"));
+        RoleManager.INSTANCE.load(Objects.requireNonNullElse(nbtCompound.get("roles"), new NbtCompound()));
+        ClaimList.INSTANCE.load(Objects.requireNonNullElse(nbtCompound.getList("claims", NbtElement.COMPOUND_TYPE), new NbtList()));
+        PlayerList.fromNBT(Objects.requireNonNullElse(nbtCompound.getCompound("players"), new NbtCompound()));
 
         if (dataVersion != currentVersion && !firstLoad) {
             ItsOurs.LOGGER.info("Updating data from version " + dataVersion + " -> " + currentVersion);
