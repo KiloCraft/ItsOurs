@@ -8,10 +8,10 @@ import me.drex.itsours.claim.permission.node.builder.SingleNodeBuilder;
 import me.drex.itsours.claim.permission.util.Value;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.Items;
+import net.minecraft.registry.Registry;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;

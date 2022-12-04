@@ -7,10 +7,10 @@ import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.node.Node;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.Registries;
 import net.minecraft.screen.LecternScreenHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.registry.Registries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
