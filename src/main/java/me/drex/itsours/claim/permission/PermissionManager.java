@@ -10,6 +10,7 @@ import me.drex.itsours.claim.permission.node.builder.AbstractNodeBuilder;
 import me.drex.itsours.claim.permission.node.builder.GroupNodeBuilder;
 import me.drex.itsours.claim.permission.node.builder.SingleNodeBuilder;
 import me.drex.itsours.claim.permission.util.Modify;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.AbstractPressurePlateBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -30,6 +31,7 @@ import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -38,19 +40,21 @@ import java.util.function.Predicate;
 
 public class PermissionManager {
 
+    public static final boolean DEV_ENV = FabricLoader.getInstance().isDevelopmentEnvironment();
+
     public static final RootNode PERMISSION = Node.root("permission").build();
     public static final RootNode SETTING = Node.root("setting").build();
     public static final RootNode COMBINED = Node.root("combined").build();
 
-    public static final Predicate<Item> USE_ITEM_PREDICATE = item -> !overrides(item.getClass(), Item.class, "method_7836", World.class, PlayerEntity.class, Hand.class) || item.isFood();
-    public static final Predicate<Item> USE_ON_BLOCK_PREDICATE = item -> (!overrides(item.getClass(), Item.class, "method_7884", ItemUsageContext.class)) && !(item instanceof BlockItem);
-    public static final Predicate<Block> INTERACT_BLOCK_PREDICATE = block -> (!overrides(block.getClass(), Block.class, "method_9534", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class) || !overrides(block.getClass(), Block.class, "method_9606", BlockState.class, World.class, BlockPos.class, PlayerEntity.class) || block instanceof ButtonBlock || block instanceof AbstractPressurePlateBlock);
+    public static final Predicate<Item> USE_ITEM_PREDICATE = item -> !overrides(item.getClass(), Item.class, DEV_ENV ? "use" : "method_7836", World.class, PlayerEntity.class, Hand.class) || item.isFood();
+    public static final Predicate<Item> USE_ON_BLOCK_PREDICATE = item -> (!overrides(item.getClass(), Item.class, DEV_ENV ? "useOnBlock" : "method_7884", ItemUsageContext.class)) && !(item instanceof BlockItem);
+    public static final Predicate<Block> INTERACT_BLOCK_PREDICATE = block -> (!overrides(block.getClass(), Block.class, DEV_ENV ? "onUse" : "method_9534", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class) || !overrides(block.getClass(), Block.class, DEV_ENV ? "onBlockBreakStart" : "method_9606", BlockState.class, World.class, BlockPos.class, PlayerEntity.class) || block instanceof ButtonBlock || block instanceof AbstractPressurePlateBlock);
     public static final Predicate<EntityType<?>> INTERACT_ENTITY_PREDICATE = entityType -> {
         Entity entity = entityType.create(ItsOurs.INSTANCE.server.getOverworld());
         if (entity == null) {
             return false;
         } else {
-            return !overrides(entity.getClass(), Entity.class, "method_5688", PlayerEntity.class, Hand.class) || !overrides(entity.getClass(), Entity.class, "method_5664", PlayerEntity.class, Vec3d.class, Hand.class);
+            return !overrides(entity.getClass(), Entity.class, DEV_ENV ? "interact" : "method_5688", PlayerEntity.class, Hand.class) || !overrides(entity.getClass(), Entity.class, DEV_ENV ? "interactAt" : "method_5664", PlayerEntity.class, Vec3d.class, Hand.class);
         }
     };
 
@@ -221,7 +225,7 @@ public class PermissionManager {
         try {
             return clazz1.getMethod(methodName, classes).equals(clazz2.getMethod(methodName, classes));
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("An error occurred while retrieving " + methodName + " in " + clazz1.getName() + " or " + clazz2.getName() + ", maybe the method name or parameters changed?");
+            throw new RuntimeException("An error occurred while retrieving " + methodName + "(" + String.join(", ", Arrays.stream(classes).map(Class::getName).toList()) + ") in " + clazz1.getName() + ", " + clazz2.getName() + ", maybe the method name or parameters changed?");
         }
     }
 

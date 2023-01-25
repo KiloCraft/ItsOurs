@@ -87,7 +87,6 @@ public abstract class PagedGui<T> extends ClaimGui {
     public void onOpen() {
         super.onOpen();
         updateDisplay();
-
     }
 
     protected abstract GuiElement asDisplayElement(T element);

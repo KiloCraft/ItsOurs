@@ -39,21 +39,6 @@ public class Subzone extends AbstractClaim {
         return getParent().getMainClaim();
     }
 
-    /*@Override
-    public boolean getSetting(String setting) {
-        Optional<Permission> optional = Permission.setting(setting);
-        if (optional.isPresent()) {
-            PermissionContext context = this.getPermissionManager().settings.getPermission(this, optional.get(), Priority.SETTING);
-            if (context.getValue() == Permission.Value.UNSET) {
-                return parent.getSetting(setting);
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }*/
-
     public int getDepth() {
         return this.parent.getDepth() + 1;
     }

@@ -14,6 +14,7 @@ import me.drex.itsours.command.argument.PermissionArgument;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
+import static me.drex.itsours.command.argument.PermissionArgument.*;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class SettingCommand extends AbstractCommand {
@@ -30,20 +31,20 @@ public class SettingCommand extends AbstractCommand {
                 ClaimArgument.ownClaims()
                         .then(
                                 literal("check").then(
-                                        PermissionArgument.permission()
-                                                .executes(ctx -> executeCheck(ctx.getSource(), ClaimArgument.getClaim(ctx), PermissionArgument.getPermission(ctx)))
+                                        permission()
+                                                .executes(ctx -> executeCheck(ctx.getSource(), ClaimArgument.getClaim(ctx), getPermission(ctx)))
                                 )
                         ).then(
                                 literal("set").then(
-                                        PermissionArgument.permission().then(
-                                                PermissionArgument.value()
-                                                        .executes(ctx -> executeSet(ctx.getSource(), ClaimArgument.getClaim(ctx), PermissionArgument.getPermission(ctx), PermissionArgument.getValue(ctx)))
+                                        permission().then(
+                                                value()
+                                                        .executes(ctx -> executeSet(ctx.getSource(), ClaimArgument.getClaim(ctx), getPermission(ctx), getValue(ctx)))
                                         )
                                 )
                         ).then(
                                 literal("unset").then(
-                                        PermissionArgument.permission()
-                                                .executes(ctx -> executeSet(ctx.getSource(), ClaimArgument.getClaim(ctx), PermissionArgument.getPermission(ctx), Value.UNSET))
+                                        permission()
+                                                .executes(ctx -> executeSet(ctx.getSource(), ClaimArgument.getClaim(ctx), getPermission(ctx), Value.UNSET))
                                 )
                         )
         );

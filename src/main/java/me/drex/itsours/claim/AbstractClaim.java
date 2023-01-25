@@ -26,6 +26,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
@@ -184,8 +185,7 @@ public abstract class AbstractClaim {
             player.getAbilities().flying = cachedFlying;
         }
         player.sendAbilitiesUpdate();
-        player.networkHandler.sendPacket(new TitleFadeS2CPacket(-1, 20, -1));
-        player.networkHandler.sendPacket(new OverlayMessageS2CPacket(enterMessage != null ? Text.literal(enterMessage) : Text.translatable("text.itsours.claim.enter", this.getFullName())));
+        player.sendMessage(enterMessage != null ? Text.literal(enterMessage).formatted(Formatting.GREEN) : Text.translatable("text.itsours.claim.enter", this.getFullName()).formatted(Formatting.GREEN), true);
     }
 
     public void onLeave(@Nullable AbstractClaim nextClaim, ServerPlayerEntity player) {
@@ -200,8 +200,7 @@ public abstract class AbstractClaim {
                 }
             }
             player.sendAbilitiesUpdate();
-            player.networkHandler.sendPacket(new TitleFadeS2CPacket(-1, 20, -1));
-            player.networkHandler.sendPacket(new OverlayMessageS2CPacket(leaveMessage != null ? Text.literal(leaveMessage) : Text.translatable("text.itsours.claim.leave", this.getFullName())));
+            player.sendMessage(leaveMessage != null ? Text.literal(leaveMessage).formatted(Formatting.RED) : Text.translatable("text.itsours.claim.leave", this.getFullName()).formatted(Formatting.RED), true);
         }
     }
 
