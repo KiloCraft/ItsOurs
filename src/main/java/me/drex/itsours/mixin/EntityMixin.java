@@ -63,8 +63,8 @@ public abstract class EntityMixin {
         } else if (entity instanceof ServerPlayerEntity && blockState.getBlock() instanceof AbstractPressurePlateBlock) {
             playerEntity = (ServerPlayerEntity) entity;
         } else if (entity instanceof ItemEntity item && blockState.getBlock() instanceof AbstractPressurePlateBlock) {
-            if (item.getThrower() != null) {
-                playerEntity = ItsOurs.INSTANCE.server.getPlayerManager().getPlayer(item.getThrower());
+            if (item.getOwner() != null && item.getOwner() instanceof ServerPlayerEntity owner) {
+                playerEntity = owner;
             }
         }
         if (playerEntity == null) {
