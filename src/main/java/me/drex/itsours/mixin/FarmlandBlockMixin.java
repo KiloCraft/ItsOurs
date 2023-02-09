@@ -25,9 +25,9 @@ public abstract class FarmlandBlockMixin {
 
     @WrapWithCondition(
             method = "onLandedUpon",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FarmlandBlock;setToDirt(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V")
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FarmlandBlock;setToDirt(Lnet/minecraft/entity/Entity;Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V")
     )
-    private boolean itsours$canPlayerTrample(BlockState state, World world, BlockPos pos, World world_, BlockState state_, BlockPos pos_, Entity entity) {
+    private boolean itsours$canPlayerTrample(Entity entity, BlockState state, World world, BlockPos pos) {
         Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, pos);
         if (claim.isPresent() && entity instanceof PlayerEntity player && !claim.get().hasPermission(entity.getUuid(), PermissionManager.MINE, Node.dummy(Registries.BLOCK, (FarmlandBlock) (Object) this))) {
             player.sendMessage(Text.translatable("text.itsours.action.disallowed.break_block").formatted(Formatting.RED), true);
