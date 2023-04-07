@@ -13,20 +13,15 @@ public enum Modify {
     MESSAGE("message", Items.PAPER),
     SETTING("setting", Items.COMPARATOR),
     SUBZONE("subzone", Items.SPRUCE_DOOR),
-    CHECK("check", Items.WRITABLE_BOOK),
-    ROLE("role", Items.LEATHER_CHESTPLATE);
+    CHECK("check", Items.WRITABLE_BOOK);
 
-    private final String id;
-    private final ItemConvertible icon;
     private final Node node;
 
     Modify(String id, ItemConvertible icon) {
-        this.id = id;
-        this.icon = icon;
-        this.node = Node.single(id).icon(icon).build();
+        this.node = Node.single(id).icon(icon).description("permission.modify." + id).build();
     }
 
-    public Node buildNode() {
+    public Node node() {
         return node;
     }
 

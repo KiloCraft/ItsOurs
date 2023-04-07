@@ -92,7 +92,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canInteractEntity(World world, Entity entity, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt(serverWorld, entity.getBlockPos());
-            return optional.map(claim -> claim.hasPermission(profile.getId(),PermissionManager.INTERACT_ENTITY, Node.dummy(Registries.ENTITY_TYPE, entity.getType()))).orElse(true);
+            return optional.map(claim -> claim.hasPermission(profile.getId(), PermissionManager.INTERACT_ENTITY, Node.dummy(Registries.ENTITY_TYPE, entity.getType()))).orElse(true);
         }
         return false;
     }
@@ -101,7 +101,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canDamageEntity(World world, Entity entity, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt(serverWorld, entity.getBlockPos());
-            return optional.map(claim -> claim.hasPermission(profile.getId(),PermissionManager.DAMAGE_ENTITY, Node.dummy(Registries.ENTITY_TYPE, entity.getType()))).orElse(true);
+            return optional.map(claim -> claim.hasPermission(profile.getId(), PermissionManager.DAMAGE_ENTITY, Node.dummy(Registries.ENTITY_TYPE, entity.getType()))).orElse(true);
         }
         return false;
     }

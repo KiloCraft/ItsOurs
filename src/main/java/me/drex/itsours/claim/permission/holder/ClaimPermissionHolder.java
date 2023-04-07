@@ -2,6 +2,7 @@ package me.drex.itsours.claim.permission.holder;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.claim.permission.context.DefaultContext;
 import me.drex.itsours.claim.permission.context.GlobalContext;
 import me.drex.itsours.claim.permission.context.PersonalContext;
 import me.drex.itsours.claim.permission.context.RoleContext;
@@ -112,7 +113,7 @@ public class ClaimPermissionHolder {
             PlayerRoleHolder roleStorage = roles.get(uuid);
             Role defaultRole = RoleManager.INSTANCE.getRole(RoleManager.DEFAULT_ID);
             assert defaultRole != null;
-            defaultRole.permissions().visit(claim, permission, new RoleContext(defaultRole), visitor);
+            defaultRole.permissions().visit(claim, permission, DefaultContext.INSTANCE, visitor);
             if (roleStorage != null) {
                 for (Role role : roleStorage.getRoles()) {
                     role.permissions().visit(claim, permission, new RoleContext(role), visitor);

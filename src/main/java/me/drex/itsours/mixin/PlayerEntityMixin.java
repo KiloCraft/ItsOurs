@@ -7,10 +7,12 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.permission.util.Misc;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -96,6 +98,25 @@ public abstract class PlayerEntityMixin extends LivingEntity {
             return ActionResult.FAIL;
         }
         return original.call(entity, player, hand);
+    }
+
+    @WrapOperation(
+            method = "checkFallFlying",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/item/ElytraItem;isUsable(Lnet/minecraft/item/ItemStack;)Z"
+            )
+    )
+    private boolean itsours$canStartGliding(ItemStack itemStack, Operation<Boolean> original) {
+        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((PlayerEntity) (Object) this);
+        if (claim.isEmpty())
+            return original.call(itemStack);
+        if (!claim.get().hasPermission(this.getUuid(), PermissionManager.MISC, Misc.ELYTRA.node())) {
+            // TODO: message
+            this.sendMessage(Text.translatable("text.itsours.action.disallowed.misc.elytra").formatted(Formatting.RED), true);
+            return false;
+        }
+        return original.call(itemStack);
     }
 
 }

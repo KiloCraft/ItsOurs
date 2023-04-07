@@ -36,6 +36,8 @@
   "text.itsours.gui.claimList.element.lore.subzones": "View Subzones",
   "text.itsours.gui.claimList.element.lore.info": "View Claim info",
 
+  "text.itsours.permission.context.default": "Default",
+  "text.itsours.permission.context.default.hover": "Default permissions - Default player permissions",
   "text.itsours.permission.context.ignore": "Ignore",
   "text.itsours.permission.context.ignore.hover": "Admin setting - Supersedes *all* settings",
   "text.itsours.permission.context.owner": "Owner",
@@ -54,11 +56,26 @@
   "text.itsours.permission.use_item.description": "Right click items (eg. eating)",
   "text.itsours.permission.damage_entity.description": "Hurting entities (eg. hitting a pig)",
   "text.itsours.permission.interact_entity.description": "Right clicking entities (eg. trading with villager)",
+  "text.itsours.permission.misc.description": "Miscellaneous permission (eg. elytra gliding)",
   "text.itsours.permission.modify.description": "Claim permission (eg. expanding claim)",
   "text.itsours.setting.pvp.description": "Player vs Player",
   "text.itsours.setting.explosions.description": "Explosion block damage (eg. creeper explosion)",
   "text.itsours.setting.fluid_crosses_borders.description": "Fluids flowing across claim borders (eg. water flowing)",
+  "text.itsours.setting.sculk_crosses_borders.description": "Sculk spreading across claim borders",
   "text.itsours.setting.mob_spawn.description": "Mob spawning (eg. zombie spawning)",
+
+  "text.itsours.node.group.count.description": "Contains %d nodes",
+
+  "text.itsours.permission.misc.elytra.description": "Elytra gliding",
+
+  "text.itsours.permission.modify.trust.description": "Trust other players",
+  "text.itsours.permission.modify.distrust.description": "Distrust other players",
+  "text.itsours.permission.modify.size.description": "Expand / shrink claim",
+  "text.itsours.permission.modify.permission.description": "Change / view player permissions",
+  "text.itsours.permission.modify.message.description": "Change claim enter / leave message",
+  "text.itsours.permission.modify.setting.description": "Change / view claim settings",
+  "text.itsours.permission.modify.subzone.description": "Create subzones",
+  "text.itsours.permission.modify.check.description": "Use \"/claim check\" command",
 
   "text.itsours.argument.general.noPermission": "You don't have permission to do that!",
   "text.itsours.argument.claim.unknown": "Unknown claim %s!",
@@ -179,6 +196,7 @@
   "text.itsours.action.disallowed.break_block": "You can't break that block here.",
   "text.itsours.action.disallowed.damage_player": "You can't pvp here.",
   "text.itsours.action.disallowed.damage_entity": "You can't damage that entity here.",
+  "text.itsours.action.disallowed.misc.elytra": "You can't glide here.",
 
   "text.itsours.commands.exception.no_claim_at_pos": "Couldn't find a claim at your position!",
   "text.itsours.commands.exception.no_claim_with_name": "Couldn't find a claim with that name!",

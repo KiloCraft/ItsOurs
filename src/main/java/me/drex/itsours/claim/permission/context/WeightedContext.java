@@ -5,10 +5,11 @@ import org.jetbrains.annotations.NotNull;
 
 public interface WeightedContext extends Comparable<WeightedContext> {
 
-    long SETTING = 1;
-    long ROLE = 2;
-    long PERMISSION = 3;
-    long OWNER = 4;
+    long DEFAULT = 1;
+    long SETTING = 2;
+    long ROLE = 3;
+    long PERMISSION = 4;
+    long OWNER = 5;
     long IGNORE = Long.MAX_VALUE;
 
     long getWeight();

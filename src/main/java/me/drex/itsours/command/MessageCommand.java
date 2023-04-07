@@ -52,7 +52,7 @@ public class MessageCommand extends AbstractCommand {
     }
 
     private int execute(ServerCommandSource src, AbstractClaim claim, String message, boolean enter) throws CommandSyntaxException {
-        validatePermission(src, claim, PermissionManager.MODIFY, Modify.MESSAGE.buildNode());
+        validatePermission(src, claim, PermissionManager.MODIFY, Modify.MESSAGE.node());
         boolean reset = message.equals(RESET);
         if (reset) message = null;
         if (enter) {

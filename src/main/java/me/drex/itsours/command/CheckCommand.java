@@ -41,7 +41,7 @@ public class CheckCommand extends AbstractCommand {
     }
 
     private int execute(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Permission permission) throws CommandSyntaxException {
-        validatePermission(src, claim, PermissionManager.MODIFY, Modify.CHECK.buildNode());
+        validatePermission(src, claim, PermissionManager.MODIFY, Modify.CHECK.node());
         for (GameProfile target : targets) {
             PermissionVisitorImpl visitor = new PermissionVisitorImpl();
             claim.visit(target.getId(), permission, visitor);

@@ -25,7 +25,7 @@ public abstract class AbstractNodeBuilder {
     }
 
     public AbstractNodeBuilder description(String translationId) {
-        this.description = Text.translatable(translationId);
+        this.description = Text.translatable("text.itsours." + translationId + ".description");
         return this;
     }
 
@@ -46,6 +46,11 @@ public abstract class AbstractNodeBuilder {
 
     public AbstractNodeBuilder then(Node childNode) {
         this.childNodes.add(childNode);
+        return this;
+    }
+
+    public AbstractNodeBuilder then(AbstractNodeBuilder childNode) {
+        this.childNodes.add(childNode.build());
         return this;
     }
 

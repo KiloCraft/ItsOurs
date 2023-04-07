@@ -17,6 +17,7 @@ import me.drex.itsours.claim.permission.util.Value;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +32,6 @@ public class PermissionArgument {
     public static final DynamicCommandExceptionType UNKNOWN_PERMISSION_VALUE = new DynamicCommandExceptionType(name -> Text.translatable("text.itsours.argument.permission.value.unknown", name));
     public static final CommandSyntaxException FORBIDDEN = new SimpleCommandExceptionType(Text.translatable("text.itsours.argument.permission.forbidden")).create();
 
-
     public static RequiredArgumentBuilder<ServerCommandSource, String> permission() {
         return permission("permission");
     }
@@ -41,7 +41,7 @@ public class PermissionArgument {
     }
 
     public static Permission getPermission(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
-        String string = StringArgumentType.getString(ctx, name);
+        String string = StringArgumentType.getString(ctx, name).replace('+', Identifier.NAMESPACE_SEPARATOR);
         try {
             return PermissionImpl.fromId(string);
         } catch (InvalidPermissionException e) {
@@ -83,7 +83,10 @@ public class PermissionArgument {
         }
     }
 
-    private static void addSubNodes(final Node node, final String currentId, final String input, final List<String> result) {
+    private static void addSubNodes(final Node node, String currentId, final String input, final List<String> result) {
+        // We need to replace ':' with '+', because it's the only character
+        // that is not valid in identifiers, but can be parsed by StringArgumentType.word()
+        currentId = currentId.replace(Identifier.NAMESPACE_SEPARATOR, '+');
         result.add(currentId);
         for (Node subNode : node.getNodes()) {
             if (input.startsWith(currentId)) {

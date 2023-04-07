@@ -60,7 +60,7 @@ public class PermissionsCommand extends AbstractCommand {
     }
 
     public int executeSet(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Permission permission, Value value) throws CommandSyntaxException {
-        validatePermission(src, claim, PermissionManager.MODIFY, Modify.PERMISSION.buildNode());
+        validatePermission(src, claim, PermissionManager.MODIFY, Modify.PERMISSION.node());
         permission.validateContext(new Node.ChangeContext(claim, new PersonalContext(src.getPlayer().getUuid()), value, src));
         for (GameProfile target : targets) {
             claim.getPermissionHolder().setPermission(target.getId(), permission, value);
@@ -72,7 +72,7 @@ public class PermissionsCommand extends AbstractCommand {
     }
 
     private int executeCheck(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Permission permission) throws CommandSyntaxException {
-        validatePermission(src, claim, PermissionManager.MODIFY, Modify.PERMISSION.buildNode());
+        validatePermission(src, claim, PermissionManager.MODIFY, Modify.PERMISSION.node());
         for (GameProfile target : targets) {
             Value value = claim.getPermissionHolder().getPermission(target.getId(), permission);
             src.sendFeedback(Text.translatable("text.itsours.commands.personalSetting.check", permission.asString(), claim.getFullName(), value.format(), Components.toText(target)), false);

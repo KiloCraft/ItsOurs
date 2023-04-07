@@ -44,7 +44,7 @@ public class TrustCommand extends AbstractCommand {
     }
 
     public int executeTrust(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets) throws CommandSyntaxException {
-        validatePermission(src, claim, PermissionManager.MODIFY, (trust ? Modify.TRUST : Modify.DISTRUST).buildNode());
+        validatePermission(src, claim, PermissionManager.MODIFY, (trust ? Modify.TRUST : Modify.DISTRUST).node());
         ClaimPermissionHolder permissionHolder = claim.getPermissionHolder();
         Role trusted = RoleManager.INSTANCE.getRole(RoleManager.TRUSTED_ID);
         int result = 0;

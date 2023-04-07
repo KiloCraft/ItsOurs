@@ -9,6 +9,7 @@ import me.drex.itsours.claim.permission.node.RootNode;
 import me.drex.itsours.claim.permission.node.builder.AbstractNodeBuilder;
 import me.drex.itsours.claim.permission.node.builder.GroupNodeBuilder;
 import me.drex.itsours.claim.permission.node.builder.SingleNodeBuilder;
+import me.drex.itsours.claim.permission.util.Misc;
 import me.drex.itsours.claim.permission.util.Modify;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.AbstractPressurePlateBlock;
@@ -22,6 +23,7 @@ import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
@@ -31,7 +33,6 @@ import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -66,77 +67,83 @@ public class PermissionManager {
     public static final List<Node> INTERACT_ENTITY_NODES = getNodes(Registries.ENTITY_TYPE, INTERACT_ENTITY_PREDICATE);
 
     public static final AbstractNode PLACE = Node.single("place")
-            .description("text.itsours.permission.place.description")
+            .description("permission.place")
             .icon(Items.MANGROVE_PLANKS)
             .then(BLOCK_NODES)
             .build();
 
     public static final AbstractNode MINE = Node.single("mine")
-            .description("text.itsours.permission.mine.description")
+            .description("permission.mine")
             .icon(Items.NETHERITE_PICKAXE)
             .then(BLOCK_NODES)
             .build();
 
     public static final AbstractNode INTERACT_BLOCK = Node.single("interact_block")
-            .description("text.itsours.permission.interact_block.description")
+            .description("permission.interact_block")
             .icon(Items.FURNACE)
             .then(INTERACT_BLOCK_NODES)
             .build();
 
     public static final AbstractNode USE_ON_BLOCK = Node.single("use_on_block")
-            .description("text.itsours.permission.use_on_block.description")
+            .description("permission.use_on_block")
             .icon(Items.IRON_SHOVEL)
             .then(ITEM_BLOCK_NODES)
             .build();
 
     public static final AbstractNode USE_ITEM = Node.single("use_item")
-            .description("text.itsours.permission.use_item.description")
+            .description("permission.use_item")
             .icon(Items.FIREWORK_ROCKET)
             .then(USE_ITEM_NODES)
             .build();
 
     public static final AbstractNode DAMAGE_ENTITY = Node.single("damage_entity")
-            .description("text.itsours.permission.damage_entity.description")
+            .description("permission.damage_entity")
             .icon(Items.DIAMOND_SWORD)
             .then(DAMAGE_ENTITY_NODES)
             .build();
 
     public static final AbstractNode INTERACT_ENTITY = Node.single("interact_entity")
-            .description("text.itsours.permission.interact_entity.description")
+            .description("permission.interact_entity")
             .icon(Items.VILLAGER_SPAWN_EGG)
             .then(INTERACT_ENTITY_NODES)
             .build();
 
+    public static final AbstractNode MISC = Node.single("misc")
+            .description("permission.misc")
+            .icon(Items.ELYTRA)
+            .then(Arrays.stream(Misc.values()).map(Misc::node).toList())
+            .build();
+
     public static final AbstractNode MODIFY = Node.single("modify")
-            .description("text.itsours.permission.modify.description")
+            .description("permission.modify")
             .icon(Items.REPEATER)
             .predicate(context -> context.context() != GlobalContext.INSTANCE)
-            .then(Arrays.stream(Modify.values()).map(Modify::buildNode).toList())
+            .then(Arrays.stream(Modify.values()).map(Modify::node).toList())
             .build();
 
     public static final AbstractNode PVP = Node.single("pvp")
-            .description("text.itsours.setting.pvp.description")
+            .description("setting.pvp")
             .icon(Items.BOW)
             .build();
 
     public static final AbstractNode EXPLOSIONS = Node.single("explosions")
-            .description("text.itsours.setting.explosions.description")
+            .description("setting.explosions")
             .icon(Items.TNT)
             .build();
 
     public static final AbstractNode FLUID_CROSSES_BORDERS = Node.single("fluid_crosses_borders")
-            .description("text.itsours.setting.fluid_crosses_borders.description")
+            .description("setting.fluid_crosses_borders")
             .icon(Items.WATER_BUCKET)
             .build();
 
     // TODO: Description
     public static final AbstractNode SCULK_CROSSES_BORDERS = Node.single("sculk_crosses_borders")
-            .description("text.itsours.setting.todo.description")
+            .description("setting.sculk_crosses_borders")
             .icon(Items.SCULK_VEIN)
             .build();
 
     public static final AbstractNode MOB_SPAWN = Node.single("mob_spawn")
-            .description("text.itsours.setting.mob_spawn.description")
+            .description("setting.mob_spawn")
             .icon(Items.ZOMBIE_SPAWN_EGG)
             .predicate(changeContext -> ItsOurs.hasPermission(changeContext.source(), "itsours.mob_spawn"))
             .build();
@@ -150,6 +157,7 @@ public class PermissionManager {
         registerPermission(DAMAGE_ENTITY);
         registerPermission(INTERACT_ENTITY);
         registerPermission(MODIFY);
+        registerPermission(MISC);
         // Settings
         registerSetting(PVP);
         registerSetting(EXPLOSIONS);
@@ -187,13 +195,14 @@ public class PermissionManager {
                 if (symbol == null) symbol = entry.value();
                 final Identifier identifier = registry.getId(entry.value());
                 Validate.notNull(identifier, "%s does not contain entry %s", registry.toString(), entry.value().toString());
-                SingleNodeBuilder builder = Node.single(identifier.getPath());
+                SingleNodeBuilder builder = Node.single(formatIdentifier(identifier));
                 addItem(entry.value(), builder);
                 entries.add(builder.build());
             }
             if (!entries.isEmpty()) {
-                GroupNodeBuilder builder = Node.group(tagKey.id().getPath());
+                GroupNodeBuilder builder = Node.group(formatIdentifier(tagKey.id()));
                 builder.contained(entries);
+                builder.description(Text.translatable("text.itsours.node.group.count.description", entries.size()));
                 addItem(symbol, builder);
                 nodes.add(builder.then(child).build());
             }
@@ -202,12 +211,19 @@ public class PermissionManager {
         // Single nodes
         for (T entry : registry) {
             assert registry.getId(entry) != null;
-            AbstractNodeBuilder builder = Node.single(registry.getId(entry).getPath()).then(child);
+            AbstractNodeBuilder builder = Node.single(formatIdentifier(registry.getId(entry))).then(child);
             addItem(entry, builder);
             if (!predicate.test(entry)) continue;
             nodes.add(builder.build());
         }
         return nodes;
+    }
+
+    private static String formatIdentifier(Identifier identifier) {
+        if (identifier.getNamespace().equals(Identifier.DEFAULT_NAMESPACE)) {
+            return identifier.getPath();
+        }
+        return identifier.toString();
     }
 
     private static <T> void addItem(T entry, AbstractNodeBuilder builder) {

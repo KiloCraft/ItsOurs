@@ -10,7 +10,6 @@ import me.drex.itsours.claim.permission.node.Node;
 import me.drex.itsours.claim.permission.util.Modify;
 import me.drex.itsours.claim.permission.util.Value;
 import me.drex.itsours.command.argument.ClaimArgument;
-import me.drex.itsours.command.argument.PermissionArgument;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
@@ -51,7 +50,7 @@ public class SettingCommand extends AbstractCommand {
     }
 
     public int executeSet(ServerCommandSource src, AbstractClaim claim, Permission permission, Value value) throws CommandSyntaxException {
-        validatePermission(src, claim, PermissionManager.MODIFY, Modify.SETTING.buildNode());
+        validatePermission(src, claim, PermissionManager.MODIFY, Modify.SETTING.node());
         permission.validateContext(new Node.ChangeContext(claim, GlobalContext.INSTANCE, value, src));
         claim.getPermissionHolder().getSettings().set(permission, value);
         src.sendFeedback(Text.translatable("text.itsours.commands.globalSetting.set",
@@ -61,7 +60,7 @@ public class SettingCommand extends AbstractCommand {
     }
 
     public int executeCheck(ServerCommandSource src, AbstractClaim claim, Permission permission) throws CommandSyntaxException {
-        validatePermission(src, claim, PermissionManager.MODIFY, Modify.SETTING.buildNode());
+        validatePermission(src, claim, PermissionManager.MODIFY, Modify.SETTING.node());
         Value value = claim.getPermissionHolder().getSettings().get(permission);
         src.sendFeedback(Text.translatable("text.itsours.commands.globalSetting.check", permission.asString(), claim.getFullName(), value.format()), false);
         return 1;
