@@ -136,7 +136,6 @@ public class PermissionManager {
             .icon(Items.WATER_BUCKET)
             .build();
 
-    // TODO: Description
     public static final AbstractNode SCULK_CROSSES_BORDERS = Node.single("sculk_crosses_borders")
             .description("setting.sculk_crosses_borders")
             .icon(Items.SCULK_VEIN)

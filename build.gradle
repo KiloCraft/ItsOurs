@@ -44,7 +44,7 @@ dependencies {
     modImplementation include("me.lucko:fabric-permissions-api:${project.permission_version}")
     modImplementation include("eu.pb4:sgui:${project.sgui_version}")
     modImplementation include("eu.pb4:common-protection-api:${project.common_protection_api_version}")
-    modImplementation include("fr.catcore:server-translations-api:${project.translations_version}")
+    modImplementation include("xyz.nucleoid:server-translations-api:${project.translations_version}")
 
     implementation "org.jetbrains:annotations:${project.jetbrains_annotations_version}"
 
