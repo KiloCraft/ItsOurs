@@ -15,11 +15,13 @@
 
   "license": "CC0-1.0",
   "icon": "assets/itsours/icon.png",
-
   "environment": "*",
   "entrypoints": {
     "server": [
       "me.drex.itsours.ItsOursMod"
+    ],
+    "preLaunch": [
+      "com.llamalad7.mixinextras.MixinExtrasBootstrap::init"
     ]
   },
   "mixins": [

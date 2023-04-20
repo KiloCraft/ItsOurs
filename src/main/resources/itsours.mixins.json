@@ -21,6 +21,7 @@
     "ProjectileEntityMixin",
     "ScaffoldingBlockMixin",
     "SculkCatalystBlockEntityMixin",
+    "SculkSpreadManagerCursorMixin",
     "ServerPlayerEntityMixin",
     "ServerPlayerInteractionManagerMixin",
     "TurtleEggBlockMixin"
