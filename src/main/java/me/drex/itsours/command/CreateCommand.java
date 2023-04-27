@@ -108,7 +108,7 @@ public class CreateCommand extends AbstractCommand {
             if (subzone.getName().equals(claimName)) throw ClaimArgument.NAME_TAKEN;
         }
         validatePermission(src, parent, PermissionManager.MODIFY, Modify.SUBZONE.node());
-        Subzone subzone = new Subzone(claimName, player.getUuid(), ClaimBox.create(claimBox.getMin().withY(parent.getBox().getMinY()), claimBox.getMax().withY(parent.getBox().getMaxY())), player.getWorld(), parent);
+        Subzone subzone = new Subzone(claimName, player.getUuid(), ClaimBox.create(claimBox.getMin().withY(parent.getBox().getMinY()), claimBox.getMax().withY(parent.getBox().getMaxY())), player.getServerWorld(), parent);
         ClaimList.INSTANCE.addClaim(subzone);
         parent.getMainClaim().show(player, true);
         // reset positions

@@ -17,10 +17,10 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Optional;
 
-@Mixin(SculkCatalystBlockEntity.class_8510.class)
+@Mixin(SculkCatalystBlockEntity.Listener.class)
 public abstract class SculkCatalystBlockEntityMixin {
 
-    @Shadow @Final private PositionSource field_44614;
+    @Shadow @Final private PositionSource positionSource;
 
     @WrapWithCondition(
             method = "listen",
@@ -30,7 +30,7 @@ public abstract class SculkCatalystBlockEntityMixin {
             )
     )
     public boolean itsours$dontSpreadFromOtherSculkCatalyst(SculkSpreadManager sculkSpreadManager, BlockPos pos, int charge, ServerWorld world) {
-        BlockPos oldPos = BlockPos.ofFloored(this.field_44614.getPos(world).orElse(Vec3d.ZERO));
+        BlockPos oldPos = BlockPos.ofFloored(this.positionSource.getPos(world).orElse(Vec3d.ZERO));
         Optional<AbstractClaim> oldClaim = ClaimList.INSTANCE.getClaimAt(world, oldPos);
         Optional<AbstractClaim> newClaim = ClaimList.INSTANCE.getClaimAt(world, pos);
         return ((oldClaim.isEmpty() || oldClaim.get().hasPermission(null, PermissionManager.SCULK_CROSSES_BORDERS)) &&

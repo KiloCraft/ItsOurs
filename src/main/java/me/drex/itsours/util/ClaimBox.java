@@ -99,7 +99,7 @@ public class ClaimBox extends BlockBox {
     }
 
     private void sendFakeBlock(ServerPlayerEntity player, int x, int z, @Nullable BlockState state) {
-        ServerWorld world = player.getWorld();
+        ServerWorld world = player.getServerWorld();
         if (!world.isPosLoaded(x, z)) return;
         BlockPos pos = getY(world, x, player.getBlockY(), z).down();
         BlockUpdateS2CPacket packet;
