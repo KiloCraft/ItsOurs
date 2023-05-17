@@ -92,18 +92,18 @@ public class RolesCommand extends AbstractCommand {
     private int executeSet(ServerCommandSource src, Role role, Permission permission, Value value) throws CommandSyntaxException {
         permission.validateContext(new Node.ChangeContext(null, new RoleContext(role), value, src));
         role.permissions().set(permission, value);
-        src.sendFeedback(Text.translatable("text.itsours.commands.roles.set", permission.asString(), RoleManager.INSTANCE.getName(role), value.format()), false);
+        src.sendFeedback(() -> Text.translatable("text.itsours.commands.roles.set", permission.asString(), RoleManager.INSTANCE.getName(role), value.format()), false);
         return 1;
     }
 
     private int executeListRoles(ServerCommandSource src) {
         List<Role> orderedRoles = RoleManager.INSTANCE.getOrderedRoles();
-        src.sendFeedback(Text.translatable("text.itsours.commands.roles"), false);
+        src.sendFeedback(() -> Text.translatable("text.itsours.commands.roles"), false);
         for (int i = 0; i < orderedRoles.size(); i++) {
             boolean first = i == 0;
             boolean last = i == orderedRoles.size() - 1;
             Role role = orderedRoles.get(i);
-            src.sendFeedback(Text.translatable("text.itsours.commands.roles.entry",
+            src.sendFeedback(() -> Text.translatable("text.itsours.commands.roles.entry",
                     RoleManager.INSTANCE.getName(role)
                             .styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, role.permissions().toText()))),
                     Text.translatable("text.itsours.commands.roles.entry.down")
@@ -124,13 +124,13 @@ public class RolesCommand extends AbstractCommand {
         if (role != null) throw ALREADY_EXISTS;
         role = new Role(roleId, PermissionHolder.storage());
         RoleManager.INSTANCE.addRole(role);
-        src.sendFeedback(Text.translatable("text.itsours.commands.roles.add", roleId), false);
+        src.sendFeedback(() -> Text.translatable("text.itsours.commands.roles.add", roleId), false);
         return 1;
     }
 
     private int executeRemoveRole(ServerCommandSource src, Role role) {
         RoleManager.INSTANCE.removeRole(role);
-        src.sendFeedback(Text.translatable("text.itsours.commands.roles.remove", role.getId()), false);
+        src.sendFeedback(() -> Text.translatable("text.itsours.commands.roles.remove", role.getId()), false);
         return 1;
     }
 

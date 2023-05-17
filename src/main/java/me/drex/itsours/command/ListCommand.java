@@ -42,7 +42,7 @@ public class ListCommand extends AbstractCommand {
             if (claims.isEmpty()) {
                 src.sendError(Text.translatable("text.itsours.commands.list.noClaims", Components.toText(target)));
             } else {
-                src.sendFeedback(Text.translatable("text.itsours.commands.list",
+                src.sendFeedback(() -> Text.translatable("text.itsours.commands.list",
                         Components.toText(target),
                         Texts.join(claims, Components::toText)), false);
             }

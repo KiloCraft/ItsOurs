@@ -69,7 +69,7 @@ public class BlocksCommand extends AbstractCommand {
         for (GameProfile target : targets) {
             int blocks = PlayerList.get(target.getId(), Settings.BLOCKS);
             result += blocks;
-            src.sendFeedback(Text.translatable("text.itsours.commands.blocks", Components.toText(target), blocks), false);
+            src.sendFeedback(() -> Text.translatable("text.itsours.commands.blocks", Components.toText(target), blocks), false);
         }
         return result;
     }
@@ -83,9 +83,9 @@ public class BlocksCommand extends AbstractCommand {
             PlayerList.set(target.getId(), Settings.BLOCKS, newAmount);
             i++;
             if (amount >= 0) {
-                src.sendFeedback(Text.translatable("text.itsours.commands.blocks.add", amount, Components.toText(target)), false);
+                src.sendFeedback(() -> Text.translatable("text.itsours.commands.blocks.add", amount, Components.toText(target)), false);
             } else {
-                src.sendFeedback(Text.translatable("text.itsours.commands.blocks.remove", -amount, Components.toText(target)), false);
+                src.sendFeedback(() -> Text.translatable("text.itsours.commands.blocks.remove", -amount, Components.toText(target)), false);
             }
         }
         return i;
@@ -106,7 +106,7 @@ public class BlocksCommand extends AbstractCommand {
             if (receiverBlocks == newAmount) continue;
             PlayerList.set(target.getId(), Settings.BLOCKS, newAmount);
             i++;
-            src.sendFeedback(Text.translatable("text.itsours.commands.blocks.give", amount, Components.toText(target)), false);
+            src.sendFeedback(() -> Text.translatable("text.itsours.commands.blocks.give", amount, Components.toText(target)), false);
             ServerPlayerEntity player = src.getServer().getPlayerManager().getPlayer(target.getId());
             if (player != null)
                 player.sendMessage(Text.translatable("text.itsours.commands.blocks.give.received", amount, src.getPlayer().getEntityName()), true);
@@ -119,7 +119,7 @@ public class BlocksCommand extends AbstractCommand {
         for (GameProfile target : targets) {
             int newAmount = MathHelper.clamp(amount, 0, Integer.MAX_VALUE);
             PlayerList.set(target.getId(), Settings.BLOCKS, newAmount);
-            src.sendFeedback(Text.translatable("text.itsours.commands.blocks.set", Components.toText(target), amount), false);
+            src.sendFeedback(() -> Text.translatable("text.itsours.commands.blocks.set", Components.toText(target), amount), false);
             i++;
         }
         return i;

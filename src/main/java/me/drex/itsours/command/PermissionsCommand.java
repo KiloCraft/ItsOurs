@@ -64,7 +64,7 @@ public class PermissionsCommand extends AbstractCommand {
         permission.validateContext(new Node.ChangeContext(claim, new PersonalContext(src.getPlayer().getUuid()), value, src));
         for (GameProfile target : targets) {
             claim.getPermissionHolder().setPermission(target.getId(), permission, value);
-            src.sendFeedback(Text.translatable("text.itsours.commands.personalSetting.set",
+            src.sendFeedback(() -> Text.translatable("text.itsours.commands.personalSetting.set",
                     permission.asString(), Components.toText(target), claim.getFullName(), value.format()
             ), false);
         }
@@ -75,7 +75,7 @@ public class PermissionsCommand extends AbstractCommand {
         validatePermission(src, claim, PermissionManager.MODIFY, Modify.PERMISSION.node());
         for (GameProfile target : targets) {
             Value value = claim.getPermissionHolder().getPermission(target.getId(), permission);
-            src.sendFeedback(Text.translatable("text.itsours.commands.personalSetting.check", permission.asString(), claim.getFullName(), value.format(), Components.toText(target)), false);
+            src.sendFeedback(() -> Text.translatable("text.itsours.commands.personalSetting.check", permission.asString(), claim.getFullName(), value.format(), Components.toText(target)), false);
         }
         return 1;
     }

@@ -53,7 +53,7 @@ public class SettingCommand extends AbstractCommand {
         validatePermission(src, claim, PermissionManager.MODIFY, Modify.SETTING.node());
         permission.validateContext(new Node.ChangeContext(claim, GlobalContext.INSTANCE, value, src));
         claim.getPermissionHolder().getSettings().set(permission, value);
-        src.sendFeedback(Text.translatable("text.itsours.commands.globalSetting.set",
+        src.sendFeedback(() -> Text.translatable("text.itsours.commands.globalSetting.set",
                 permission.asString(), claim.getFullName(), value.format()
         ), false);
         return 1;
@@ -62,7 +62,7 @@ public class SettingCommand extends AbstractCommand {
     public int executeCheck(ServerCommandSource src, AbstractClaim claim, Permission permission) throws CommandSyntaxException {
         validatePermission(src, claim, PermissionManager.MODIFY, Modify.SETTING.node());
         Value value = claim.getPermissionHolder().getSettings().get(permission);
-        src.sendFeedback(Text.translatable("text.itsours.commands.globalSetting.check", permission.asString(), claim.getFullName(), value.format()), false);
+        src.sendFeedback(() -> Text.translatable("text.itsours.commands.globalSetting.check", permission.asString(), claim.getFullName(), value.format()), false);
         return 1;
     }
 

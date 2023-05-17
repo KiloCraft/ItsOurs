@@ -54,11 +54,11 @@ public class RemoveCommand extends AbstractCommand {
                         )
         );
         if (claim.getOwner().equals(src.getEntityOrThrow().getUuid())) {
-            src.sendFeedback(text, false);
+            src.sendFeedback(() -> text, false);
             return 1;
         } else if (ItsOurs.hasPermission(src, "remove")) {
-            src.sendFeedback(Text.translatable("text.itsours.commands.remove.warning").formatted(Formatting.DARK_RED, Formatting.BOLD), false);
-            src.sendFeedback(text, false);
+            src.sendFeedback(() -> Text.translatable("text.itsours.commands.remove.warning").formatted(Formatting.DARK_RED, Formatting.BOLD), false);
+            src.sendFeedback(() -> text, false);
             return 2;
         } else {
             src.sendError(Text.translatable("text.itsours.commands.remove.error"));
@@ -69,7 +69,7 @@ public class RemoveCommand extends AbstractCommand {
     private int executeRemoveConfirmed(ServerCommandSource src, AbstractClaim claim) throws CommandSyntaxException {
         if (claim.getOwner().equals(src.getEntityOrThrow().getUuid()) || ItsOurs.hasPermission(src, "remove")) {
             removeClaim(claim);
-            src.sendFeedback(Text.translatable("text.itsours.commands.remove.success", claim.getFullName()), false);
+            src.sendFeedback(() -> Text.translatable("text.itsours.commands.remove.success", claim.getFullName()), false);
             return 1;
         } else {
             src.sendError(Text.translatable("text.itsours.commands.remove.error"));

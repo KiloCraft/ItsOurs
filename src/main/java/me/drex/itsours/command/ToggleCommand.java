@@ -31,9 +31,9 @@ public abstract class ToggleCommand extends AbstractCommand {
         boolean newValue = !PlayerList.get(player.getUuid(), setting);
         PlayerList.set(player.getUuid(), setting, newValue);
         if (newValue) {
-            src.sendFeedback(Text.translatable(translationId + ".enabled").formatted(Formatting.GREEN), false);
+            src.sendFeedback(() -> Text.translatable(translationId + ".enabled").formatted(Formatting.GREEN), false);
         } else {
-            src.sendFeedback(Text.translatable(translationId + ".disabled").formatted(Formatting.RED), false);
+            src.sendFeedback(() -> Text.translatable(translationId + ".disabled").formatted(Formatting.RED), false);
         }
         afterToggle(src, newValue);
         return 1;

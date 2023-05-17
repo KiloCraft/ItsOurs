@@ -38,7 +38,7 @@ public class RenameCommand extends AbstractCommand {
             if (ClaimList.INSTANCE.getClaim(newName).isPresent()) throw ClaimArgument.NAME_TAKEN;
             String originalName = claim.getFullName();
             claim.setName(newName);
-            src.sendFeedback(Text.translatable("text.itsours.commands.rename.success", originalName, newName), false);
+            src.sendFeedback(() -> Text.translatable("text.itsours.commands.rename.success", originalName, newName), false);
             return 1;
         } else {
             src.sendError(Text.translatable("text.itsours.commands.rename.error"));

@@ -62,10 +62,11 @@ public class MessageCommand extends AbstractCommand {
         }
         String id = enter ? "enter" : "leave";
         if (reset) {
-            src.sendFeedback(Text.translatable(String.format("text.itsours.commands.message.%s.reset", id)), false);
+            src.sendFeedback(() -> Text.translatable(String.format("text.itsours.commands.message.%s.reset", id)), false);
             return 0;
         } else {
-            src.sendFeedback(Text.translatable(String.format("text.itsours.commands.message.%s", id), message), false);
+            String finalMessage = message;
+            src.sendFeedback(() -> Text.translatable(String.format("text.itsours.commands.message.%s", id), finalMessage), false);
             return 1;
         }
     }

@@ -94,7 +94,7 @@ public class ExpandCommand extends AbstractCommand {
         claim.getMainClaim().show(false);
         claim.setBox(newBox);
         claim.getMainClaim().show(player, true);
-        src.sendFeedback(Text.translatable("text.itsours.commands." + literal, claim.getFullName(), distance, direction.getName(), expand ? areaIncrease : -areaIncrease), false);
+        src.sendFeedback(() -> Text.translatable("text.itsours.commands." + literal, claim.getFullName(), distance, direction.getName(), expand ? areaIncrease : -areaIncrease), false);
         return areaIncrease;
     }
 

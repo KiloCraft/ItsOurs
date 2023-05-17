@@ -50,11 +50,11 @@ public class CheckCommand extends AbstractCommand {
             for (PermissionVisitorImpl.Entry entry : entries) {
                 if (currentClaim != entry.claim()) {
                     currentClaim = entry.claim();
-                    src.sendFeedback(Text.literal(entry.claim().getFullName()).formatted(Formatting.GRAY), false);
+                    src.sendFeedback(() -> Text.literal(entry.claim().getFullName()).formatted(Formatting.GRAY), false);
                 }
-                src.sendFeedback(Text.translatable("text.itsours.commands.check.entry", entry.context().toText(), entry.permission().asString(), entry.value().format()), false);
+                src.sendFeedback(() -> Text.translatable("text.itsours.commands.check.entry", entry.context().toText(), entry.permission().asString(), entry.value().format()), false);
             }
-            src.sendFeedback(Text.translatable("text.itsours.commands.check.result", visitor.getResult().format()), false);
+            src.sendFeedback(() -> Text.translatable("text.itsours.commands.check.result", visitor.getResult().format()), false);
         }
         return 1;
     }

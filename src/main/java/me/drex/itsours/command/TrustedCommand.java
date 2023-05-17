@@ -44,7 +44,7 @@ public class TrustedCommand extends AbstractCommand {
         }
 
         if (trusted.isEmpty()) src.sendError(Text.translatable("text.itsours.commands.trusted.nobody_trusted"));
-        else src.sendFeedback(Text.translatable("text.itsours.commands.trusted",
+        else src.sendFeedback(() -> Text.translatable("text.itsours.commands.trusted",
                 Texts.join(trusted, Components::toText)
         ), false);
         return 1;

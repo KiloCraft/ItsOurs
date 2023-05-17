@@ -30,7 +30,7 @@ public class InfoCommand extends AbstractCommand {
     // TODO: Add trusted info
     private int executeInfo(ServerCommandSource src, AbstractClaim claim) {
         Optional<GameProfile> optional = src.getServer().getUserCache().getByUuid(claim.getOwner());
-        src.sendFeedback(Text.translatable("text.itsours.commands.info",
+        src.sendFeedback(() -> Text.translatable("text.itsours.commands.info",
                 claim.getFullName(),
                 Components.toText(optional.orElse(new GameProfile(claim.getOwner(), null))),
                 Components.toText(claim.getSize()),

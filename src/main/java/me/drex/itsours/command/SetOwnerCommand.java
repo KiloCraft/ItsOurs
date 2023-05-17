@@ -39,7 +39,7 @@ public class SetOwnerCommand extends AbstractCommand {
         if (targets.size() > 1) throw EntityArgumentType.TOO_MANY_PLAYERS_EXCEPTION.create();
         GameProfile profile = targets.iterator().next();
         claim.setOwner(profile.getId());
-        src.sendFeedback(Text.translatable("text.itsours.commands.setOwner", claim.getFullName(), Components.toText(profile)), false);
+        src.sendFeedback(() -> Text.translatable("text.itsours.commands.setOwner", claim.getFullName(), Components.toText(profile)), false);
         return 1;
     }
 

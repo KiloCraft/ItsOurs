@@ -51,7 +51,7 @@ public class TrustCommand extends AbstractCommand {
         if (trust) {
             for (GameProfile target : targets) {
                 if (permissionHolder.addRole(target.getId(), trusted)) {
-                    src.sendFeedback(Text.translatable("text.itsours.commands.trust", Components.toText(target), claim.getName()), false);
+                    src.sendFeedback(() -> Text.translatable("text.itsours.commands.trust", Components.toText(target), claim.getName()), false);
                     result++;
                 } else {
                     src.sendError(Text.translatable("text.itsours.commands.trust.nothingChanged", Components.toText(target)));
@@ -60,7 +60,7 @@ public class TrustCommand extends AbstractCommand {
         } else {
             for (GameProfile target : targets) {
                 if (permissionHolder.removeRole(target.getId(), trusted)) {
-                    src.sendFeedback(Text.translatable("text.itsours.commands.distrust", Components.toText(target), claim.getName()), false);
+                    src.sendFeedback(() -> Text.translatable("text.itsours.commands.distrust", Components.toText(target), claim.getName()), false);
                     result++;
                 } else {
                     src.sendError(Text.translatable("text.itsours.commands.distrust.nothingChanged", Components.toText(target)));
