@@ -37,8 +37,7 @@ dependencies {
     }
 
     // Mixin Extras
-    implementation include("com.github.LlamaLad7:MixinExtras:${project.mixin_extras_version}")
-    annotationProcessor("com.github.LlamaLad7:MixinExtras:${project.mixin_extras_version}")
+    include(implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:${project.mixin_extras_version}")))
 
     // Mod dependencies
     modImplementation include("me.lucko:fabric-permissions-api:${project.permission_version}")
