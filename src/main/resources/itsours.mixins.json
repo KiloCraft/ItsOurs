@@ -15,6 +15,7 @@
     "FrostWalkerEnchantmentMixin",
     "LecternScreenHandlerMixin",
     "PickUpBlockGoalMixin",
+    "PistonHandlerMixin",
     "PlaceBlockGoalMixin",
     "PlayerEntityMixin",
     "PlayerManagerMixin",

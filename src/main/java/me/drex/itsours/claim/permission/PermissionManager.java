@@ -136,6 +136,11 @@ public class PermissionManager {
             .icon(Items.WATER_BUCKET)
             .build();
 
+    public static final AbstractNode PISTON_CROSSES_BORDERS = Node.single("piston_crosses_borders")
+        .description("setting.piston_crosses_borders")
+        .icon(Items.PISTON)
+        .build();
+
     public static final AbstractNode SCULK_CROSSES_BORDERS = Node.single("sculk_crosses_borders")
             .description("setting.sculk_crosses_borders")
             .icon(Items.SCULK_VEIN)
@@ -161,6 +166,7 @@ public class PermissionManager {
         registerSetting(PVP);
         registerSetting(EXPLOSIONS);
         registerSetting(FLUID_CROSSES_BORDERS);
+        registerSetting(PISTON_CROSSES_BORDERS);
         registerSetting(SCULK_CROSSES_BORDERS);
         registerSetting(MOB_SPAWN);
     }
