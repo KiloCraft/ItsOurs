@@ -101,6 +101,25 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @WrapOperation(
+        method = "interact",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/item/ItemStack;useOnEntity(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;"
+        )
+    )
+    private ActionResult itsours$canInteractEntity(ItemStack itemStack, PlayerEntity player, LivingEntity entity, Hand hand, Operation<ActionResult> original) {
+        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(entity);
+        if (claim.isEmpty())
+            return original.call(entity, player, hand);
+        if (!claim.get().hasPermission(this.getUuid(), PermissionManager.INTERACT_ENTITY, Node.dummy(Registries.ENTITY_TYPE, entity.getType()))) {
+            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_entity").formatted(Formatting.RED), true);
+            return ActionResult.FAIL;
+        }
+        return original.call(entity, player, hand);
+    }
+
+
+    @WrapOperation(
             method = "checkFallFlying",
             at = @At(
                     value = "INVOKE",
