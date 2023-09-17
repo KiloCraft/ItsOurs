@@ -28,18 +28,18 @@ public abstract class PickUpBlockGoalMixin {
     private EndermanEntity enderman;
 
     @Inject(
-            method = "tick",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"
-            ),
-            locals = LocalCapture.CAPTURE_FAILHARD,
-            cancellable = true
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"
+        ),
+        locals = LocalCapture.CAPTURE_FAILHARD,
+        cancellable = true
     )
     public void itsours$canEndermanPickUp(CallbackInfo ci, Random random, World world, int i, int j, int k, BlockPos pos) {
-        Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, pos);
+        Optional<AbstractClaim> optional = ClaimList.getClaimAt((ServerWorld) world, pos);
         if (optional.isPresent()) {
-            if (!optional.get().hasPermission(this.enderman.getUuid(), PermissionManager.MINE, Node.dummy(Registries.BLOCK, world.getBlockState(pos).getBlock()))) {
+            if (!optional.get().hasPermission(this.enderman.getUuid(), PermissionManager.MINE, Node.registry(Registries.BLOCK, world.getBlockState(pos).getBlock()))) {
                 ci.cancel();
             }
         }

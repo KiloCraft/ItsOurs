@@ -1,31 +1,24 @@
 package me.drex.itsours.claim.permission.context;
 
-import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
+import static me.drex.message.api.LocalizedMessage.localized;
 
 public class PersonalContext implements WeightedContext {
 
-    private final UUID uuid;
+    public static final PersonalContext INSTANCE = new PersonalContext();
 
-    public PersonalContext(@NotNull UUID uuid) {
-        this.uuid = uuid;
+    private PersonalContext() {
     }
 
     @Override
     public long getWeight() {
-        return PERMISSION;
+        return PERSONAL;
     }
 
     @Override
     public Text toText() {
-        return Text.translatable("text.itsours.permission.context.personal").styled(
-                style -> style
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                Text.translatable("text.itsours.permission.context.personal.hover")))
-        );
+        return localized("text.itsours.permission.context.personal");
     }
 
 }

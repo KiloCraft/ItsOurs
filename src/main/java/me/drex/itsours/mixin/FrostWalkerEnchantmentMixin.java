@@ -21,15 +21,15 @@ import java.util.Optional;
 public abstract class FrostWalkerEnchantmentMixin {
 
     @ModifyExpressionValue(
-            method = "freezeWater",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/block/BlockState;canPlaceAt(Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;)Z"
-            )
+        method = "freezeWater",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/block/BlockState;canPlaceAt(Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;)Z"
+        )
     )
     private static boolean itsours$canFreezeWater(boolean original, LivingEntity entity, World world, BlockPos pos, int level) {
-        Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, pos);
-        return optional.map(claim -> claim.hasPermission(entity.getUuid(), PermissionManager.PLACE, Node.dummy(Registries.BLOCK, Blocks.FROSTED_ICE.getDefaultState().getBlock())) && original).orElse(original);
+        Optional<AbstractClaim> optional = ClaimList.getClaimAt((ServerWorld) world, pos);
+        return optional.map(claim -> claim.hasPermission(entity.getUuid(), PermissionManager.PLACE, Node.registry(Registries.BLOCK, Blocks.FROSTED_ICE.getDefaultState().getBlock())) && original).orElse(original);
     }
 
 }

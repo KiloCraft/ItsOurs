@@ -1,113 +1,98 @@
 package me.drex.itsours.claim;
 
-import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.permission.Permission;
-import me.drex.itsours.claim.permission.PermissionImpl;
-import me.drex.itsours.claim.permission.context.IgnoreContext;
-import me.drex.itsours.claim.permission.context.OwnerContext;
-import me.drex.itsours.claim.permission.holder.ClaimPermissionHolder;
-import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.permission.context.*;
+import me.drex.itsours.claim.permission.holder.PermissionData;
+import me.drex.itsours.claim.permission.node.ChildNode;
 import me.drex.itsours.claim.permission.util.Value;
 import me.drex.itsours.claim.permission.visitor.PermissionVisitor;
-import me.drex.itsours.claim.permission.visitor.PermissionVisitorImpl;
+import me.drex.itsours.claim.roles.ClaimRoleManager;
+import me.drex.itsours.claim.roles.Role;
+import me.drex.itsours.claim.util.ClaimMessages;
+import me.drex.itsours.data.DataManager;
 import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.user.PlayerList;
-import me.drex.itsours.user.Settings;
 import me.drex.itsours.util.ClaimBox;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket;
-import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static me.drex.itsours.util.PlaceholderUtil.*;
+import static me.drex.message.api.LocalizedMessage.localized;
+import static net.minecraft.text.Text.literal;
+
 public abstract class AbstractClaim {
 
     public static final Pattern NAME = Pattern.compile("\\w{3,16}");
-    private static final Logger LOGGER = ItsOurs.LOGGER;
     private static final Block[] SHOW_BLOCKS = {Blocks.GOLD_BLOCK, Blocks.DIAMOND_BLOCK, Blocks.REDSTONE_BLOCK, Blocks.LAPIS_BLOCK, Blocks.NETHERITE_BLOCK};
-    private ClaimBox box;
+    private final RegistryKey<World> dimension;
+    private final List<Subzone> subzones;
+    private final PermissionData settings;
+    private final Map<UUID, PermissionData> permissions;
+    private final ClaimRoleManager roleManager;
+    private final ClaimMessages messages;
     private String name;
-    private UUID owner;
-    private RegistryKey<World> dimension;
-    private final List<Subzone> subzoneList = new ArrayList<>();
-    private ClaimPermissionHolder permissionManager;
-    // TODO: Allow placeholders
-    private String enterMessage = null;
-    private String leaveMessage = null;
+    private ClaimBox box;
 
-    public AbstractClaim(String name, UUID owner, ClaimBox box, ServerWorld world) {
-        this.name = name;
-        this.owner = owner;
-        this.box = box;
-        this.dimension = world.getRegistryKey();
-        this.permissionManager = new ClaimPermissionHolder(new NbtCompound());
+
+    public AbstractClaim(String name, ClaimBox box, ServerWorld world) {
+        this(name, box, world.getRegistryKey(), new ArrayList<>(), new PermissionData(), new HashMap<>(), new ClaimRoleManager(), new ClaimMessages());
     }
 
-    public AbstractClaim(NbtCompound tag) {
-        fromNBT(tag);
+    public AbstractClaim(String name, ClaimBox box, RegistryKey<World> dimension, List<Subzone> subzones, PermissionData settings, Map<UUID, PermissionData> permissions, ClaimRoleManager roleManager, ClaimMessages messages) {
+        this.name = name;
+        this.box = box;
+        this.dimension = dimension;
+        this.subzones = subzones;
+        this.settings = settings;
+        this.permissions = permissions;
+        this.roleManager = roleManager;
+        this.messages = messages;
     }
 
     public static boolean isNameInvalid(String name) {
         return !NAME.matcher(name).matches();
     }
 
-    public void fromNBT(NbtCompound tag) {
-        this.name = tag.getString("name");
-        this.owner = tag.getUuid("owner");
-        NbtCompound position = tag.getCompound("position");
-        this.box = ClaimBox.load(position);
-        this.dimension = World.CODEC.parse(NbtOps.INSTANCE, position.get("world")).resultOrPartial(LOGGER::error).orElse(World.OVERWORLD);
-        NbtList list = (NbtList) tag.get("subzones");
-        if (list != null) {
-            list.forEach(subzones -> {
-                Subzone subzone = new Subzone((NbtCompound) subzones, this);
-                subzoneList.add(subzone);
-            });
-        }
-        this.permissionManager = new ClaimPermissionHolder(tag.getCompound("permissions"));
-        if (tag.contains("messages")) {
-            NbtCompound messages = tag.getCompound("messages");
-            if (messages.contains("leave")) leaveMessage = messages.getString("leave");
-            if (messages.contains("enter")) enterMessage = messages.getString("enter");
-        }
+    public static BlockPos getPosOnGround(BlockPos pos, World world) {
+        BlockPos blockPos = new BlockPos(pos.getX(), pos.getY() + 10, pos.getZ());
+
+        do {
+            blockPos = blockPos.down();
+            if (blockPos.getY() < 1) {
+                return pos;
+            }
+        } while (!world.getBlockState(blockPos).isFullCube(world, pos));
+
+        return blockPos.up();
     }
 
-    public NbtCompound toNBT() {
-        NbtCompound tag = new NbtCompound();
-        tag.putString("name", this.name);
-        tag.putUuid("owner", this.owner);
-        NbtCompound position = new NbtCompound();
-        box.save(position);
-        Identifier.CODEC.encodeStart(NbtOps.INSTANCE, this.dimension.getValue()).resultOrPartial(LOGGER::error).ifPresent(nbt -> position.put("world", nbt));
-        tag.put("position", position);
-        if (!subzoneList.isEmpty()) {
-            NbtList list = new NbtList();
-            subzoneList.forEach(subzone -> list.add(subzone.toNBT()));
-            tag.put("subzones", list);
-        }
-        tag.put("permissions", this.permissionManager.toNBT());
-        NbtCompound messages = new NbtCompound();
-        if (leaveMessage != null) messages.putString("leave", leaveMessage);
-        if (enterMessage != null) messages.putString("enter", enterMessage);
-        if (!messages.isEmpty()) tag.put("messages", messages);
-        return tag;
+    public PermissionData getSettings() {
+        return settings;
+    }
+
+    public Map<UUID, PermissionData> getPermissions() {
+        return permissions;
+    }
+
+    public ClaimRoleManager getRoleManager() {
+        return roleManager;
+    }
+
+    public boolean canRename(String newName) {
+        return !isNameInvalid(newName);
     }
 
     public String getName() {
@@ -123,36 +108,23 @@ public abstract class AbstractClaim {
     }
 
     public void setBox(ClaimBox box) {
-        ClaimList.INSTANCE.removeClaim(this);
+        ClaimList.removeClaim(this);
         this.box = box;
-        ClaimList.INSTANCE.addClaim(this);
+        ClaimList.addClaim(this);
     }
 
     public abstract String getFullName();
 
     public abstract Claim getMainClaim();
 
-    public UUID getOwner() {
-        return this.owner;
-    }
-
-    public void setOwner(UUID owner) {
-        ClaimList.INSTANCE.removeClaim(this);
-        this.owner = owner;
-        ClaimList.INSTANCE.addClaim(this);
-    }
+    public abstract UUID getOwner();
 
     public void setEnterMessage(String enterMessage) {
-        this.enterMessage = enterMessage;
+        this.messages.setEnter(enterMessage);
     }
 
     public void setLeaveMessage(String leaveMessage) {
-        this.leaveMessage = leaveMessage;
-    }
-
-    @Nullable
-    public ServerWorld getWorld() {
-        return ItsOurs.INSTANCE.server.getWorld(this.dimension);
+        this.messages.setLeave(leaveMessage);
     }
 
     public RegistryKey<World> getDimension() {
@@ -160,32 +132,33 @@ public abstract class AbstractClaim {
     }
 
     public List<Subzone> getSubzones() {
-        return this.subzoneList;
+        return this.subzones;
     }
 
     public void addSubzone(Subzone subzone) {
-        this.subzoneList.add(subzone);
+        this.subzones.add(subzone);
     }
 
     public void removeSubzone(Subzone subzone) {
-        this.subzoneList.remove(subzone);
+        this.subzones.remove(subzone);
     }
 
     public void onEnter(@Nullable AbstractClaim previousClaim, ServerPlayerEntity player) {
-        boolean hasPermission = ItsOurs.hasPermission(player.getCommandSource(), "fly") && player.getWorld().getRegistryKey().equals(World.OVERWORLD);
+        boolean hasPermission = Permissions.check(player.getCommandSource(), "itsours.fly", 2) && player.getWorld().getRegistryKey().equals(World.OVERWORLD);
         boolean cachedFlying = hasPermission && player.getAbilities().flying;
         // Update abilities for respective gamemode
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
         // Enable flying if player enabled it
         if (!player.getAbilities().allowFlying) {
-            player.getAbilities().allowFlying = PlayerList.get(player.getUuid(), Settings.FLIGHT) && hasPermission;
+            player.getAbilities().allowFlying = DataManager.getUserData(player.getUuid()).flight() && hasPermission;
         }
         // Set the flight state to what it was before entering
         if (player.getAbilities().allowFlying) {
             player.getAbilities().flying = cachedFlying;
         }
         player.sendAbilitiesUpdate();
-        player.sendMessage(enterMessage != null ? Text.literal(enterMessage).formatted(Formatting.GREEN) : Text.translatable("text.itsours.claim.enter", this.getFullName()).formatted(Formatting.GREEN), true);
+
+        player.sendMessage(Optional.ofNullable(messages.enter()).map(Text::literal).orElse(localized("text.itsours.claim.enter", placeholders(player.server))), true);
     }
 
     public void onLeave(@Nullable AbstractClaim nextClaim, ServerPlayerEntity player) {
@@ -200,12 +173,12 @@ public abstract class AbstractClaim {
                 }
             }
             player.sendAbilitiesUpdate();
-            player.sendMessage(leaveMessage != null ? Text.literal(leaveMessage).formatted(Formatting.RED) : Text.translatable("text.itsours.claim.leave", this.getFullName()).formatted(Formatting.RED), true);
+            player.sendMessage(Optional.ofNullable(messages.leave()).map(Text::literal).orElse(localized("text.itsours.claim.leave", placeholders(player.server))), true);
         }
     }
 
     public boolean hasPermission(@Nullable UUID uuid, Permission permission) {
-        PermissionVisitorImpl visitor = new PermissionVisitorImpl();
+        PermissionVisitor visitor = PermissionVisitor.create();
         visit(uuid, permission, visitor);
         return visitor.getResult().value;
     }
@@ -215,18 +188,31 @@ public abstract class AbstractClaim {
      * @param nodes A list of nodes that form the permission that shall be checked
      * @return true if the requested action should proceed
      */
-    public boolean hasPermission(@Nullable UUID uuid, Node... nodes) {
-        return hasPermission(uuid, PermissionImpl.withNodes(nodes));
+    public boolean hasPermission(@Nullable UUID uuid, ChildNode... nodes) {
+        return hasPermission(uuid, Permission.permission(nodes));
     }
 
     public void visit(@Nullable UUID uuid, Permission permission, PermissionVisitor visitor) {
-        if (Objects.equals(uuid, owner)) visitor.visit(this, permission, OwnerContext.INSTANCE, Value.ALLOW);
-        if (PlayerList.get(uuid, Settings.IGNORE)) visitor.visit(this, permission, IgnoreContext.INSTANCE, Value.ALLOW);
-        this.permissionManager.visit(this, uuid, permission, visitor);
+        DataManager.defaultSettings().visit(this, permission, DefaultContext.INSTANCE, visitor);
+        settings.visit(this, permission, GlobalContext.INSTANCE, visitor);
+        if (uuid != null) {
+            if (Objects.equals(uuid, getOwner())) visitor.visit(this, permission, OwnerContext.INSTANCE, Value.ALLOW);
+            if (DataManager.getUserData(uuid).ignore())
+                visitor.visit(this, permission, IgnoreContext.INSTANCE, Value.ALLOW);
+            PermissionData playerPermissions = permissions.get(uuid);
+            if (playerPermissions != null) {
+                playerPermissions.visit(this, permission, PersonalContext.INSTANCE, visitor);
+            }
+            for (Map.Entry<String, Role> roleEntry : roleManager.roles().entrySet()) {
+                if (roleEntry.getValue().players().contains(uuid)) {
+                    roleEntry.getValue().permissions().visit(this, permission, new RoleContext(roleEntry.getKey(), roleManager.getPriority(roleEntry.getKey()), roleEntry.getValue()), visitor);
+                }
+            }
+        }
     }
 
-    public ClaimPermissionHolder getPermissionHolder() {
-        return this.permissionManager;
+    public ClaimMessages getMessages() {
+        return this.messages;
     }
 
     public abstract int getDepth();
@@ -243,8 +229,8 @@ public abstract class AbstractClaim {
         return box.contains(pos);
     }
 
-    public void show(boolean show) {
-        for (ServerPlayerEntity player : ItsOurs.INSTANCE.server.getPlayerManager().getPlayerList()) {
+    public void show(boolean show, MinecraftServer server) {
+        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             ClaimPlayer claimPlayer = (ClaimPlayer) player;
             if (claimPlayer.getLastShowClaim() == this) {
                 this.show(player, show);
@@ -265,24 +251,29 @@ public abstract class AbstractClaim {
     }
 
     public String toString() {
-        return String.format("%s[name=%s, full_name=%s, owner=%s, box=%s, world=%s, subzones=%s]", this.getClass().getSimpleName(), this.name, this.getFullName(), this.getOwner(), this.box.toString(), this.dimension.toString(), Arrays.toString(subzoneList.toArray()));
+        return String.format("%s[name=%s, full_name=%s, owner=%s, box=%s, world=%s, subzones=%s]", this.getClass().getSimpleName(), this.name, this.getFullName(), this.getOwner(), this.box.toString(), this.dimension.toString(), Arrays.toString(subzones.toArray()));
     }
 
-    public String toShortString() {
-        return String.format("%s[name=%s, owner=%s]", this.getClass().getSimpleName(), this.name, this.getOwner());
+    public Map<String, Text> placeholders(MinecraftServer server, String prefix) {
+        return mergePlaceholderMaps(
+            Map.of(
+                prefix + "full_name", literal(getFullName()),
+                prefix + "name", literal(name),
+                prefix + "depth", literal(String.valueOf(getDepth())),
+                prefix + "dimension", literal(dimension.getValue().toString()),
+                prefix + "subzones", Text.literal(String.valueOf(subzones.size())),
+                prefix + "trusted", list(roleManager.getRole(ClaimRoleManager.TRUSTED).players(), uuid -> uuid("trusted_", uuid, server), "text.itsours.placeholders.trusted")
+            ),
+            uuid(prefix + "owner_", getOwner(), server),
+            vec3i(prefix + "min_", box.getMin()),
+            vec3i(prefix + "max_", box.getMax()),
+            vec3i(prefix + "size_", box.getDimensions().add(1, 1, 1)),
+            vec3i(prefix + "center_", box.getCenter())
+        );
     }
 
-    public static BlockPos getPosOnGround(BlockPos pos, World world) {
-        BlockPos blockPos = new BlockPos(pos.getX(), pos.getY() + 10, pos.getZ());
-
-        do {
-            blockPos = blockPos.down();
-            if (blockPos.getY() < 1) {
-                return pos;
-            }
-        } while (!world.getBlockState(blockPos).isFullCube(world, pos));
-
-        return blockPos.up();
+    public Map<String, Text> placeholders(MinecraftServer server) {
+        return placeholders(server, "claim_");
     }
 
 }

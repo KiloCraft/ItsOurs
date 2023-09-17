@@ -11,8 +11,6 @@ import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,6 +19,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.Optional;
+
+import static me.drex.message.api.LocalizedMessage.localized;
 
 @Mixin(ProjectileEntity.class)
 public abstract class ProjectileEntityMixin extends Entity {
@@ -32,32 +32,31 @@ public abstract class ProjectileEntityMixin extends Entity {
     @Shadow
     protected abstract void onEntityHit(EntityHitResult entityHitResult);
 
-    // TODO: No redirect, prevent onCollision call :thinking:
     @Redirect(
-            method = "onCollision",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/entity/projectile/ProjectileEntity;onEntityHit(Lnet/minecraft/util/hit/EntityHitResult;)V"
-            )
+        method = "onCollision",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/entity/projectile/ProjectileEntity;onEntityHit(Lnet/minecraft/util/hit/EntityHitResult;)V"
+        )
     )
     public void itsours$canDamageEntity(ProjectileEntity entity, EntityHitResult hitResult) {
-        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(hitResult.getEntity());
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt(hitResult.getEntity());
         if (claim.isEmpty() || !(entity.getOwner() instanceof ServerPlayerEntity)) {
             this.onEntityHit(hitResult);
             return;
         }
         if (!claim.get().hasPermission(null, PermissionManager.PVP) && hitResult.getEntity() instanceof PlayerEntity) {
             if (entity.getOwner() instanceof PlayerEntity player) {
-                player.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_player").formatted(Formatting.RED), true);
+                player.sendMessage(localized("text.itsours.action.disallowed.damage_player"), true);
             }
             if (entity instanceof PersistentProjectileEntity) {
                 if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill();
             }
             return;
         }
-        if (!claim.get().hasPermission(entity.getOwner().getUuid(), PermissionManager.DAMAGE_ENTITY, Node.dummy(Registries.ENTITY_TYPE, hitResult.getEntity().getType())) && !(hitResult.getEntity() instanceof PlayerEntity)) {
+        if (!claim.get().hasPermission(entity.getOwner().getUuid(), PermissionManager.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, hitResult.getEntity().getType())) && !(hitResult.getEntity() instanceof PlayerEntity)) {
             if (entity.getOwner() instanceof PlayerEntity player) {
-                player.sendMessage(Text.translatable("text.itsours.action.disallowed.damage_entity").formatted(Formatting.RED), true);
+                player.sendMessage(localized("text.itsours.action.disallowed.damage_entity"), true);
             }
             if (entity instanceof PersistentProjectileEntity) {
                 if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill();

@@ -29,7 +29,9 @@ public abstract class PistonHandlerMixin {
     @Final
     private World world;
 
-    @Shadow @Final private Direction motionDirection;
+    @Shadow
+    @Final
+    private Direction motionDirection;
 
     @WrapOperation(
         method = "calculatePush",
@@ -54,8 +56,8 @@ public abstract class PistonHandlerMixin {
     }
 
     private boolean handleMoveOperation(BlockState state, World world, BlockPos pos, Direction direction, boolean canBreak, Direction pistonDir, Operation<Boolean> original) {
-        Optional<AbstractClaim> oldClaim = ClaimList.INSTANCE.getClaimAt((ServerWorld) this.world, this.posFrom);
-        Optional<AbstractClaim> newClaim = ClaimList.INSTANCE.getClaimAt((ServerWorld) this.world, pos.offset(motionDirection));
+        Optional<AbstractClaim> oldClaim = ClaimList.getClaimAt((ServerWorld) this.world, this.posFrom);
+        Optional<AbstractClaim> newClaim = ClaimList.getClaimAt((ServerWorld) this.world, pos.offset(motionDirection));
         if (((oldClaim.isPresent() && !oldClaim.get().hasPermission(null, PermissionManager.PISTON_CROSSES_BORDERS)) ||
             (newClaim.isPresent() && !newClaim.get().hasPermission(null, PermissionManager.PISTON_CROSSES_BORDERS))) && !newClaim.equals(oldClaim)) {
             return false;

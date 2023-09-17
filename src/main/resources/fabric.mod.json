@@ -2,7 +2,6 @@
   "schemaVersion": 1,
   "id": "itsours",
   "version": "${version}",
-
   "name": "ItsOurs",
   "description": "Claim your land!",
   "authors": [
@@ -12,7 +11,6 @@
     "homepage": "https://50kilo.org/",
     "sources": "https://github.com/KiloCraft/ItsOurs"
   },
-
   "license": "CC0-1.0",
   "icon": "assets/itsours/icon.png",
   "environment": "*",
@@ -30,7 +28,6 @@
   "depends": {
     "fabricloader": ">=0.9.0",
     "fabric-api-base": "*",
-    "fabric-command-api-v2": "*",
     "fabric-lifecycle-events-v1": "*"
   }
 }

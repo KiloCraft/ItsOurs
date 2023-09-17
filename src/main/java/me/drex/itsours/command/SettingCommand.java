@@ -13,7 +13,11 @@ import me.drex.itsours.command.argument.ClaimArgument;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
+import java.util.Map;
+
 import static me.drex.itsours.command.argument.PermissionArgument.*;
+import static me.drex.itsours.util.PlaceholderUtil.mergePlaceholderMaps;
+import static me.drex.message.api.LocalizedMessage.localized;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class SettingCommand extends AbstractCommand {
@@ -27,42 +31,53 @@ public class SettingCommand extends AbstractCommand {
     @Override
     protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         literal.then(
-                ClaimArgument.ownClaims()
-                        .then(
-                                literal("check").then(
-                                        permission()
-                                                .executes(ctx -> executeCheck(ctx.getSource(), ClaimArgument.getClaim(ctx), getPermission(ctx)))
-                                )
-                        ).then(
-                                literal("set").then(
-                                        permission().then(
-                                                value()
-                                                        .executes(ctx -> executeSet(ctx.getSource(), ClaimArgument.getClaim(ctx), getPermission(ctx), getValue(ctx)))
-                                        )
-                                )
-                        ).then(
-                                literal("unset").then(
-                                        permission()
-                                                .executes(ctx -> executeSet(ctx.getSource(), ClaimArgument.getClaim(ctx), getPermission(ctx), Value.UNSET))
-                                )
+            ClaimArgument.ownClaims()
+                .then(literal("check").then(
+                        setting()
+                            .executes(ctx -> executeCheck(ctx.getSource(), ClaimArgument.getClaim(ctx), getSetting(ctx)))
+                    )
+                ).then(
+                    literal("set").then(
+                        setting().then(
+                            value()
+                                .executes(ctx -> executeSet(ctx.getSource(), ClaimArgument.getClaim(ctx), getSetting(ctx), getValue(ctx)))
                         )
+                    )
+                ).then(
+                    literal("unset").then(
+                        setting()
+                            .executes(ctx -> executeSet(ctx.getSource(), ClaimArgument.getClaim(ctx), getSetting(ctx), Value.UNSET))
+                    )
+                )
         );
     }
 
     public int executeSet(ServerCommandSource src, AbstractClaim claim, Permission permission, Value value) throws CommandSyntaxException {
-        validatePermission(src, claim, PermissionManager.MODIFY, Modify.SETTING.node());
+        validatePermission(src, claim, PermissionManager.MODIFY, Modify.PERMISSION.node());
         permission.validateContext(new Node.ChangeContext(claim, GlobalContext.INSTANCE, value, src));
-        claim.getPermissionHolder().getSettings().set(permission, value);
-        src.sendFeedback(() -> Text.translatable("text.itsours.commands.globalSetting.set",
-                permission.asString(), claim.getFullName(), value.format()
+        claim.getSettings().set(permission, value);
+        src.sendFeedback(() -> localized("text.itsours.commands.globalSetting.set", mergePlaceholderMaps(
+                Map.of(
+                    "permission", Text.literal(permission.asString()),
+                    "value", value.format()
+                ),
+                claim.placeholders(src.getServer())
+            )
         ), false);
         return 1;
     }
 
     public int executeCheck(ServerCommandSource src, AbstractClaim claim, Permission permission) throws CommandSyntaxException {
-        validatePermission(src, claim, PermissionManager.MODIFY, Modify.SETTING.node());
-        Value value = claim.getPermissionHolder().getSettings().get(permission);
-        src.sendFeedback(() -> Text.translatable("text.itsours.commands.globalSetting.check", permission.asString(), claim.getFullName(), value.format()), false);
+        validatePermission(src, claim, PermissionManager.MODIFY, Modify.PERMISSION.node());
+        Value value = claim.getSettings().get(permission);
+        src.sendFeedback(() -> localized("text.itsours.commands.globalSetting.check", mergePlaceholderMaps(
+                Map.of(
+                    "permission", Text.literal(permission.asString()),
+                    "value", value.format()
+                ),
+                claim.placeholders(src.getServer())
+            )
+        ), false);
         return 1;
     }
 

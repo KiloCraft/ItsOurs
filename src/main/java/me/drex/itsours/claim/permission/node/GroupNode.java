@@ -3,15 +3,14 @@ package me.drex.itsours.claim.permission.node;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.text.MutableText;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class GroupNode extends AbstractNode {
+public class GroupNode extends AbstractChildNode {
 
-    private final Collection<Node> contained;
+    private final List<ChildNode> contained;
 
-    public GroupNode(String id, MutableText description, List<Node> nodes, ItemConvertible icon, Predicate<ChangeContext> changePredicate, Collection<Node> contained) {
+    public GroupNode(String id, MutableText description, List<ChildNode> nodes, ItemConvertible icon, Predicate<ChangeContext> changePredicate, List<ChildNode> contained) {
         super(id, description, nodes, icon, changePredicate);
         this.contained = contained;
     }
@@ -21,14 +20,13 @@ public class GroupNode extends AbstractNode {
         return super.getId().toUpperCase();
     }
 
-    public Collection<Node> getContained() {
+    public List<ChildNode> getContained() {
         return contained;
     }
 
     @Override
-    public boolean contains(Node other) {
-        // TODO: Are the nodes actually equal? (or do we need to implement that / use other checks)
-        for (Node node : contained) {
+    public boolean contains(ChildNode other) {
+        for (ChildNode node : contained) {
             if (node.getId().equals(other.getId())) return true;
         }
         return false;

@@ -1,7 +1,6 @@
 package me.drex.itsours.mixin;
 
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
-import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.PermissionManager;
@@ -15,8 +14,6 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,6 +24,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Objects;
 import java.util.Optional;
 
+import static me.drex.message.api.LocalizedMessage.localized;
+
 @Mixin(Entity.class)
 public abstract class EntityMixin {
 
@@ -36,7 +35,7 @@ public abstract class EntityMixin {
     public void itsours$doPostPosActions(CallbackInfo ci) {
         if ((Object) this instanceof ServerPlayerEntity player) {
             if (player.getBlockPos() == null) return;
-            AbstractClaim claim = ClaimList.INSTANCE.getClaimAt(player).orElse(null);
+            AbstractClaim claim = ClaimList.getClaimAt(player).orElse(null);
             if (!Objects.equals(pclaim, claim)) {
                 if (player.networkHandler != null) {
                     if (pclaim != null) pclaim.onLeave(claim, player);
@@ -48,11 +47,11 @@ public abstract class EntityMixin {
     }
 
     @WrapWithCondition(
-            method = "checkBlockCollision",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V"
-            )
+        method = "checkBlockCollision",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V"
+        )
     )
     private boolean itsours$onBlockCollision(BlockState blockState, World world, BlockPos pos, Entity entity) {
         ServerPlayerEntity playerEntity = null;
@@ -70,12 +69,12 @@ public abstract class EntityMixin {
         if (playerEntity == null) {
             return true;
         }
-        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, pos);
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt((ServerWorld) world, pos);
         if (claim.isEmpty()) {
             return true;
         }
-        if (!claim.get().hasPermission(playerEntity.getUuid(), PermissionManager.INTERACT_BLOCK, Node.dummy(Registries.BLOCK, blockState.getBlock()))) {
-            playerEntity.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED), true);
+        if (!claim.get().hasPermission(playerEntity.getUuid(), PermissionManager.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
+            playerEntity.sendMessage(localized("text.itsours.action.disallowed.interact_block"), true);
             return false;
         }
         return true;

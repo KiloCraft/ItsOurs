@@ -1,6 +1,7 @@
 package me.drex.itsours.claim.permission;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.drex.itsours.claim.permission.node.ChildNode;
 import me.drex.itsours.claim.permission.node.Node;
 import me.drex.itsours.claim.permission.node.RootNode;
 import me.drex.itsours.claim.permission.util.InvalidPermissionException;
@@ -12,69 +13,41 @@ import java.util.List;
 
 public class PermissionImpl implements Permission {
 
-    public static final String SEPARATOR = ".";
-    public static final String SEPARATOR_REGEX = "\\.";
-
     private final String permission;
-    private final List<Node> nodes;
+    private final RootNode rootNode;
+    private final ChildNode[] childNodes;
 
-    private PermissionImpl(String permission, RootNode rootNode) throws InvalidPermissionException {
-        this.permission = permission;
-        this.nodes = parse(rootNode);
+    protected PermissionImpl(RootNode rootNode, String permission) throws InvalidPermissionException {
+        this(rootNode, parse(permission, rootNode));
     }
 
-    private PermissionImpl(List<Node> nodes) {
-        this.nodes = nodes;
-        this.permission = String.join(SEPARATOR, nodes.stream().filter(node -> !(node instanceof RootNode)).map(Node::getId).toList());
+    protected PermissionImpl(RootNode rootNode, ChildNode[] childNodes) {
+        this.rootNode = rootNode;
+        this.childNodes = childNodes;
+        this.permission = String.join(".", Arrays.stream(childNodes).map(ChildNode::getId).toList());
     }
 
-    public static PermissionImpl permission(String permission) throws InvalidPermissionException {
-        return fromId(permission, PermissionManager.PERMISSION);
-    }
-
-    public static PermissionImpl setting(String permission) throws InvalidPermissionException {
-        return fromId(permission, PermissionManager.SETTING);
-    }
-
-    public static PermissionImpl fromId(String permission) throws InvalidPermissionException {
-        return fromId(permission, PermissionManager.COMBINED);
-    }
-
-    public static PermissionImpl fromId(String permission, RootNode rootNode) throws InvalidPermissionException {
-        return new PermissionImpl(permission, rootNode);
-    }
-
-    public static PermissionImpl withNodes(Node... nodes) {
-        if (nodes.length == 0) throw new IllegalArgumentException("Permissions needs at least 1 node");
-        List<Node> list = new LinkedList<>();
-        if (!(nodes[0] instanceof RootNode)) {
-            list.add(PermissionManager.COMBINED);
-        }
-        list.addAll(Arrays.asList(nodes));
-        return new PermissionImpl(list);
-    }
-
-    private List<Node> parse(RootNode rootNode) throws InvalidPermissionException {
-        final List<Node> nodes = new LinkedList<>();
-        String[] parts = permission.split(SEPARATOR_REGEX);
+    private static ChildNode[] parse(String permission, RootNode rootNode) throws InvalidPermissionException {
+        final List<ChildNode> nodes = new LinkedList<>();
+        String[] parts = permission.split("\\.", -1);
         Node currentNode = rootNode;
-        nodes.add(rootNode);
         for (String part : parts) {
-            Node node = currentNode.getNodesMap().get(part);
-            if (node == null) throw new InvalidPermissionException("Couldn't find " + part + " node in " + currentNode.getName());
+            ChildNode node = currentNode.getNodesMap().get(part);
+            if (node == null)
+                throw new InvalidPermissionException("Couldn't find " + part + " node in " + currentNode.getName());
             nodes.add(node);
             currentNode = node;
         }
-        return nodes;
+        return nodes.toArray(new ChildNode[]{});
     }
 
     @Override
     public boolean includes(Permission other) {
-        List<Node> otherNodes = other.getNodes();
-        for (int i = 0; i < this.nodes.size(); i++) {
-            Node node = this.nodes.get(i);
-            if (otherNodes.size() > i) {
-                Node otherNode = otherNodes.get(i);
+        ChildNode[] otherNodes = other.getChildNodes();
+        for (int i = 0; i < this.childNodes.length; i++) {
+            ChildNode node = this.childNodes[i];
+            if (otherNodes.length > i) {
+                ChildNode otherNode = otherNodes[i];
                 if (!node.contains(otherNode)) {
                     return false;
                 }
@@ -86,27 +59,35 @@ public class PermissionImpl implements Permission {
     }
 
     @Override
-    public Permission withNode(Node node) {
-        List<Node> nodes = new LinkedList<>(this.nodes);
-        nodes.add(node);
-        return new PermissionImpl(nodes);
+    public Permission withNode(ChildNode childNode) throws InvalidPermissionException {
+        Node lastNode = getLastNode();
+        if (!lastNode.getNodes().contains(childNode)) {
+            throw new InvalidPermissionException("Couldn't find " + childNode.getName() + " node in " + lastNode.getName());
+        }
+        ChildNode[] childNodes = Arrays.copyOf(this.childNodes, this.childNodes.length + 1);
+        childNodes[this.childNodes.length] = childNode;
+        return new PermissionImpl(rootNode, childNodes);
     }
 
     @Override
     public void validateContext(Node.ChangeContext context) throws CommandSyntaxException {
-        for (Node node : getNodes()) {
+        if (!rootNode.canChange(context)) throw PermissionArgument.FORBIDDEN;
+        for (Node node : childNodes) {
             if (!node.canChange(context)) throw PermissionArgument.FORBIDDEN;
         }
     }
 
     @Override
-    public List<Node> getNodes() {
-        return nodes;
+    public ChildNode[] getChildNodes() {
+        return childNodes;
     }
 
     @Override
     public Node getLastNode() {
-        return nodes.get(nodes.size() - 1);
+        if (childNodes.length != 0) {
+            return childNodes[childNodes.length - 1];
+        }
+        return rootNode;
     }
 
     @Override
@@ -124,7 +105,7 @@ public class PermissionImpl implements Permission {
 
     @Override
     public String toString() {
-        return String.format("Permission[id=%s, nodes=%s]", permission, Arrays.toString(nodes.toArray()));
+        return String.format("Permission[id=%s, nodes=%s]", permission, Arrays.toString(childNodes));
     }
 
     @Override

@@ -2,109 +2,141 @@ package me.drex.itsours.gui;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
-import eu.pb4.sgui.api.gui.SimpleGui;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.permission.PermissionImpl;
+import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.holder.ClaimPermissionHolder;
-import me.drex.itsours.claim.permission.roles.Role;
-import me.drex.itsours.claim.permission.roles.RoleManager;
-import me.drex.itsours.command.PermissionsCommand;
+import me.drex.itsours.claim.permission.holder.PermissionData;
+import me.drex.itsours.claim.permission.util.Modify;
+import me.drex.itsours.claim.roles.ClaimRoleManager;
 import me.drex.itsours.command.TrustCommand;
-import me.drex.itsours.util.Components;
+import me.drex.itsours.gui.permission.PersonalStorageGui;
+import me.drex.itsours.gui.util.ConfirmationGui;
+import me.drex.itsours.gui.util.GuiTextures;
+import me.drex.itsours.gui.util.PlayerSelectorGui;
+import me.drex.itsours.util.PlaceholderUtil;
 import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.MutableText;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
-import net.minecraft.util.Formatting;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.util.Util;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
-public class PlayerManagerGui extends PagedGui<UUID> {
+import static me.drex.message.api.LocalizedMessage.localized;
 
-    private final AbstractClaim claim;
-    private static final Role TRUSTED_ROLE = RoleManager.INSTANCE.getRole(RoleManager.TRUSTED_ID);
+public class PlayerManagerGui extends PageGui<UUID> {
 
-    public PlayerManagerGui(ServerPlayerEntity player, @Nullable SimpleGui previousGui, AbstractClaim claim) {
-        super(player, previousGui);
+    private AbstractClaim claim;
+    protected final List<PageGui.Filter<UUID>> filters = List.of(
+        new Filter<>(localized("text.itsours.gui.playermanager.filter.all"), player -> true),
+        new Filter<>(localized("text.itsours.gui.playermanager.filter.trusted"), player -> claim.getRoleManager().getRole(ClaimRoleManager.TRUSTED).players().contains(player)),
+        new Filter<>(localized("text.itsours.gui.playermanager.filter.not_trusted"), player -> !claim.getRoleManager().getRole(ClaimRoleManager.TRUSTED).players().contains(player))
+    );
+
+    public PlayerManagerGui(GuiContext context, AbstractClaim claim) {
+        super(context, ScreenHandlerType.GENERIC_9X6);
         this.claim = claim;
-        this.setTitle(Text.translatable("text.itsours.gui.roles"));
+        this.setTitle(localized("text.itsours.gui.playermanager.title", claim.placeholders(context.server())));
     }
 
     @Override
-    protected List<UUID> getElements() {
-        ClaimPermissionHolder permissionHolder = claim.getPermissionHolder();
-        Set<UUID> uuids = new HashSet<>(permissionHolder.getRoles().keySet());
-        uuids.addAll(permissionHolder.getPlayerPermissions().keySet());
-        return uuids.stream().toList();
+    public Collection<UUID> elements() {
+        Set<UUID> elements = new HashSet<>();
+        elements.addAll(claim.getPermissions().keySet());
+        claim.getRoleManager().roles().forEach((s, role) -> {
+            elements.addAll(role.players());
+        });
+        return elements.stream().sorted((uuid1, uuid2) ->
+                context.server().getUserCache().getByUuid(uuid1).map(GameProfile::getName).orElse(uuid1.toString())
+                    .compareTo(context.server().getUserCache().getByUuid(uuid2).map(GameProfile::getName).orElse(uuid2.toString())))
+            .toList();
     }
 
     @Override
-    protected GuiElement getNavElement(int id) {
-        return switch (id) {
+    protected GuiElementBuilder guiElement(UUID player) {
+        return guiElement(Items.PLAYER_HEAD, "playermanager.entry", PlaceholderUtil.mergePlaceholderMaps(
+            claim.placeholders(context.server()),
+            Map.of("roles", PlaceholderUtil.list(
+                claim.getRoleManager().roles().entrySet().stream().filter(stringRoleEntry -> stringRoleEntry.getValue().players().contains(player)).toList(),
+                stringRoleEntry -> Map.of(
+                    "role_id", Text.literal(stringRoleEntry.getKey())
+                ), "text.itsours.gui.playermanager.entry.roles"
+            )/*, "modified_permissions", Text.literal(String.valueOf(claim.getPermissions().getOrDefault(player, new PermissionHolder()).size()))*/),
+            claim.getPermissions().getOrDefault(player, new PermissionData()).placeholders(),
+            PlaceholderUtil.uuid("player_", player, context.server())
+        )).setCallback(clickType -> {
+            if (clickType.isLeft) {
+                switchUi(new PersonalStorageGui(context, claim, player, Permission.permission(PermissionManager.PERMISSION)));
+            } else if (clickType.isRight) {
+                switchUi(new PlayerRoleManagerGui(context, claim, player));
+            } else if (clickType.isMiddle) {
+                switchUi(new ConfirmationGui(context, "text.itsours.gui.playermanager.reset.confirm", PlaceholderUtil.uuid("player_", player, context.server()), () -> {
+                    // Reset player
+                    if (claim.hasPermission(context.player.getUuid(), PermissionManager.MODIFY, Modify.PERMISSION.node())) {
+                        claim.getPermissions().remove(player);
+                        claim.getRoleManager().roles().forEach((s, role) -> role.players().remove(player));
+                        build();
+                    } else {
+                        fail();
+                    }
+                }));
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<GuiElementBuilder> guiElementFuture(UUID uuid) {
+        return CompletableFuture.supplyAsync(() -> guiElement(uuid)
+            .setSkullOwner(new GameProfile(uuid, null), context.server()), Util.getMainWorkerExecutor());
+    }
+
+    @Override
+    public GuiElementBuilder buildNavigationBar(int index) {
+        return switch (index) {
             case 0 -> new GuiElementBuilder(Items.PLAYER_HEAD)
-                    .setName(Text.translatable("text.itsours.gui.roles.addTrust"))
-                    .hideFlags()
-                    .setSkullOwner(GuiTextures.GUI_ADD)
-                    .setCallback((x, y, z) -> {
-                        new PlayerSelectorGui(player, this, name -> TrustCommand.TRUST.executeTrust(player.getCommandSource().withSilent(), claim, asCommandTarget(name))).open();
-                        playClickSound(this.player);
-                    }).build();
-            default -> super.getNavElement(id);
+                .setName(localized("text.itsours.gui.playermanager.add"))
+                .hideFlags()
+                .setSkullOwner(GuiTextures.GUI_ADD)
+                .setCallback(() -> {
+                    switchUi(new PlayerSelectorGui(context, this::addPlayer));
+                });
+            case 1 -> new GuiElementBuilder(Items.PLAYER_HEAD)
+                .setName(localized("text.itsours.gui.playermanager.trust"))
+                .hideFlags()
+                .setSkullOwner(GuiTextures.GUI_ADD)
+                .setCallback(() -> {
+                    switchUi(new PlayerSelectorGui(context, this::trustPlayer));
+                });
+            default -> super.buildNavigationBar(index);
         };
     }
 
     @Override
-    protected GuiElement asDisplayElement(UUID uuid) {
-        Optional<GameProfile> optional = player.server.getUserCache().getByUuid(uuid);
-        GuiElementBuilder guiElementBuilder = new GuiElementBuilder(Items.PLAYER_HEAD);
-        if (optional.isPresent()) {
-            GameProfile profile = optional.get();
-            if (profile.getName() != null) {
-                guiElementBuilder
-                        .setSkullOwner(profile, null);
-            }
-        }
-        boolean trusted = claim.getPermissionHolder().getRoles(uuid).contains(TRUSTED_ROLE);
-        MutableText name = Components.toText(uuid).formatted(Formatting.WHITE);
-        if (trusted)
-            name.append(" ").append(Text.translatable("chat.square_brackets", Text.literal(RoleManager.TRUSTED_ID).formatted(Formatting.GREEN)));
-        return
-                guiElementBuilder
-                        .setLore(
-                                List.of(
-                                        Text.translatable("text.itsours.gui.leftClick",
-                                                trusted ? Text.translatable("text.itsours.gui.roles.distrust") : Text.translatable("text.itsours.gui.roles.trust")
-                                        ).formatted(Formatting.WHITE),
-                                        Text.translatable("text.itsours.gui.rightClick", Text.translatable("text.itsours.gui.roles.permission")).formatted(Formatting.WHITE)
-                                )
-                        )
-                        .setName(name)
-                        .setCallback((index, type, action, gui) -> {
-                            GameProfile profile = player.server.getUserCache().getByUuid(uuid).orElse(new GameProfile(uuid, null));
-                            Set<GameProfile> targets = Collections.singleton(profile);
-                            if (type.isLeft) {
-                                try {
-                                    if (trusted) {
-                                        TrustCommand.DISTRUST.executeTrust(player.getCommandSource().withSilent(), claim, targets);
-                                    } else {
-                                        TrustCommand.TRUST.executeTrust(player.getCommandSource().withSilent(), claim, targets);
-                                    }
-                                } catch (CommandSyntaxException exception) {
-                                    player.getCommandSource().sendError(Texts.toText(exception.getRawMessage()));
-                                }
-                                updateDisplay();
-                            } else {
-                                new PermissionStorageGui(player, this, Text.translatable("text.itsours.gui.permission"), claim.getPermissionHolder().getPermission(uuid),
-                                        (pair) -> PermissionsCommand.INSTANCE.executeSet(player.getCommandSource().withSilent(), claim, targets, pair.getLeft(), pair.getRight()),
-                                        PermissionImpl.withNodes(PermissionManager.PERMISSION)).open();
-                            }
-                        })
-                        .hideFlags()
-                        .build();
+    protected List<Filter<UUID>> filters() {
+        return this.filters;
     }
+
+    private void addPlayer(String name) {
+        CompletableFuture.runAsync(() -> {
+            context.server().getUserCache().findByName(name).ifPresentOrElse(gameProfile -> {
+                claim.getPermissions().putIfAbsent(gameProfile.getId(), new PermissionData());
+                build();
+            }, this::fail);
+        }, context.server());
+    }
+
+    private void trustPlayer(String name) {
+        CompletableFuture.runAsync(() -> {
+            context.server().getUserCache().findByName(name).ifPresentOrElse(gameProfile -> {
+                try {
+                    TrustCommand.TRUST.executeTrust(context.player.getCommandSource(), claim, Collections.singleton(gameProfile));
+                    build();
+                } catch (CommandSyntaxException ignored) {
+                    fail();
+                }
+            }, this::fail);
+        }, context.server());
+    }
+
 }

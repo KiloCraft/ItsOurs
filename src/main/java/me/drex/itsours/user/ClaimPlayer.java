@@ -18,12 +18,12 @@ public interface ClaimPlayer {
 
     void resetSelection();
 
-    void setSecondPosition(BlockPos pos);
-
-    void setFirstPosition(BlockPos pos);
-
     BlockPos getSecondPosition();
 
+    void setSecondPosition(BlockPos pos);
+
     BlockPos getFirstPosition();
+
+    void setFirstPosition(BlockPos pos);
 
 }

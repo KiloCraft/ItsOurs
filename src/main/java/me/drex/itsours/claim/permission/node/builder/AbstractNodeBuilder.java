@@ -1,6 +1,7 @@
 package me.drex.itsours.claim.permission.node.builder;
 
-import me.drex.itsours.claim.permission.node.AbstractNode;
+import me.drex.itsours.claim.permission.node.AbstractChildNode;
+import me.drex.itsours.claim.permission.node.ChildNode;
 import me.drex.itsours.claim.permission.node.Node;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.Items;
@@ -12,11 +13,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static me.drex.message.api.LocalizedMessage.localized;
+
 public abstract class AbstractNodeBuilder {
 
     protected final String id;
+    protected final List<ChildNode> childNodes = new LinkedList<>();
     protected MutableText description = Text.empty();
-    protected final List<Node> childNodes = new LinkedList<>();
     protected ItemConvertible icon = Items.STONE;
     protected Predicate<Node.ChangeContext> changePredicate = context -> true;
 
@@ -25,7 +28,7 @@ public abstract class AbstractNodeBuilder {
     }
 
     public AbstractNodeBuilder description(String translationId) {
-        this.description = Text.translatable("text.itsours." + translationId + ".description");
+        this.description = localized("text.itsours." + translationId + ".description");
         return this;
     }
 
@@ -39,12 +42,12 @@ public abstract class AbstractNodeBuilder {
         return this;
     }
 
-    public AbstractNodeBuilder then(Collection<Node> childNodes) {
+    public AbstractNodeBuilder then(Collection<ChildNode> childNodes) {
         this.childNodes.addAll(childNodes);
         return this;
     }
 
-    public AbstractNodeBuilder then(Node childNode) {
+    public AbstractNodeBuilder then(ChildNode childNode) {
         this.childNodes.add(childNode);
         return this;
     }
@@ -59,6 +62,10 @@ public abstract class AbstractNodeBuilder {
         return this;
     }
 
-    public abstract AbstractNode build();
+    protected void sortChildNodes() {
+        this.childNodes.sort((o1, o2) -> o1.getId().compareToIgnoreCase(o2.getId()));
+    }
+
+    public abstract AbstractChildNode build();
 
 }

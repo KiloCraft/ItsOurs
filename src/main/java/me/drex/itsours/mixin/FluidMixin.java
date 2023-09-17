@@ -21,16 +21,16 @@ import java.util.Optional;
 public abstract class FluidMixin {
 
     @Inject(
-            method = "flow",
-            at = @At("HEAD"),
-            cancellable = true
+        method = "flow",
+        at = @At("HEAD"),
+        cancellable = true
     )
     private void itsours$canFlowAcrossBorder(WorldAccess world, BlockPos newPos, BlockState state, Direction direction, FluidState fluidState, CallbackInfo ci) {
         BlockPos oldPos = newPos.offset(direction.getOpposite());
-        Optional<AbstractClaim> oldClaim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, oldPos);
-        Optional<AbstractClaim> newClaim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, newPos);
+        Optional<AbstractClaim> oldClaim = ClaimList.getClaimAt((ServerWorld) world, oldPos);
+        Optional<AbstractClaim> newClaim = ClaimList.getClaimAt((ServerWorld) world, newPos);
         if (((oldClaim.isPresent() && !oldClaim.get().hasPermission(null, PermissionManager.FLUID_CROSSES_BORDERS)) ||
-                (newClaim.isPresent() && !newClaim.get().hasPermission(null, PermissionManager.FLUID_CROSSES_BORDERS))) && !newClaim.equals(oldClaim)) {
+            (newClaim.isPresent() && !newClaim.get().hasPermission(null, PermissionManager.FLUID_CROSSES_BORDERS))) && !newClaim.equals(oldClaim)) {
             ci.cancel();
         }
     }

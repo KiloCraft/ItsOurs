@@ -28,9 +28,9 @@ public abstract class PlaceBlockGoalMixin {
 
     @Inject(method = "canPlaceOn", at = @At("HEAD"), cancellable = true)
     public void itsours$canEndermanPlace(World world, BlockPos posAbove, BlockState carriedState, BlockState stateAbove, BlockState state, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        Optional<AbstractClaim> optional = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, pos);
+        Optional<AbstractClaim> optional = ClaimList.getClaimAt((ServerWorld) world, pos);
         if (optional.isPresent()) {
-            if (!optional.get().hasPermission(this.enderman.getUuid(), PermissionManager.MINE, Node.dummy(Registries.BLOCK, world.getBlockState(pos).getBlock()))) {
+            if (!optional.get().hasPermission(this.enderman.getUuid(), PermissionManager.MINE, Node.registry(Registries.BLOCK, world.getBlockState(pos).getBlock()))) {
                 cir.setReturnValue(false);
             }
         }

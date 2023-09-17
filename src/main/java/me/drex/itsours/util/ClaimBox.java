@@ -1,7 +1,7 @@
 package me.drex.itsours.util;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.block.BlockState;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -14,12 +14,26 @@ import org.jetbrains.annotations.Nullable;
 
 public class ClaimBox extends BlockBox {
 
+    public static final Codec<ClaimBox> CODEC = BlockBox.CODEC.xmap(blockBox -> new ClaimBox(blockBox.getMinX(), blockBox.getMinY(), blockBox.getMinZ(), blockBox.getMaxX(), blockBox.getMaxY(), blockBox.getMaxZ()), claimBox -> new BlockBox(claimBox.getMinX(), claimBox.getMinY(), claimBox.getMinZ(), claimBox.getMaxX(), claimBox.getMaxY(), claimBox.getMaxZ()));
+
+    private ClaimBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+        super(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
     public static ClaimBox create(Vec3i first, Vec3i second) {
         return new ClaimBox(Math.min(first.getX(), second.getX()), Math.min(first.getY(), second.getY()), Math.min(first.getZ(), second.getZ()), Math.max(first.getX(), second.getX()), Math.max(first.getY(), second.getY()), Math.max(first.getZ(), second.getZ()));
     }
 
-    private ClaimBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
-        super(minX, minY, minZ, maxX, maxY, maxZ);
+    private static BlockPos getY(BlockView blockView, int x, int y, int z) {
+        BlockPos blockPos = new BlockPos(x, y + 10, z);
+
+        do {
+            blockPos = blockPos.down();
+            if (blockPos.getY() < 1) {
+                return new BlockPos(x, y, z);
+            }
+        } while (!blockView.getBlockState(blockPos).isFullCube(blockView, blockPos));
+        return blockPos.up();
     }
 
     public ClaimBox expand(Direction direction, int amount) {
@@ -48,15 +62,6 @@ public class ClaimBox extends BlockBox {
         return new BlockPos(getMaxX(), getMaxY(), getMaxZ());
     }
 
-    public void save(NbtCompound nbtCompound) {
-        nbtCompound.put("min", toNbt(getMin()));
-        nbtCompound.put("max", toNbt(getMax()));
-    }
-
-    public static ClaimBox load(NbtCompound nbtCompound) {
-        return ClaimBox.create(fromNbt(nbtCompound.getCompound("min")), fromNbt(nbtCompound.getCompound("max")));
-    }
-
     public int getArea() {
         return (this.getMaxX() - this.getMinX() + 1) * (this.getMaxZ() - this.getMinZ() + 1);
     }
@@ -67,7 +72,7 @@ public class ClaimBox extends BlockBox {
 
     public boolean contains(BlockBox other) {
         return this.getMinX() <= other.getMinX() && this.getMinY() <= other.getMinY() && this.getMinZ() <= other.getMinZ() &&
-                this.getMaxX() >= other.getMaxX() && this.getMaxY() >= other.getMaxY() && this.getMaxZ() >= other.getMaxZ();
+            this.getMaxX() >= other.getMaxX() && this.getMaxY() >= other.getMaxY() && this.getMaxZ() >= other.getMaxZ();
     }
 
     public void drawOutline(ServerPlayerEntity player, BlockState blockState) {
@@ -105,33 +110,6 @@ public class ClaimBox extends BlockBox {
         BlockUpdateS2CPacket packet;
         packet = state == null ? new BlockUpdateS2CPacket(player.getEntityWorld(), pos) : new BlockUpdateS2CPacket(pos, state);
         player.networkHandler.sendPacket(packet);
-    }
-
-    private static BlockPos getY(BlockView blockView, int x, int y, int z) {
-        BlockPos blockPos = new BlockPos(x, y + 10, z);
-
-        do {
-            blockPos = blockPos.down();
-            if (blockPos.getY() < 1) {
-                return new BlockPos(x, y, z);
-            }
-        } while (!blockView.getBlockState(blockPos).isFullCube(blockView, blockPos));
-        return blockPos.up();
-    }
-
-    private static BlockPos fromNbt(NbtCompound nbtCompound) {
-        int x = nbtCompound.getInt("x");
-        int y = nbtCompound.getInt("y");
-        int z = nbtCompound.getInt("z");
-        return new BlockPos(x, y, z);
-    }
-
-    private static NbtCompound toNbt(BlockPos blockPos) {
-        NbtCompound nbtCompound = new NbtCompound();
-        nbtCompound.putInt("x", blockPos.getX());
-        nbtCompound.putInt("y", blockPos.getY());
-        nbtCompound.putInt("z", blockPos.getZ());
-        return nbtCompound;
     }
 
 }

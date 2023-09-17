@@ -20,21 +20,23 @@ import java.util.Optional;
 @Mixin(SculkCatalystBlockEntity.Listener.class)
 public abstract class SculkCatalystBlockEntityMixin {
 
-    @Shadow @Final private PositionSource positionSource;
+    @Shadow
+    @Final
+    private PositionSource positionSource;
 
     @WrapWithCondition(
-            method = "listen",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/block/entity/SculkSpreadManager;spread(Lnet/minecraft/util/math/BlockPos;I)V"
-            )
+        method = "listen",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/block/entity/SculkSpreadManager;spread(Lnet/minecraft/util/math/BlockPos;I)V"
+        )
     )
     public boolean itsours$dontSpreadFromOtherSculkCatalyst(SculkSpreadManager sculkSpreadManager, BlockPos pos, int charge, ServerWorld world) {
         BlockPos oldPos = BlockPos.ofFloored(this.positionSource.getPos(world).orElse(Vec3d.ZERO));
-        Optional<AbstractClaim> oldClaim = ClaimList.INSTANCE.getClaimAt(world, oldPos);
-        Optional<AbstractClaim> newClaim = ClaimList.INSTANCE.getClaimAt(world, pos);
+        Optional<AbstractClaim> oldClaim = ClaimList.getClaimAt(world, oldPos);
+        Optional<AbstractClaim> newClaim = ClaimList.getClaimAt(world, pos);
         return ((oldClaim.isEmpty() || oldClaim.get().hasPermission(null, PermissionManager.SCULK_CROSSES_BORDERS)) &&
-                (newClaim.isEmpty() || newClaim.get().hasPermission(null, PermissionManager.SCULK_CROSSES_BORDERS))) || newClaim.equals(oldClaim);
+            (newClaim.isEmpty() || newClaim.get().hasPermission(null, PermissionManager.SCULK_CROSSES_BORDERS))) || newClaim.equals(oldClaim);
     }
 
 }

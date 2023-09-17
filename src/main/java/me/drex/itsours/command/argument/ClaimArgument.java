@@ -16,18 +16,38 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
+import static me.drex.message.api.LocalizedMessage.localized;
 import static net.minecraft.server.command.CommandManager.argument;
 
 public class ClaimArgument {
 
-    public static final CommandSyntaxException INVALID_NAME = new SimpleCommandExceptionType(Text.translatable("text.itsours.argument.claim.invalidName")).create();
-    public static final CommandSyntaxException NAME_TAKEN = new SimpleCommandExceptionType(Text.translatable("text.itsours.argument.claim.nameTaken")).create();
-    public static final DynamicCommandExceptionType UNKNOWN_CLAIM = new DynamicCommandExceptionType(name -> Text.translatable("text.itsours.argument.claim.unknown", name));
+    public static final CommandSyntaxException INVALID_NAME = new SimpleCommandExceptionType(localized("text.itsours.argument.claim.invalidName")).create();
+    public static final CommandSyntaxException NAME_TAKEN = new SimpleCommandExceptionType(localized("text.itsours.argument.claim.duplicate")).create();
+    public static final DynamicCommandExceptionType UNKNOWN_CLAIM = new DynamicCommandExceptionType(name -> localized("text.itsours.argument.claim.notFound", Map.of("input", Text.literal(name.toString()))));
+    public static final SuggestionProvider<ServerCommandSource> ALL_CLAIMS_PROVIDER = (source, builder) -> {
+        final List<String> result = new ArrayList<>();
+        for (AbstractClaim claim : ClaimList.getClaims().stream().filter(claim -> claim instanceof Claim).toList()) {
+            result.add(claim.getFullName());
+            addSubzones(claim, builder.getRemaining(), result);
+        }
+        return CommandSource.suggestMatching(result, builder);
+    };
+    public static final SuggestionProvider<ServerCommandSource> OWN_CLAIMS_PROVIDER = (source, builder) -> {
+        final List<String> result = new ArrayList<>();
+        ServerPlayerEntity player = source.getSource().getPlayer();
+        ClaimList.getClaimAt(player)
+            .ifPresent(claim -> result.add(claim.getFullName()));
+        UUID uuid = player.getUuid();
+        if (uuid != null) {
+            for (Claim claim : ClaimList.getClaimsFrom(uuid)) {
+                result.add(claim.getFullName());
+                addSubzones(claim, builder.getRemaining(), result);
+            }
+        }
+        return CommandSource.suggestMatching(result, builder);
+    };
     private static final String DEFAULT_NAME = "claim";
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> ownClaims() {
@@ -52,33 +72,9 @@ public class ClaimArgument {
 
     public static AbstractClaim getClaim(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
         String string = StringArgumentType.getString(ctx, name);
-        Optional<? extends AbstractClaim> optional = ClaimList.INSTANCE.getClaim(string);
+        Optional<? extends AbstractClaim> optional = ClaimList.getClaim(string);
         return optional.orElseThrow(() -> UNKNOWN_CLAIM.create(string));
     }
-
-    public static final SuggestionProvider<ServerCommandSource> ALL_CLAIMS_PROVIDER = (source, builder) -> {
-        final List<String> result = new ArrayList<>();
-        for (AbstractClaim claim : ClaimList.INSTANCE.getClaims().stream().filter(claim -> claim instanceof Claim).toList()) {
-            result.add(claim.getFullName());
-            addSubzones(claim, builder.getRemaining(), result);
-        }
-        return CommandSource.suggestMatching(result, builder);
-    };
-
-    public static final SuggestionProvider<ServerCommandSource> OWN_CLAIMS_PROVIDER = (source, builder) -> {
-        final List<String> result = new ArrayList<>();
-        ServerPlayerEntity player = source.getSource().getPlayer();
-        ClaimList.INSTANCE.getClaimAt(player)
-                .ifPresent(claim -> result.add(claim.getFullName()));
-        UUID uuid = player.getUuid();
-        if (uuid != null) {
-            for (AbstractClaim claim : ClaimList.INSTANCE.getClaimsFrom(uuid).stream().filter(claim -> claim instanceof Claim).toList()) {
-                result.add(claim.getFullName());
-                addSubzones(claim, builder.getRemaining(), result);
-            }
-        }
-        return CommandSource.suggestMatching(result, builder);
-    };
 
     private static void addSubzones(AbstractClaim claim, String input, List<String> result) {
         if (input.startsWith(claim.getFullName())) {

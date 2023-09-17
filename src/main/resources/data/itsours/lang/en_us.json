@@ -1,41 +1,32 @@
 {
   "text.itsours.info.notProtected": "This %s is not protected, click this message to create a claim, to protect it.",
-
   "text.itsours.format.separator": " - ",
   "text.itsours.format.vec3i": "%d x %d x %d",
   "text.itsours.format.box": "Min %s Max %s",
   "text.itsours.format.claim.hover": "Click for more information!",
   "text.itsours.format.profile.hover": "Click to copy!",
   "text.itsours.format.profile.unknown": "(Unknown)",
-
   "text.itsours.gui.leftClick": "Left-click: %s",
   "text.itsours.gui.rightClick": "Right-click: %s",
   "text.itsours.gui.page": "Page %s / %s",
   "text.itsours.gui.sortMode": "Sort Mode",
   "text.itsours.gui.sortMode.ascending": "Ascending",
   "text.itsours.gui.sortMode.descending": "Descending",
-
   "text.itsours.gui.roles": "Player Role Manager",
   "text.itsours.gui.roles.description": "View, trust and distrust players",
   "text.itsours.gui.roles.trust": "Trust",
   "text.itsours.gui.roles.distrust": "Distrust",
   "text.itsours.gui.roles.permission": "View and change player claim permissions",
   "text.itsours.gui.roles.addTrust": "Trust Player",
-
   "text.itsours.gui.playerSelector": "Player Selector",
-
   "text.itsours.gui.permission": "Player Permission Manager",
-
   "text.itsours.gui.claimInfo": "Claim Info",
-
   "text.itsours.gui.settings": "Global Permission Manager",
   "text.itsours.gui.settings.description": "View and change claim wide settings",
-
   "text.itsours.gui.claimList.claims.title": "Claims from %s",
   "text.itsours.gui.claimList.subzones.title": "Subzones of %s",
   "text.itsours.gui.claimList.element.lore.subzones": "View Subzones",
   "text.itsours.gui.claimList.element.lore.info": "View Claim info",
-
   "text.itsours.permission.context.default": "Default",
   "text.itsours.permission.context.default.hover": "Default permissions - Default player permissions",
   "text.itsours.permission.context.ignore": "Ignore",
@@ -48,7 +39,6 @@
   "text.itsours.permission.context.personal.hover": "Personal setting - Personal Claim settings that apply to a specific player",
   "text.itsours.permission.context.role": "Role - %s",
   "text.itsours.permission.context.role.hover": "Roles - A list of personal setting",
-
   "text.itsours.permission.place.description": "Block placement (eg. placing stone)",
   "text.itsours.permission.mine.description": "Block mining (eg. mining dirt)",
   "text.itsours.permission.interact_block.description": "Right click blocks (eg. opening chest)",
@@ -64,11 +54,8 @@
   "text.itsours.setting.piston_crosses_borders.description": "Pistons pushing across claim borders",
   "text.itsours.setting.sculk_crosses_borders.description": "Sculk spreading across claim borders",
   "text.itsours.setting.mob_spawn.description": "Mob spawning (eg. zombie spawning)",
-
   "text.itsours.node.group.count.description": "Contains %d nodes",
-
   "text.itsours.permission.misc.elytra.description": "Elytra gliding",
-
   "text.itsours.permission.modify.trust.description": "Trust other players",
   "text.itsours.permission.modify.distrust.description": "Distrust other players",
   "text.itsours.permission.modify.size.description": "Expand / shrink claim",
@@ -77,7 +64,6 @@
   "text.itsours.permission.modify.setting.description": "Change / view claim settings",
   "text.itsours.permission.modify.subzone.description": "Create subzones",
   "text.itsours.permission.modify.check.description": "Use \"/claim check\" command",
-
   "text.itsours.argument.general.noPermission": "You don't have permission to do that!",
   "text.itsours.argument.claim.unknown": "Unknown claim %s!",
   "text.itsours.argument.claim.noClaimAtPos": "Couldn't find a claim at your position!",
@@ -88,27 +74,19 @@
   "text.itsours.argument.permission.forbidden": "You can't do that!",
   "text.itsours.argument.role.unknown": "Unknown role %s!",
   "text.itsours.argument.role.already_exists": "A role with that name already exists!",
-
   "text.itsours.commands.personalSetting.set": "Set personal setting %s for %s in %s to %s",
   "text.itsours.commands.personalSetting.check": "Personal setting %s in %s is set to %s for %s",
-
   "text.itsours.commands.globalSetting.set": "Set global setting %s in %s to %s",
   "text.itsours.commands.globalSetting.check": "Global setting %s in %s is set to %s",
-
   "text.itsours.commands.check.entry": " * %s %s -> %s",
   "text.itsours.commands.check.result": "Result: %s",
-
   "text.itsours.commands.fly.enabled": "Claim flight enabled",
   "text.itsours.commands.fly.disabled": "Claim flight disabled",
-
   "text.itsours.commands.select.enabled": "Claim select enabled",
   "text.itsours.commands.select.disabled": "Claim select disabled",
-
   "text.itsours.commands.ignore.enabled": "Claim ignore enabled",
   "text.itsours.commands.ignore.disabled": "Claim ignore disabled",
-
   "text.itsours.commands.info": "Claim Info:\n* Name: %s\n* Owner: %s\n* Size: %s\n* Depth: %s\n* Settings: %s\n* Position: %s\n* Dimension: %s",
-
   "text.itsours.commands.blocks": "%s has %d claim blocks left.",
   "text.itsours.commands.blocks.add": "Added %d claim blocks to %s.",
   "text.itsours.commands.blocks.set": "Set %s's claim blocks to %d.",
@@ -116,7 +94,6 @@
   "text.itsours.commands.blocks.give": "You gave %d claim blocks to %s.",
   "text.itsours.commands.blocks.give.received": "You received %d claim blocks from %s.",
   "text.itsours.commands.blocks.give.notEnough": "You don't have enough claim blocks.",
-
   "text.itsours.commands.roles": "Roles:",
   "text.itsours.commands.roles.entry": "%s %s %s",
   "text.itsours.commands.roles.entry.up": "↑",
@@ -124,9 +101,7 @@
   "text.itsours.commands.roles.add": "Successfully added role %s.",
   "text.itsours.commands.roles.set": "Set %s for %s to %s",
   "text.itsours.commands.roles.remove": "Successfully removed role %s.",
-
   "text.itsours.commands.setOwner": "Set owner of %s to %s",
-
   "text.itsours.commands.expand": "Claim %s was expanded by %d blocks into %s, for %d claim blocks",
   "text.itsours.commands.expand.missingClaimBlocks": "You don't have enough claim blocks, to expand that far. You need %d more claim blocks.",
   "text.itsours.commands.expand.outOfWorld": "You can't expand above / underneath the world!",
@@ -134,37 +109,29 @@
   "text.itsours.commands.expand.intersects": "Expanding would result in an intersection with the claim \"%s\"",
   "text.itsours.commands.shrink": "Claim %s was shrunk by %d blocks into %s, you receive %d claim blocks",
   "text.itsours.commands.shrink.toFar": "You can't shrink your claim that far!",
-
   "text.itsours.commands.create.selectFirst": "You need to select the corners of your claim with a golden shovel (left- / right click) first.",
   "text.itsours.commands.create.intersects": "Claim couldn't be created, because it would overlap with \"%s\"!",
   "text.itsours.commands.create.limit": "You can't have more than %s claims!",
-
   "text.itsours.commands.list": "%s's claims: %s",
   "text.itsours.commands.list.noClaims": "%s doesn't have any claims",
-
   "text.itsours.commands.message.enter": "Changed claim enter message to \"%s\"",
   "text.itsours.commands.message.enter.reset": "Reset claim enter message",
   "text.itsours.commands.message.leave": "Changed claim leave message to \"%s\"",
   "text.itsours.commands.message.leave.reset": "Reset claim leave message",
-
   "text.itsours.commands.remove.warning": "WARNING: This is not your claim...",
   "text.itsours.commands.remove.error": "You can't delete that claim!",
   "text.itsours.commands.remove.info": "Are you sure you want to delete the claim \"%s\"? %s",
   "text.itsours.commands.remove.info.confirm": "[I'M SURE!]",
   "text.itsours.commands.remove.info.confirm.hover": "Click to confirm!",
   "text.itsours.commands.remove.success": "Claim %s has been removed!",
-
   "text.itsours.commands.rename.success": "Claim %s has been renamed to %s!",
   "text.itsours.commands.rename.error": "You can't rename that claim!",
-
   "text.itsours.commands.trust": "Trusted %s to %s",
   "text.itsours.commands.trust.nothingChanged": "Nothing changed, %s is already trusted",
   "text.itsours.commands.distrust": "Distrusted %s from %s",
   "text.itsours.commands.distrust.nothingChanged": "Nothing changed, %s was not trusted",
-
   "text.itsours.commands.trusted": "Trusted:\n%s",
   "text.itsours.commands.trusted.nobody_trusted": "Nobody is trusted",
-
   "text.itsours.select.pos1": "Position #1 set to %1$s %3$s",
   "text.itsours.select.pos2": "Position #2 set to %1$s %3$s",
   "text.itsours.select.done": "Area selected! Click this message, to create a claim!",
@@ -185,10 +152,8 @@
   "text.itsours.gui.trust.item.hover.distrusted": "Distrusted",
   "text.itsours.gui.trust.item.hover.undefined": "Undefined",
   "text.itsours.gui.trust.item.hover.cycle": "Click to cycle!",
-
   "text.itsours.claim.enter": "Welcome to %s",
   "text.itsours.claim.leave": "You left %s",
-
   "text.itsours.action.disallowed.interact_item": "You can't use that item here.",
   "text.itsours.action.disallowed.interact_item_on_block": "You can't use that item on this block here.",
   "text.itsours.action.disallowed.interact_entity": "You can't interact with that entity here.",
@@ -198,7 +163,6 @@
   "text.itsours.action.disallowed.damage_player": "You can't pvp here.",
   "text.itsours.action.disallowed.damage_entity": "You can't damage that entity here.",
   "text.itsours.action.disallowed.misc.elytra": "You can't glide here.",
-
   "text.itsours.commands.exception.no_claim_at_pos": "Couldn't find a claim at your position!",
   "text.itsours.commands.exception.no_claim_with_name": "Couldn't find a claim with that name!",
   "text.itsours.commands.exception.no_permission": "You don't have permission to do that!",
@@ -219,5 +183,4 @@
   "text.itsours.commands.exception.remove.cant_delete": "You can't delete that claim!",
   "text.itsours.commands.exception.role.no_roles": "There is no role with that name!",
   "text.itsours.commands.exception.trust.self": "You can't trust yourself!"
-
 }

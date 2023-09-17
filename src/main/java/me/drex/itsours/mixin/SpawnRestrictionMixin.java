@@ -17,17 +17,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 
-// TODO:
 @Mixin(SpawnRestriction.class)
 public abstract class SpawnRestrictionMixin {
 
     @Inject(
-            method = "canSpawn",
-            at = @At("HEAD"),
-            cancellable = true
+        method = "canSpawn",
+        at = @At("HEAD"),
+        cancellable = true
     )
     private static <T extends Entity> void itsours$canMobsSpawn(EntityType<T> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random, CallbackInfoReturnable<Boolean> cir) {
-        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(world.toServerWorld(), pos);
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt(world.toServerWorld(), pos);
         if (claim.isPresent() && !claim.get().hasPermission(null, PermissionManager.MOB_SPAWN)) {
             cir.setReturnValue(false);
         }

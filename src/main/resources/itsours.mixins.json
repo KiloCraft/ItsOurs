@@ -25,6 +25,7 @@
     "SculkSpreadManagerCursorMixin",
     "ServerPlayerEntityMixin",
     "ServerPlayerInteractionManagerMixin",
+    "SpawnRestrictionMixin",
     "TurtleEggBlockMixin"
   ],
   "injectors": {

@@ -1,23 +1,25 @@
 package me.drex.itsours.claim.permission.node;
 
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.text.MutableText;
+import java.util.LinkedList;
 
-import java.util.List;
-import java.util.function.Predicate;
+import static me.drex.itsours.ItsOurs.LOGGER;
 
-public class RootNode extends SingleNode {
+public class RootNode extends AbstractNode {
 
     private final String name;
 
-    public RootNode(String id, MutableText description, List<Node> nodes, ItemConvertible icon, Predicate<ChangeContext> changePredicate, String name) {
-        super(id, description, nodes, icon, changePredicate);
+    public RootNode(String name) {
+        super(new LinkedList<>(), context -> true);
         this.name = name;
     }
 
-    public void addNode(Node node) {
-        this.getNodes().add(node);
-        this.getNodesMap().put(node.getId(), node);
+    public void registerNode(ChildNode node) {
+        if (id2NodeMap.containsKey(node.getId())) {
+            LOGGER.warn("Found duplicate node {} in root {}", node.getId(), this.getName());
+        } else {
+            this.nodes.add(node);
+            this.id2NodeMap.put(node.getId(), node);
+        }
     }
 
     @Override

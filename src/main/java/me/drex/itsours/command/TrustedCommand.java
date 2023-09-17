@@ -2,19 +2,12 @@ package me.drex.itsours.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.permission.holder.PlayerRoleHolder;
-import me.drex.itsours.claim.permission.roles.Role;
-import me.drex.itsours.claim.permission.roles.RoleManager;
+import me.drex.itsours.claim.roles.ClaimRoleManager;
+import me.drex.itsours.claim.roles.Role;
 import me.drex.itsours.command.argument.ClaimArgument;
-import me.drex.itsours.util.Components;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import static me.drex.message.api.LocalizedMessage.localized;
 
 public class TrustedCommand extends AbstractCommand {
 
@@ -27,26 +20,20 @@ public class TrustedCommand extends AbstractCommand {
     @Override
     protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         literal.then(
-                        ClaimArgument.ownClaims()
-                                .executes(ctx -> executeTrusted(ctx.getSource(), ClaimArgument.getClaim(ctx)))
-                )
-                .executes(ctx -> executeTrusted(ctx.getSource(), getClaim(ctx.getSource().getPlayer())));
+                ClaimArgument.ownClaims()
+                    .executes(ctx -> executeTrusted(ctx.getSource(), ClaimArgument.getClaim(ctx)))
+            )
+            .executes(ctx -> executeTrusted(ctx.getSource(), getClaim(ctx.getSource().getPlayer())));
     }
 
     private int executeTrusted(ServerCommandSource src, AbstractClaim claim) {
-        Map<UUID, PlayerRoleHolder> roles = claim.getPermissionHolder().getRoles();
-        List<UUID> trusted = new LinkedList<>();
-        for (Map.Entry<UUID, PlayerRoleHolder> entry : roles.entrySet()) {
-            Role trustedRole = RoleManager.INSTANCE.getRole(RoleManager.TRUSTED_ID);
-            if (entry.getValue().getRoles().contains(trustedRole)) {
-                trusted.add(entry.getKey());
-            }
-        }
+        Role trusted = claim.getRoleManager().getRole(ClaimRoleManager.TRUSTED);
 
-        if (trusted.isEmpty()) src.sendError(Text.translatable("text.itsours.commands.trusted.nobody_trusted"));
-        else src.sendFeedback(() -> Text.translatable("text.itsours.commands.trusted",
-                Texts.join(trusted, Components::toText)
-        ), false);
+        if (trusted.players().isEmpty()) {
+            src.sendError(localized("text.itsours.commands.trusted.empty"));
+        } else {
+            src.sendFeedback(() -> localized("text.itsours.commands.trusted", claim.placeholders(src.getServer())), false);
+        }
         return 1;
     }
 

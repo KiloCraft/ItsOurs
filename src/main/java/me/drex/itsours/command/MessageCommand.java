@@ -4,17 +4,19 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.util.Modify;
 import me.drex.itsours.command.argument.ClaimArgument;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 import java.util.List;
+import java.util.Map;
 
+import static me.drex.message.api.LocalizedMessage.localized;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -32,23 +34,23 @@ public class MessageCommand extends AbstractCommand {
     @Override
     protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         literal.then(
-                ClaimArgument.ownClaims()
+            ClaimArgument.ownClaims()
+                .then(
+                    literal("enter")
                         .then(
-                                literal("enter")
-                                        .then(
-                                                MESSAGE_ARGUMENT
-                                                        .executes(ctx -> execute(ctx.getSource(), ClaimArgument.getClaim(ctx), StringArgumentType.getString(ctx, "message"), true))
-                                        )
+                            MESSAGE_ARGUMENT
+                                .executes(ctx -> execute(ctx.getSource(), ClaimArgument.getClaim(ctx), StringArgumentType.getString(ctx, "message"), true))
                         )
+                )
+                .then(
+                    literal("leave")
                         .then(
-                                literal("leave")
-                                        .then(
-                                                MESSAGE_ARGUMENT
-                                                        .executes(ctx -> execute(ctx.getSource(), ClaimArgument.getClaim(ctx), StringArgumentType.getString(ctx, "message"), false))
-                                        )
+                            MESSAGE_ARGUMENT
+                                .executes(ctx -> execute(ctx.getSource(), ClaimArgument.getClaim(ctx), StringArgumentType.getString(ctx, "message"), false))
+                        )
 
-                        )
-        ).requires(src -> ItsOurs.hasPermission(src, "message"));
+                )
+        ).requires(src -> Permissions.check(src, "itsours.message", 2));
     }
 
     private int execute(ServerCommandSource src, AbstractClaim claim, String message, boolean enter) throws CommandSyntaxException {
@@ -62,11 +64,11 @@ public class MessageCommand extends AbstractCommand {
         }
         String id = enter ? "enter" : "leave";
         if (reset) {
-            src.sendFeedback(() -> Text.translatable(String.format("text.itsours.commands.message.%s.reset", id)), false);
+            src.sendFeedback(() -> localized(String.format("text.itsours.commands.message.%s.reset", id)), false);
             return 0;
         } else {
             String finalMessage = message;
-            src.sendFeedback(() -> Text.translatable(String.format("text.itsours.commands.message.%s", id), finalMessage), false);
+            src.sendFeedback(() -> localized(String.format("text.itsours.commands.message.%s", id), Map.of("message", Text.literal(finalMessage))), false);
             return 1;
         }
     }

@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id 'fabric-loom' version '1.1-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -18,7 +18,6 @@ repositories {
 }
 
 dependencies {
-    //to change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
@@ -43,10 +42,8 @@ dependencies {
     modImplementation include("me.lucko:fabric-permissions-api:${project.permission_version}")
     modImplementation include("eu.pb4:sgui:${project.sgui_version}")
     modImplementation include("eu.pb4:common-protection-api:${project.common_protection_api_version}")
-    modImplementation include("xyz.nucleoid:server-translations-api:${project.translations_version}")
-
-    implementation "org.jetbrains:annotations:${project.jetbrains_annotations_version}"
-
+    modImplementation include("eu.pb4:placeholder-api:${project.placeholder_api_version}")
+    modImplementation include("com.github.DrexHD:message-api:${project.message_api_version}")
 }
 
 processResources {
@@ -89,4 +86,11 @@ publishing {
     }
 
     repositories {}
+}
+
+afterEvaluate {
+    loom.runs.configureEach {
+        // https://fabricmc.net/wiki/tutorial:mixin_hotswaps
+        vmArg "-javaagent:${ configurations.compileClasspath.find { it.name.contains("sponge-mixin") } }"
+    }
 }

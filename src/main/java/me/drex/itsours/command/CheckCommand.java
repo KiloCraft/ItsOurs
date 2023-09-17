@@ -8,17 +8,18 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.util.Modify;
-import me.drex.itsours.claim.permission.visitor.PermissionVisitorImpl;
+import me.drex.itsours.claim.permission.visitor.Entry;
+import me.drex.itsours.claim.permission.visitor.PermissionVisitor;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.command.argument.PermissionArgument;
+import me.drex.itsours.util.PlaceholderUtil;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import static me.drex.message.api.LocalizedMessage.localized;
 import static net.minecraft.server.command.CommandManager.argument;
 
 public class CheckCommand extends AbstractCommand {
@@ -32,10 +33,10 @@ public class CheckCommand extends AbstractCommand {
     @Override
     protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
         RequiredArgumentBuilder<ServerCommandSource, String> claim = ClaimArgument.ownClaims().then(
-                argument("targets", GameProfileArgumentType.gameProfile()).then(
-                        PermissionArgument.permission()
-                                .executes(ctx -> execute(ctx.getSource(), ClaimArgument.getClaim(ctx), GameProfileArgumentType.getProfileArgument(ctx, "targets"), PermissionArgument.getPermission(ctx)))
-                )
+            argument("targets", GameProfileArgumentType.gameProfile()).then(
+                PermissionArgument.permission()
+                    .executes(ctx -> execute(ctx.getSource(), ClaimArgument.getClaim(ctx), GameProfileArgumentType.getProfileArgument(ctx, "targets"), PermissionArgument.getPermission(ctx)))
+            )
         );
         literal.then(claim);
     }
@@ -43,18 +44,23 @@ public class CheckCommand extends AbstractCommand {
     private int execute(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Permission permission) throws CommandSyntaxException {
         validatePermission(src, claim, PermissionManager.MODIFY, Modify.CHECK.node());
         for (GameProfile target : targets) {
-            PermissionVisitorImpl visitor = new PermissionVisitorImpl();
+            PermissionVisitor visitor = PermissionVisitor.create();
             claim.visit(target.getId(), permission, visitor);
-            List<PermissionVisitorImpl.Entry> entries = visitor.getEntries();
-            AbstractClaim currentClaim = null;
-            for (PermissionVisitorImpl.Entry entry : entries) {
-                if (currentClaim != entry.claim()) {
-                    currentClaim = entry.claim();
-                    src.sendFeedback(() -> Text.literal(entry.claim().getFullName()).formatted(Formatting.GRAY), false);
-                }
-                src.sendFeedback(() -> Text.translatable("text.itsours.commands.check.entry", entry.context().toText(), entry.permission().asString(), entry.value().format()), false);
-            }
-            src.sendFeedback(() -> Text.translatable("text.itsours.commands.check.result", visitor.getResult().format()), false);
+            LinkedHashMap<AbstractClaim, List<Entry>> map = visitor.getEntries().stream()
+                .collect(Collectors.groupingBy(Entry::claim, LinkedHashMap::new, Collectors.toList()));
+            src.sendFeedback(() -> localized("text.itsours.commands.check", Map.of(
+                "list", PlaceholderUtil.list(map.entrySet(), claimCheckResult -> {
+                    return PlaceholderUtil.mergePlaceholderMaps(
+                        claimCheckResult.getKey().placeholders(src.getServer()),
+                        new HashMap<>() {{
+                            put("list", PlaceholderUtil.list(claimCheckResult.getValue(), entry -> {
+                                return entry.placeholders(src.getServer());
+                            }, "text.itsours.commands.check.list.list"));
+                        }}
+                    );
+                }, "text.itsours.commands.check.list"),
+                "value", visitor.getResult().format()
+            )), false);
         }
         return 1;
     }

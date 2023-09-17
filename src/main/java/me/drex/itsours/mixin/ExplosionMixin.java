@@ -30,14 +30,14 @@ public abstract class ExplosionMixin {
     private ObjectArrayList<BlockPos> affectedBlocks;
 
     @Inject(
-            method = "affectWorld",
-            at = @At("HEAD")
+        method = "affectWorld",
+        at = @At("HEAD")
     )
     public void itsours$canExplosionAffectBlock(boolean bl, CallbackInfo ci) {
         ListIterator<BlockPos> iterator = this.affectedBlocks.listIterator();
         while (iterator.hasNext()) {
             BlockPos blockPos = iterator.next();
-            Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) this.world, blockPos);
+            Optional<AbstractClaim> claim = ClaimList.getClaimAt((ServerWorld) this.world, blockPos);
             if (claim.isPresent() && !claim.get().hasPermission(null, PermissionManager.EXPLOSIONS)) {
                 iterator.remove();
             }

@@ -2,11 +2,9 @@ package me.drex.itsours.mixin;
 
 import com.mojang.authlib.GameProfile;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.data.DataManager;
 import me.drex.itsours.user.ClaimPlayer;
-import me.drex.itsours.user.PlayerList;
-import me.drex.itsours.user.Settings;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -19,12 +17,6 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer {
 
-    @Shadow public abstract void sendMessage(Text message);
-
-    public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
-        super(world, pos, yaw, profile);
-    }
-
     @Nullable
     private BlockPos firstPos = null;
     @Nullable
@@ -32,6 +24,13 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     private AbstractClaim lastShowClaim;
     private BlockPos lastShowPos;
     private ServerWorld lastShowWorld;
+
+    public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
+        super(world, pos, yaw, profile);
+    }
+
+    @Shadow
+    public abstract void sendMessage(Text message);
 
     @Override
     public void setLastShow(AbstractClaim claim, BlockPos pos, ServerWorld world) {
@@ -64,7 +63,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     public void resetSelection() {
         this.firstPos = null;
         this.secondPos = null;
-        PlayerList.set(uuid, Settings.SELECT, false);
+        DataManager.getUserData(getUuid()).setSelect(false);
     }
 
     @Override
@@ -73,8 +72,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     }
 
     @Override
-    public void setFirstPosition(BlockPos pos) {
-        firstPos = pos;
+    public void setSecondPosition(BlockPos pos) {
+        secondPos = pos;
     }
 
     @Override
@@ -83,8 +82,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     }
 
     @Override
-    public void setSecondPosition(BlockPos pos) {
-        secondPos = pos;
+    public void setFirstPosition(BlockPos pos) {
+        firstPos = pos;
     }
 
 }

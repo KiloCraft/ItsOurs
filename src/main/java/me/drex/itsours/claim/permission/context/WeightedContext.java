@@ -6,9 +6,9 @@ import org.jetbrains.annotations.NotNull;
 public interface WeightedContext extends Comparable<WeightedContext> {
 
     long DEFAULT = 1;
-    long SETTING = 2;
+    long GLOBAL = 2;
     long ROLE = 3;
-    long PERMISSION = 4;
+    long PERSONAL = 4;
     long OWNER = 5;
     long IGNORE = Long.MAX_VALUE;
 

@@ -1,30 +1,37 @@
 package me.drex.itsours.claim.permission.util;
 
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+
+import static me.drex.message.api.LocalizedMessage.localized;
 
 public enum Value {
-    ALLOW(true, "allow", "text.itsours.value.allow", Formatting.GREEN),
-    DENY(false, "deny", "text.itsours.value.deny", Formatting.RED),
-    UNSET(false, "unset", "text.itsours.value.unset", Formatting.GRAY);
+    ALLOW(true, "allow", "text.itsours.value.allow"),
+    DENY(false, "deny", "text.itsours.value.deny"),
+    UNSET(false, "unset", "text.itsours.value.unset");
 
     public final boolean value;
     public final String literal;
     public final String translationId;
-    public final Formatting formatting;
 
-    Value(boolean value, String literal, String translationId, Formatting formatting) {
+    Value(boolean value, String literal, String translationId) {
         this.value = value;
         this.literal = literal;
         this.translationId = translationId;
-        this.formatting = formatting;
     }
 
     public static Value of(boolean value) {
         return value ? ALLOW : DENY;
     }
 
+    public Value next() {
+        return switch (this) {
+            case ALLOW -> DENY;
+            case DENY -> UNSET;
+            case UNSET -> ALLOW;
+        };
+    }
+
     public Text format() {
-        return Text.translatable(this.translationId).formatted(formatting);
+        return localized(this.translationId);
     }
 }

@@ -10,14 +10,14 @@ import net.minecraft.item.BoatItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Optional;
+
+import static me.drex.message.api.LocalizedMessage.localized;
 
 @Mixin(BoatItem.class)
 public abstract class BoatItemMixin extends Item {
@@ -27,18 +27,18 @@ public abstract class BoatItemMixin extends Item {
     }
 
     @ModifyExpressionValue(
-            method = "use",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/item/BoatItem;raycast(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/RaycastContext$FluidHandling;)Lnet/minecraft/util/hit/BlockHitResult;"
-            )
+        method = "use",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/item/BoatItem;raycast(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/RaycastContext$FluidHandling;)Lnet/minecraft/util/hit/BlockHitResult;"
+        )
     )
     private BlockHitResult itsours$canUseBoat(BlockHitResult original, World world, PlayerEntity player) {
-        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt((ServerWorld) world, original.getBlockPos());
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt((ServerWorld) world, original.getBlockPos());
         if (claim.isEmpty())
             return original;
-        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.USE_ITEM, Node.dummy(Registries.ITEM, this))) {
-            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_item").formatted(Formatting.RED), true);
+        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.USE_ITEM, Node.registry(Registries.ITEM, this))) {
+            player.sendMessage(localized("text.itsours.action.disallowed.interact_item"), true);
             return BlockHitResult.createMissed(original.getPos(), original.getSide(), original.getBlockPos());
         }
         return original;

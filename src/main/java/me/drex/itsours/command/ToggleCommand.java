@@ -2,22 +2,29 @@ package me.drex.itsours.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.user.PlayerList;
-import me.drex.itsours.user.Setting;
+import me.drex.itsours.data.DataManager;
+import me.drex.itsours.user.PlayerData;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class ToggleCommand extends AbstractCommand {
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
-    private final Setting<Boolean> setting;
+import static me.drex.message.api.LocalizedMessage.localized;
+
+public class ToggleCommand extends AbstractCommand {
+
+    public static final ToggleCommand SELECT = new ToggleCommand("select", PlayerData::select, PlayerData::setSelect, "text.itsours.commands.select");
+    public static final ToggleCommand IGNORE = new ToggleCommand("ignore", PlayerData::ignore, PlayerData::setIgnore, "text.itsours.commands.ignore");
+    private final BiConsumer<PlayerData, Boolean> dataSetter;
     private final String translationId;
+    private Function<PlayerData, Boolean> dataGetter;
 
-    public ToggleCommand(@NotNull String literal, Setting<Boolean> setting, String translationId) {
+    public ToggleCommand(@NotNull String literal, Function<PlayerData, Boolean> dataGetter, BiConsumer<PlayerData, Boolean> dataSetter, String translationId) {
         super(literal);
-        this.setting = setting;
+        this.dataGetter = dataGetter;
+        this.dataSetter = dataSetter;
         this.translationId = translationId;
     }
 
@@ -27,13 +34,14 @@ public abstract class ToggleCommand extends AbstractCommand {
     }
 
     private int executeToggle(ServerCommandSource src) throws CommandSyntaxException {
-        ServerPlayerEntity player = src.getPlayer();
-        boolean newValue = !PlayerList.get(player.getUuid(), setting);
-        PlayerList.set(player.getUuid(), setting, newValue);
+        ServerPlayerEntity player = src.getPlayerOrThrow();
+        PlayerData userData = DataManager.getUserData(player.getUuid());
+        boolean newValue = !dataGetter.apply(userData);
+        dataSetter.accept(userData, newValue);
         if (newValue) {
-            src.sendFeedback(() -> Text.translatable(translationId + ".enabled").formatted(Formatting.GREEN), false);
+            src.sendFeedback(() -> localized(translationId + ".enabled"), false);
         } else {
-            src.sendFeedback(() -> Text.translatable(translationId + ".disabled").formatted(Formatting.RED), false);
+            src.sendFeedback(() -> localized(translationId + ".disabled"), false);
         }
         afterToggle(src, newValue);
         return 1;

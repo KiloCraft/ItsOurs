@@ -21,16 +21,16 @@ public abstract class SculkSpreadManagerCursorMixin {
     /**
      * Prevents sculk charge from crossing claim borders.
      * Sculk veins may still generate on the border of claims.
-    * */
+     */
     @Inject(method = "getSpreadPos", at = @At("TAIL"), cancellable = true)
     private static void itsours$dontSpreadCrossBorder(WorldAccess access, BlockPos oldPos, Random random, CallbackInfoReturnable<BlockPos> cir) {
         BlockPos returnValue = cir.getReturnValue();
         if (returnValue == null) return;
         if (!(access instanceof ServerWorld world)) return;
-        Optional<AbstractClaim> oldClaim = ClaimList.INSTANCE.getClaimAt(world, oldPos);
-        Optional<AbstractClaim> newClaim = ClaimList.INSTANCE.getClaimAt(world, returnValue);
+        Optional<AbstractClaim> oldClaim = ClaimList.getClaimAt(world, oldPos);
+        Optional<AbstractClaim> newClaim = ClaimList.getClaimAt(world, returnValue);
         if (((oldClaim.isPresent() && !oldClaim.get().hasPermission(null, PermissionManager.SCULK_CROSSES_BORDERS)) ||
-                (newClaim.isPresent() && !newClaim.get().hasPermission(null, PermissionManager.SCULK_CROSSES_BORDERS))) && !newClaim.equals(oldClaim)) {
+            (newClaim.isPresent() && !newClaim.get().hasPermission(null, PermissionManager.SCULK_CROSSES_BORDERS))) && !newClaim.equals(oldClaim)) {
             cir.setReturnValue(null);
         }
     }

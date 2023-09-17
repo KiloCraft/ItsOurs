@@ -9,29 +9,29 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.screen.LecternScreenHandler;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Optional;
 
+import static me.drex.message.api.LocalizedMessage.localized;
+
 @Mixin(LecternScreenHandler.class)
 public abstract class LecternScreenHandlerMixin {
 
     @ModifyExpressionValue(
-            method = "onButtonClick",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/entity/player/PlayerEntity;canModifyBlocks()Z"
-            )
+        method = "onButtonClick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/entity/player/PlayerEntity;canModifyBlocks()Z"
+        )
     )
     public boolean itsours$canTakeBook(boolean original, PlayerEntity player) {
-        Optional<AbstractClaim> claim = ClaimList.INSTANCE.getClaimAt(player);
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt(player);
         if (claim.isEmpty())
             return original;
-        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.MINE, Node.dummy(Registries.BLOCK, Blocks.LECTERN))) {
-            player.sendMessage(Text.translatable("text.itsours.action.disallowed.interact_block").formatted(Formatting.RED), true);
+        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.MINE, Node.registry(Registries.BLOCK, Blocks.LECTERN))) {
+            player.sendMessage(localized("text.itsours.action.disallowed.interact_block"), true);
             return false;
         }
         return original;

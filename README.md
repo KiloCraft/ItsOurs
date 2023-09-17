@@ -1,7 +1,3 @@
 # ItsOurs
-## About
-ItsOurs is the second complete rewrite of https://github.com/DrexHD/ItsMine (a claiming mod for Kilocraft)
 
-## Setup
-Run `gradlew build` and grab the jar from `\build\libs`
-## Use at your own risk!!!
+ItsOurs is a claim / region mod. It offers many in-game features to protect / modify areas as you wish

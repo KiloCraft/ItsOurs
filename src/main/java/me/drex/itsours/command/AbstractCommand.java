@@ -5,17 +5,18 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
-import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.permission.node.ChildNode;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
+
+import static me.drex.message.api.LocalizedMessage.localized;
 
 public abstract class AbstractCommand {
 
-    public static final CommandSyntaxException NO_CLAIM_AT_POS = new SimpleCommandExceptionType(Text.translatable("text.itsours.argument.claim.noClaimAtPos")).create();
-    public static final CommandSyntaxException NO_PERMISSION = new SimpleCommandExceptionType(Text.translatable("text.itsours.argument.general.noPermission")).create();
+    public static final CommandSyntaxException NO_CLAIM_AT_POS = new SimpleCommandExceptionType(localized("text.itsours.argument.claim.notFoundPos")).create();
+    public static final CommandSyntaxException MISSING_PERMISSION = new SimpleCommandExceptionType(localized("text.itsours.argument.general.missingPermission")).create();
 
     protected final String literal;
 
@@ -36,14 +37,14 @@ public abstract class AbstractCommand {
     }
 
     public AbstractClaim getClaim(Entity entity) throws CommandSyntaxException {
-        return ClaimList.INSTANCE.getClaimAt(entity).orElseThrow(() -> NO_CLAIM_AT_POS);
+        return ClaimList.getClaimAt(entity).orElseThrow(() -> NO_CLAIM_AT_POS);
     }
 
-    public void validatePermission(ServerCommandSource src, AbstractClaim claim, Node... nodes) throws CommandSyntaxException {
+    public void validatePermission(ServerCommandSource src, AbstractClaim claim, ChildNode... nodes) throws CommandSyntaxException {
         // Console
         if (src.getEntity() == null) return;
         // Throw exception if player doesn't have requested permissions
-        if (!claim.hasPermission(src.getPlayer().getUuid(), nodes)) throw NO_PERMISSION;
+        if (!claim.hasPermission(src.getPlayerOrThrow().getUuid(), nodes)) throw MISSING_PERMISSION;
     }
 
 }

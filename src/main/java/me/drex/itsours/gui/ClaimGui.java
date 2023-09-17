@@ -1,64 +1,63 @@
 package me.drex.itsours.gui;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import eu.pb4.sgui.api.elements.GuiElement;
-import eu.pb4.sgui.api.elements.GuiElementBuilder;
-import eu.pb4.sgui.api.elements.GuiElementInterface;
-import eu.pb4.sgui.api.gui.SimpleGui;
-import net.minecraft.command.argument.GameProfileArgumentType;
-import net.minecraft.item.ItemStack;
+import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.command.RemoveCommand;
+import me.drex.itsours.command.RenameCommand;
+import me.drex.itsours.gui.claims.ClaimListGui;
+import me.drex.itsours.gui.permission.SettingsGui;
+import me.drex.itsours.gui.util.ConfirmationGui;
+import me.drex.itsours.gui.util.ValidStringInputGui;
+import me.drex.itsours.util.PlaceholderUtil;
 import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Map;
 
-public class ClaimGui extends SimpleGui {
+import static me.drex.message.api.LocalizedMessage.localized;
 
-    private final SimpleGui previousGui;
+public class ClaimGui extends BaseGui {
 
-    public static final GuiElement EMPTY = new GuiElement(ItemStack.EMPTY, GuiElementInterface.EMPTY_CALLBACK);
-    public static final GuiElement FILLER = new GuiElementBuilder(Items.WHITE_STAINED_GLASS_PANE)
-            .setName(Text.empty())
-            .hideFlags().build();
+    private final AbstractClaim claim;
 
-    /**
-     * Constructs a new simple container gui for the supplied player.
-     *
-     * @param type   the screen handler that the client should display
-     * @param player the player to server this gui to
-     */
-    public ClaimGui(ScreenHandlerType<?> type, ServerPlayerEntity player, @Nullable SimpleGui previousGui) {
-        super(type, player, false);
-        this.previousGui = previousGui;
+    public ClaimGui(GuiContext context, AbstractClaim claim) {
+        super(context, ScreenHandlerType.GENERIC_9X1);
+        this.claim = claim;
     }
 
-    protected Collection<GameProfile> asCommandTarget(String name) throws CommandSyntaxException {
-        return Collections.singleton(player.server.getUserCache().findByName(name).orElseThrow(GameProfileArgumentType.UNKNOWN_PLAYER_EXCEPTION::create));
-    }
-
-    public static void playClickSound(ServerPlayerEntity player) {
-        player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 1, 1);
-    }
-
-    public static void playFailSound(ServerPlayerEntity player) {
-        player.playSound(SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 1, 1);
-    }
-
-    /**
-     * Executes when the screen is closed
-     */
     @Override
-    public void onClose() {
-        if (previousGui != null) {
-            previousGui.close(true);
-            previousGui.open();
+    public void build() {
+        this.setTitle(localized("text.itsours.gui.claim.title", claim.placeholders(context.server())));
+        this.setSlot(0, switchElement(Items.REDSTONE, "claim.settings", new SettingsGui(context, claim, Permission.permission())));
+        this.setSlot(1, switchElement(Items.PLAYER_HEAD, "claim.playermanager", new PlayerManagerGui(context, claim)));
+        this.setSlot(2, switchElement(Items.HOPPER, "claim.rolemanager", new RoleManagerGui(context, claim)));
+        this.setSlot(6, switchElement(Items.NAME_TAG, "claim.rename", new ValidStringInputGui(context, claim.getName(), claim::canRename, input -> {
+            switchUi(new ConfirmationGui(context, "text.itsours.gui.claim.rename.confirm", PlaceholderUtil.mergePlaceholderMaps(
+                claim.placeholders(context.server()),
+                Map.of("input", Text.literal(input))
+            ), () -> rename(input)));
+        })));
+        this.setSlot(7, switchElement(Items.REDSTONE_BLOCK, "claim.remove", new ConfirmationGui(context, "text.itsours.gui.claim.remove.confirm", claim.placeholders(context.server()), () -> {
+            try {
+                while (!context.guiStack.isEmpty() && !(context.guiStack.peek() instanceof ClaimListGui<?>)) {
+                    context.guiStack.pop();
+                }
+                RemoveCommand.INSTANCE.executeRemoveConfirmed(context.player.getCommandSource(), claim);
+            } catch (CommandSyntaxException e) {
+                fail();
+            }
+        })));
+    }
+
+    private void rename(String name) {
+        try {
+            // Go back to the previous gui
+            context.guiStack.pop();
+            RenameCommand.INSTANCE.executeRename(context.player.getCommandSource(), claim, name);
+        } catch (CommandSyntaxException ignored) {
+            fail();
         }
     }
 
