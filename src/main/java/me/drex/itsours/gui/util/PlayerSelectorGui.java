@@ -7,6 +7,7 @@ import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class PlayerSelectorGui extends StringInputGui {
@@ -24,7 +25,7 @@ public class PlayerSelectorGui extends StringInputGui {
             new GuiElementBuilder(Items.PLAYER_HEAD)
                 .setName(Text.literal(input))
                 // Name must be non-empty, so we default to "DrexHD"
-                .setSkullOwner(new GameProfile(null, StringUtils.isBlank(input) ? "DrexHD" : input), null)
+                .setSkullOwner(new GameProfile(UUID.randomUUID(), StringUtils.isBlank(input) ? "DrexHD" : input), null)
                 .setCallback(() -> {
                     if (!StringUtils.isBlank(input)) {
                         consumer.accept(input);

@@ -88,7 +88,7 @@ public class PlayerManagerGui extends PageGui<UUID> {
     @Override
     public CompletableFuture<GuiElementBuilder> guiElementFuture(UUID uuid) {
         return CompletableFuture.supplyAsync(() -> guiElement(uuid)
-            .setSkullOwner(new GameProfile(uuid, null), context.server()), Util.getMainWorkerExecutor());
+            .setSkullOwner(new GameProfile(uuid, uuid.toString()), context.server()), Util.getMainWorkerExecutor());
     }
 
     @Override

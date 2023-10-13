@@ -56,7 +56,7 @@ public class PersonalStorageGui extends PermissionStorageGui {
     @Override
     boolean setValue(Permission permission, Value value) {
         try {
-            PermissionsCommand.INSTANCE.executeSet(context.player.getCommandSource().withSilent(), claim, Collections.singleton(new GameProfile(player, null)), permission, value);
+            PermissionsCommand.INSTANCE.executeSet(context.player.getCommandSource().withSilent(), claim, Collections.singleton(new GameProfile(player, player.toString())), permission, value);
             return true;
         } catch (CommandSyntaxException e) {
             return false;

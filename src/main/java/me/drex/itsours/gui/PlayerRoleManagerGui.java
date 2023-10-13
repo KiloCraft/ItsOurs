@@ -58,13 +58,13 @@ public class PlayerRoleManagerGui extends PageGui<String> {
                 boolean success = false;
                 if (hasRole) {
                     try {
-                        RolesCommand.INSTANCE.leaveRole(context.player.getCommandSource().withSilent(), claim, roleId, Collections.singleton(new GameProfile(player, null)));
+                        RolesCommand.INSTANCE.leaveRole(context.player.getCommandSource().withSilent(), claim, roleId, Collections.singleton(new GameProfile(player, player.toString())));
                         success = true;
                     } catch (CommandSyntaxException ignored) {
                     }
                 } else {
                     try {
-                        RolesCommand.INSTANCE.joinRole(context.player.getCommandSource().withSilent(), claim, roleId, Collections.singleton(new GameProfile(player, null)));
+                        RolesCommand.INSTANCE.joinRole(context.player.getCommandSource().withSilent(), claim, roleId, Collections.singleton(new GameProfile(player, player.toString())));
                         success = true;
                     } catch (CommandSyntaxException ignored) {
                     }
