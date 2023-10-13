@@ -18,7 +18,7 @@ import static net.minecraft.text.Text.literal;
 public class PlaceholderUtil {
 
     public static Map<String, Text> uuid(String prefix, UUID uuid, MinecraftServer server) {
-        return gameProfile(prefix, server.getUserCache().getByUuid(uuid).orElse(new GameProfile(uuid, null)));
+        return gameProfile(prefix, server.getUserCache().getByUuid(uuid).orElse(new GameProfile(uuid, uuid.toString())));
     }
 
     public static Map<String, Text> gameProfile(String prefix, GameProfile profile) {

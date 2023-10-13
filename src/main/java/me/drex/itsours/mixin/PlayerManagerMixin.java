@@ -6,6 +6,7 @@ import me.drex.itsours.data.DataManager;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
+import net.minecraft.server.network.ConnectedClientData;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,7 +31,7 @@ public abstract class PlayerManagerMixin {
             target = "Lnet/minecraft/server/network/ServerPlayerEntity;onSpawn()V"
         )
     )
-    public void itsours$onPlayerConnect(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+    public void itsours$onPlayerConnect(ClientConnection connection, ServerPlayerEntity player, ConnectedClientData clientData, CallbackInfo ci) {
         Optional<AbstractClaim> optional = ClaimList.getClaimAt(player);
         optional.ifPresent(claim -> claim.onEnter(null, player));
     }
