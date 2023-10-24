@@ -1,5 +1,6 @@
 package me.drex.itsours.claim;
 
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.claim.permission.context.*;
 import me.drex.itsours.claim.permission.holder.PermissionData;
@@ -12,7 +13,6 @@ import me.drex.itsours.claim.util.ClaimMessages;
 import me.drex.itsours.data.DataManager;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.ClaimBox;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -144,7 +144,7 @@ public abstract class AbstractClaim {
     }
 
     public void onEnter(@Nullable AbstractClaim previousClaim, ServerPlayerEntity player) {
-        boolean hasPermission = Permissions.check(player.getCommandSource(), "itsours.fly", 2) && player.getWorld().getRegistryKey().equals(World.OVERWORLD);
+        boolean hasPermission = ItsOurs.checkPermission(player.getCommandSource(), "itsours.fly", 2) && player.getWorld().getRegistryKey().equals(World.OVERWORLD);
         boolean cachedFlying = hasPermission && player.getAbilities().flying;
         // Update abilities for respective gamemode
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());

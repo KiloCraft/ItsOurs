@@ -3,10 +3,10 @@ package me.drex.itsours.command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.util.PlaceholderUtil;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
@@ -37,7 +37,7 @@ public class RenameCommand extends AbstractCommand {
     }
 
     public int executeRename(ServerCommandSource src, AbstractClaim claim, String newName) throws CommandSyntaxException {
-        if (claim.getOwner().equals(src.getEntityOrThrow().getUuid()) || Permissions.check(src, "itsours.rename", 2)) {
+        if (claim.getOwner().equals(src.getEntityOrThrow().getUuid()) || ItsOurs.checkPermission(src, "itsours.rename", 2)) {
             if (isNameInvalid(newName)) throw ClaimArgument.INVALID_NAME;
             if (!claim.canRename(newName)) throw ClaimArgument.NAME_TAKEN;
             Map<String, Text> oldClaimPlaceholders = claim.placeholders(src.getServer(), "old_claim_");

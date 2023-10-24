@@ -32,6 +32,7 @@ public class DataManager {
 
     public static final int CURRENT_DATA_VERSION = 3;
     private static final Map<UUID, PlayerData> playerData = new HashMap<>();
+    // TODO: Default defaultSettings
     private static PermissionData defaultSettings = new PermissionData();
     public static final Codec<?> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         ClaimList.CODEC.fieldOf("claims").forGetter((ignored) -> ClaimList.getClaims().stream().filter(claim -> claim instanceof Claim).map(claim -> (Claim) claim).toList()),

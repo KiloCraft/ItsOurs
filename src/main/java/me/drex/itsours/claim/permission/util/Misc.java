@@ -1,8 +1,8 @@
 package me.drex.itsours.claim.permission.util;
 
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.permission.node.ChildNode;
 import me.drex.itsours.claim.permission.node.Node;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.Items;
 
@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 
 public enum Misc {
 
-    ELYTRA("elytra", Items.ELYTRA, changeContext -> Permissions.check(changeContext.source(), "itsours.itsours.elytra", 2));
+    ELYTRA("elytra", Items.ELYTRA, changeContext -> ItsOurs.checkPermission(changeContext.source(), "itsours.itsours.elytra", 2));
 
     private final ChildNode node;
 

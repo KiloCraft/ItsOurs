@@ -145,7 +145,7 @@ public class PermissionManager {
     public static final AbstractChildNode MOB_SPAWN = literal("mob_spawn")
         .description("setting.mob_spawn")
         .icon(Items.ZOMBIE_SPAWN_EGG)
-        .predicate(changeContext -> Permissions.check(changeContext.source(), "itsours.setting.mob_spawn", 2))
+        .predicate(changeContext -> ItsOurs.checkPermission(changeContext.source(), "itsours.setting.mob_spawn", 2))
         .build();
 
     public static void register() {

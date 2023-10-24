@@ -1,13 +1,13 @@
 package me.drex.itsours.gui.claims;
 
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.Permission;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.gui.permission.DefaultStorageGui;
 import me.drex.itsours.util.PlaceholderUtil;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.item.Items;
 
 import java.util.Collection;
@@ -31,7 +31,7 @@ public class PlayerClaimListGui extends ClaimListGui<Claim> {
 
     @Override
     public GuiElementBuilder buildNavigationBar(int index) {
-        if (index == 7 && Permissions.check(context.player, "itsours.permissions.default", 2)) {
+        if (index == 7 && ItsOurs.checkPermission(context.player.getCommandSource(), "itsours.permissions.default", 2)) {
             return switchElement(Items.COOKED_BEEF, "claimlist.default", new DefaultStorageGui(context, Permission.permission()));
         }
         return super.buildNavigationBar(index);

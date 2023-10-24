@@ -1,8 +1,8 @@
 package me.drex.itsours.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import me.drex.itsours.ItsOurs;
 import me.drex.message.api.MessageAPI;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 
 import static me.drex.message.api.LocalizedMessage.localized;
@@ -21,6 +21,6 @@ public class ReloadCommand extends AbstractCommand {
             MessageAPI.reload();
             context.getSource().sendFeedback(() -> localized("text.itsours.commands.reload"), false);
             return 1;
-        }).requires(src -> Permissions.check(src, "itsours.reload", 2));
+        }).requires(src -> ItsOurs.checkPermission(src, "itsours.reload", 2));
     }
 }

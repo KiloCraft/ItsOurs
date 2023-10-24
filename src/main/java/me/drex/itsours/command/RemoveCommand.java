@@ -2,6 +2,7 @@ package me.drex.itsours.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.ClaimList;
@@ -9,7 +10,6 @@ import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.data.DataManager;
 import me.drex.itsours.user.PlayerData;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 
 import static me.drex.message.api.LocalizedMessage.localized;
@@ -59,7 +59,7 @@ public class RemoveCommand extends AbstractCommand {
     }
 
     public int executeRemove(ServerCommandSource src, AbstractClaim claim) throws CommandSyntaxException {
-        if (claim.getOwner().equals(src.getEntityOrThrow().getUuid()) || Permissions.check(src, "itsours.remove", 2)) {
+        if (claim.getOwner().equals(src.getEntityOrThrow().getUuid()) || ItsOurs.checkPermission(src, "itsours.remove", 2)) {
             src.sendFeedback(() -> localized("text.itsours.commands.remove", claim.placeholders(src.getServer())), false);
             return 1;
         } else {
@@ -68,7 +68,7 @@ public class RemoveCommand extends AbstractCommand {
     }
 
     public int executeRemoveConfirmed(ServerCommandSource src, AbstractClaim claim) throws CommandSyntaxException {
-        if (claim.getOwner().equals(src.getEntityOrThrow().getUuid()) || Permissions.check(src, "itsours.remove", 2)) {
+        if (claim.getOwner().equals(src.getEntityOrThrow().getUuid()) || ItsOurs.checkPermission(src, "itsours.remove", 2)) {
             removeClaim(src, claim);
             src.sendFeedback(() -> localized("text.itsours.commands.remove.success", claim.placeholders(src.getServer())), false);
             return 1;

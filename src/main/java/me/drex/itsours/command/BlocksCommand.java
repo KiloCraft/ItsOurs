@@ -5,8 +5,8 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.placeholders.api.PlaceholderContext;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.data.DataManager;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -46,14 +46,14 @@ public class BlocksCommand extends AbstractCommand {
                         argument("blocks", IntegerArgumentType.integer())
                             .executes(ctx -> addBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), IntegerArgumentType.getInteger(ctx, "blocks")))
                     )
-                ).requires(src -> Permissions.check(src, "itsours.blocks.add", 2))
+                ).requires(src -> ItsOurs.checkPermission(src, "itsours.blocks.add", 2))
             )
             .then(
                 literal("check").then(
                     argument("targets", GameProfileArgumentType.gameProfile())
                         .executes(ctx -> checkBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets")))
 
-                ).requires(src -> Permissions.check(src, "itsours.blocks.check", 2))
+                ).requires(src -> ItsOurs.checkPermission(src, "itsours.blocks.check", 2))
             )
             .then(
                 literal("set").then(
@@ -61,7 +61,7 @@ public class BlocksCommand extends AbstractCommand {
                         argument("blocks", IntegerArgumentType.integer())
                             .executes(ctx -> setBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), IntegerArgumentType.getInteger(ctx, "blocks")))
                     )
-                ).requires(src -> Permissions.check(src, "itsours.blocks.set", 2))
+                ).requires(src -> ItsOurs.checkPermission(src, "itsours.blocks.set", 2))
             )
             .then(
                 literal("give").then(
@@ -69,7 +69,7 @@ public class BlocksCommand extends AbstractCommand {
                         argument("blocks", IntegerArgumentType.integer(1))
                             .executes(ctx -> giveBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), IntegerArgumentType.getInteger(ctx, "blocks")))
                     )
-                ).requires(src -> Permissions.check(src, "itsours.blocks.give", 2))
+                ).requires(src -> ItsOurs.checkPermission(src, "itsours.blocks.give", 2))
             )
             .executes(ctx -> checkBlocks(ctx.getSource(), Collections.singleton(ctx.getSource().getPlayer().getGameProfile())));
     }

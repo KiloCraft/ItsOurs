@@ -3,9 +3,9 @@ package me.drex.itsours.command;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.gui.claims.PlayerClaimListGui;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -28,7 +28,7 @@ public class GuiCommand extends AbstractCommand {
         literal.then(
                 argument("target", GameProfileArgumentType.gameProfile())
                     .executes(ctx -> executeOpenGui(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "target")))
-                    .requires(src -> Permissions.check(src, "itsours.gui.others", 2))
+                    .requires(src -> ItsOurs.checkPermission(src, "itsours.gui.others", 2))
             )
             .executes(ctx -> executeOpenGui(ctx.getSource(), List.of(ctx.getSource().getPlayerOrThrow().getGameProfile())));
     }

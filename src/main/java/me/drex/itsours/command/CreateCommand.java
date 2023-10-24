@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.ClaimList;
@@ -16,7 +17,6 @@ import me.drex.itsours.data.DataManager;
 import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.ClaimBox;
 import me.drex.itsours.util.Constants;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -52,11 +52,11 @@ public class CreateCommand extends AbstractCommand {
 
     private int executeCreate(ServerCommandSource src, String claimName) throws CommandSyntaxException {
         int limit = Constants.DEFAULT_CLAIM_COUNT;
-        if (Permissions.check(src, "itsours.max.bypass", 2)) {
+        if (ItsOurs.checkPermission(src, "itsours.max.bypass", 2)) {
             limit = Integer.MAX_VALUE;
         } else {
             for (int i = 0; i < MAX_CHECK; i++) {
-                if (Permissions.check(src, "itsours." + ("max." + i), 2)) {
+                if (ItsOurs.checkPermission(src, "itsours." + ("max." + i), 2)) {
                     limit = Math.max(limit, i);
                 }
             }
