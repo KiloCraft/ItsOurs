@@ -4,40 +4,41 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public final class ClaimMessages {
 
     public static final Codec<ClaimMessages> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        Codec.STRING.optionalFieldOf("enter", null).forGetter(ClaimMessages::enter),
-        Codec.STRING.optionalFieldOf("leave", null).forGetter(ClaimMessages::leave)
+        Codec.STRING.optionalFieldOf("enter").forGetter(ClaimMessages::enter),
+        Codec.STRING.optionalFieldOf("leave").forGetter(ClaimMessages::leave)
     ).apply(instance, ClaimMessages::new));
 
-    private String enter;
-    private String leave;
+    private Optional<String> enter;
+    private Optional<String> leave;
 
-    public ClaimMessages(String enter, String leave) {
+    public ClaimMessages(Optional<String> enter, Optional<String> leave) {
         this.enter = enter;
         this.leave = leave;
     }
 
     public ClaimMessages() {
-        this(null, null);
+        this(Optional.empty(), Optional.empty());
     }
 
-    public String enter() {
+    public Optional<String> enter() {
         return enter;
     }
 
     public void setEnter(String enter) {
-        this.enter = enter;
+        this.enter = Optional.ofNullable(enter);
     }
 
-    public String leave() {
+    public Optional<String> leave() {
         return leave;
     }
 
     public void setLeave(String leave) {
-        this.leave = leave;
+        this.leave = Optional.ofNullable(leave);
     }
 
     @Override

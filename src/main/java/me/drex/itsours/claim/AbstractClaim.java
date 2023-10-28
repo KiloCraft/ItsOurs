@@ -158,7 +158,7 @@ public abstract class AbstractClaim {
         }
         player.sendAbilitiesUpdate();
 
-        player.sendMessage(Optional.ofNullable(messages.enter()).map(Text::literal).orElse(localized("text.itsours.claim.enter", placeholders(player.server))), true);
+        player.sendMessage(messages.enter().map(Text::literal).orElse(localized("text.itsours.claim.enter", placeholders(player.server))), true);
     }
 
     public void onLeave(@Nullable AbstractClaim nextClaim, ServerPlayerEntity player) {
@@ -173,7 +173,7 @@ public abstract class AbstractClaim {
                 }
             }
             player.sendAbilitiesUpdate();
-            player.sendMessage(Optional.ofNullable(messages.leave()).map(Text::literal).orElse(localized("text.itsours.claim.leave", placeholders(player.server))), true);
+            player.sendMessage(messages.leave().map(Text::literal).orElse(localized("text.itsours.claim.leave", placeholders(player.server))), true);
         }
     }
 

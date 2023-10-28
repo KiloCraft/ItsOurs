@@ -4,6 +4,7 @@ import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.DataFixerBuilder;
 import com.mojang.datafixers.schemas.Schema;
 import me.drex.itsours.data.fixers.AddDefaultPermissionsFix;
+import me.drex.itsours.data.fixers.ClaimOptionalDataFix;
 import me.drex.itsours.data.fixers.ClaimPositionDataFix;
 import me.drex.itsours.data.fixers.PermissionDataFix;
 import me.drex.itsours.data.schema.Schema0;
@@ -31,6 +32,8 @@ public class ItsOursSchemas {
         // default_settings is no longer an optional field and needs to be present
         Schema schema4 = builder.addSchema(4, EMPTY);
         builder.addFixer(new AddDefaultPermissionsFix(schema4));
+        Schema schema5 = builder.addSchema(5, EMPTY);
+        builder.addFixer(new ClaimOptionalDataFix(schema5));
     }
 
 }

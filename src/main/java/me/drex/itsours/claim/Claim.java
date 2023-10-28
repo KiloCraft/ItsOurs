@@ -20,11 +20,11 @@ public class Claim extends AbstractClaim {
         Uuids.INT_STREAM_CODEC.fieldOf("owner").forGetter(AbstractClaim::getOwner),
         ClaimBox.CODEC.fieldOf("box").forGetter(AbstractClaim::getBox),
         World.CODEC.fieldOf("dimension").forGetter(AbstractClaim::getDimension),
-        Codec.list(Subzone.CODEC).optionalFieldOf("subzones", new ArrayList<>()).forGetter(AbstractClaim::getSubzones),
-        PermissionData.CODEC.optionalFieldOf("settings", new PermissionData()).forGetter(AbstractClaim::getSettings),
-        Codec.unboundedMap(Uuids.STRING_CODEC, PermissionData.CODEC).optionalFieldOf("permissions", new HashMap<>()).forGetter(AbstractClaim::getPermissions),
-        ClaimRoleManager.CODEC.optionalFieldOf("roles", new ClaimRoleManager()).forGetter(AbstractClaim::getRoleManager),
-        ClaimMessages.CODEC.optionalFieldOf("messages", new ClaimMessages()).forGetter(AbstractClaim::getMessages)
+        Codec.list(Subzone.CODEC).fieldOf("subzones").forGetter(AbstractClaim::getSubzones),
+        PermissionData.CODEC.fieldOf("settings").forGetter(AbstractClaim::getSettings),
+        Codec.unboundedMap(Uuids.STRING_CODEC, PermissionData.CODEC).fieldOf("permissions").forGetter(AbstractClaim::getPermissions),
+        ClaimRoleManager.CODEC.fieldOf("roles").forGetter(AbstractClaim::getRoleManager),
+        ClaimMessages.CODEC.fieldOf("messages").forGetter(AbstractClaim::getMessages)
     ).apply(instance, (name, owner, box, dimension, subzones, settings, permissions, roles, claimMessages) -> {
         Claim claim = new Claim(name, owner, box, dimension, subzones, settings, permissions, roles, claimMessages);
         subzones.forEach(subzone -> subzone.setParent(claim));

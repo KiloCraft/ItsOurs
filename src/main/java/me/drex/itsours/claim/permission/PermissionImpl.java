@@ -105,7 +105,7 @@ public class PermissionImpl implements Permission {
 
     @Override
     public String toString() {
-        return String.format("Permission[id=%s, nodes=%s]", permission, Arrays.toString(childNodes));
+        return permission;
     }
 
     @Override

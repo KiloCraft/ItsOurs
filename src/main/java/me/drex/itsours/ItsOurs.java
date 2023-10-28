@@ -43,7 +43,7 @@ public class ItsOurs {
 
     public static boolean checkPermission(ServerCommandSource src, String permission, int fallback) {
         try {
-            return ItsOurs.checkPermission(src, permission, fallback);
+            return Permissions.check(src, permission, fallback);
         } catch (Throwable ignored) {
             return src.hasPermissionLevel(fallback);
         }
