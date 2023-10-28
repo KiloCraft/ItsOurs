@@ -8,6 +8,8 @@ import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.holder.PermissionData;
 import me.drex.itsours.user.PlayerData;
+
+import me.drex.itsours.util.Constants;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtIo;
@@ -51,7 +53,7 @@ public class DataManager {
     }
 
     public static PlayerData getUserData(UUID uuid) {
-        return playerData.computeIfAbsent(uuid, ignored -> PlayerData.DEFAULT);
+        return playerData.computeIfAbsent(uuid, ignored -> new PlayerData(false, false, false, Constants.DEFAULT_CLAIM_BLOCKS));
     }
 
     public static void load(MinecraftServer server) {

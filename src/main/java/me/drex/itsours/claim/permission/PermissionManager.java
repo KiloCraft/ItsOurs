@@ -73,15 +73,7 @@ public class PermissionManager {
         .icon(Items.FURNACE)
         .then(INTERACT_BLOCK_NODES)
         .build();
-    public static final Predicate<EntityType<?>> INTERACT_ENTITY_PREDICATE = entityType -> {
-        Entity entity = entityType.create(ItsOurs.SERVER.getOverworld());
-        if (entity == null) {
-            return false;
-        } else {
-            return overrides(entity.getClass(), Entity.class, DEV_ENV ? "interact" : "method_5688", PlayerEntity.class, Hand.class) || overrides(entity.getClass(), Entity.class, DEV_ENV ? "interactAt" : "method_5664", PlayerEntity.class, Vec3d.class, Hand.class);
-        }
-    };
-    public static final List<ChildNode> INTERACT_ENTITY_NODES = getNodes(Registries.ENTITY_TYPE, INTERACT_ENTITY_PREDICATE);
+    public static final List<ChildNode> INTERACT_ENTITY_NODES = getNodes(Registries.ENTITY_TYPE);
     public static final AbstractChildNode INTERACT_ENTITY = literal("interact_entity")
         .description("permission.interact_entity")
         .icon(Items.VILLAGER_SPAWN_EGG)
