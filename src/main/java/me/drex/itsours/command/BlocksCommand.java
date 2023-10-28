@@ -79,7 +79,7 @@ public class BlocksCommand extends AbstractCommand {
         for (GameProfile target : targets) {
             int blocks = DataManager.getUserData(target.getId()).blocks();
             result += blocks;
-            src.sendFeedback(() -> localized("text.itsours.commands.blocks", gameProfile("target_", target)), false);
+            src.sendFeedback(() -> localized("text.itsours.commands.blocks", placeholders(blocks, target)), false);
         }
         return result;
     }
