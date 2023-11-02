@@ -58,7 +58,7 @@ public class DataManager {
             LOGGER.debug("Claim data file not found.");
         } else {
             try {
-                Dynamic<NbtElement> dynamic = new Dynamic<>(NbtOps.INSTANCE, NbtIo.readCompressed(data.toFile(), NbtTagSizeTracker.ofUnlimitedBytes()));
+                Dynamic<NbtElement> dynamic = new Dynamic<>(NbtOps.INSTANCE, NbtIo.readCompressed(data, NbtTagSizeTracker.ofUnlimitedBytes()));
                 int dataVersion = dynamic.get("dataVersion").asInt(CURRENT_DATA_VERSION);
                 dynamic.remove("dataVersion");
                 dynamic = FIXER.update(ItsOursTypeReferences.ROOT, dynamic, dataVersion, CURRENT_DATA_VERSION);
