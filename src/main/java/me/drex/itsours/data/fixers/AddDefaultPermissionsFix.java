@@ -16,7 +16,7 @@ public class AddDefaultPermissionsFix extends DataFix {
 
     @Override
     protected TypeRewriteRule makeRule() {
-        return this.fixTypeEverywhereTyped("Fix claim position data structure", this.getInputSchema().getType(ItsOursTypeReferences.ROOT), typed ->
+        return this.fixTypeEverywhereTyped("Add default_settings", this.getInputSchema().getType(ItsOursTypeReferences.ROOT), typed ->
             typed.update(DSL.remainderFinder(), dynamic ->
                 dynamic.set("default_settings", dynamic.createMap(Collections.emptyMap()))
             ));

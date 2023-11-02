@@ -16,7 +16,6 @@ import static me.drex.message.api.LocalizedMessage.localized;
 public class ToggleCommand extends AbstractCommand {
 
     public static final ToggleCommand SELECT = new ToggleCommand("select", PlayerData::select, PlayerData::setSelect, "text.itsours.commands.select");
-    public static final ToggleCommand IGNORE = new ToggleCommand("ignore", PlayerData::ignore, PlayerData::setIgnore, "text.itsours.commands.ignore");
     private final BiConsumer<PlayerData, Boolean> dataSetter;
     private final String translationId;
     private Function<PlayerData, Boolean> dataGetter;
