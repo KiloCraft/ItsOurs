@@ -61,15 +61,10 @@ public class PermissionData {
         return data.size();
     }
 
-    public Map<String, Text> placeholders() {
-        return Map.of(
-            "permissions", PlaceholderUtil.list(data.entrySet(), permissionBooleanEntry ->
-                    Map.of("permission", Text.literal(permissionBooleanEntry.getKey().asString()).formatted(permissionBooleanEntry.getValue() ? Formatting.GREEN : Formatting.RED)),
-                "text.itsours.placeholders.permissions"),
-            "permissions_short", PlaceholderUtil.list(data.entrySet().stream().limit(5).collect(Collectors.toSet()), permissionBooleanEntry ->
-                    Map.of("permission", Text.literal(permissionBooleanEntry.getKey().asString()).formatted(permissionBooleanEntry.getValue() ? Formatting.GREEN : Formatting.RED)),
-                "text.itsours.placeholders.permissions")
-        );
+    public Text toText() {
+        return PlaceholderUtil.list(data.entrySet(), permissionBooleanEntry ->
+                Map.of("permission", Text.literal(permissionBooleanEntry.getKey().asString()).formatted(permissionBooleanEntry.getValue() ? Formatting.GREEN : Formatting.RED)),
+            "text.itsours.placeholders.permissions");
     }
 
     public PermissionData copy() {

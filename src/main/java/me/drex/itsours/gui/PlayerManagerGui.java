@@ -55,15 +55,15 @@ public class PlayerManagerGui extends PageGui<UUID> {
 
     @Override
     protected GuiElementBuilder guiElement(UUID player) {
+        PermissionData permissions = claim.getPermissions().getOrDefault(player, new PermissionData());
         return guiElement(Items.PLAYER_HEAD, "playermanager.entry", PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(context.server()),
-            Map.of("roles", PlaceholderUtil.list(
-                claim.getRoleManager().roles().entrySet().stream().filter(stringRoleEntry -> stringRoleEntry.getValue().players().contains(player)).toList(),
-                stringRoleEntry -> Map.of(
-                    "role_id", Text.literal(stringRoleEntry.getKey())
-                ), "text.itsours.gui.playermanager.entry.roles"
-            )/*, "modified_permissions", Text.literal(String.valueOf(claim.getPermissions().getOrDefault(player, new PermissionHolder()).size()))*/),
-            claim.getPermissions().getOrDefault(player, new PermissionData()).placeholders(),
+            Map.of(
+                "roles", PlaceholderUtil.list(claim.getRoleManager().roles().entrySet().stream().filter(stringRoleEntry -> stringRoleEntry.getValue().players().contains(player)).toList(),
+                    stringRoleEntry -> Map.of(
+                        "role_id", Text.literal(stringRoleEntry.getKey())
+                    ), "text.itsours.gui.playermanager.entry.roles"),
+                "permissions", permissions.toText()),
             PlaceholderUtil.uuid("player_", player, context.server())
         )).setCallback(clickType -> {
             if (clickType.isLeft) {
