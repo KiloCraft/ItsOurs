@@ -13,7 +13,6 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -69,7 +68,7 @@ public abstract class EntityMixin {
         if (playerEntity == null) {
             return true;
         }
-        Optional<AbstractClaim> claim = ClaimList.getClaimAt((ServerWorld) world, pos);
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, pos);
         if (claim.isEmpty()) {
             return true;
         }

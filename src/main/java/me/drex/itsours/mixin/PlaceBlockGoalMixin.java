@@ -7,7 +7,6 @@ import me.drex.itsours.claim.permission.node.Node;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.registry.Registries;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
@@ -28,7 +27,7 @@ public abstract class PlaceBlockGoalMixin {
 
     @Inject(method = "canPlaceOn", at = @At("HEAD"), cancellable = true)
     public void itsours$canEndermanPlace(World world, BlockPos posAbove, BlockState carriedState, BlockState stateAbove, BlockState state, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        Optional<AbstractClaim> optional = ClaimList.getClaimAt((ServerWorld) world, pos);
+        Optional<AbstractClaim> optional = ClaimList.getClaimAt(world, pos);
         if (optional.isPresent()) {
             if (!optional.get().hasPermission(this.enderman.getUuid(), PermissionManager.MINE, Node.registry(Registries.BLOCK, world.getBlockState(pos).getBlock()))) {
                 cir.setReturnValue(false);

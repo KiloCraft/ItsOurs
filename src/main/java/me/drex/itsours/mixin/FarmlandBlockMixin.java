@@ -10,7 +10,6 @@ import net.minecraft.block.FarmlandBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registries;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,7 +27,7 @@ public abstract class FarmlandBlockMixin {
         at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FarmlandBlock;setToDirt(Lnet/minecraft/entity/Entity;Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V")
     )
     private boolean itsours$canPlayerTrample(Entity entity, BlockState state, World world, BlockPos pos) {
-        Optional<AbstractClaim> claim = ClaimList.getClaimAt((ServerWorld) world, pos);
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, pos);
         if (claim.isPresent() && entity instanceof PlayerEntity player && !claim.get().hasPermission(entity.getUuid(), PermissionManager.MINE, Node.registry(Registries.BLOCK, (FarmlandBlock) (Object) this))) {
             player.sendMessage(localized("text.itsours.action.disallowed.break_block"), true);
             return false;

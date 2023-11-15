@@ -6,7 +6,6 @@ import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.node.Node;
 import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.registry.Registries;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
@@ -37,7 +36,7 @@ public abstract class PickUpBlockGoalMixin {
         cancellable = true
     )
     public void itsours$canEndermanPickUp(CallbackInfo ci, Random random, World world, int i, int j, int k, BlockPos pos) {
-        Optional<AbstractClaim> optional = ClaimList.getClaimAt((ServerWorld) world, pos);
+        Optional<AbstractClaim> optional = ClaimList.getClaimAt(world, pos);
         if (optional.isPresent()) {
             if (!optional.get().hasPermission(this.enderman.getUuid(), PermissionManager.MINE, Node.registry(Registries.BLOCK, world.getBlockState(pos).getBlock()))) {
                 ci.cancel();

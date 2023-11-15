@@ -12,7 +12,6 @@ import net.minecraft.util.Formatting;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PermissionData {
 

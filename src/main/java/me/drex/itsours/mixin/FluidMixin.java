@@ -6,9 +6,9 @@ import me.drex.itsours.claim.permission.PermissionManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,8 +27,8 @@ public abstract class FluidMixin {
     )
     private void itsours$canFlowAcrossBorder(WorldAccess world, BlockPos newPos, BlockState state, Direction direction, FluidState fluidState, CallbackInfo ci) {
         BlockPos oldPos = newPos.offset(direction.getOpposite());
-        Optional<AbstractClaim> oldClaim = ClaimList.getClaimAt((ServerWorld) world, oldPos);
-        Optional<AbstractClaim> newClaim = ClaimList.getClaimAt((ServerWorld) world, newPos);
+        Optional<AbstractClaim> oldClaim = ClaimList.getClaimAt((World) world, oldPos);
+        Optional<AbstractClaim> newClaim = ClaimList.getClaimAt((World) world, newPos);
         if (((oldClaim.isPresent() && !oldClaim.get().hasPermission(null, PermissionManager.FLUID_CROSSES_BORDERS)) ||
             (newClaim.isPresent() && !newClaim.get().hasPermission(null, PermissionManager.FLUID_CROSSES_BORDERS))) && !newClaim.equals(oldClaim)) {
             ci.cancel();

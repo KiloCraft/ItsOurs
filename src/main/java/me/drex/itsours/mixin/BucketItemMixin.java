@@ -9,7 +9,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,7 +33,7 @@ public abstract class BucketItemMixin extends Item {
         )
     )
     private BlockHitResult itsours$canUseBucket(BlockHitResult original, World world, PlayerEntity player) {
-        Optional<AbstractClaim> claim = ClaimList.getClaimAt((ServerWorld) world, original.getBlockPos());
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, original.getBlockPos());
         if (claim.isEmpty())
             return original;
         if (!claim.get().hasPermission(player.getUuid(), PermissionManager.USE_ITEM, Node.registry(Registries.ITEM, this))) {

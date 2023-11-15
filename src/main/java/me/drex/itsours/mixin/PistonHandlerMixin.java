@@ -7,7 +7,6 @@ import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.PermissionManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.piston.PistonHandler;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -56,8 +55,8 @@ public abstract class PistonHandlerMixin {
     }
 
     private boolean handleMoveOperation(BlockState state, World world, BlockPos pos, Direction direction, boolean canBreak, Direction pistonDir, Operation<Boolean> original) {
-        Optional<AbstractClaim> oldClaim = ClaimList.getClaimAt((ServerWorld) this.world, this.posFrom);
-        Optional<AbstractClaim> newClaim = ClaimList.getClaimAt((ServerWorld) this.world, pos.offset(motionDirection));
+        Optional<AbstractClaim> oldClaim = ClaimList.getClaimAt(this.world, this.posFrom);
+        Optional<AbstractClaim> newClaim = ClaimList.getClaimAt(this.world, pos.offset(motionDirection));
         if (((oldClaim.isPresent() && !oldClaim.get().hasPermission(null, PermissionManager.PISTON_CROSSES_BORDERS)) ||
             (newClaim.isPresent() && !newClaim.get().hasPermission(null, PermissionManager.PISTON_CROSSES_BORDERS))) && !newClaim.equals(oldClaim)) {
             return false;

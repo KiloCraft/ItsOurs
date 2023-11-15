@@ -64,7 +64,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
         )
     )
     private ActionResult itsours$canInteractBlock(BlockState blockState, World world, PlayerEntity playerEntity, Hand hand, BlockHitResult hit, Operation<ActionResult> original) {
-        Optional<AbstractClaim> claim = ClaimList.getClaimAt((ServerWorld) world, hit.getBlockPos());
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, hit.getBlockPos());
         if (claim.isEmpty() || !PermissionManager.INTERACT_BLOCK_PREDICATE.test(blockState.getBlock()))
             return original.call(blockState, world, playerEntity, hand, hit);
         if (!claim.get().hasPermission(playerEntity.getUuid(), PermissionManager.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
@@ -82,7 +82,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
         )
     )
     private void itsours$canInteractBlock2(BlockState blockState, World world, BlockPos pos, PlayerEntity playerEntity, Operation<Void> original) {
-        Optional<AbstractClaim> claim = ClaimList.getClaimAt((ServerWorld) world, pos);
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, pos);
         if (claim.isEmpty() || !PermissionManager.INTERACT_BLOCK_PREDICATE.test(blockState.getBlock())) {
             original.call(blockState, world, pos, playerEntity);
             return;

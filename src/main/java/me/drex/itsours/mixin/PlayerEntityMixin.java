@@ -14,7 +14,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -45,7 +44,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         )
     )
     private boolean itsours$canDamageEntity(boolean original, Entity entity) {
-        Optional<AbstractClaim> claim = ClaimList.getClaimAt((ServerWorld) entity.getEntityWorld(), entity.getBlockPos());
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt(entity.getEntityWorld(), entity.getBlockPos());
         if (claim.isEmpty()) {
             return original;
         }

@@ -9,7 +9,6 @@ import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.FrostWalkerEnchantment;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.registry.Registries;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,7 +27,7 @@ public abstract class FrostWalkerEnchantmentMixin {
         )
     )
     private static boolean itsours$canFreezeWater(boolean original, LivingEntity entity, World world, BlockPos pos, int level) {
-        Optional<AbstractClaim> optional = ClaimList.getClaimAt((ServerWorld) world, pos);
+        Optional<AbstractClaim> optional = ClaimList.getClaimAt(world, pos);
         return optional.map(claim -> claim.hasPermission(entity.getUuid(), PermissionManager.PLACE, Node.registry(Registries.BLOCK, Blocks.FROSTED_ICE.getDefaultState().getBlock())) && original).orElse(original);
     }
 

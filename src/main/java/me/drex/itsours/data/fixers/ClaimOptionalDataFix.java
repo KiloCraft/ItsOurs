@@ -5,10 +5,8 @@ import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.OptionalDynamic;
 import me.drex.itsours.data.ItsOursTypeReferences;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Stream;
 

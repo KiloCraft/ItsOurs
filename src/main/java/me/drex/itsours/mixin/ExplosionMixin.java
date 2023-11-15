@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.PermissionManager;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
@@ -37,7 +36,7 @@ public abstract class ExplosionMixin {
         ListIterator<BlockPos> iterator = this.affectedBlocks.listIterator();
         while (iterator.hasNext()) {
             BlockPos blockPos = iterator.next();
-            Optional<AbstractClaim> claim = ClaimList.getClaimAt((ServerWorld) this.world, blockPos);
+            Optional<AbstractClaim> claim = ClaimList.getClaimAt(this.world, blockPos);
             if (claim.isPresent() && !claim.get().hasPermission(null, PermissionManager.EXPLOSIONS)) {
                 iterator.remove();
             }

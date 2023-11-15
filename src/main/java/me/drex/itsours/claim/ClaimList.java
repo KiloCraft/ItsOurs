@@ -5,9 +5,9 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.World;
 
 import java.util.*;
 
@@ -72,17 +72,17 @@ public class ClaimList {
     }
 
     public static Optional<AbstractClaim> getClaimAt(Entity entity) {
-        return getClaimAt((ServerWorld) entity.getWorld(), entity.getBlockPos());
+        return getClaimAt(entity.getWorld(), entity.getBlockPos());
     }
 
     public static Optional<AbstractClaim> getClaimAt(ItemUsageContext context) {
-        return getClaimAt((ServerWorld) context.getWorld(), context.getBlockPos());
+        return getClaimAt(context.getWorld(), context.getBlockPos());
     }
 
-    public static Optional<AbstractClaim> getClaimAt(ServerWorld serverWorld, BlockPos pos) {
+    public static Optional<AbstractClaim> getClaimAt(World world, BlockPos pos) {
         List<AbstractClaim> claims = byPosition.getOrDefault(ChunkPos.toLong(pos), Collections.emptyList());
         for (AbstractClaim claim : claims) {
-            if (!claim.getDimension().equals(serverWorld.getRegistryKey())) continue;
+            if (!claim.getDimension().equals(world.getRegistryKey())) continue;
             if (claim.contains(pos)) return Optional.of(getDeepestClaim(claim, pos));
         }
         return Optional.empty();
