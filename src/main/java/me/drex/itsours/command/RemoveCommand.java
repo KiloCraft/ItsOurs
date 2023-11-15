@@ -9,8 +9,10 @@ import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.data.DataManager;
+import me.drex.itsours.user.ClaimTrackingPlayer;
 import me.drex.itsours.user.PlayerData;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 import static me.drex.message.api.LocalizedMessage.localized;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -27,12 +29,19 @@ public class RemoveCommand extends AbstractCommand {
         // Remove claim from its parents' subzone list
         if (claim instanceof Subzone subzone) {
             subzone.getParent().removeSubzone((Subzone) claim);
+            subzone.getMainClaim().notifyTrackingChanges(src.getServer());
         }
         if (claim instanceof Claim) {
             PlayerData userData = DataManager.getUserData(claim.getOwner());
             userData.setBlocks(Math.max(0, userData.blocks() + claim.getArea()));
+            for (ServerPlayerEntity serverPlayerEntity : src.getServer().getPlayerManager().getPlayerList()) {
+                ClaimTrackingPlayer claimTrackingPlayer = ((ClaimTrackingPlayer)serverPlayerEntity);
+                AbstractClaim trackedClaim = claimTrackingPlayer.trackedClaim();
+                if (trackedClaim != null && claim.containsClaim(trackedClaim)) {
+                    claimTrackingPlayer.unTrackClaim();
+                }
+            }
         }
-        claim.show(false, src.getServer());
         // Recursively remove all subzones
         removeSubzones(claim);
         ClaimList.removeClaim(claim);

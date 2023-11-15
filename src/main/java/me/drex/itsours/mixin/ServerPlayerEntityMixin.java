@@ -3,7 +3,7 @@ package me.drex.itsours.mixin;
 import com.mojang.authlib.GameProfile;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.data.DataManager;
-import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.ClaimSelectingPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixin extends PlayerEntity implements ClaimPlayer {
+public abstract class ServerPlayerEntityMixin extends PlayerEntity implements ClaimSelectingPlayer {
 
     @Nullable
     private BlockPos firstPos = null;
@@ -31,28 +31,6 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
 
     @Shadow
     public abstract void sendMessage(Text message);
-
-    @Override
-    public void setLastShow(AbstractClaim claim, BlockPos pos, ServerWorld world) {
-        this.lastShowClaim = claim;
-        this.lastShowPos = pos;
-        this.lastShowWorld = world;
-    }
-
-    @Override
-    public AbstractClaim getLastShowClaim() {
-        return this.lastShowClaim;
-    }
-
-    @Override
-    public BlockPos getLastShowPos() {
-        return this.lastShowPos;
-    }
-
-    @Override
-    public ServerWorld getLastShowWorld() {
-        return this.lastShowWorld;
-    }
 
     @Override
     public boolean arePositionsSet() {

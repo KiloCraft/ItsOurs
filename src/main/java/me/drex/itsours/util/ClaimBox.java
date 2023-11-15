@@ -24,18 +24,6 @@ public class ClaimBox extends BlockBox {
         return new ClaimBox(Math.min(first.getX(), second.getX()), Math.min(first.getY(), second.getY()), Math.min(first.getZ(), second.getZ()), Math.max(first.getX(), second.getX()), Math.max(first.getY(), second.getY()), Math.max(first.getZ(), second.getZ()));
     }
 
-    private static BlockPos getY(BlockView blockView, int x, int y, int z) {
-        BlockPos blockPos = new BlockPos(x, y + 10, z);
-
-        do {
-            blockPos = blockPos.down();
-            if (blockPos.getY() < 1) {
-                return new BlockPos(x, y, z);
-            }
-        } while (!blockView.getBlockState(blockPos).isFullCube(blockView, blockPos));
-        return blockPos.up();
-    }
-
     public ClaimBox expand(Direction direction, int amount) {
         if (direction.getDirection().equals(Direction.AxisDirection.POSITIVE)) {
             return ClaimBox.create(getMin(), getMax().offset(direction, amount));
@@ -75,41 +63,14 @@ public class ClaimBox extends BlockBox {
             this.getMaxX() >= other.getMaxX() && this.getMaxY() >= other.getMaxY() && this.getMaxZ() >= other.getMaxZ();
     }
 
-    public void drawOutline(ServerPlayerEntity player, BlockState blockState) {
-        drawOutline(player, blockState, blockState);
-    }
-
-    public void drawOutline(ServerPlayerEntity player, BlockState blockState, BlockState center) {
-        for (int x = 0; x < this.getBlockCountX(); x++) {
-            boolean lineCenter = isCenterBlock(this.getBlockCountX(), x);
-            BlockState state = lineCenter ? center : blockState;
-            sendFakeBlock(player, x + this.getMinX(), this.getMinZ(), state);
-            sendFakeBlock(player, x + this.getMinX(), this.getMaxZ(), state);
-        }
-        for (int z = 0; z < this.getBlockCountZ(); z++) {
-            boolean lineCenter = isCenterBlock(this.getBlockCountZ(), z);
-            BlockState state = lineCenter ? center : blockState;
-            sendFakeBlock(player, this.getMinX(), z + this.getMinZ(), state);
-            sendFakeBlock(player, this.getMaxX(), z + this.getMinZ(), state);
-        }
-    }
-
-    private boolean isCenterBlock(int length, int current) {
+    public boolean isCenterBlock(int length, int current) {
+        if (length <= 2) return false;
         int center = length / 2;
         if (length % 2 == 0) {
             return center == current || center == current + 1;
         } else {
             return center == current;
         }
-    }
-
-    private void sendFakeBlock(ServerPlayerEntity player, int x, int z, @Nullable BlockState state) {
-        ServerWorld world = player.getServerWorld();
-        if (!world.isPosLoaded(x, z)) return;
-        BlockPos pos = getY(world, x, player.getBlockY(), z).down();
-        BlockUpdateS2CPacket packet;
-        packet = state == null ? new BlockUpdateS2CPacket(player.getEntityWorld(), pos) : new BlockUpdateS2CPacket(pos, state);
-        player.networkHandler.sendPacket(packet);
     }
 
 }

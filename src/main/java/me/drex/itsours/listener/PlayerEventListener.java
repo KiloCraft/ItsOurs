@@ -5,7 +5,7 @@ import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.node.Node;
 import me.drex.itsours.data.DataManager;
-import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.ClaimSelectingPlayer;
 import me.drex.itsours.util.Constants;
 import me.drex.itsours.util.PlaceholderUtil;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
@@ -36,11 +36,11 @@ public class PlayerEventListener {
     }
 
     private static ActionResult onBlockUse(PlayerEntity player, World world, Hand hand, BlockHitResult hitResult) {
-        ClaimPlayer claimPlayer = (ClaimPlayer) player;
+        ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
         final BlockPos pos = hitResult.getBlockPos();
-        if (shouldSelect(player, hand, claimPlayer.getSecondPosition(), pos)) {
+        if (shouldSelect(player, hand, claimSelectingPlayer.getSecondPosition(), pos)) {
             player.sendMessage(localized("text.itsours.select.pos2", PlaceholderUtil.vec3i("pos_", pos)));
-            claimPlayer.setSecondPosition(pos);
+            claimSelectingPlayer.setSecondPosition(pos);
             onSelectCorner(player);
             return ActionResult.SUCCESS;
         }
@@ -48,10 +48,10 @@ public class PlayerEventListener {
     }
 
     private static ActionResult onBlockAttack(PlayerEntity player, World world, Hand hand, BlockPos pos, Direction direction) {
-        ClaimPlayer claimPlayer = (ClaimPlayer) player;
-        if (shouldSelect(player, hand, claimPlayer.getFirstPosition(), pos)) {
+        ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
+        if (shouldSelect(player, hand, claimSelectingPlayer.getFirstPosition(), pos)) {
             player.sendMessage(localized("text.itsours.select.pos1", PlaceholderUtil.vec3i("pos_", pos)));
-            claimPlayer.setFirstPosition(pos);
+            claimSelectingPlayer.setFirstPosition(pos);
             onSelectCorner(player);
             return ActionResult.SUCCESS;
         }
@@ -71,8 +71,8 @@ public class PlayerEventListener {
     }
 
     private static void onSelectCorner(PlayerEntity player) {
-        ClaimPlayer claimPlayer = (ClaimPlayer) player;
-        if (claimPlayer.arePositionsSet()) {
+        ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
+        if (claimSelectingPlayer.arePositionsSet()) {
             if (ClaimList.getClaimsFrom(player.getUuid()).isEmpty()) {
                 player.sendMessage(localized("text.itsours.select.done.first"));
             } else {

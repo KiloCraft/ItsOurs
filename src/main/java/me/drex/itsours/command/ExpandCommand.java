@@ -11,7 +11,6 @@ import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.util.Modify;
 import me.drex.itsours.data.DataManager;
 import me.drex.itsours.util.ClaimBox;
-import net.minecraft.block.Blocks;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -68,7 +67,6 @@ public class ExpandCommand extends AbstractCommand {
                     !claim.equals(other) &&
                     newBox.intersects(other.getBox())
             ) {
-                other.getBox().drawOutline(player, Blocks.REDSTONE_BLOCK.getDefaultState());
                 src.sendError(localized("text.itsours.commands.expand.intersects", other.placeholders(src.getServer())));
                 return 0;
             }
@@ -104,9 +102,10 @@ public class ExpandCommand extends AbstractCommand {
             }
             DataManager.getUserData(uuid).setBlocks(blocks - areaIncrease);
         }
-        claim.getMainClaim().show(false, src.getServer());
+
         claim.setBox(newBox);
-        claim.getMainClaim().show(player, true);
+        claim.getMainClaim().notifyTrackingChanges(src.getServer());
+
         src.sendFeedback(() -> localized("text.itsours.commands." + literal, mergePlaceholderMaps(
                 Map.of(
                     "distance", literal(String.valueOf(distance)),

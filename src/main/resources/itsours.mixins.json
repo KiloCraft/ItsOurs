@@ -27,7 +27,10 @@
     "ServerPlayerInteractionManagerMixin",
     "SpawnRestrictionMixin",
     "TurtleEggBlockMixin",
-    "WitherEntityMixin"
+    "WitherEntityMixin",
+    "tracking.ChunkDataSenderMixin",
+    "tracking.ServerPlayerEntityMixin",
+    "tracking.ServerPlayNetworkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

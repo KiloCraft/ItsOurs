@@ -14,7 +14,8 @@ import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.util.Modify;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.data.DataManager;
-import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.ClaimSelectingPlayer;
+import me.drex.itsours.user.ClaimTrackingPlayer;
 import me.drex.itsours.util.ClaimBox;
 import me.drex.itsours.util.Constants;
 import net.minecraft.server.command.ServerCommandSource;
@@ -64,10 +65,10 @@ public class CreateCommand extends AbstractCommand {
 
         ServerPlayerEntity player = src.getPlayer();
         UUID uuid = player.getUuid();
-        ClaimPlayer claimPlayer = (ClaimPlayer) player;
+        ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
         if (AbstractClaim.isNameInvalid(claimName)) throw ClaimArgument.INVALID_NAME;
-        if (!claimPlayer.arePositionsSet()) throw SELECT_FIRST;
-        ClaimBox selectedBox = ClaimBox.create(claimPlayer.getFirstPosition().withY(src.getWorld().getBottomY()), claimPlayer.getSecondPosition().withY(src.getWorld().getTopY() - 1));
+        if (!claimSelectingPlayer.arePositionsSet()) throw SELECT_FIRST;
+        ClaimBox selectedBox = ClaimBox.create(claimSelectingPlayer.getFirstPosition().withY(src.getWorld().getBottomY()), claimSelectingPlayer.getSecondPosition().withY(src.getWorld().getTopY() - 1));
         Optional<AbstractClaim> optional = ClaimList.getClaims().stream().filter((claim) ->
             claim.getDimension().equals(player.getWorld().getRegistryKey()) &&
                 selectedBox.intersects(claim.getBox())
@@ -95,10 +96,9 @@ public class CreateCommand extends AbstractCommand {
         if (ClaimList.getClaim(claimName).isPresent()) throw ClaimArgument.NAME_TAKEN;
         DataManager.getUserData(uuid).setBlocks(blocks - requiredBlocks);
         ClaimList.addClaim(claim);
-        claimPlayer.setLastShow(claim, src.getPlayer().getBlockPos(), src.getWorld());
-        claim.show(player, true);
+        ((ClaimTrackingPlayer) player).trackClaim(claim);
         // reset positions
-        claimPlayer.resetSelection();
+        claimSelectingPlayer.resetSelection();
         return 1;
     }
 
@@ -112,9 +112,8 @@ public class CreateCommand extends AbstractCommand {
         validatePermission(src, parent, PermissionManager.MODIFY, Modify.SUBZONE.node());
         Subzone subzone = new Subzone(claimName, ClaimBox.create(claimBox.getMin().withY(parent.getBox().getMinY()), claimBox.getMax().withY(parent.getBox().getMaxY())), player.getServerWorld(), parent);
         ClaimList.addClaim(subzone);
-        parent.getMainClaim().show(player, true);
-        // reset positions
-        ((ClaimPlayer) player).resetSelection();
+        parent.getMainClaim().notifyTrackingChanges(src.getServer());
+        ((ClaimSelectingPlayer) player).resetSelection();
         return 1;
     }
 

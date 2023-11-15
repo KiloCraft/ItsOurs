@@ -5,7 +5,7 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
 import me.drex.itsours.claim.permission.PermissionManager;
 import me.drex.itsours.claim.permission.node.Node;
-import me.drex.itsours.user.ClaimPlayer;
+import me.drex.itsours.user.ClaimSelectingPlayer;
 import net.minecraft.block.Block;
 import net.minecraft.block.ChestBlock;
 import net.minecraft.entity.player.PlayerEntity;
@@ -69,11 +69,11 @@ public abstract class BlockItemMixin extends Item {
         // TODO: Make configurable
         if ((block instanceof ChestBlock) && optionalClaim.isEmpty()) {
             PlayerEntity player = context.getPlayer();
-            ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            if (claimPlayer != null && ClaimList.getClaimsFrom(player.getUuid()).isEmpty()) {
+            ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
+            if (claimSelectingPlayer != null && ClaimList.getClaimsFrom(player.getUuid()).isEmpty()) {
                 player.sendMessage(localized("text.itsours.info.notProtected"));
-                claimPlayer.setFirstPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
-                claimPlayer.setSecondPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
+                claimSelectingPlayer.setFirstPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
+                claimSelectingPlayer.setSecondPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
             }
         }
     }

@@ -11,10 +11,8 @@ import me.drex.itsours.claim.roles.ClaimRoleManager;
 import me.drex.itsours.claim.roles.Role;
 import me.drex.itsours.claim.util.ClaimMessages;
 import me.drex.itsours.data.DataManager;
-import me.drex.itsours.user.ClaimPlayer;
 import me.drex.itsours.util.ClaimBox;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
@@ -36,7 +34,8 @@ import static net.minecraft.text.Text.literal;
 public abstract class AbstractClaim {
 
     public static final Pattern NAME = Pattern.compile("\\w{3,16}");
-    private static final Block[] SHOW_BLOCKS = {Blocks.GOLD_BLOCK, Blocks.DIAMOND_BLOCK, Blocks.REDSTONE_BLOCK, Blocks.LAPIS_BLOCK, Blocks.NETHERITE_BLOCK};
+    public static final Block[] SHOW_BLOCKS = {Blocks.RED_WOOL, Blocks.ORANGE_WOOL, Blocks.YELLOW_WOOL, Blocks.LIME_WOOL, Blocks.GREEN_WOOL, Blocks.CYAN_WOOL, Blocks.LIGHT_BLUE_WOOL, Blocks.BLUE_WOOL, Blocks.PURPLE_WOOL, Blocks.MAGENTA_WOOL, Blocks.PINK_WOOL};
+    public static final Block[] SHOW_BLOCKS_CENTER = {Blocks.RED_TERRACOTTA, Blocks.ORANGE_TERRACOTTA, Blocks.YELLOW_TERRACOTTA, Blocks.LIME_TERRACOTTA, Blocks.GREEN_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.LIGHT_BLUE_TERRACOTTA, Blocks.BLUE_TERRACOTTA, Blocks.PURPLE_TERRACOTTA, Blocks.MAGENTA_TERRACOTTA, Blocks.PINK_TERRACOTTA};
     private final RegistryKey<World> dimension;
     private final List<Subzone> subzones;
     private final PermissionData settings;
@@ -211,6 +210,14 @@ public abstract class AbstractClaim {
         }
     }
 
+    public boolean containsClaim(AbstractClaim claim) {
+        if (claim.equals(this)) return true;
+        for (Subzone subzone : claim.getSubzones()) {
+            if (containsClaim(subzone)) return true;
+        }
+        return false;
+    }
+
     public ClaimMessages getMessages() {
         return this.messages;
     }
@@ -227,27 +234,6 @@ public abstract class AbstractClaim {
 
     public boolean contains(BlockPos pos) {
         return box.contains(pos);
-    }
-
-    public void show(boolean show, MinecraftServer server) {
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            ClaimPlayer claimPlayer = (ClaimPlayer) player;
-            if (claimPlayer.getLastShowClaim() == this) {
-                this.show(player, show);
-            }
-        }
-    }
-
-    public void show(ServerPlayerEntity player, boolean show) {
-        BlockState blockState = show ? SHOW_BLOCKS[Math.min(this.getDepth(), SHOW_BLOCKS.length - 1)].getDefaultState() : null;
-        if (show) {
-            getBox().drawOutline(player, blockState, Blocks.EMERALD_BLOCK.getDefaultState());
-        } else {
-            getBox().drawOutline(player, null);
-        }
-        for (Subzone subzone : this.getSubzones()) {
-            subzone.show(player, show);
-        }
     }
 
     public String toString() {

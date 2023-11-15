@@ -5,8 +5,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import me.drex.itsours.claim.permission.holder.PermissionData;
 import me.drex.itsours.claim.roles.ClaimRoleManager;
 import me.drex.itsours.claim.util.ClaimMessages;
+import me.drex.itsours.user.ClaimTrackingPlayer;
 import me.drex.itsours.util.ClaimBox;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Uuids;
 import net.minecraft.world.World;
@@ -78,5 +81,14 @@ public class Claim extends AbstractClaim {
         return 0;
     }
 
+    public void notifyTrackingChanges(MinecraftServer server) {
+        for (ServerPlayerEntity serverPlayerEntity : server.getPlayerManager().getPlayerList()) {
+            ClaimTrackingPlayer claimTrackingPlayer = ((ClaimTrackingPlayer) serverPlayerEntity);
+            Claim trackedClaim = ((ClaimTrackingPlayer) serverPlayerEntity).trackedClaim();
+            if (trackedClaim != null && trackedClaim.equals(this)) {
+                claimTrackingPlayer.trackClaim(trackedClaim);
+            }
+        }
+    }
 
 }

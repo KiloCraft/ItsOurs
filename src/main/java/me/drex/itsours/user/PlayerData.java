@@ -8,13 +8,11 @@ import java.util.Objects;
 
 public final class PlayerData {
 
-    public static final PlayerData DEFAULT = new PlayerData(false, false, false, Constants.DEFAULT_CLAIM_BLOCKS);
-
     public static final Codec<PlayerData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        Codec.BOOL.optionalFieldOf("ignore", DEFAULT.ignore()).forGetter(PlayerData::ignore),
-        Codec.BOOL.optionalFieldOf("select", DEFAULT.select()).forGetter(PlayerData::select),
-        Codec.BOOL.optionalFieldOf("flight", DEFAULT.flight()).forGetter(PlayerData::flight),
-        Codec.INT.optionalFieldOf("blocks", DEFAULT.blocks()).forGetter(PlayerData::blocks)
+        Codec.BOOL.optionalFieldOf("ignore", false).forGetter(PlayerData::ignore),
+        Codec.BOOL.optionalFieldOf("select", false).forGetter(PlayerData::select),
+        Codec.BOOL.optionalFieldOf("flight", false).forGetter(PlayerData::flight),
+        Codec.INT.optionalFieldOf("blocks", Constants.DEFAULT_CLAIM_BLOCKS).forGetter(PlayerData::blocks)
     ).apply(instance, PlayerData::new));
 
     private boolean ignore;
