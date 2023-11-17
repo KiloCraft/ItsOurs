@@ -18,13 +18,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static me.drex.itsours.claim.AbstractClaim.SHOW_BLOCKS;
 import static me.drex.itsours.claim.AbstractClaim.SHOW_BLOCKS_CENTER;
@@ -46,13 +46,22 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     private final Long2ObjectMap<Set<BlockPos>> chunk2TrackedShowBlocks = new Long2ObjectArrayMap<>();
     private final Set<BlockPos> trackedShowBlocks = new HashSet<>();
 
+    private final Deque<List<WorldChunk>> chunkBatches = new LinkedList<>();
+
     @Nullable
     private Claim trackedClaim = null;
 
     @Override
-    public void onChunkLoad(ChunkPos pos) {
-        if (trackedClaim == null || !trackedClaim.getDimension().equals(getWorld().getRegistryKey())) return;
-        showChunk(trackedClaim, pos);
+    public void addChunkBatch(List<WorldChunk> chunkBatch) {
+        chunkBatches.addLast(chunkBatch);
+    }
+
+    @Override
+    public void batchAcknowledged() {
+        for (WorldChunk chunk : chunkBatches.pop()) {
+            if (trackedClaim == null || !trackedClaim.getDimension().equals(getWorld().getRegistryKey())) continue;
+            showChunk(trackedClaim, chunk.getPos());
+        }
     }
 
     private void showChunk(AbstractClaim claim, ChunkPos pos) {
@@ -149,11 +158,9 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     @Override
     public void unTrackClaim() {
         trackedClaim = null;
-
         for (BlockPos blockPos : trackedShowBlocks) {
             networkHandler.sendPacket(new BlockUpdateS2CPacket(getWorld(), blockPos));
         }
-
         chunk2TrackedShowBlocks.clear();
         trackedShowBlocks.clear();
     }

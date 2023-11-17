@@ -123,7 +123,7 @@ public class PermissionManager {
 
     public static final AbstractChildNode PISTON_CROSSES_BORDERS = literal("piston_crosses_borders")
         .description("setting.piston_crosses_borders")
-        .icon(Items.WATER_BUCKET)
+        .icon(Items.PISTON)
         .build();
 
     public static final AbstractChildNode SCULK_CROSSES_BORDERS = literal("sculk_crosses_borders")
@@ -151,6 +151,7 @@ public class PermissionManager {
         registerSetting(PVP);
         registerSetting(EXPLOSIONS);
         registerSetting(FLUID_CROSSES_BORDERS);
+        registerSetting(PISTON_CROSSES_BORDERS);
         registerSetting(SCULK_CROSSES_BORDERS);
         registerSetting(MOB_SPAWN);
     }
