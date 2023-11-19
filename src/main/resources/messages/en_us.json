@@ -175,6 +175,7 @@
   "text.itsours.setting.pvp.description": "Player vs Player",
   "text.itsours.setting.explosions.description": "Explosion block damage (eg. creeper explosion)",
   "text.itsours.setting.fluid_crosses_borders.description": "Fluids flowing across claim borders (eg. water flowing)",
+  "text.itsours.setting.piston_crosses_borders.description": "Pistons pushing across claim borders",
   "text.itsours.setting.sculk_crosses_borders.description": "Sculk spreading across claim borders",
   "text.itsours.setting.mob_spawn.description": "Mob spawning (eg. zombie spawning)",
   "text.itsours.permission.context.default": "<hover:'<italic>Default player permissions'>Default</hover>",

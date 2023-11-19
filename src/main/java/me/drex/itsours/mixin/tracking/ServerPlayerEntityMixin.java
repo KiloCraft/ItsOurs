@@ -66,18 +66,18 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
 
     private void showChunk(AbstractClaim claim, ChunkPos pos) {
         BlockState blockState = SHOW_BLOCKS[Math.min(claim.getDepth(), SHOW_BLOCKS.length - 1)].getDefaultState();
-        BlockState centerBlockState = SHOW_BLOCKS_CENTER[Math.min(claim.getDepth(), SHOW_BLOCKS.length - 1)].getDefaultState();
+        BlockState centerBlockState = SHOW_BLOCKS_CENTER[Math.min(claim.getDepth(), SHOW_BLOCKS_CENTER.length - 1)].getDefaultState();
 
         ClaimBox box = claim.getBox();
         for (int x = Math.max(box.getMinX(), pos.getStartX()); x < Math.min(box.getMinX() + box.getBlockCountX(), pos.getEndX() + 1); x++) {
-            boolean lineCenter = box.isCenterBlock(box.getBlockCountX(), x);
+            boolean lineCenter = box.isCenterBlock(box.getBlockCountX(), x - box.getMinX());
             BlockState state = lineCenter ? centerBlockState : blockState;
 
             sendFakeBlockIfInChunk(x, box.getMinZ(), pos, state);
             sendFakeBlockIfInChunk(x, box.getMaxZ(), pos, state);
         }
         for (int z = Math.max(box.getMinZ(), pos.getStartZ()); z < Math.min(box.getMinZ() + box.getBlockCountZ(), pos.getEndZ() + 1); z++) {
-            boolean lineCenter = box.isCenterBlock(box.getBlockCountZ(), z);
+            boolean lineCenter = box.isCenterBlock(box.getBlockCountZ(), z - box.getMinZ());
             BlockState state = lineCenter ? centerBlockState : blockState;
 
             sendFakeBlockIfInChunk(box.getMinX(), z, pos, state);
@@ -126,7 +126,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
 
     private void showClaimInternal(AbstractClaim claim) {
         BlockState blockState = SHOW_BLOCKS[Math.min(claim.getDepth(), SHOW_BLOCKS.length - 1)].getDefaultState();
-        BlockState centerBlockState = SHOW_BLOCKS_CENTER[Math.min(claim.getDepth(), SHOW_BLOCKS.length - 1)].getDefaultState();
+        BlockState centerBlockState = SHOW_BLOCKS_CENTER[Math.min(claim.getDepth(), SHOW_BLOCKS_CENTER.length - 1)].getDefaultState();
 
         ClaimBox box = claim.getBox();
         for (int x = 0; x < box.getBlockCountX(); x++) {
