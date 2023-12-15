@@ -100,7 +100,7 @@ public class ExpandCommand extends AbstractCommand {
                 src.sendError(localized("text.itsours.commands.expand.missingClaimBlocks", Map.of("blocks", literal(String.valueOf(areaIncrease - blocks)))));
                 return 0;
             }
-            DataManager.getUserData(uuid).setBlocks(blocks - areaIncrease);
+            DataManager.updateUserData(uuid).setBlocks(blocks - areaIncrease);
         }
 
         claim.setBox(newBox);

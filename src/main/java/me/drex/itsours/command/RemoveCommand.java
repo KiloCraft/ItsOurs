@@ -32,7 +32,7 @@ public class RemoveCommand extends AbstractCommand {
             subzone.getMainClaim().notifyTrackingChanges(src.getServer());
         }
         if (claim instanceof Claim) {
-            PlayerData userData = DataManager.getUserData(claim.getOwner());
+            PlayerData userData = DataManager.updateUserData(claim.getOwner());
             userData.setBlocks(Math.max(0, userData.blocks() + claim.getArea()));
             for (ServerPlayerEntity serverPlayerEntity : src.getServer().getPlayerManager().getPlayerList()) {
                 ClaimTrackingPlayer claimTrackingPlayer = ((ClaimTrackingPlayer)serverPlayerEntity);

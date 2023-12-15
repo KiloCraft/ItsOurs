@@ -94,7 +94,7 @@ public class CreateCommand extends AbstractCommand {
             return 0;
         }
         if (ClaimList.getClaim(claimName).isPresent()) throw ClaimArgument.NAME_TAKEN;
-        DataManager.getUserData(uuid).setBlocks(blocks - requiredBlocks);
+        DataManager.updateUserData(uuid).setBlocks(blocks - requiredBlocks);
         ClaimList.addClaim(claim);
         ((ClaimTrackingPlayer) player).trackClaim(claim);
         // reset positions

@@ -34,7 +34,7 @@ public class ToggleCommand extends AbstractCommand {
 
     private int executeToggle(ServerCommandSource src) throws CommandSyntaxException {
         ServerPlayerEntity player = src.getPlayerOrThrow();
-        PlayerData userData = DataManager.getUserData(player.getUuid());
+        PlayerData userData = DataManager.updateUserData(player.getUuid());
         boolean newValue = !dataGetter.apply(userData);
         dataSetter.accept(userData, newValue);
         if (newValue) {

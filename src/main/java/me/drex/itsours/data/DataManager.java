@@ -49,6 +49,10 @@ public class DataManager {
     }
 
     public static PlayerData getUserData(UUID uuid) {
+        return playerData.getOrDefault(uuid, new PlayerData(false, false, false, Constants.DEFAULT_CLAIM_BLOCKS));
+    }
+
+    public static PlayerData updateUserData(UUID uuid) {
         return playerData.computeIfAbsent(uuid, ignored -> new PlayerData(false, false, false, Constants.DEFAULT_CLAIM_BLOCKS));
     }
 
@@ -58,6 +62,7 @@ public class DataManager {
             LOGGER.debug("Claim data file not found.");
         } else {
             try {
+                LOGGER.info("Loading claim data {}kB", Files.size(data) / 1024);
                 Dynamic<NbtElement> dynamic = new Dynamic<>(NbtOps.INSTANCE, NbtIo.readCompressed(data, NbtTagSizeTracker.ofUnlimitedBytes()));
                 int dataVersion = dynamic.get("dataVersion").asInt(CURRENT_DATA_VERSION);
                 dynamic.remove("dataVersion");
@@ -65,6 +70,7 @@ public class DataManager {
                 NbtElement element = dynamic.getValue();
                 DataResult<?> dataResult = CODEC.parse(NbtOps.INSTANCE, element);
                 dataResult.getOrThrow(false, error -> LOGGER.error("Failed to parse claim data: '{}'", error));
+                LOGGER.info("Claim data loaded successfully");
             } catch (IOException e) {
                 LOGGER.error("Failed to load claim data {}", data, e);
             }

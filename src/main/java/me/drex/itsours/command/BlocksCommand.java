@@ -90,7 +90,7 @@ public class BlocksCommand extends AbstractCommand {
             int blocks = DataManager.getUserData(target.getId()).blocks();
             int newAmount = MathHelper.clamp(blocks + amount, 0, Integer.MAX_VALUE);
             if (blocks == newAmount) continue;
-            DataManager.getUserData(target.getId()).setBlocks(newAmount);
+            DataManager.updateUserData(target.getId()).setBlocks(newAmount);
             i++;
             if (amount >= 0) {
                 src.sendFeedback(() -> localized("text.itsours.commands.blocks.add", placeholders(amount, target)), false);
@@ -108,13 +108,13 @@ public class BlocksCommand extends AbstractCommand {
             src.sendError(localized("text.itsours.commands.blocks.give.notEnough"));
             return -1;
         }
-        DataManager.getUserData(src.getPlayer().getUuid()).setBlocks(donatorBlocks - requiredAmount);
+        DataManager.updateUserData(src.getPlayer().getUuid()).setBlocks(donatorBlocks - requiredAmount);
         int i = 0;
         for (GameProfile target : targets) {
             int receiverBlocks = DataManager.getUserData(target.getId()).blocks();
             int newAmount = Math.min(receiverBlocks + amount, Integer.MAX_VALUE);
             if (receiverBlocks == newAmount) continue;
-            DataManager.getUserData(target.getId()).setBlocks(newAmount);
+            DataManager.updateUserData(target.getId()).setBlocks(newAmount);
             i++;
             src.sendFeedback(() -> localized("text.itsours.commands.blocks.give", placeholders(amount, target)), false);
             ServerPlayerEntity player = src.getServer().getPlayerManager().getPlayer(target.getId());
@@ -128,7 +128,7 @@ public class BlocksCommand extends AbstractCommand {
         int i = 0;
         for (GameProfile target : targets) {
             int newAmount = MathHelper.clamp(amount, 0, Integer.MAX_VALUE);
-            DataManager.getUserData(target.getId()).setBlocks(newAmount);
+            DataManager.updateUserData(target.getId()).setBlocks(newAmount);
             src.sendFeedback(() -> localized("text.itsours.commands.blocks.set", placeholders(amount, target)), false);
             i++;
         }

@@ -41,7 +41,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     public void resetSelection() {
         this.firstPos = null;
         this.secondPos = null;
-        DataManager.getUserData(getUuid()).setSelect(false);
+        DataManager.updateUserData(getUuid()).setSelect(false);
     }
 
     @Override
