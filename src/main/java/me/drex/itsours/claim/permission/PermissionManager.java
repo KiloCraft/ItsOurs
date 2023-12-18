@@ -57,11 +57,13 @@ public class PermissionManager {
         .then(ITEM_BLOCK_NODES)
         .build();
     public static final Predicate<Block> INTERACT_BLOCK_PREDICATE = block -> {
-        boolean onUseOverride = overrides(block.getClass(), Block.class, DEV_ENV ? "onUse" : "method_9534", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class);
+//        boolean onUseOverride = overrides(block.getClass(), Block.class, DEV_ENV ? "onUse" : "method_9534", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class);
+        boolean onUseOverride = overrides(block.getClass(), Block.class, DEV_ENV ? "method_55765" : "method_55765", ItemStack.class, BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class);
+        boolean onUseOverride2 = overrides(block.getClass(), Block.class, DEV_ENV ? "method_55766" : "method_55766", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, BlockHitResult.class);
         // Instant-mine interactions (dragon egg, note block and redstone ore)
         boolean onBlockBreakStartOverride = overrides(block.getClass(), Block.class, DEV_ENV ? "onBlockBreakStart" : "method_9606", BlockState.class, World.class, BlockPos.class, PlayerEntity.class);
         return !(block instanceof StairsBlock) &&
-            (onUseOverride || onBlockBreakStartOverride ||
+            (onUseOverride || onUseOverride2 || onBlockBreakStartOverride ||
                 block instanceof ButtonBlock || block instanceof AbstractPressurePlateBlock);
     };
     public static final List<ChildNode> INTERACT_BLOCK_NODES = getNodes(Registries.BLOCK, INTERACT_BLOCK_PREDICATE);

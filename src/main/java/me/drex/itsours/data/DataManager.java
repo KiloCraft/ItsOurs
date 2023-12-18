@@ -63,7 +63,7 @@ public class DataManager {
         } else {
             try {
                 LOGGER.info("Loading claim data {}kB", Files.size(data) / 1024);
-                Dynamic<NbtElement> dynamic = new Dynamic<>(NbtOps.INSTANCE, NbtIo.readCompressed(data, NbtTagSizeTracker.ofUnlimitedBytes()));
+                Dynamic<NbtElement> dynamic = new Dynamic<>(NbtOps.INSTANCE, NbtIo.readCompressed(data, NbtSizeTracker.ofUnlimitedBytes()));
                 int dataVersion = dynamic.get("dataVersion").asInt(CURRENT_DATA_VERSION);
                 dynamic.remove("dataVersion");
                 dynamic = FIXER.update(ItsOursTypeReferences.ROOT, dynamic, dataVersion, CURRENT_DATA_VERSION);
