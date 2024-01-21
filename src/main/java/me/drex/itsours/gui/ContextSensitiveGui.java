@@ -50,7 +50,7 @@ public interface ContextSensitiveGui extends GuiInterface {
     }
 
     default void click() {
-        context().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 0.5f, 1);
+        context().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1);
     }
 
 }
