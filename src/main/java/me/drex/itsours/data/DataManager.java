@@ -28,7 +28,7 @@ import static me.drex.itsours.data.ItsOursSchemas.FIXER;
 
 public class DataManager {
 
-    public static final int CURRENT_DATA_VERSION = 5;
+    public static final int CURRENT_DATA_VERSION = 6;
     private static final Map<UUID, PlayerData> playerData = new HashMap<>();
     // TODO: Default defaultSettings
     private static PermissionData defaultSettings = new PermissionData();

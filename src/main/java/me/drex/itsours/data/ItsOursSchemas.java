@@ -34,6 +34,8 @@ public class ItsOursSchemas {
         builder.addFixer(new AddDefaultPermissionsFix(schema4));
         Schema schema5 = builder.addSchema(5, EMPTY);
         builder.addFixer(new ClaimOptionalDataFix(schema5));
+        Schema schema6 = builder.addSchema(6, EMPTY);
+        builder.addFixer(new ClaimOptionalDataFix(schema6));
     }
 
 }
