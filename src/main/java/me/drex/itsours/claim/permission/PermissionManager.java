@@ -59,7 +59,7 @@ public class PermissionManager {
         .build();
     public static final Predicate<Block> INTERACT_BLOCK_PREDICATE = block -> {
         boolean onUseOverride = overrides(block.getClass(), Block.class, DEV_ENV ? "onUseWithItem" : "method_55765", ItemStack.class, BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class);
-        boolean onUseOverride2 = overrides(block.getClass(), Block.class, DEV_ENV ? "useWithoutItem" : "method_55766", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, BlockHitResult.class);
+        boolean onUseOverride2 = overrides(block.getClass(), Block.class, DEV_ENV ? "onUse" : "method_55766", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, BlockHitResult.class);
         // Instant-mine interactions (dragon egg, note block and redstone ore)
         boolean onBlockBreakStartOverride = overrides(block.getClass(), Block.class, DEV_ENV ? "onBlockBreakStart" : "method_9606", BlockState.class, World.class, BlockPos.class, PlayerEntity.class);
         return !(block instanceof StairsBlock) &&

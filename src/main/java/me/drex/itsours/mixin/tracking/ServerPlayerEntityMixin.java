@@ -8,7 +8,9 @@ import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.user.ClaimTrackingPlayer;
 import me.drex.itsours.util.ClaimBox;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.server.network.ChunkFilter;
@@ -25,6 +27,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static me.drex.itsours.claim.AbstractClaim.SHOW_BLOCKS;
 import static me.drex.itsours.claim.AbstractClaim.SHOW_BLOCKS_CENTER;
@@ -36,6 +39,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
         super(world, pos, yaw, gameProfile);
     }
+
+    private static final Predicate<BlockState> BLOCKS_MOVEMENT = AbstractBlock.AbstractBlockState::blocksMovement;
 
     @Shadow
     public ServerPlayNetworkHandler networkHandler;
@@ -166,9 +171,22 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     }
 
     private void sendFakeBlock(int x, int z, BlockState state) {
-        int y = getWorld().getTopY(OCEAN_FLOOR, x, z);
-        y = Math.max(getWorld().getBottomY(), y - 1);
-        BlockPos pos = new BlockPos(x, y, z);
+        World world = getWorld();
+        int y = world.getTopY(OCEAN_FLOOR, x, z);
+        int playerY = (int) getY();
+        BlockPos.Mutable pos = new BlockPos.Mutable(x, y - 1, z);
+        // Special handling for cave-like scenarios
+        if (y - playerY > 16) {
+            pos.setY(playerY + 16);
+            if (BLOCKS_MOVEMENT.test(world.getBlockState(pos))) {
+                while (BLOCKS_MOVEMENT.test(world.getBlockState(pos)) && pos.getY() > world.getBottomY()) {
+                    pos.move(0, -1, 0);
+                }
+            }
+            while (!BLOCKS_MOVEMENT.test(world.getBlockState(pos)) && pos.getY() > world.getBottomY()) {
+                pos.move(0, -1, 0);
+            }
+        }
 
         BlockUpdateS2CPacket packet = new BlockUpdateS2CPacket(pos, state);
         networkHandler.sendPacket(packet);
