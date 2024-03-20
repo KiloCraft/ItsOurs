@@ -14,6 +14,7 @@ import me.drex.itsours.claim.permission.util.Misc;
 import me.drex.itsours.claim.permission.util.Modify;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
@@ -43,7 +44,7 @@ public class PermissionManager {
     public static final RootNode PERMISSION = new RootNode("permission");
     public static final RootNode COMBINED = new RootNode("combined");
 
-    public static final Predicate<Item> USE_ITEM_PREDICATE = item -> overrides(item.getClass(), Item.class, DEV_ENV ? "use" : "method_7836", World.class, PlayerEntity.class, Hand.class) || item.isFood();
+    public static final Predicate<Item> USE_ITEM_PREDICATE = item -> overrides(item.getClass(), Item.class, DEV_ENV ? "use" : "method_7836", World.class, PlayerEntity.class, Hand.class) || item.getComponents().contains(DataComponentTypes.FOOD);
     public static final List<ChildNode> USE_ITEM_NODES = getNodes(Registries.ITEM, USE_ITEM_PREDICATE);
     public static final AbstractChildNode USE_ITEM = literal("use_item")
         .description("permission.use_item")
