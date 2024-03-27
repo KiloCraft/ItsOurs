@@ -23,7 +23,7 @@ public class Subzone extends AbstractClaim {
         Codec.STRING.fieldOf("name").forGetter(AbstractClaim::getName),
         ClaimBox.CODEC.fieldOf("box").forGetter(AbstractClaim::getBox),
         World.CODEC.fieldOf("dimension").forGetter(AbstractClaim::getDimension),
-        Codecs.createLazy(() -> Codec.list(Subzone.CODEC)).optionalFieldOf("subzones", new ArrayList<>()).forGetter(AbstractClaim::getSubzones),
+        Codec.lazyInitialized(() -> Codec.list(Subzone.CODEC)).optionalFieldOf("subzones", new ArrayList<>()).forGetter(AbstractClaim::getSubzones),
         PermissionData.CODEC.fieldOf("settings").forGetter(AbstractClaim::getSettings),
         Codec.unboundedMap(Uuids.STRING_CODEC, PermissionData.CODEC).optionalFieldOf("permissions", new HashMap<>()).forGetter(AbstractClaim::getPermissions),
         ClaimRoleManager.CODEC.fieldOf("roles").forGetter(AbstractClaim::getRoleManager),

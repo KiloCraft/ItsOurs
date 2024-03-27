@@ -69,7 +69,7 @@ public class DataManager {
                 dynamic = FIXER.update(ItsOursTypeReferences.ROOT, dynamic, dataVersion, CURRENT_DATA_VERSION);
                 NbtElement element = dynamic.getValue();
                 DataResult<?> dataResult = CODEC.parse(NbtOps.INSTANCE, element);
-                dataResult.getOrThrow(false, error -> LOGGER.error("Failed to parse claim data: '{}'", error));
+                dataResult.getOrThrow(error -> new IllegalStateException("Failed to parse claim data: '" + error + "'"));
                 LOGGER.info("Claim data loaded successfully");
             } catch (IOException e) {
                 LOGGER.error("Failed to load claim data {}", data, e);
