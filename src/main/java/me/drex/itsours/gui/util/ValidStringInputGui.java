@@ -39,7 +39,7 @@ public class ValidStringInputGui extends StringInputGui {
                         fail();
                     }
                 })
-                .hideFlags()
+                .hideDefaultTooltip()
         );
     }
 

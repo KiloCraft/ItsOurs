@@ -62,7 +62,7 @@ public abstract class PermissionStorageGui extends PageGui<ChildNode> {
             GuiElementBuilder builder = new GuiElementBuilder(childNode.getIcon().asItem())
                 .setName(Text.literal(childNode.getName()))
                 .addLoreLine(localized("text.itsours.gui.permissionstorage.element.lore", Map.of("description", childNode.getDescription(), "value", value.format())))
-                .hideFlags()
+                .hideDefaultTooltip()
                 .setCallback(clickType -> {
                     if (clickType.isLeft) {
                         Value nextValue = nextValue(value, withNode);

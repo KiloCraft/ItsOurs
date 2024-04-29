@@ -40,7 +40,7 @@ public interface ContextSensitiveGui extends GuiInterface {
     default GuiElementBuilder backElement() {
         return new GuiElementBuilder(Items.BARRIER)
             .setName(localized(!context().guiStack.isEmpty() ? "text.itsours.gui.back" : "text.itsours.gui.close"))
-            .hideFlags()
+            .hideDefaultTooltip()
             .setCallback(this::backCallback);
     }
 

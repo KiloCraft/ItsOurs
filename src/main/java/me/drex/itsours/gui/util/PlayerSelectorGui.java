@@ -33,7 +33,7 @@ public class PlayerSelectorGui extends StringInputGui {
                         backCallback();
                     }
                 })
-                .hideFlags()
+                .hideDefaultTooltip()
 
         );
     }

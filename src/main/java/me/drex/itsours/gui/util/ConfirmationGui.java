@@ -43,13 +43,13 @@ public class ConfirmationGui extends SimpleGui implements ContextSensitiveGui {
             if (lineIndex <= 2) {
                 this.setSlot(i, new GuiElementBuilder(Items.RED_STAINED_GLASS_PANE)
                     .setName(localized("text.itsours.gui.cancel"))
-                    .hideFlags()
+                    .hideDefaultTooltip()
                     .setCallback(this::backCallback)
                 );
             } else if (lineIndex > 5) {
                 this.setSlot(i, new GuiElementBuilder(Items.GREEN_STAINED_GLASS_PANE)
                     .setName(localized("text.itsours.gui.confirm"))
-                    .hideFlags()
+                    .hideDefaultTooltip()
                     .setCallback(() -> {
                         runnable.run();
                         backCallback();
@@ -58,7 +58,7 @@ public class ConfirmationGui extends SimpleGui implements ContextSensitiveGui {
             } else {
                 this.setSlot(i, new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE)
                     .setName(localized(id, placeholders))
-                    .hideFlags()
+                    .hideDefaultTooltip()
                 );
             }
         }

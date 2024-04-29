@@ -96,14 +96,14 @@ public class PlayerManagerGui extends PageGui<UUID> {
         return switch (index) {
             case 0 -> new GuiElementBuilder(Items.PLAYER_HEAD)
                 .setName(localized("text.itsours.gui.playermanager.add"))
-                .hideFlags()
+                .hideDefaultTooltip()
                 .setSkullOwner(GuiTextures.GUI_ADD)
                 .setCallback(() -> {
                     switchUi(new PlayerSelectorGui(context, this::addPlayer));
                 });
             case 1 -> new GuiElementBuilder(Items.PLAYER_HEAD)
                 .setName(localized("text.itsours.gui.playermanager.trust"))
-                .hideFlags()
+                .hideDefaultTooltip()
                 .setSkullOwner(GuiTextures.GUI_ADD)
                 .setCallback(() -> {
                     switchUi(new PlayerSelectorGui(context, this::trustPlayer));

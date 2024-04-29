@@ -52,7 +52,7 @@ public abstract class BaseGui extends SimpleGui implements ContextSensitiveGui {
     protected GuiElementBuilder guiElement(Item item, String name, Map<String, Text> placeholders) {
         GuiElementBuilder builder = new GuiElementBuilder(item)
             .setName(localized("text.itsours.gui." + name + ".name", placeholders))
-            .hideFlags();
+            .hideDefaultTooltip();
         builder.addLoreLine(localized("text.itsours.gui." + name + ".lore", placeholders));
         return builder;
     }

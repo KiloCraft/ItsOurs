@@ -62,7 +62,7 @@ public class RoleManagerGui extends PageGui<String> {
         if (index == 0) {
             return new GuiElementBuilder(Items.PLAYER_HEAD)
                 .setName(localized("text.itsours.gui.rolemanager.add"))
-                .hideFlags()
+                .hideDefaultTooltip()
                 .setSkullOwner(GuiTextures.GUI_ADD)
                 .setCallback(() -> {
                     switchUi(new ValidStringInputGui(context, "", input -> claim.getRoleManager().getRole(input) == null, this::addRole) {
