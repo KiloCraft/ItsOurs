@@ -8,17 +8,21 @@ import me.drex.itsours.claim.permission.node.Node;
 import net.minecraft.block.AbstractPressurePlateBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ButtonBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.*;
+import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -27,6 +31,9 @@ import static me.drex.message.api.LocalizedMessage.localized;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin {
+
+    @Shadow
+    public abstract EntityType<?> getType();
 
     public AbstractClaim pclaim = null;
 
@@ -78,5 +85,51 @@ public abstract class EntityMixin {
         }
         return true;
     }
+
+    @Inject(
+        method = "isImmuneToExplosion",
+        at = @At("RETURN"),
+        cancellable = true
+    )
+    private void itsours$preventExplosionImpact(Explosion explosion, CallbackInfoReturnable<Boolean> cir) {
+        Entity cause = explosion.getEntity();
+        Entity this$entity = (Entity) (Object) this;
+        if (cause instanceof Ownable ownable) {
+            Entity owner = ownable.getOwner();
+            if (owner != null) {
+                cause = owner;
+            }
+        } else if (cause instanceof MobEntity mobEntity) {
+            LivingEntity target = mobEntity.getTarget();
+            if (target != null) {
+                cause = target;
+            }
+        }
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt(this$entity);
+        if (claim.isEmpty()) {
+            return;
+        }
+        if (cause != null) {
+            if (cause == this$entity) return;
+            if (!claim.get().hasPermission(null, PermissionManager.PVP) && this$entity instanceof PlayerEntity) {
+                if (cause instanceof PlayerEntity player) {
+                    player.sendMessage(localized("text.itsours.action.disallowed.damage_player"), true);
+                }
+                cir.setReturnValue(true);
+                return;
+            }
+            if (!claim.get().hasPermission(cause.getUuid(), PermissionManager.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, this.getType())) && !(this$entity instanceof PlayerEntity)) {
+                if (cause instanceof PlayerEntity player) {
+                    player.sendMessage(localized("text.itsours.action.disallowed.damage_entity"), true);
+                }
+                cir.setReturnValue(true);
+            }
+        } else {
+            if (!claim.get().hasPermission(null, PermissionManager.EXPLOSIONS)) {
+                cir.setReturnValue(true);
+            }
+        }
+    }
+
 
 }
