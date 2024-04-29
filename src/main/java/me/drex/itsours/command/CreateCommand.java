@@ -18,6 +18,7 @@ import me.drex.itsours.user.ClaimSelectingPlayer;
 import me.drex.itsours.user.ClaimTrackingPlayer;
 import me.drex.itsours.util.ClaimBox;
 import me.drex.itsours.util.Constants;
+import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -48,10 +49,19 @@ public class CreateCommand extends AbstractCommand {
         literal.then(
             argument("name", StringArgumentType.word())
                 .executes(ctx -> executeCreate(ctx.getSource(), StringArgumentType.getString(ctx, "name")))
+                .then(
+                    argument("from", BlockPosArgumentType.blockPos()).then(
+                        argument("to", BlockPosArgumentType.blockPos()).executes(ctx -> executeCreate(
+                            ctx.getSource(),
+                            StringArgumentType.getString(ctx, "name"),
+                            ClaimBox.create(BlockPosArgumentType.getBlockPos(ctx, "from"), BlockPosArgumentType.getBlockPos(ctx, "to")))
+                        )
+                    )
+                )
         ).executes(ctx -> executeCreate(ctx.getSource(), ctx.getSource().getName()));
     }
 
-    private int executeCreate(ServerCommandSource src, String claimName) throws CommandSyntaxException {
+    private int executeCreate(ServerCommandSource src, String claimName, ClaimBox claimBox) throws CommandSyntaxException {
         int limit = Constants.DEFAULT_CLAIM_COUNT;
         if (ItsOurs.checkPermission(src, "itsours.max.bypass", 2)) {
             limit = Integer.MAX_VALUE;
@@ -65,18 +75,15 @@ public class CreateCommand extends AbstractCommand {
 
         ServerPlayerEntity player = src.getPlayer();
         UUID uuid = player.getUuid();
-        ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
         if (AbstractClaim.isNameInvalid(claimName)) throw ClaimArgument.INVALID_NAME;
-        if (!claimSelectingPlayer.arePositionsSet()) throw SELECT_FIRST;
-        ClaimBox selectedBox = ClaimBox.create(claimSelectingPlayer.getFirstPosition().withY(src.getWorld().getBottomY()), claimSelectingPlayer.getSecondPosition().withY(src.getWorld().getTopY() - 1));
         Optional<AbstractClaim> optional = ClaimList.getClaims().stream().filter((claim) ->
             claim.getDimension().equals(player.getWorld().getRegistryKey()) &&
-                selectedBox.intersects(claim.getBox())
+                claimBox.intersects(claim.getBox())
         ).max(Comparator.comparingInt(AbstractClaim::getDepth));
         if (optional.isPresent()) {
             AbstractClaim intersectingClaim = optional.get();
-            if (intersectingClaim.getBox().contains(selectedBox)) {
-                return createSubzone(src, claimName, intersectingClaim, selectedBox);
+            if (intersectingClaim.getBox().contains(claimBox)) {
+                return createSubzone(src, claimName, intersectingClaim, claimBox);
             } else {
                 throw INTERSECTS.create(intersectingClaim.getFullName());
             }
@@ -85,8 +92,8 @@ public class CreateCommand extends AbstractCommand {
             throw LIMIT.create(limit);
         }
         // Main claim
-        Claim claim = new Claim(claimName, uuid, selectedBox, src.getWorld());
-        int requiredBlocks = selectedBox.getArea();
+        Claim claim = new Claim(claimName, uuid, claimBox, src.getWorld());
+        int requiredBlocks = claimBox.getArea();
         // Check and remove claim blocks
         int blocks = DataManager.getUserData(uuid).blocks();
         if (requiredBlocks > blocks) {
@@ -98,8 +105,17 @@ public class CreateCommand extends AbstractCommand {
         ClaimList.addClaim(claim);
         ((ClaimTrackingPlayer) player).trackClaim(claim);
         // reset positions
-        claimSelectingPlayer.resetSelection();
         return 1;
+    }
+
+    private int executeCreate(ServerCommandSource src, String claimName) throws CommandSyntaxException {
+        ServerPlayerEntity player = src.getPlayer();
+        ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
+        if (!claimSelectingPlayer.arePositionsSet()) throw SELECT_FIRST;
+        ClaimBox selectedBox = ClaimBox.create(claimSelectingPlayer.getFirstPosition().withY(src.getWorld().getBottomY()), claimSelectingPlayer.getSecondPosition().withY(src.getWorld().getTopY() - 1));
+        int result = executeCreate(src, claimName, selectedBox);
+        claimSelectingPlayer.resetSelection();
+        return result;
     }
 
     private int createSubzone(ServerCommandSource src, String claimName, AbstractClaim parent, ClaimBox claimBox) throws CommandSyntaxException {
@@ -110,7 +126,7 @@ public class CreateCommand extends AbstractCommand {
             if (subzone.getName().equals(claimName)) throw ClaimArgument.NAME_TAKEN;
         }
         validatePermission(src, parent, PermissionManager.MODIFY, Modify.SUBZONE.node());
-        Subzone subzone = new Subzone(claimName, ClaimBox.create(claimBox.getMin().withY(parent.getBox().getMinY()), claimBox.getMax().withY(parent.getBox().getMaxY())), player.getServerWorld(), parent);
+        Subzone subzone = new Subzone(claimName, claimBox, player.getServerWorld(), parent);
         ClaimList.addClaim(subzone);
         parent.getMainClaim().notifyTrackingChanges(src.getServer());
         ((ClaimSelectingPlayer) player).resetSelection();

@@ -29,8 +29,7 @@ import static me.drex.itsours.data.ItsOursSchemas.FIXER;
 public class DataManager {
 
     public static final int CURRENT_DATA_VERSION = 6;
-    private static final Map<UUID, PlayerData> playerData = new HashMap<>();
-    // TODO: Default defaultSettings
+    private static Map<UUID, PlayerData> playerData = new HashMap<>();
     private static PermissionData defaultSettings = new PermissionData();
     public static final Codec<?> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         ClaimList.CODEC.fieldOf("claims").forGetter((ignored) -> ClaimList.getClaims().stream().filter(claim -> claim instanceof Claim).map(claim -> (Claim) claim).toList()),
@@ -43,8 +42,7 @@ public class DataManager {
 
     public static void init(List<Claim> claims, PermissionData defaultPermissions, Map<UUID, PlayerData> players) {
         ClaimList.load(claims);
-        playerData.clear();
-        playerData.putAll(players);
+        playerData = new HashMap<>(players);
         DataManager.defaultSettings = defaultPermissions;
     }
 
