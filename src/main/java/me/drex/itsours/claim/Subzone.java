@@ -2,16 +2,15 @@ package me.drex.itsours.claim;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import me.drex.itsours.claim.permission.Permission;
-import me.drex.itsours.claim.permission.holder.PermissionData;
-import me.drex.itsours.claim.permission.visitor.PermissionVisitor;
-import me.drex.itsours.claim.roles.ClaimRoleManager;
+import me.drex.itsours.claim.flags.Flag;
+import me.drex.itsours.claim.flags.holder.FlagData;
+import me.drex.itsours.claim.flags.visitor.FlagVisitor;
+import me.drex.itsours.claim.groups.ClaimGroupManager;
 import me.drex.itsours.claim.util.ClaimMessages;
 import me.drex.itsours.util.ClaimBox;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Uuids;
-import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,20 +23,20 @@ public class Subzone extends AbstractClaim {
         ClaimBox.CODEC.fieldOf("box").forGetter(AbstractClaim::getBox),
         World.CODEC.fieldOf("dimension").forGetter(AbstractClaim::getDimension),
         Codec.lazyInitialized(() -> Codec.list(Subzone.CODEC)).optionalFieldOf("subzones", new ArrayList<>()).forGetter(AbstractClaim::getSubzones),
-        PermissionData.CODEC.fieldOf("settings").forGetter(AbstractClaim::getSettings),
-        Codec.unboundedMap(Uuids.STRING_CODEC, PermissionData.CODEC).optionalFieldOf("permissions", new HashMap<>()).forGetter(AbstractClaim::getPermissions),
-        ClaimRoleManager.CODEC.fieldOf("roles").forGetter(AbstractClaim::getRoleManager),
+        FlagData.CODEC.fieldOf("flags").forGetter(AbstractClaim::getFlags),
+        Codec.unboundedMap(Uuids.STRING_CODEC, FlagData.CODEC).optionalFieldOf("player_flags", new HashMap<>()).forGetter(AbstractClaim::getPlayerFlags),
+        ClaimGroupManager.CODEC.fieldOf("groups").forGetter(AbstractClaim::getGroupManager),
         ClaimMessages.CODEC.fieldOf("messages").forGetter(AbstractClaim::getMessages)
-    ).apply(instance, (name, box, dimension, subzones, settings, permissions, roles, claimMessages) -> {
-        Subzone claim = new Subzone(name, box, dimension, subzones, settings, permissions, roles, claimMessages);
+    ).apply(instance, (name, box, dimension, subzones, flags, playerFlags, groups, claimMessages) -> {
+        Subzone claim = new Subzone(name, box, dimension, subzones, flags, playerFlags, groups, claimMessages);
         subzones.forEach(subzone -> subzone.setParent(claim));
         return claim;
     }));
 
     AbstractClaim parent;
 
-    private Subzone(String name, ClaimBox box, RegistryKey<World> dimension, List<Subzone> subzones, PermissionData settings, Map<UUID, PermissionData> permissions, ClaimRoleManager roles, ClaimMessages messages) {
-        super(name, box, dimension, new ArrayList<>(subzones), settings, new HashMap<>(permissions), roles, messages);
+    private Subzone(String name, ClaimBox box, RegistryKey<World> dimension, List<Subzone> subzones, FlagData flags, Map<UUID, FlagData> playerFlags, ClaimGroupManager groups, ClaimMessages messages) {
+        super(name, box, dimension, new ArrayList<>(subzones), flags, new HashMap<>(playerFlags), groups, messages);
     }
 
     public Subzone(String name, ClaimBox box, ServerWorld world, AbstractClaim parent) {
@@ -86,9 +85,9 @@ public class Subzone extends AbstractClaim {
     }
 
     @Override
-    public void visit(@Nullable UUID uuid, Permission permission, PermissionVisitor visitor) {
-        this.parent.visit(uuid, permission, visitor);
-        super.visit(uuid, permission, visitor);
+    public void visit(@Nullable UUID uuid, Flag flag, FlagVisitor visitor) {
+        this.parent.visit(uuid, flag, visitor);
+        super.visit(uuid, flag, visitor);
     }
 
 }

@@ -3,8 +3,8 @@ package me.drex.itsours.mixin;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
-import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.node.Node;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.FrostWalkerEnchantment;
 import net.minecraft.entity.LivingEntity;
@@ -28,7 +28,7 @@ public abstract class FrostWalkerEnchantmentMixin {
     )
     private static boolean itsours$canFreezeWater(boolean original, LivingEntity entity, World world, BlockPos pos, int level) {
         Optional<AbstractClaim> optional = ClaimList.getClaimAt(world, pos);
-        return optional.map(claim -> claim.hasPermission(entity.getUuid(), PermissionManager.PLACE, Node.registry(Registries.BLOCK, Blocks.FROSTED_ICE.getDefaultState().getBlock())) && original).orElse(original);
+        return optional.map(claim -> claim.checkAction(entity.getUuid(), FlagsManager.PLACE, Node.registry(Registries.BLOCK, Blocks.FROSTED_ICE.getDefaultState().getBlock())) && original).orElse(original);
     }
 
 }

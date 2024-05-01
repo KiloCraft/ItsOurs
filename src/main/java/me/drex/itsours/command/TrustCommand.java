@@ -4,10 +4,10 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.util.Modify;
-import me.drex.itsours.claim.roles.ClaimRoleManager;
-import me.drex.itsours.claim.roles.Role;
+import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.util.Modify;
+import me.drex.itsours.claim.groups.ClaimGroupManager;
+import me.drex.itsours.claim.groups.Group;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.util.PlaceholderUtil;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -43,9 +43,9 @@ public class TrustCommand extends AbstractCommand {
     }
 
     public int executeTrust(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets) throws CommandSyntaxException {
-        validatePermission(src, claim, PermissionManager.MODIFY, Modify.PERMISSION.node());
-        ClaimRoleManager roleManager = claim.getRoleManager();
-        Role trusted = roleManager.getRole(ClaimRoleManager.TRUSTED);
+        validateAction(src, claim, FlagsManager.MODIFY, Modify.FLAG.node());
+        ClaimGroupManager groupManager = claim.getGroupManager();
+        Group trusted = groupManager.getGroup(ClaimGroupManager.TRUSTED);
         int result = 0;
         if (trust) {
             for (GameProfile target : targets) {

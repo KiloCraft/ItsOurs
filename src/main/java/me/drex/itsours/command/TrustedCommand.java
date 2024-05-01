@@ -2,8 +2,8 @@ package me.drex.itsours.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.roles.ClaimRoleManager;
-import me.drex.itsours.claim.roles.Role;
+import me.drex.itsours.claim.groups.ClaimGroupManager;
+import me.drex.itsours.claim.groups.Group;
 import me.drex.itsours.command.argument.ClaimArgument;
 import net.minecraft.server.command.ServerCommandSource;
 
@@ -27,7 +27,7 @@ public class TrustedCommand extends AbstractCommand {
     }
 
     private int executeTrusted(ServerCommandSource src, AbstractClaim claim) {
-        Role trusted = claim.getRoleManager().getRole(ClaimRoleManager.TRUSTED);
+        Group trusted = claim.getGroupManager().getGroup(ClaimGroupManager.TRUSTED);
 
         if (trusted.players().isEmpty()) {
             src.sendError(localized("text.itsours.commands.trusted.empty"));

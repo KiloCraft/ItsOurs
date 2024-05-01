@@ -4,9 +4,9 @@ import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.ClaimList;
-import me.drex.itsours.claim.permission.Permission;
+import me.drex.itsours.claim.flags.Flag;
 import me.drex.itsours.gui.GuiContext;
-import me.drex.itsours.gui.permission.DefaultStorageGui;
+import me.drex.itsours.gui.flags.DefaultFlagsGui;
 import me.drex.itsours.util.PlaceholderUtil;
 import net.minecraft.item.Items;
 
@@ -32,7 +32,7 @@ public class PlayerClaimListGui extends ClaimListGui<Claim> {
     @Override
     public GuiElementBuilder buildNavigationBar(int index) {
         if (index == 7 && ItsOurs.checkPermission(context.player.getCommandSource(), "itsours.permissions.default", 2)) {
-            return switchElement(Items.COOKED_BEEF, "claimlist.default", new DefaultStorageGui(context, Permission.permission()));
+            return switchElement(Items.COOKED_BEEF, "claimlist.default", new DefaultFlagsGui(context, Flag.flag()));
         }
         return super.buildNavigationBar(index);
     }

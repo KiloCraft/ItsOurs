@@ -1,7 +1,7 @@
 package me.drex.itsours;
 
 import eu.pb4.common.protection.api.CommonProtection;
-import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.claim.flags.FlagsManager;
 import me.drex.itsours.claim.util.ItsoursProtectionProvider;
 import me.drex.itsours.command.CommandManager;
 import me.drex.itsours.data.DataManager;
@@ -37,7 +37,7 @@ public class ItsOurs {
 
     public void onServerReady(MinecraftServer server) {
         PlayerEventListener.registerPlayerListeners();
-        PermissionManager.register();
+        FlagsManager.register();
         DataManager.load(server);
     }
 

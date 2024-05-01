@@ -3,8 +3,8 @@ package me.drex.itsours.mixin;
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
-import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.node.Node;
 import net.minecraft.block.AbstractPressurePlateBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ButtonBlock;
@@ -79,7 +79,7 @@ public abstract class EntityMixin {
         if (claim.isEmpty()) {
             return true;
         }
-        if (!claim.get().hasPermission(playerEntity.getUuid(), PermissionManager.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
+        if (!claim.get().checkAction(playerEntity.getUuid(), FlagsManager.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
             playerEntity.sendMessage(localized("text.itsours.action.disallowed.interact_block"), true);
             return false;
         }
@@ -111,21 +111,21 @@ public abstract class EntityMixin {
         }
         if (cause != null) {
             if (cause == this$entity) return;
-            if (!claim.get().hasPermission(null, PermissionManager.PVP) && this$entity instanceof PlayerEntity) {
+            if (!claim.get().checkAction(null, FlagsManager.PVP) && this$entity instanceof PlayerEntity) {
                 if (cause instanceof PlayerEntity player) {
                     player.sendMessage(localized("text.itsours.action.disallowed.damage_player"), true);
                 }
                 cir.setReturnValue(true);
                 return;
             }
-            if (!claim.get().hasPermission(cause.getUuid(), PermissionManager.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, this.getType())) && !(this$entity instanceof PlayerEntity)) {
+            if (!claim.get().checkAction(cause.getUuid(), FlagsManager.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, this.getType())) && !(this$entity instanceof PlayerEntity)) {
                 if (cause instanceof PlayerEntity player) {
                     player.sendMessage(localized("text.itsours.action.disallowed.damage_entity"), true);
                 }
                 cir.setReturnValue(true);
             }
         } else {
-            if (!claim.get().hasPermission(null, PermissionManager.EXPLOSIONS)) {
+            if (!claim.get().checkAction(null, FlagsManager.EXPLOSIONS)) {
                 cir.setReturnValue(true);
             }
         }

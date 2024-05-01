@@ -5,8 +5,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
-import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.node.Node;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -50,7 +50,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
     private boolean itsours$canBreakBlock(boolean original, BlockPos pos) {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, pos);
         if (claim.isEmpty()) return original;
-        if (!claim.get().hasPermission(this.player.getUuid(), PermissionManager.MINE, Node.registry(Registries.BLOCK, this.world.getBlockState(pos).getBlock()))) {
+        if (!claim.get().checkAction(this.player.getUuid(), FlagsManager.MINE, Node.registry(Registries.BLOCK, this.world.getBlockState(pos).getBlock()))) {
             player.sendMessage(localized("text.itsours.action.disallowed.break_block"), true);
             return true;
         }
@@ -66,9 +66,9 @@ public abstract class ServerPlayerInteractionManagerMixin {
     )
     private ItemActionResult itsours$canInteractBlockItemSpecific(BlockState blockState, ItemStack itemStack, World world, PlayerEntity playerEntity, Hand hand, BlockHitResult hit, Operation<ItemActionResult> original) {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, hit.getBlockPos());
-        if (claim.isEmpty() || !PermissionManager.INTERACT_BLOCK_PREDICATE.test(blockState.getBlock()))
+        if (claim.isEmpty() || !FlagsManager.INTERACT_BLOCK_PREDICATE.test(blockState.getBlock()))
             return original.call(blockState, itemStack, world, playerEntity, hand, hit);
-        if (!claim.get().hasPermission(playerEntity.getUuid(), PermissionManager.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
+        if (!claim.get().checkAction(playerEntity.getUuid(), FlagsManager.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
             player.sendMessage(localized("text.itsours.action.disallowed.interact_block"), true);
             return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
@@ -84,9 +84,9 @@ public abstract class ServerPlayerInteractionManagerMixin {
     )
     private ActionResult itsours$canInteractBlockDefault(BlockState blockState, World world, PlayerEntity playerEntity, BlockHitResult hit, Operation<ActionResult> original) {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, hit.getBlockPos());
-        if (claim.isEmpty() || !PermissionManager.INTERACT_BLOCK_PREDICATE.test(blockState.getBlock()))
+        if (claim.isEmpty() || !FlagsManager.INTERACT_BLOCK_PREDICATE.test(blockState.getBlock()))
             return original.call(blockState, world, playerEntity, hit);
-        if (!claim.get().hasPermission(playerEntity.getUuid(), PermissionManager.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
+        if (!claim.get().checkAction(playerEntity.getUuid(), FlagsManager.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
             player.sendMessage(localized("text.itsours.action.disallowed.interact_block"), true);
             return ActionResult.FAIL;
         }
@@ -102,11 +102,11 @@ public abstract class ServerPlayerInteractionManagerMixin {
     )
     private void itsours$canInteractBlock2(BlockState blockState, World world, BlockPos pos, PlayerEntity playerEntity, Operation<Void> original) {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, pos);
-        if (claim.isEmpty() || !PermissionManager.INTERACT_BLOCK_PREDICATE.test(blockState.getBlock())) {
+        if (claim.isEmpty() || !FlagsManager.INTERACT_BLOCK_PREDICATE.test(blockState.getBlock())) {
             original.call(blockState, world, pos, playerEntity);
             return;
         }
-        if (!claim.get().hasPermission(playerEntity.getUuid(), PermissionManager.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
+        if (!claim.get().checkAction(playerEntity.getUuid(), FlagsManager.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
             player.sendMessage(localized("text.itsours.action.disallowed.interact_block"), true);
             return;
         }
@@ -122,9 +122,9 @@ public abstract class ServerPlayerInteractionManagerMixin {
     )
     private ActionResult itsours$canUseOnBlock(ItemStack itemStack, ItemUsageContext context, Operation<ActionResult> original) {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(context);
-        if (claim.isEmpty() || !PermissionManager.USE_ON_BLOCK_PREDICATE.test(itemStack.getItem()))
+        if (claim.isEmpty() || !FlagsManager.USE_ON_BLOCK_PREDICATE.test(itemStack.getItem()))
             return original.call(itemStack, context);
-        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.USE_ON_BLOCK, Node.registry(Registries.ITEM, itemStack.getItem()))) {
+        if (!claim.get().checkAction(player.getUuid(), FlagsManager.USE_ON_BLOCK, Node.registry(Registries.ITEM, itemStack.getItem()))) {
             player.sendMessage(localized("text.itsours.action.disallowed.interact_item_on_block"), true);
             return ActionResult.FAIL;
         }

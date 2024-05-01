@@ -5,7 +5,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
-import me.drex.itsours.claim.permission.node.ChildNode;
+import me.drex.itsours.claim.flags.node.ChildNode;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -40,11 +40,11 @@ public abstract class AbstractCommand {
         return ClaimList.getClaimAt(entity).orElseThrow(() -> NO_CLAIM_AT_POS);
     }
 
-    public void validatePermission(ServerCommandSource src, AbstractClaim claim, ChildNode... nodes) throws CommandSyntaxException {
+    public void validateAction(ServerCommandSource src, AbstractClaim claim, ChildNode... nodes) throws CommandSyntaxException {
         // Console
         if (src.getEntity() == null) return;
         // Throw exception if player doesn't have requested permissions
-        if (!claim.hasPermission(src.getPlayerOrThrow().getUuid(), nodes)) throw MISSING_PERMISSION;
+        if (!claim.checkAction(src.getPlayerOrThrow().getUuid(), nodes)) throw MISSING_PERMISSION;
     }
 
 }

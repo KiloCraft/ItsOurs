@@ -2,8 +2,8 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
-import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.node.Node;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
@@ -38,7 +38,7 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(this.getEntityWorld(), this.getBlockPos());
         if (claim.isEmpty()) return;
 
-        if (!claim.get().hasPermission(player.getUuid(), PermissionManager.INTERACT_ENTITY, Node.registry(Registries.ENTITY_TYPE, this.getType()))) {
+        if (!claim.get().checkAction(player.getUuid(), FlagsManager.INTERACT_ENTITY, Node.registry(Registries.ENTITY_TYPE, this.getType()))) {
             player.sendMessage(localized("text.itsours.action.disallowed.interact_entity"), true);
             cir.setReturnValue(ActionResult.FAIL);
         }

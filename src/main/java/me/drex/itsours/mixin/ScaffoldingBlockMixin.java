@@ -2,8 +2,8 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
-import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.node.Node;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ScaffoldingBlock;
 import net.minecraft.item.ItemPlacementContext;
@@ -24,7 +24,7 @@ public abstract class ScaffoldingBlockMixin {
     public void itsours$preventScaffoldingInClaim(ItemPlacementContext ctx, CallbackInfoReturnable<BlockState> cir) {
         if (ctx.getPlayer() == null) return;
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(ctx.getWorld(), ctx.getBlockPos());
-        if (claim.isPresent() && !claim.get().hasPermission(ctx.getPlayer().getUuid(), PermissionManager.PLACE, Node.registry(Registries.BLOCK, (ScaffoldingBlock) (Object) this))) {
+        if (claim.isPresent() && !claim.get().checkAction(ctx.getPlayer().getUuid(), FlagsManager.PLACE, Node.registry(Registries.BLOCK, (ScaffoldingBlock) (Object) this))) {
             ctx.getPlayer().sendMessage(localized("text.itsours.action.disallowed.place_block"), true);
             cir.setReturnValue(null);
         }

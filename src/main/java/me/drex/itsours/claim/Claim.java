@@ -2,8 +2,8 @@ package me.drex.itsours.claim;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import me.drex.itsours.claim.permission.holder.PermissionData;
-import me.drex.itsours.claim.roles.ClaimRoleManager;
+import me.drex.itsours.claim.flags.holder.FlagData;
+import me.drex.itsours.claim.groups.ClaimGroupManager;
 import me.drex.itsours.claim.util.ClaimMessages;
 import me.drex.itsours.user.ClaimTrackingPlayer;
 import me.drex.itsours.util.ClaimBox;
@@ -24,21 +24,20 @@ public class Claim extends AbstractClaim {
         ClaimBox.CODEC.fieldOf("box").forGetter(AbstractClaim::getBox),
         World.CODEC.fieldOf("dimension").forGetter(AbstractClaim::getDimension),
         Codec.list(Subzone.CODEC).fieldOf("subzones").forGetter(AbstractClaim::getSubzones),
-        PermissionData.CODEC.fieldOf("settings").forGetter(AbstractClaim::getSettings),
-        Codec.unboundedMap(Uuids.STRING_CODEC, PermissionData.CODEC).fieldOf("permissions").forGetter(AbstractClaim::getPermissions),
-        ClaimRoleManager.CODEC.fieldOf("roles").forGetter(AbstractClaim::getRoleManager),
+        FlagData.CODEC.fieldOf("flags").forGetter(AbstractClaim::getFlags),
+        Codec.unboundedMap(Uuids.STRING_CODEC, FlagData.CODEC).fieldOf("player_flags").forGetter(AbstractClaim::getPlayerFlags),
+        ClaimGroupManager.CODEC.fieldOf("groups").forGetter(AbstractClaim::getGroupManager),
         ClaimMessages.CODEC.fieldOf("messages").forGetter(AbstractClaim::getMessages)
-    ).apply(instance, (name, owner, box, dimension, subzones, settings, permissions, roles, claimMessages) -> {
-        Claim claim = new Claim(name, owner, box, dimension, subzones, settings, permissions, roles, claimMessages);
+    ).apply(instance, (name, owner, box, dimension, subzones, flags, playerFlags, groups, claimMessages) -> {
+        Claim claim = new Claim(name, owner, box, dimension, subzones, flags, playerFlags, groups, claimMessages);
         subzones.forEach(subzone -> subzone.setParent(claim));
         return claim;
     }));
 
     private UUID owner;
 
-
-    public Claim(String name, UUID owner, ClaimBox box, RegistryKey<World> dimension, List<Subzone> subzones, PermissionData settings, Map<UUID, PermissionData> permissions, ClaimRoleManager roles, ClaimMessages messages) {
-        super(name, box, dimension, new ArrayList<>(subzones), settings, new HashMap<>(permissions), roles, messages);
+    public Claim(String name, UUID owner, ClaimBox box, RegistryKey<World> dimension, List<Subzone> subzones, FlagData flags, Map<UUID, FlagData> playerFlags, ClaimGroupManager groups, ClaimMessages messages) {
+        super(name, box, dimension, new ArrayList<>(subzones), flags, new HashMap<>(playerFlags), groups, messages);
         this.owner = owner;
     }
 

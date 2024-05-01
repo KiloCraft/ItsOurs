@@ -2,8 +2,8 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
-import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.node.Node;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -45,7 +45,7 @@ public abstract class ProjectileEntityMixin extends Entity {
             this.onEntityHit(hitResult);
             return;
         }
-        if (!claim.get().hasPermission(null, PermissionManager.PVP) && hitResult.getEntity() instanceof PlayerEntity) {
+        if (!claim.get().checkAction(null, FlagsManager.PVP) && hitResult.getEntity() instanceof PlayerEntity) {
             if (entity.getOwner() instanceof PlayerEntity player) {
                 player.sendMessage(localized("text.itsours.action.disallowed.damage_player"), true);
             }
@@ -54,7 +54,7 @@ public abstract class ProjectileEntityMixin extends Entity {
             }
             return;
         }
-        if (!claim.get().hasPermission(entity.getOwner().getUuid(), PermissionManager.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, hitResult.getEntity().getType())) && !(hitResult.getEntity() instanceof PlayerEntity)) {
+        if (!claim.get().checkAction(entity.getOwner().getUuid(), FlagsManager.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, hitResult.getEntity().getType())) && !(hitResult.getEntity() instanceof PlayerEntity)) {
             if (entity.getOwner() instanceof PlayerEntity player) {
                 player.sendMessage(localized("text.itsours.action.disallowed.damage_entity"), true);
             }

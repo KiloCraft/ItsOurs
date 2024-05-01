@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
-import me.drex.itsours.claim.permission.PermissionManager;
+import me.drex.itsours.claim.flags.FlagsManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.piston.PistonHandler;
 import net.minecraft.util.math.BlockPos;
@@ -57,8 +57,8 @@ public abstract class PistonHandlerMixin {
     private boolean handleMoveOperation(BlockState state, World world, BlockPos pos, Direction direction, boolean canBreak, Direction pistonDir, Operation<Boolean> original) {
         Optional<AbstractClaim> oldClaim = ClaimList.getClaimAt(this.world, this.posFrom);
         Optional<AbstractClaim> newClaim = ClaimList.getClaimAt(this.world, pos.offset(motionDirection));
-        if (((oldClaim.isPresent() && !oldClaim.get().hasPermission(null, PermissionManager.PISTON_CROSSES_BORDERS)) ||
-            (newClaim.isPresent() && !newClaim.get().hasPermission(null, PermissionManager.PISTON_CROSSES_BORDERS))) && !newClaim.equals(oldClaim)) {
+        if (((oldClaim.isPresent() && !oldClaim.get().checkAction(null, FlagsManager.PISTON_CROSSES_BORDERS)) ||
+            (newClaim.isPresent() && !newClaim.get().checkAction(null, FlagsManager.PISTON_CROSSES_BORDERS))) && !newClaim.equals(oldClaim)) {
             return false;
         }
         return original.call(state, world, pos, direction, canBreak, pistonDir);

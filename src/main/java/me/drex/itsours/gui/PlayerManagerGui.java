@@ -4,13 +4,13 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.permission.Permission;
-import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.holder.PermissionData;
-import me.drex.itsours.claim.permission.util.Modify;
-import me.drex.itsours.claim.roles.ClaimRoleManager;
+import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flag;
+import me.drex.itsours.claim.flags.holder.FlagData;
+import me.drex.itsours.claim.flags.util.Modify;
+import me.drex.itsours.claim.groups.ClaimGroupManager;
 import me.drex.itsours.command.TrustCommand;
-import me.drex.itsours.gui.permission.PersonalStorageGui;
+import me.drex.itsours.gui.flags.PlayerFlagsGui;
 import me.drex.itsours.gui.util.ConfirmationGui;
 import me.drex.itsours.gui.util.GuiTextures;
 import me.drex.itsours.gui.util.PlayerSelectorGui;
@@ -30,8 +30,8 @@ public class PlayerManagerGui extends PageGui<UUID> {
     private AbstractClaim claim;
     protected final List<PageGui.Filter<UUID>> filters = List.of(
         new Filter<>(localized("text.itsours.gui.playermanager.filter.all"), player -> true),
-        new Filter<>(localized("text.itsours.gui.playermanager.filter.trusted"), player -> claim.getRoleManager().getRole(ClaimRoleManager.TRUSTED).players().contains(player)),
-        new Filter<>(localized("text.itsours.gui.playermanager.filter.not_trusted"), player -> !claim.getRoleManager().getRole(ClaimRoleManager.TRUSTED).players().contains(player))
+        new Filter<>(localized("text.itsours.gui.playermanager.filter.trusted"), player -> claim.getGroupManager().getGroup(ClaimGroupManager.TRUSTED).players().contains(player)),
+        new Filter<>(localized("text.itsours.gui.playermanager.filter.not_trusted"), player -> !claim.getGroupManager().getGroup(ClaimGroupManager.TRUSTED).players().contains(player))
     );
 
     public PlayerManagerGui(GuiContext context, AbstractClaim claim) {
@@ -43,9 +43,9 @@ public class PlayerManagerGui extends PageGui<UUID> {
     @Override
     public Collection<UUID> elements() {
         Set<UUID> elements = new HashSet<>();
-        elements.addAll(claim.getPermissions().keySet());
-        claim.getRoleManager().roles().forEach((s, role) -> {
-            elements.addAll(role.players());
+        elements.addAll(claim.getPlayerFlags().keySet());
+        claim.getGroupManager().groups().forEach((s, group) -> {
+            elements.addAll(group.players());
         });
         return elements.stream().sorted((uuid1, uuid2) ->
                 context.server().getUserCache().getByUuid(uuid1).map(GameProfile::getName).orElse(uuid1.toString())
@@ -55,27 +55,27 @@ public class PlayerManagerGui extends PageGui<UUID> {
 
     @Override
     protected GuiElementBuilder guiElement(UUID player) {
-        PermissionData permissions = claim.getPermissions().getOrDefault(player, new PermissionData());
+        FlagData playerFlags = claim.getPlayerFlags().getOrDefault(player, new FlagData());
         return guiElement(Items.PLAYER_HEAD, "playermanager.entry", PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(context.server()),
             Map.of(
-                "roles", PlaceholderUtil.list(claim.getRoleManager().roles().entrySet().stream().filter(stringRoleEntry -> stringRoleEntry.getValue().players().contains(player)).toList(),
-                    stringRoleEntry -> Map.of(
-                        "role_id", Text.literal(stringRoleEntry.getKey())
-                    ), "text.itsours.gui.playermanager.entry.roles"),
-                "permissions", permissions.toText()),
+                "groups", PlaceholderUtil.list(claim.getGroupManager().groups().entrySet().stream().filter(entry -> entry.getValue().players().contains(player)).toList(),
+                    groupEntry -> Map.of(
+                        "group_id", Text.literal(groupEntry.getKey())
+                    ), "text.itsours.gui.playermanager.entry.groups"),
+                "flags", playerFlags.toText()),
             PlaceholderUtil.uuid("player_", player, context.server())
         )).setCallback(clickType -> {
             if (clickType.isLeft) {
-                switchUi(new PersonalStorageGui(context, claim, player, Permission.permission(PermissionManager.PERMISSION)));
+                switchUi(new PlayerFlagsGui(context, claim, player, Flag.flag(FlagsManager.PLAYER)));
             } else if (clickType.isRight) {
-                switchUi(new PlayerRoleManagerGui(context, claim, player));
+                switchUi(new PlayerGroupManagerGui(context, claim, player));
             } else if (clickType.isMiddle) {
                 switchUi(new ConfirmationGui(context, "text.itsours.gui.playermanager.reset.confirm", PlaceholderUtil.uuid("player_", player, context.server()), () -> {
                     // Reset player
-                    if (claim.hasPermission(context.player.getUuid(), PermissionManager.MODIFY, Modify.PERMISSION.node())) {
-                        claim.getPermissions().remove(player);
-                        claim.getRoleManager().roles().forEach((s, role) -> role.players().remove(player));
+                    if (claim.checkAction(context.player.getUuid(), FlagsManager.MODIFY, Modify.FLAG.node())) {
+                        claim.getPlayerFlags().remove(player);
+                        claim.getGroupManager().groups().forEach((s, group) -> group.players().remove(player));
                         build();
                     } else {
                         fail();
@@ -120,7 +120,7 @@ public class PlayerManagerGui extends PageGui<UUID> {
     private void addPlayer(String name) {
         CompletableFuture.runAsync(() -> {
             context.server().getUserCache().findByName(name).ifPresentOrElse(gameProfile -> {
-                claim.getPermissions().putIfAbsent(gameProfile.getId(), new PermissionData());
+                claim.getPlayerFlags().putIfAbsent(gameProfile.getId(), new FlagData());
                 build();
             }, this::fail);
         }, context.server());

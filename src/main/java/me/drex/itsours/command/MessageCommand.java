@@ -6,8 +6,8 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.util.Modify;
+import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.util.Modify;
 import me.drex.itsours.command.argument.ClaimArgument;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
@@ -54,7 +54,7 @@ public class MessageCommand extends AbstractCommand {
     }
 
     private int execute(ServerCommandSource src, AbstractClaim claim, String message, boolean enter) throws CommandSyntaxException {
-        validatePermission(src, claim, PermissionManager.MODIFY, Modify.MESSAGE.node());
+        validateAction(src, claim, FlagsManager.MODIFY, Modify.MESSAGE.node());
         boolean reset = message.equals(RESET);
         if (reset) message = null;
         if (enter) {

@@ -11,7 +11,7 @@ public class Constants {
 
     public static final int DEFAULT_CLAIM_COUNT = 3;
 
-    public static final int MAX_ROLES = 10;
+    public static final int MAX_GROUPS = 10;
     public static final int MAX_SUBZONES = 100;
 
 }

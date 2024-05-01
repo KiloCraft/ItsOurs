@@ -3,8 +3,8 @@ package me.drex.itsours.mixin;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
-import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.node.Node;
 import me.drex.itsours.user.ClaimSelectingPlayer;
 import net.minecraft.block.Block;
 import net.minecraft.block.ChestBlock;
@@ -46,7 +46,7 @@ public abstract class BlockItemMixin extends Item {
         if (context.getPlayer() == null) return original;
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(context);
         if (claim.isEmpty()) return original;
-        if (!claim.get().hasPermission(context.getPlayer().getUuid(), PermissionManager.PLACE, Node.registry(Registries.BLOCK, this.getBlock()))) {
+        if (!claim.get().checkAction(context.getPlayer().getUuid(), FlagsManager.PLACE, Node.registry(Registries.BLOCK, this.getBlock()))) {
             context.getPlayer().sendMessage(localized("text.itsours.action.disallowed.place_block"), true);
             return false;
         }

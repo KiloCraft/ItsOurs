@@ -2,8 +2,8 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.ClaimList;
-import me.drex.itsours.claim.permission.PermissionManager;
-import me.drex.itsours.claim.permission.node.Node;
+import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.node.Node;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.registry.Registries;
@@ -29,7 +29,7 @@ public abstract class PlaceBlockGoalMixin {
     public void itsours$canEndermanPlace(World world, BlockPos posAbove, BlockState carriedState, BlockState stateAbove, BlockState state, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         Optional<AbstractClaim> optional = ClaimList.getClaimAt(world, pos);
         if (optional.isPresent()) {
-            if (!optional.get().hasPermission(this.enderman.getUuid(), PermissionManager.MINE, Node.registry(Registries.BLOCK, world.getBlockState(pos).getBlock()))) {
+            if (!optional.get().checkAction(this.enderman.getUuid(), FlagsManager.MINE, Node.registry(Registries.BLOCK, world.getBlockState(pos).getBlock()))) {
                 cir.setReturnValue(false);
             }
         }

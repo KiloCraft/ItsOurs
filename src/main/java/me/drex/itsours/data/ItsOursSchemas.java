@@ -1,12 +1,10 @@
 package me.drex.itsours.data;
 
+import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.DataFixerBuilder;
 import com.mojang.datafixers.schemas.Schema;
-import me.drex.itsours.data.fixers.AddDefaultPermissionsFix;
-import me.drex.itsours.data.fixers.ClaimOptionalDataFix;
-import me.drex.itsours.data.fixers.ClaimPositionDataFix;
-import me.drex.itsours.data.fixers.PermissionDataFix;
+import me.drex.itsours.data.fixers.*;
 import me.drex.itsours.data.schema.Schema0;
 
 import java.util.function.BiFunction;
@@ -36,6 +34,11 @@ public class ItsOursSchemas {
         builder.addFixer(new ClaimOptionalDataFix(schema5));
         Schema schema6 = builder.addSchema(6, EMPTY);
         builder.addFixer(new ClaimOptionalDataFix(schema6));
+        Schema schema7 = builder.addSchema(7, EMPTY);
+        builder.addFixer(new GreatRenameFix(schema7));
+        Schema schema8 = builder.addSchema(8, EMPTY);
+        builder.addFixer(new RenameFlagsFix(schema8, "Rename flags as part of the great rename", ImmutableMap.<String, String>builder().put("modify.permission", "modify.flag").build()));
+
     }
 
 }
