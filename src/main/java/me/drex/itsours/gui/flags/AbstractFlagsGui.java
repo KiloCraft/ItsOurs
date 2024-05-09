@@ -59,9 +59,20 @@ public abstract class AbstractFlagsGui extends PageGui<ChildNode> {
             Flag withNode = flag.withNode(childNode);
             Node lastNode = withNode.getLastNode();
             Value value = flagData.get(withNode);
+            boolean isSimpleNode = lastNode.getNodes().isEmpty();
+            String localizationId;
+            if (lastNode instanceof GroupNode) {
+                localizationId = "text.itsours.gui.flags.element.lore.group";
+            } else {
+                if (isSimpleNode) {
+                    localizationId = "text.itsours.gui.flags.element.lore.simple";
+                } else {
+                    localizationId = "text.itsours.gui.flags.element.lore.complex";
+                }
+            }
             GuiElementBuilder builder = new GuiElementBuilder(childNode.getIcon().asItem())
                 .setName(Text.literal(childNode.getName()))
-                .addLoreLine(localized("text.itsours.gui.flags.element.lore", Map.of("description", childNode.getDescription(), "value", value.format())))
+                .addLoreLine(localized(localizationId , Map.of("description", childNode.getDescription(), "value", value.format())))
                 .hideDefaultTooltip()
                 .setCallback(clickType -> {
                     if (clickType.isLeft) {
@@ -73,7 +84,7 @@ public abstract class AbstractFlagsGui extends PageGui<ChildNode> {
                             fail();
                         }
                     } else if (clickType.isRight) {
-                        if (!lastNode.getNodes().isEmpty()) {
+                        if (!isSimpleNode) {
                             switchUi(create(withNode));
                         } else {
                             fail();
