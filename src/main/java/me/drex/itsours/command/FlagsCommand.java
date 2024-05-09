@@ -43,11 +43,6 @@ public class FlagsCommand extends AbstractCommand {
                                 .executes(ctx -> executeSet(ctx.getSource(), ClaimArgument.getClaim(ctx), getFlag(ctx), getValue(ctx)))
                         )
                     )
-                ).then(
-                    literal("default").then(
-                        flag()
-                            .executes(ctx -> executeSet(ctx.getSource(), ClaimArgument.getClaim(ctx), getFlag(ctx), Value.DEFAULT))
-                    )
                 )
         );
     }

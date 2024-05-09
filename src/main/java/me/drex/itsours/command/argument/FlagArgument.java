@@ -35,7 +35,7 @@ public class FlagArgument {
     public static final SuggestionProvider<ServerCommandSource> FLAG_PROVIDER = (context, builder) -> {
         return CommandSource.suggestMatching(generateCandidates(FlagsManager.GLOBAL, builder.getRemaining()), builder);
     };
-    public static final SuggestionProvider<ServerCommandSource> VALUE_PROVIDER = (source, builder) -> CommandSource.suggestMatching(Arrays.stream(new Value[]{Value.ALLOW, Value.DENY}).map(value -> value.literal), builder);
+    public static final SuggestionProvider<ServerCommandSource> VALUE_PROVIDER = (source, builder) -> CommandSource.suggestMatching(Arrays.stream(Value.values()).map(value -> value.literal), builder);
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> playerFlag() {
         return playerFlag("player_flag");

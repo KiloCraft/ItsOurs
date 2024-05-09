@@ -52,13 +52,6 @@ public class PlayerFlagsCommand extends AbstractCommand {
                         )
                     )
                 )
-            ).then(
-                literal("unset").then(
-                    argument("targets", GameProfileArgumentType.gameProfile()).then(
-                        FlagArgument.playerFlag()
-                            .executes(ctx -> executeSet(ctx.getSource(), ClaimArgument.getClaim(ctx), GameProfileArgumentType.getProfileArgument(ctx, "targets"), FlagArgument.getPlayerFlag(ctx), Value.DEFAULT))
-                    )
-                )
             )
         );
     }
