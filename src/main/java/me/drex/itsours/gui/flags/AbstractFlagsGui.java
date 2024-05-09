@@ -11,6 +11,7 @@ import me.drex.itsours.claim.flags.util.InvalidFlagException;
 import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.gui.PageGui;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.Text;
 
@@ -70,10 +71,18 @@ public abstract class AbstractFlagsGui extends PageGui<ChildNode> {
                     localizationId = "text.itsours.gui.flags.element.lore.complex";
                 }
             }
-            GuiElementBuilder builder = new GuiElementBuilder(childNode.getIcon().asItem())
+            int damage = switch (value) {
+                case ALLOW -> 1;
+                case DEFAULT -> 0;
+                case DENY -> Integer.MAX_VALUE;
+            };
+            return new GuiElementBuilder(childNode.getIcon().asItem())
                 .setName(Text.literal(childNode.getName()))
-                .addLoreLine(localized(localizationId , Map.of("description", childNode.getDescription(), "value", value.format())))
+                .addLoreLine(localized(localizationId, Map.of("description", childNode.getDescription(), "value", value.format())))
                 .hideDefaultTooltip()
+                .setComponent(DataComponentTypes.MAX_STACK_SIZE, 1)
+                .setComponent(DataComponentTypes.MAX_DAMAGE, Integer.MAX_VALUE)
+                .setComponent(DataComponentTypes.DAMAGE, damage)
                 .setCallback(clickType -> {
                     if (clickType.isLeft) {
                         Value nextValue = value.next();
@@ -97,8 +106,6 @@ public abstract class AbstractFlagsGui extends PageGui<ChildNode> {
                         }
                     }
                 });
-            if (value.value) builder.glow();
-            return builder;
         } catch (InvalidFlagException ignored) {
             return new GuiElementBuilder();
         }
