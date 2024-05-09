@@ -10,6 +10,8 @@ import me.drex.itsours.claim.flags.node.Node;
 import me.drex.itsours.claim.flags.util.Modify;
 import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.command.argument.ClaimArgument;
+import me.drex.itsours.gui.GuiContext;
+import me.drex.itsours.gui.flags.FlagsGui;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
@@ -43,7 +45,10 @@ public class FlagsCommand extends AbstractCommand {
                                 .executes(ctx -> executeSet(ctx.getSource(), ClaimArgument.getClaim(ctx), getFlag(ctx), getValue(ctx)))
                         )
                     )
-                )
+                ).executes(context -> {
+                    new FlagsGui(new GuiContext(context.getSource().getPlayerOrThrow()), ClaimArgument.getClaim(context), Flag.flag()).open();
+                    return 1;
+                })
         );
     }
 

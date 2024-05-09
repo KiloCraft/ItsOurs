@@ -13,6 +13,9 @@ import me.drex.itsours.claim.flags.util.Modify;
 import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.command.argument.FlagArgument;
+import me.drex.itsours.gui.GuiContext;
+import me.drex.itsours.gui.PlayerManagerGui;
+import me.drex.itsours.gui.flags.FlagsGui;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -52,7 +55,10 @@ public class PlayerFlagsCommand extends AbstractCommand {
                         )
                     )
                 )
-            )
+            ).executes(context -> {
+                new PlayerManagerGui(new GuiContext(context.getSource().getPlayerOrThrow()), ClaimArgument.getClaim(context)).open();
+                return 1;
+            })
         );
     }
 

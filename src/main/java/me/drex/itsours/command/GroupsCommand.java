@@ -16,6 +16,9 @@ import me.drex.itsours.claim.groups.ClaimGroupManager;
 import me.drex.itsours.claim.groups.Group;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.command.argument.FlagArgument;
+import me.drex.itsours.gui.GroupManagerGui;
+import me.drex.itsours.gui.GuiContext;
+import me.drex.itsours.gui.PlayerManagerGui;
 import me.drex.itsours.util.PlaceholderUtil;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -89,7 +92,10 @@ public class GroupsCommand extends AbstractCommand {
                                 argument("targets", GameProfileArgumentType.gameProfile()).executes(ctx -> leaveGroup(ctx.getSource(), ClaimArgument.getClaim(ctx), StringArgumentType.getString(ctx, "group"), GameProfileArgumentType.getProfileArgument(ctx, "targets")))
                             )
                         )
-                    )
+                    ).executes(context -> {
+                        new GroupManagerGui(new GuiContext(context.getSource().getPlayerOrThrow()), ClaimArgument.getClaim(context)).open();
+                        return 1;
+                    })
             );
 
 
