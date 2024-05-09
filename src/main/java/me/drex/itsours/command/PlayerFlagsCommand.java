@@ -61,7 +61,7 @@ public class PlayerFlagsCommand extends AbstractCommand {
         flag.validateContext(new Node.ChangeContext(claim, PlayerContext.INSTANCE, value, src));
         for (GameProfile target : targets) {
             claim.getPlayerFlags().computeIfAbsent(target.getId(), (ignored) -> new FlagData()).set(flag, value);
-            src.sendFeedback(() -> localized("text.itsours.commands.personalSetting.set", mergePlaceholderMaps(
+            src.sendFeedback(() -> localized("text.itsours.commands.playerflags.set", mergePlaceholderMaps(
                     Map.of(
                         "flag", Text.literal(flag.asString()),
                         "value", value.format()
@@ -78,7 +78,7 @@ public class PlayerFlagsCommand extends AbstractCommand {
         validateAction(src, claim, FlagsManager.MODIFY, Modify.FLAG.node());
         for (GameProfile target : targets) {
             Value value = claim.getPlayerFlags().getOrDefault(target.getId(), new FlagData()).get(flag);
-            src.sendFeedback(() -> localized("text.itsours.commands.personalSetting.check", mergePlaceholderMaps(
+            src.sendFeedback(() -> localized("text.itsours.commands.playerflags.check", mergePlaceholderMaps(
                     Map.of(
                         "flag", Text.literal(flag.asString()),
                         "value", value.format()

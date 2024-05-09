@@ -113,7 +113,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
             "text.itsours.action.disallowed.elytra",
             () -> false,
             () -> original.call(itemStack),
-            FlagsManager.MISC, Misc.ELYTRA.node()
+            FlagsManager.GLIDE
         );
     }
 

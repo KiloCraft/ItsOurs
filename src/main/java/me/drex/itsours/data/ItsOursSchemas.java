@@ -7,6 +7,7 @@ import com.mojang.datafixers.schemas.Schema;
 import me.drex.itsours.data.fixers.*;
 import me.drex.itsours.data.schema.Schema0;
 
+import java.util.Set;
 import java.util.function.BiFunction;
 
 import static me.drex.itsours.data.DataManager.CURRENT_DATA_VERSION;
@@ -38,7 +39,9 @@ public class ItsOursSchemas {
         builder.addFixer(new GreatRenameFix(schema7));
         Schema schema8 = builder.addSchema(8, EMPTY);
         builder.addFixer(new RenameFlagsFix(schema8, "Rename flags as part of the great rename", ImmutableMap.<String, String>builder().put("modify.permission", "modify.flag").build()));
-
+        Schema schema9 = builder.addSchema(9, EMPTY);
+//        builder.addFixer(new TrustedRoleAddFlagFix(schema9, "Remove misc flag category", Set.of("glide")));
+        builder.addFixer(new RenameFlagsFix(schema9, "Remove misc flag category", ImmutableMap.<String, String>builder().put("misc.elytra", "glide").put("misc", "glide").build()));
     }
 
 }

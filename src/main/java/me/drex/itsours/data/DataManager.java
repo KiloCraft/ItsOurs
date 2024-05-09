@@ -25,7 +25,7 @@ import static me.drex.itsours.data.ItsOursSchemas.FIXER;
 
 public class DataManager {
 
-    public static final int CURRENT_DATA_VERSION = 8;
+    public static final int CURRENT_DATA_VERSION = 9;
     private static Map<UUID, PlayerData> playerData = new HashMap<>();
     private static FlagData defaultFlags = new FlagData();
     public static final Codec<?> CODEC = RecordCodecBuilder.create(instance -> instance.group(

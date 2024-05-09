@@ -19,7 +19,7 @@ public enum Misc {
     }
 
     Misc(String id, ItemConvertible icon, Predicate<Node.ChangeContext> predicate) {
-        this.node = Node.literal(id).icon(icon).description("flags.misc." + id).predicate(predicate).build();
+        this.node = Node.literal(id).icon(icon).description("misc." + id).predicate(predicate).build();
     }
 
     public ChildNode node() {

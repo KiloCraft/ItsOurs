@@ -47,14 +47,14 @@ public class FlagsManager {
     public static final Predicate<Item> USE_ITEM_PREDICATE = item -> overrides(item.getClass(), Item.class, DEV_ENV ? "use" : "method_7836", World.class, PlayerEntity.class, Hand.class) || item.getComponents().contains(DataComponentTypes.FOOD);
     public static final List<ChildNode> USE_ITEM_NODES = getNodes(Registries.ITEM, USE_ITEM_PREDICATE);
     public static final AbstractChildNode USE_ITEM = literal("use_item")
-        .description("flags.use_item")
+        .description("use_item")
         .icon(Items.FIREWORK_ROCKET)
         .then(USE_ITEM_NODES)
         .build();
     public static final Predicate<Item> USE_ON_BLOCK_PREDICATE = item -> (overrides(item.getClass(), Item.class, DEV_ENV ? "useOnBlock" : "method_7884", ItemUsageContext.class)) && !(item instanceof BlockItem);
     public static final List<ChildNode> ITEM_BLOCK_NODES = getNodes(Registries.ITEM, USE_ON_BLOCK_PREDICATE);
     public static final AbstractChildNode USE_ON_BLOCK = literal("use_on_block")
-        .description("flags.use_on_block")
+        .description("use_on_block")
         .icon(Items.IRON_SHOVEL)
         .then(ITEM_BLOCK_NODES)
         .build();
@@ -69,102 +69,101 @@ public class FlagsManager {
     };
     public static final List<ChildNode> INTERACT_BLOCK_NODES = getNodes(Registries.BLOCK, INTERACT_BLOCK_PREDICATE);
     public static final AbstractChildNode INTERACT_BLOCK = literal("interact_block")
-        .description("flags.interact_block")
+        .description("interact_block")
         .icon(Items.FURNACE)
         .then(INTERACT_BLOCK_NODES)
         .build();
     public static final List<ChildNode> INTERACT_ENTITY_NODES = getNodes(Registries.ENTITY_TYPE);
     public static final AbstractChildNode INTERACT_ENTITY = literal("interact_entity")
-        .description("flags.interact_entity")
+        .description("interact_entity")
         .icon(Items.VILLAGER_SPAWN_EGG)
         .then(INTERACT_ENTITY_NODES)
         .build();
     public static final List<ChildNode> BLOCK_NODES = getNodes(Registries.BLOCK);
     public static final List<ChildNode> DAMAGE_ENTITY_NODES = getNodes(Registries.ENTITY_TYPE, entityType -> !entityType.equals(EntityType.PLAYER));
     public static final AbstractChildNode PLACE = literal("place")
-        .description("flags.place")
+        .description("place")
         .icon(Items.MANGROVE_PLANKS)
         .then(BLOCK_NODES)
         .build();
     public static final AbstractChildNode MINE = literal("mine")
-        .description("flags.mine")
+        .description("mine")
         .icon(Items.NETHERITE_PICKAXE)
         .then(BLOCK_NODES)
         .build();
     public static final AbstractChildNode DAMAGE_ENTITY = literal("damage_entity")
-        .description("flags.damage_entity")
+        .description("damage_entity")
         .icon(Items.DIAMOND_SWORD)
         .then(DAMAGE_ENTITY_NODES)
         .build();
-    public static final AbstractChildNode MISC = literal("misc")
-        .description("flags.misc")
+    public static final AbstractChildNode GLIDE = literal("glide")
+        .description("glide")
         .icon(Items.ELYTRA)
-        .then(Arrays.stream(Misc.values()).map(Misc::node).toList())
         .build();
 
     public static final AbstractChildNode MODIFY = literal("modify")
-        .description("flags.modify")
+        .description("modify")
         .icon(Items.REPEATER)
         .predicate(context -> context.context() != GlobalContext.INSTANCE)
         .then(Arrays.stream(Modify.values()).map(Modify::node).toList())
         .build();
 
     public static final AbstractChildNode PVP = literal("pvp")
-        .description("setting.pvp")
+        .description("pvp")
         .icon(Items.BOW)
         .build();
 
     public static final AbstractChildNode EXPLOSIONS = literal("explosions")
-        .description("setting.explosions")
+        .description("explosions")
         .icon(Items.TNT)
         .build();
 
     public static final AbstractChildNode FLUID_CROSSES_BORDERS = literal("fluid_crosses_borders")
-        .description("setting.fluid_crosses_borders")
+        .description("fluid_crosses_borders")
         .icon(Items.WATER_BUCKET)
         .build();
 
     public static final AbstractChildNode PISTON_CROSSES_BORDERS = literal("piston_crosses_borders")
-        .description("setting.piston_crosses_borders")
+        .description("piston_crosses_borders")
         .icon(Items.PISTON)
         .build();
 
     public static final AbstractChildNode SCULK_CROSSES_BORDERS = literal("sculk_crosses_borders")
-        .description("setting.sculk_crosses_borders")
+        .description("sculk_crosses_borders")
         .icon(Items.SCULK_VEIN)
         .build();
 
     public static final AbstractChildNode MOB_SPAWN = literal("mob_spawn")
-        .description("setting.mob_spawn")
+        .description("mob_spawn")
         .icon(Items.ZOMBIE_SPAWN_EGG)
         .predicate(changeContext -> ItsOurs.checkPermission(changeContext.source(), "itsours.setting.mob_spawn", 2))
         .build();
 
     public static void register() {
-        registerPlayerFlags(PLACE);
-        registerPlayerFlags(MINE);
-        registerPlayerFlags(INTERACT_BLOCK);
-        registerPlayerFlags(USE_ON_BLOCK);
-        registerPlayerFlags(USE_ITEM);
-        registerPlayerFlags(DAMAGE_ENTITY);
-        registerPlayerFlags(INTERACT_ENTITY);
-        registerPlayerFlags(MODIFY);
-        registerPlayerFlags(MISC);
+        registerPlayerFlag(PLACE);
+        registerPlayerFlag(MINE);
+        registerPlayerFlag(INTERACT_BLOCK);
+        registerPlayerFlag(USE_ON_BLOCK);
+        registerPlayerFlag(USE_ITEM);
+        registerPlayerFlag(DAMAGE_ENTITY);
+        registerPlayerFlag(INTERACT_ENTITY);
+        registerPlayerFlag(MODIFY);
+        registerPlayerFlag(GLIDE);
         // Settings
-        registerFlag(PVP);
-        registerFlag(EXPLOSIONS);
-        registerFlag(FLUID_CROSSES_BORDERS);
-        registerFlag(PISTON_CROSSES_BORDERS);
-        registerFlag(SCULK_CROSSES_BORDERS);
-        registerFlag(MOB_SPAWN);
+        registerClaimFlag(PVP);
+        registerClaimFlag(EXPLOSIONS);
+        registerClaimFlag(FLUID_CROSSES_BORDERS);
+        registerClaimFlag(PISTON_CROSSES_BORDERS);
+        registerClaimFlag(SCULK_CROSSES_BORDERS);
+        registerClaimFlag(MOB_SPAWN);
     }
 
-    private static void registerPlayerFlags(ChildNode node) {
+    private static void registerPlayerFlag(ChildNode node) {
         PLAYER.registerNode(node);
         GLOBAL.registerNode(node);
     }
 
-    private static void registerFlag(ChildNode node) {
+    private static void registerClaimFlag(ChildNode node) {
         GLOBAL.registerNode(node);
     }
 

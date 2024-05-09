@@ -16,7 +16,7 @@ public enum Modify {
     private final ChildNode node;
 
     Modify(String id, ItemConvertible icon) {
-        this.node = Node.literal(id).icon(icon).description("flags.modify." + id).build();
+        this.node = Node.literal(id).icon(icon).description("modify." + id).build();
     }
 
     public ChildNode node() {

@@ -28,7 +28,7 @@ public abstract class AbstractNodeBuilder {
     }
 
     public AbstractNodeBuilder description(String translationId) {
-        this.description = localized("text.itsours." + translationId + ".description");
+        this.description = localized("text.itsours.flags." + translationId + ".description");
         return this;
     }
 
