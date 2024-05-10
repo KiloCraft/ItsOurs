@@ -4,7 +4,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.flags.node.ChildNode;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;

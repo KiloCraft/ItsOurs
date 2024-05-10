@@ -5,7 +5,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import me.drex.itsours.claim.Claim;
-import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.flags.holder.FlagData;
 import me.drex.itsours.user.PlayerData;
 import me.drex.itsours.util.Constants;

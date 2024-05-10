@@ -1,7 +1,7 @@
 package me.drex.itsours.mixin;
 
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.data.DataManager;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;

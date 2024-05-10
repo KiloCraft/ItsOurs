@@ -1,12 +1,13 @@
-package me.drex.itsours.claim;
+package me.drex.itsours.claim.list;
 
 import com.mojang.serialization.Codec;
-import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.Claim;
+import me.drex.itsours.claim.Subzone;
+import me.drex.itsours.claim.list.quadtree.Quadtree;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 
 import java.util.*;
@@ -15,23 +16,21 @@ public class ClaimList {
 
     public static final Codec<List<Claim>> CODEC = Codec.list(Claim.CODEC);
 
-    private static final int FACTOR = 4; // Chunks: 2^4=16
-
-    private static final Long2ObjectMap<List<AbstractClaim>> byPosition = new Long2ObjectLinkedOpenHashMap<>();
+    private static final int MAX_WORLD_SIZE = 29999984;
+    public static final Quadtree quadtree = new Quadtree(new BlockPos(-MAX_WORLD_SIZE, -Integer.MAX_VALUE, -MAX_WORLD_SIZE), new BlockPos(MAX_WORLD_SIZE, Integer.MAX_VALUE, MAX_WORLD_SIZE), 16);
     private static final Map<UUID, List<Claim>> byOwner = new HashMap<>();
     private static final List<AbstractClaim> claims = new LinkedList<>();
+    private static boolean initialized = false;
 
     public static void load(List<Claim> claimList) {
-        // Clear previous data
-        byPosition.clear();
-        byOwner.clear();
-        claims.clear();
+        if (initialized) throw new IllegalStateException();
         for (Claim claim : claimList) {
             for (Subzone subzone : claim.getSubzones()) {
                 addClaim(subzone);
             }
             addClaim(claim);
         }
+        initialized = true;
     }
 
     public static void addClaim(AbstractClaim claim) {
@@ -41,15 +40,7 @@ public class ClaimList {
             List<Claim> ownerClaims = byOwner.computeIfAbsent(claim.getOwner(), (ignored) -> new LinkedList<>());
             ownerClaims.add(mainClaim);
         }
-        BlockPos min = claim.getBox().getMin();
-        BlockPos max = claim.getBox().getMax();
-        for (int x = min.getX() >> FACTOR; x <= max.getX() >> FACTOR; x++) {
-            for (int z = min.getZ() >> FACTOR; z <= max.getZ() >> FACTOR; z++) {
-                long l = ChunkPos.toLong(x, z);
-                List<AbstractClaim> positionClaims = byPosition.computeIfAbsent(l, (ignored) -> new LinkedList<>());
-                positionClaims.add(claim);
-            }
-        }
+        quadtree.insert(claim);
     }
 
     public static void removeClaim(AbstractClaim claim) {
@@ -60,15 +51,7 @@ public class ClaimList {
             ownerClaims.remove(mainClaim);
         }
 
-        BlockPos min = claim.getBox().getMin();
-        BlockPos max = claim.getBox().getMax();
-        for (int x = min.getX() >> FACTOR; x <= max.getX() >> FACTOR; x++) {
-            for (int z = min.getZ() >> FACTOR; z <= max.getZ() >> FACTOR; z++) {
-                long l = ChunkPos.toLong(x, z);
-                List<AbstractClaim> positionClaims = byPosition.computeIfAbsent(l, (ignored) -> new LinkedList<>());
-                positionClaims.remove(claim);
-            }
-        }
+        quadtree.remove(claim);
     }
 
     public static Optional<AbstractClaim> getClaimAt(Entity entity) {
@@ -80,7 +63,7 @@ public class ClaimList {
     }
 
     public static Optional<AbstractClaim> getClaimAt(World world, BlockPos pos) {
-        List<AbstractClaim> claims = byPosition.getOrDefault(ChunkPos.toLong(pos), Collections.emptyList());
+        List<AbstractClaim> claims = quadtree.query(pos);
         for (AbstractClaim claim : claims) {
             if (!claim.getDimension().equals(world.getRegistryKey())) continue;
             if (claim.contains(pos)) return Optional.of(getDeepestClaim(claim, pos));

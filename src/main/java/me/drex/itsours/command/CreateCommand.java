@@ -8,7 +8,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
-import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.claim.flags.FlagsManager;
 import me.drex.itsours.claim.flags.util.Modify;

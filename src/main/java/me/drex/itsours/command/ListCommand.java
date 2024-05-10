@@ -3,7 +3,7 @@ package me.drex.itsours.command;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.drex.itsours.claim.Claim;
-import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.list.ClaimList;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 

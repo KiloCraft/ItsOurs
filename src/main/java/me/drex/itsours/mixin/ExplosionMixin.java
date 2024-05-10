@@ -2,7 +2,7 @@ package me.drex.itsours.mixin;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.flags.FlagsManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;

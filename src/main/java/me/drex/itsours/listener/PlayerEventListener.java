@@ -1,7 +1,7 @@
 package me.drex.itsours.listener;
 
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.flags.FlagsManager;
 import me.drex.itsours.claim.flags.node.Node;
 import me.drex.itsours.data.DataManager;

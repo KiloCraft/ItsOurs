@@ -9,6 +9,7 @@ import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.claim.flags.visitor.FlagVisitor;
 import me.drex.itsours.claim.groups.ClaimGroupManager;
 import me.drex.itsours.claim.groups.Group;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.util.ClaimMessages;
 import me.drex.itsours.data.DataManager;
 import me.drex.itsours.util.ClaimBox;
@@ -168,6 +169,8 @@ public abstract class AbstractClaim {
     public void onLeave(@Nullable AbstractClaim nextClaim, ServerPlayerEntity player) {
         if (nextClaim == null) {
             boolean cachedFlying = player.getAbilities().flying;
+            boolean cachedAllowFlying = player.getAbilities().allowFlying;
+            boolean requiresUpdate = false;
             // Update abilities for respective gamemode
             player.interactionManager.getGameMode().setAbilities(player.getAbilities());
             if (cachedFlying && !player.getAbilities().flying) {
@@ -175,8 +178,12 @@ public abstract class AbstractClaim {
                 if (pos.getY() + 3 < player.getY()) {
                     player.teleport(player.getServerWorld(), player.getX(), pos.getY(), player.getZ(), player.getYaw(), player.getPitch());
                 }
+                requiresUpdate = true;
             }
-            player.sendAbilitiesUpdate();
+            requiresUpdate |= cachedAllowFlying != player.getAbilities().allowFlying;
+            if (requiresUpdate) {
+                player.sendAbilitiesUpdate();
+            }
             player.sendMessage(messages.leave().map(Text::literal).orElse(localized("text.itsours.claim.leave", placeholders(player.server))), true);
         }
     }

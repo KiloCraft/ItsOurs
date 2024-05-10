@@ -9,7 +9,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
-import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.Subzone;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;

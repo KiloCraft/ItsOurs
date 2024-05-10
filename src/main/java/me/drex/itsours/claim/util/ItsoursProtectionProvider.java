@@ -3,7 +3,7 @@ package me.drex.itsours.claim.util;
 import com.mojang.authlib.GameProfile;
 import eu.pb4.common.protection.api.ProtectionProvider;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.flags.FlagsManager;
 import me.drex.itsours.claim.flags.node.Node;
 import net.minecraft.entity.Entity;

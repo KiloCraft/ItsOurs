@@ -2,7 +2,7 @@ package me.drex.itsours.mixin;
 
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.flags.FlagsManager;
 import net.minecraft.block.entity.SculkCatalystBlockEntity;
 import net.minecraft.block.entity.SculkSpreadManager;

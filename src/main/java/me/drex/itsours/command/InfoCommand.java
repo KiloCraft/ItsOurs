@@ -2,6 +2,7 @@ package me.drex.itsours.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.command.argument.ClaimArgument;
 import net.minecraft.server.command.ServerCommandSource;
 

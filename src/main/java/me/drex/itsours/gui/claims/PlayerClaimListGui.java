@@ -3,7 +3,7 @@ package me.drex.itsours.gui.claims;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.Claim;
-import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.flags.Flag;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.gui.flags.DefaultFlagsGui;

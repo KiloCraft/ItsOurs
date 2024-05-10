@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import me.drex.itsours.claim.flags.holder.FlagData;
 import me.drex.itsours.claim.groups.ClaimGroupManager;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.util.ClaimMessages;
 import me.drex.itsours.user.ClaimTrackingPlayer;
 import me.drex.itsours.util.ClaimBox;

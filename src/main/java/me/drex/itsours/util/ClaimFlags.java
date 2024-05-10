@@ -1,7 +1,7 @@
 package me.drex.itsours.util;
 
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.ClaimList;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.flags.node.ChildNode;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
