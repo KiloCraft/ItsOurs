@@ -12,7 +12,7 @@
     "ExplosionMixin",
     "FarmlandBlockMixin",
     "FluidMixin",
-    "FrostWalkerEnchantmentMixin",
+    "ReplaceDiscEnchantmentEffectTypeMixin",
     "LecternScreenHandlerMixin",
     "PickUpBlockGoalMixin",
     "PistonHandlerMixin",

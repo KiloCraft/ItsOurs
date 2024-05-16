@@ -20,7 +20,7 @@ public class ItsOursSchemas {
     private static synchronized DataFixer create() {
         DataFixerBuilder dataFixerBuilder = new DataFixerBuilder(CURRENT_DATA_VERSION);
         build(dataFixerBuilder);
-        return dataFixerBuilder.buildUnoptimized();
+        return dataFixerBuilder.build().fixer();
     }
 
     private static void build(DataFixerBuilder builder) {
