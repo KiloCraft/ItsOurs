@@ -113,6 +113,27 @@ public class Quadtree {
         return result;
     }
 
+    public List<AbstractClaim> queryIntersections(ClaimBox box) {
+        return queryIntersections(root, box);
+    }
+
+    private List<AbstractClaim> queryIntersections(QuadtreeNode node, ClaimBox box) {
+        List<AbstractClaim> result = new ArrayList<>();
+        if (node.boundary.intersects(box)) {
+            for (AbstractClaim claim : node.claims) {
+                if (claim.getBox().intersects(box)) {
+                    result.add(claim);
+                }
+            }
+            if (!node.isLeaf()) {
+                for (QuadtreeNode child : node.children) {
+                    result.addAll(queryIntersections(child, box));
+                }
+            }
+        }
+        return result;
+    }
+
     @Override
     public String toString() {
         return root.toString();

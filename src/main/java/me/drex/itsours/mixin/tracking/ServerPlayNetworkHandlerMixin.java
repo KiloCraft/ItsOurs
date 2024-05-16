@@ -33,15 +33,4 @@ public abstract class ServerPlayNetworkHandlerMixin {
         }
     }
 
-    @Inject(
-        method = "onAcknowledgeChunks",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ChunkDataSender;onAcknowledgeChunks(F)V"
-        )
-    )
-    private void itsours$onAcknowledgeChunks(AcknowledgeChunksC2SPacket packet, CallbackInfo ci) {
-        ((ClaimTrackingPlayer) player).batchAcknowledged();
-    }
-
 }

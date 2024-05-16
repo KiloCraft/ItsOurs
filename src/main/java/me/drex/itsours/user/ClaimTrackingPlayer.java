@@ -1,6 +1,6 @@
 package me.drex.itsours.user;
 
-import me.drex.itsours.claim.Claim;
+import me.drex.itsours.claim.AbstractClaim;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.WorldChunk;
@@ -11,16 +11,14 @@ public interface ClaimTrackingPlayer {
 
     void addChunkBatch(List<WorldChunk> chunkBatch);
 
-    void batchAcknowledged();
-
     void onChunkUnload(ChunkPos pos);
-
-    Claim trackedClaim();
 
     boolean isTracked(BlockPos pos);
 
-    void trackClaim(Claim claim);
+    void notifyChange(AbstractClaim claim, boolean add);
 
-    void unTrackClaim();
+    void trackClaims();
+
+    void unTrackClaims();
 
 }

@@ -21,7 +21,7 @@ public abstract class ChunkDataSenderMixin {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/packet/Packet;)V",
-            ordinal = 0
+            ordinal = 1
         )
     )
     private void itsours$onChunkLoad(ServerPlayerEntity player, CallbackInfo ci, @Local List<WorldChunk> chunks) {

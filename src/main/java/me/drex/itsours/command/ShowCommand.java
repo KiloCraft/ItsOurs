@@ -2,7 +2,6 @@ package me.drex.itsours.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.drex.itsours.claim.Claim;
 import me.drex.itsours.user.ClaimTrackingPlayer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -26,12 +25,11 @@ public class ShowCommand extends AbstractCommand {
 
     private int execute(ServerCommandSource src) throws CommandSyntaxException {
         ServerPlayerEntity player = src.getPlayerOrThrow();
-        Claim claim = getClaim(player).getMainClaim();
         ClaimTrackingPlayer claimTrackingPlayer = (ClaimTrackingPlayer)player;
         if (show) {
-            claimTrackingPlayer.trackClaim(claim);
+            claimTrackingPlayer.trackClaims();
         } else {
-            claimTrackingPlayer.unTrackClaim();
+            claimTrackingPlayer.unTrackClaims();
         }
         return 1;
     }

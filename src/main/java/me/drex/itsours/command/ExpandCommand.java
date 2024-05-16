@@ -104,7 +104,7 @@ public class ExpandCommand extends AbstractCommand {
         }
 
         claim.setBox(newBox);
-        claim.getMainClaim().notifyTrackingChanges(src.getServer());
+        claim.notifyTrackingChanges(src.getServer(), false);
 
         src.sendFeedback(() -> localized("text.itsours.commands." + literal, mergePlaceholderMaps(
                 Map.of(

@@ -29,22 +29,15 @@ public class RemoveCommand extends AbstractCommand {
         // Remove claim from its parents' subzone list
         if (claim instanceof Subzone subzone) {
             subzone.getParent().removeSubzone((Subzone) claim);
-            subzone.getMainClaim().notifyTrackingChanges(src.getServer());
         }
         if (claim instanceof Claim) {
             PlayerData userData = DataManager.updateUserData(claim.getOwner());
             userData.setBlocks(Math.max(0, userData.blocks() + claim.getArea()));
-            for (ServerPlayerEntity serverPlayerEntity : src.getServer().getPlayerManager().getPlayerList()) {
-                ClaimTrackingPlayer claimTrackingPlayer = ((ClaimTrackingPlayer)serverPlayerEntity);
-                AbstractClaim trackedClaim = claimTrackingPlayer.trackedClaim();
-                if (trackedClaim != null && claim.containsClaim(trackedClaim)) {
-                    claimTrackingPlayer.unTrackClaim();
-                }
-            }
         }
         // Recursively remove all subzones
         removeSubzones(claim);
         ClaimList.removeClaim(claim);
+        claim.notifyTrackingChanges(src.getServer(), false);
     }
 
     public static void removeSubzones(AbstractClaim claim) {

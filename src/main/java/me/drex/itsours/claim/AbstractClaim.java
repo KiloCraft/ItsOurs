@@ -12,6 +12,7 @@ import me.drex.itsours.claim.groups.Group;
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.util.ClaimMessages;
 import me.drex.itsours.data.DataManager;
+import me.drex.itsours.user.ClaimTrackingPlayer;
 import me.drex.itsours.util.ClaimBox;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -246,6 +247,13 @@ public abstract class AbstractClaim {
 
     public boolean contains(BlockPos pos) {
         return box.contains(pos);
+    }
+
+    public void notifyTrackingChanges(MinecraftServer server, boolean add) {
+        for (ServerPlayerEntity serverPlayerEntity : server.getPlayerManager().getPlayerList()) {
+            ClaimTrackingPlayer claimTrackingPlayer = ((ClaimTrackingPlayer) serverPlayerEntity);
+            claimTrackingPlayer.notifyChange(this, add);
+        }
     }
 
     public String toString() {

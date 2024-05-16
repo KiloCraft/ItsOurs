@@ -103,7 +103,7 @@ public class CreateCommand extends AbstractCommand {
         if (ClaimList.getClaim(claimName).isPresent()) throw ClaimArgument.NAME_TAKEN;
         DataManager.updateUserData(uuid).setBlocks(blocks - requiredBlocks);
         ClaimList.addClaim(claim);
-        ((ClaimTrackingPlayer) player).trackClaim(claim);
+        claim.notifyTrackingChanges(src.getServer(), true);
         // reset positions
         return 1;
     }
@@ -128,7 +128,7 @@ public class CreateCommand extends AbstractCommand {
         validateAction(src, parent, FlagsManager.MODIFY, Modify.SUBZONE.node());
         Subzone subzone = new Subzone(claimName, claimBox, player.getServerWorld(), parent);
         ClaimList.addClaim(subzone);
-        parent.getMainClaim().notifyTrackingChanges(src.getServer());
+        subzone.notifyTrackingChanges(src.getServer(), true);
         ((ClaimSelectingPlayer) player).resetSelection();
         return 1;
     }

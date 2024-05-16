@@ -5,6 +5,7 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.claim.list.quadtree.Quadtree;
+import me.drex.itsours.util.ClaimBox;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.math.BlockPos;
@@ -25,12 +26,17 @@ public class ClaimList {
     public static void load(List<Claim> claimList) {
         if (initialized) throw new IllegalStateException();
         for (Claim claim : claimList) {
-            for (Subzone subzone : claim.getSubzones()) {
-                addClaim(subzone);
-            }
             addClaim(claim);
+            addSubzones(claim);
         }
         initialized = true;
+    }
+    
+    private static void addSubzones(AbstractClaim claim) {
+        for (Subzone subzone : claim.getSubzones()) {
+            addClaim(subzone);
+            addSubzones(subzone);
+        }
     }
 
     public static void addClaim(AbstractClaim claim) {
@@ -64,11 +70,24 @@ public class ClaimList {
 
     public static Optional<AbstractClaim> getClaimAt(World world, BlockPos pos) {
         List<AbstractClaim> claims = quadtree.query(pos);
+        AbstractClaim result = null;
+        int maxDepth = -1;
         for (AbstractClaim claim : claims) {
-            if (!claim.getDimension().equals(world.getRegistryKey())) continue;
-            if (claim.contains(pos)) return Optional.of(getDeepestClaim(claim, pos));
+            // Check world and y-axis
+            if (!claim.getDimension().equals(world.getRegistryKey()) || !claim.contains(pos)) continue;
+            // Get claim with the highest claim depth
+            if (claim.getDepth() > maxDepth) {
+                maxDepth = claim.getDepth();
+                result = claim;
+            }
         }
-        return Optional.empty();
+        return Optional.ofNullable(result);
+    }
+
+    public static List<AbstractClaim> getIntersectingClaims(World world, ClaimBox box) {
+        List<AbstractClaim> claims = quadtree.queryIntersections(box);
+        claims.removeIf(abstractClaim -> !abstractClaim.getDimension().equals(world.getRegistryKey()));
+        return claims;
     }
 
     public static List<Claim> getClaimsFrom(UUID uuid) {

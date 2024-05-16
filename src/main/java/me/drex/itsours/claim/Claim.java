@@ -81,14 +81,4 @@ public class Claim extends AbstractClaim {
         return 0;
     }
 
-    public void notifyTrackingChanges(MinecraftServer server) {
-        for (ServerPlayerEntity serverPlayerEntity : server.getPlayerManager().getPlayerList()) {
-            ClaimTrackingPlayer claimTrackingPlayer = ((ClaimTrackingPlayer) serverPlayerEntity);
-            Claim trackedClaim = ((ClaimTrackingPlayer) serverPlayerEntity).trackedClaim();
-            if (trackedClaim != null && trackedClaim.equals(this)) {
-                claimTrackingPlayer.trackClaim(trackedClaim);
-            }
-        }
-    }
-
 }

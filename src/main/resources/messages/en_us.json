@@ -38,7 +38,7 @@
   "text.itsours.commands.expand.subzoneOutside": "This action would result in subzone '${subzone_full_name}' being outside of '${claim_full_name}'",
   "text.itsours.commands.expand.missingClaimBlocks": "You don't have enough claim blocks to expand that far. You need ${blocks} more claim blocks.",
   "text.itsours.commands.expand.outOfWorld": "You can't expand above / underneath the world!",
-  "text.itsours.commands.shrink": "Claim '{claim_name}' was shrunk by ${distance} blocks into ${direction}, you receive ${blocks} claim blocks",
+  "text.itsours.commands.shrink": "Claim '${claim_name}' was shrunk by ${distance} blocks into ${direction}, you receive ${blocks} claim blocks",
   "text.itsours.commands.shrink.shrunkToFar": "You can't shrink your claim that far",
   "text.itsours.commands.info": "<white><bold>Claim Info:</bold>\n<yellow>* Name: <aqua>${claim_full_name}\n<yellow>* Owner: <light_purple><hover:'<italic>Click to copy uuid!'><copy_to_clipboard:${claim_owner_uuid}>${claim_owner_name}</copy_to_clipboard></hover>\n<yellow>* Size: <gray>${claim_size_x} <white>x <gray>${claim_size_y} <white>x <gray>${claim_size_z}\n<yellow>* Position: <hover:'<italic>Click to teleport!'><run_cmd:'/execute in ${claim_dimension} run tp @s ${claim_center_x} ~ ${claim_center_z}'><gold>${claim_min_x} ${claim_min_y} ${claim_min_z}</gold> <white>to</white> <gold>${claim_max_x} ${claim_max_y} ${claim_max_z}</gold></run_cmd></hover>\n<yellow>* Settings: ${claim_settings}\n<yellow>* Trusted: <dark_green>${claim_trusted}\n<yellow>* Dimension: <green>${claim_dimension}",
   "text.itsours.commands.fly.enabled": "<green>Enabled claim flight",

@@ -4,27 +4,28 @@ import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.Claim;
-import me.drex.itsours.claim.Subzone;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.user.ClaimTrackingPlayer;
 import me.drex.itsours.util.ClaimBox;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
 import net.minecraft.server.network.ChunkFilter;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -33,6 +34,7 @@ import static me.drex.itsours.claim.AbstractClaim.SHOW_BLOCKS;
 import static me.drex.itsours.claim.AbstractClaim.SHOW_BLOCKS_CENTER;
 import static net.minecraft.world.Heightmap.Type.OCEAN_FLOOR;
 
+@Unique
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin extends PlayerEntity implements ClaimTrackingPlayer {
 
@@ -48,24 +50,33 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     @Shadow
     public abstract ChunkFilter getChunkFilter();
 
+    @Shadow
+    public abstract ServerWorld getServerWorld();
+
     private final Long2ObjectMap<Set<BlockPos>> chunk2TrackedShowBlocks = new Long2ObjectArrayMap<>();
+
     private final Set<BlockPos> trackedShowBlocks = new HashSet<>();
 
-    private final Deque<List<WorldChunk>> chunkBatches = new LinkedList<>();
+    private final Set<AbstractClaim> trackedClaims = new HashSet<>();
 
-    @Nullable
-    private Claim trackedClaim = null;
+    private final List<Packet<? super ClientPlayPacketListener>> packets = new LinkedList<>();
+
+    private boolean tracking = false;
 
     @Override
     public void addChunkBatch(List<WorldChunk> chunkBatch) {
-        chunkBatches.addLast(chunkBatch);
+        if (!tracking) return;
+        for (WorldChunk chunk : chunkBatch) {
+            showChunk(chunk.getPos());
+        }
+        sendPacketBundle();
     }
 
-    @Override
-    public void batchAcknowledged() {
-        for (WorldChunk chunk : chunkBatches.pop()) {
-            if (trackedClaim == null || !trackedClaim.getDimension().equals(getWorld().getRegistryKey())) continue;
-            showChunk(trackedClaim, chunk.getPos());
+    private void showChunk(ChunkPos chunkPos) {
+        List<AbstractClaim> claims = ClaimList.getIntersectingClaims(getServerWorld(), new ClaimBox(chunkPos.getStartX(), -Integer.MAX_VALUE, chunkPos.getStartZ(), chunkPos.getEndX(), Integer.MAX_VALUE, chunkPos.getEndZ()));
+        trackedClaims.addAll(claims);
+        for (AbstractClaim claim : claims) {
+            showChunk(claim, chunkPos);
         }
     }
 
@@ -88,21 +99,12 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
             sendFakeBlockIfInChunk(box.getMinX(), z, pos, state);
             sendFakeBlockIfInChunk(box.getMaxX(), z, pos, state);
         }
-
-        for (Subzone subzone : claim.getSubzones()) {
-            showChunk(subzone, pos);
-        }
     }
 
     private void sendFakeBlockIfInChunk(int x, int z, ChunkPos pos, BlockState blockState) {
         if (x >= pos.getStartX() && x <= pos.getEndX() && z >= pos.getStartZ() && z <= pos.getEndZ()) {
             sendFakeBlock(x, z, blockState);
         }
-    }
-
-    @Override
-    public Claim trackedClaim() {
-        return trackedClaim;
     }
 
     @Override
@@ -119,55 +121,55 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     }
 
     @Override
-    public void trackClaim(@NotNull Claim claim) {
-        if (trackedClaim != null) {
-            unTrackClaim();
-        }
-        trackedClaim = claim;
-        if (trackedClaim.getDimension().equals(getWorld().getRegistryKey())) {
-            showClaimInternal(claim);
-        }
+    public void trackClaims() {
+        if (tracking) return;
+        tracking = true;
+        trackClaims0();
+        sendPacketBundle();
     }
 
-    private void showClaimInternal(AbstractClaim claim) {
-        BlockState blockState = SHOW_BLOCKS[Math.min(claim.getDepth(), SHOW_BLOCKS.length - 1)].getDefaultState();
-        BlockState centerBlockState = SHOW_BLOCKS_CENTER[Math.min(claim.getDepth(), SHOW_BLOCKS_CENTER.length - 1)].getDefaultState();
-
-        ClaimBox box = claim.getBox();
-        for (int x = 0; x < box.getBlockCountX(); x++) {
-            boolean lineCenter = box.isCenterBlock(box.getBlockCountX(), x);
-            BlockState state = lineCenter ? centerBlockState : blockState;
-
-            sendFakeBlockIfTracked(x + box.getMinX(), box.getMinZ(), state);
-            sendFakeBlockIfTracked(x + box.getMinX(), box.getMaxZ(), state);
-        }
-        for (int z = 0; z < box.getBlockCountZ(); z++) {
-            boolean lineCenter = box.isCenterBlock(box.getBlockCountZ(), z);
-            BlockState state = lineCenter ? centerBlockState : blockState;
-
-            sendFakeBlockIfTracked(box.getMinX(), z + box.getMinZ(), state);
-            sendFakeBlockIfTracked(box.getMaxX(), z + box.getMinZ(), state);
-        }
-
-        for (Subzone subzone : claim.getSubzones()) {
-            showClaimInternal(subzone);
-        }
-    }
-
-    private void sendFakeBlockIfTracked(int x, int z, BlockState blockState) {
-        if (getChunkFilter().isWithinDistance(ChunkSectionPos.getSectionCoord(x), ChunkSectionPos.getSectionCoord(z))) {
-            sendFakeBlock(x, z, blockState);
-        }
+    private void trackClaims0() {
+        getChunkFilter().forEach(this::showChunk);
     }
 
     @Override
-    public void unTrackClaim() {
-        trackedClaim = null;
+    public void unTrackClaims() {
+        if (!tracking) return;
+        tracking = false;
+        unTrackClaims0();
+        sendPacketBundle();
+    }
+
+    private void unTrackClaims0() {
         for (BlockPos blockPos : trackedShowBlocks) {
-            networkHandler.sendPacket(new BlockUpdateS2CPacket(getWorld(), blockPos));
+            packets.add(new BlockUpdateS2CPacket(getWorld(), blockPos));
         }
         chunk2TrackedShowBlocks.clear();
         trackedShowBlocks.clear();
+    }
+
+    @Override
+    public void notifyChange(AbstractClaim claim, boolean add) {
+        if (tracking) {
+            if (trackedClaims.contains(claim)) {
+                unTrackClaims0();
+                trackClaims0();
+                sendPacketBundle();
+            } else if (add) {
+                getChunkFilter().forEach(chunkPos -> {
+                    if (claim.getBox().intersectsXZ(chunkPos.getStartX(), chunkPos.getStartZ(), chunkPos.getEndX(), chunkPos.getEndZ())) {
+                        trackedClaims.add(claim);
+                        showChunk(claim, chunkPos);
+                    }
+                });
+                sendPacketBundle();
+            }
+        }
+    }
+
+    private void sendPacketBundle() {
+        networkHandler.sendPacket(new BundleS2CPacket(new LinkedList<>(packets)));
+        packets.clear();
     }
 
     private void sendFakeBlock(int x, int z, BlockState state) {
@@ -188,8 +190,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
             }
         }
 
-        BlockUpdateS2CPacket packet = new BlockUpdateS2CPacket(pos, state);
-        networkHandler.sendPacket(packet);
+        packets.add(new BlockUpdateS2CPacket(pos, state));
+
         long chunkPos = ChunkPos.toLong(ChunkSectionPos.getSectionCoord(x), ChunkSectionPos.getSectionCoord(z));
         chunk2TrackedShowBlocks.computeIfAbsent(chunkPos, l -> new HashSet<>());
         chunk2TrackedShowBlocks.get(chunkPos).add(pos);

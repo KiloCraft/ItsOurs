@@ -16,7 +16,7 @@ public class ClaimBox extends BlockBox {
 
     public static final Codec<ClaimBox> CODEC = BlockBox.CODEC.xmap(blockBox -> new ClaimBox(blockBox.getMinX(), blockBox.getMinY(), blockBox.getMinZ(), blockBox.getMaxX(), blockBox.getMaxY(), blockBox.getMaxZ()), claimBox -> new BlockBox(claimBox.getMinX(), claimBox.getMinY(), claimBox.getMinZ(), claimBox.getMaxX(), claimBox.getMaxY(), claimBox.getMaxZ()));
 
-    private ClaimBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+    public ClaimBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
         super(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
