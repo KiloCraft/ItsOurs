@@ -38,6 +38,7 @@ public class DataManager {
     }));
 
     public static final Set<String> unknownFlags = new HashSet<>();
+    private static boolean loadingFailed = false;
 
     public static void init(List<Claim> claims, FlagData defaultFlags, Map<UUID, PlayerData> players) {
         ClaimList.load(claims);
@@ -77,13 +78,15 @@ public class DataManager {
                 }
             } catch (IOException e) {
                 LOGGER.error("Failed to load claim data {}", data, e);
+                loadingFailed = true;
             }
         }
     }
 
     public static void save(MinecraftServer server) {
+        if (loadingFailed) return;
         DataResult<NbtElement> dataResult = CODEC.encodeStart(NbtOps.INSTANCE, null);
-        NbtElement nbtElement = dataResult.resultOrPartial(error -> LOGGER.error("Failed tp encode claim data: '{}'", error)).orElseThrow();
+        NbtElement nbtElement = dataResult.resultOrPartial(error -> LOGGER.error("Failed to encode claim data: '{}'", error)).orElseThrow();
         Path data = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat");
         Path backup = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat_old");
         if (!(nbtElement instanceof NbtCompound root)) {
