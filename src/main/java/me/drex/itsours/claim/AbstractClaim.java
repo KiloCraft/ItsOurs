@@ -147,19 +147,22 @@ public abstract class AbstractClaim {
     public void onEnter(@Nullable AbstractClaim previousClaim, ServerPlayerEntity player) {
         boolean isAllowed = ItsOurs.checkPermission(player.getCommandSource(), "itsours.fly", 2);
         boolean cachedFlying = isAllowed && player.getAbilities().flying;
+        boolean cachedAllowFlying = player.getAbilities().allowFlying;
         boolean requiresUpdate = false;
         // Update abilities for respective gamemode
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
         // Enable flying if player enabled it
         if (!player.getAbilities().allowFlying) {
             player.getAbilities().allowFlying = DataManager.getUserData(player.getUuid()).flight() && isAllowed;
-            requiresUpdate |= player.getAbilities().allowFlying;
         }
         // Set the flight state to what it was before entering
         if (player.getAbilities().allowFlying) {
-            requiresUpdate |= player.getAbilities().flying != cachedFlying;
             player.getAbilities().flying = cachedFlying;
         }
+
+        requiresUpdate |= cachedFlying != player.getAbilities().flying;
+        requiresUpdate |= cachedAllowFlying != player.getAbilities().allowFlying;
+
         if (requiresUpdate) {
             player.sendAbilitiesUpdate();
         }
@@ -179,8 +182,8 @@ public abstract class AbstractClaim {
                 if (pos.getY() + 3 < player.getY()) {
                     player.teleport(player.getServerWorld(), player.getX(), pos.getY(), player.getZ(), player.getYaw(), player.getPitch());
                 }
-                requiresUpdate = true;
             }
+            requiresUpdate |= cachedFlying != player.getAbilities().flying;
             requiresUpdate |= cachedAllowFlying != player.getAbilities().allowFlying;
             if (requiresUpdate) {
                 player.sendAbilitiesUpdate();

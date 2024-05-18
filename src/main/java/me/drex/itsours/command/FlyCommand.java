@@ -25,7 +25,7 @@ public class FlyCommand extends ToggleCommand {
     @Override
     protected void afterToggle(ServerCommandSource src, boolean newValue) throws CommandSyntaxException {
         ServerPlayerEntity player = src.getPlayer();
-        if (ClaimList.getClaimAt(player).isPresent() && player.getWorld().getRegistryKey().equals(World.OVERWORLD)) {
+        if (ClaimList.getClaimAt(player).isPresent()) {
             player.interactionManager.getGameMode().setAbilities(player.getAbilities());
             if (newValue) {
                 player.getAbilities().allowFlying = true;
