@@ -37,8 +37,8 @@ public abstract class EntityMixin {
 
     public AbstractClaim pclaim = null;
 
-    @Inject(method = "setPos", at = @At("RETURN"))
-    public void itsours$doPostPosActions(CallbackInfo ci) {
+    @Inject(method = "tick", at = @At("RETURN"))
+    public void itsours$onTick(CallbackInfo ci) {
         if ((Object) this instanceof ServerPlayerEntity player) {
             if (player.getBlockPos() == null) return;
             AbstractClaim claim = ClaimList.getClaimAt(player).orElse(null);
