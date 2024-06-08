@@ -10,7 +10,7 @@ import static me.drex.itsours.ItsOurs.MOD_ID;
 public class ItsOursPlaceholders {
 
     private static Identifier location(String placeholderId) {
-        return Identifier.method_60655(MOD_ID, placeholderId);
+        return Identifier.of(MOD_ID, placeholderId);
     }
 
     public static void register() {

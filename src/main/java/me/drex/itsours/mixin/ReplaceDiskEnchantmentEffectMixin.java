@@ -8,7 +8,7 @@ import me.drex.itsours.claim.flags.node.Node;
 import me.drex.itsours.claim.list.ClaimList;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentEffectContext;
-import net.minecraft.enchantment.effect.entity.ReplaceDiscEnchantmentEffectType;
+import net.minecraft.enchantment.effect.entity.ReplaceDiskEnchantmentEffect;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
@@ -19,8 +19,8 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Optional;
 
-@Mixin(ReplaceDiscEnchantmentEffectType.class)
-public abstract class ReplaceDiscEnchantmentEffectTypeMixin {
+@Mixin(ReplaceDiskEnchantmentEffect.class)
+public abstract class ReplaceDiskEnchantmentEffectMixin {
 
     @WrapOperation(
         method = "apply",

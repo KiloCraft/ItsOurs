@@ -29,7 +29,7 @@ public class ItsOurs {
 
     protected void registerEvents() {
         ServerLifecycleEvents.SERVER_STARTING.register(server -> SERVER = server);
-        CommonProtection.register(Identifier.method_60655(MOD_ID, "claim_protection"), ItsoursProtectionProvider.INSTANCE);
+        CommonProtection.register(Identifier.of(MOD_ID, "claim_protection"), ItsoursProtectionProvider.INSTANCE);
         ItsOursPlaceholders.register();
         CommandRegistrationCallback.EVENT.register(CommandManager.INSTANCE::register);
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerReady);
