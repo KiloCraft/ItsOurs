@@ -66,7 +66,9 @@ public class Quadtree {
                     return remove(child, claim);
                 }
             }
-            return false;
+
+            // The claim spans multiple children
+            return node.claims.remove(claim);
         }
     }
 
