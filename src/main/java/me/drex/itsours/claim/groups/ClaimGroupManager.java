@@ -2,7 +2,7 @@ package me.drex.itsours.claim.groups;
 
 import com.mojang.serialization.Codec;
 import me.drex.itsours.claim.flags.Flag;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.context.GroupContext;
 import me.drex.itsours.claim.flags.holder.FlagData;
 import me.drex.itsours.claim.flags.node.ChildNode;
@@ -28,9 +28,9 @@ public class ClaimGroupManager {
     static {
         {
             DEFAULT_TRUSTED = new FlagData();
-            List<ChildNode> nodes = FlagsManager.PLAYER.getNodes();
+            List<ChildNode> nodes = Flags.PLAYER.getNodes();
             for (ChildNode node : nodes) {
-                if (!node.equals(FlagsManager.MODIFY)) {
+                if (!node.equals(Flags.MODIFY)) {
                     Flag flag = Flag.flag(node);
                     DEFAULT_TRUSTED.set(flag, Value.ALLOW);
                 }
@@ -38,7 +38,7 @@ public class ClaimGroupManager {
         }
         {
             DEFAULT_MODERATOR = new FlagData();
-            List<ChildNode> nodes = FlagsManager.PLAYER.getNodes();
+            List<ChildNode> nodes = Flags.PLAYER.getNodes();
             for (ChildNode node : nodes) {
                 Flag flag = Flag.flag(node);
                 DEFAULT_MODERATOR.set(flag, Value.ALLOW);
@@ -47,6 +47,8 @@ public class ClaimGroupManager {
     }
 
     private final LinkedHashMap<String, Group> groups;
+    public final Group trusted;
+    public final Group moderator;
 
     public ClaimGroupManager(Map<String, Group> groups) {
         if (groups instanceof LinkedHashMap<String, Group> linkedHashMap) {
@@ -55,6 +57,10 @@ public class ClaimGroupManager {
             // Ensure group order
             this.groups = new LinkedHashMap<>(groups);
         }
+        assert groups.containsKey(TRUSTED);
+        trusted = groups.get(TRUSTED);
+        assert groups.containsKey(MODERATOR);
+        moderator = groups.get(MODERATOR);
     }
 
     public ClaimGroupManager() {

@@ -3,7 +3,6 @@ package me.drex.itsours.claim.flags;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.flags.node.ChildNode;
 import me.drex.itsours.claim.flags.node.Node;
 import me.drex.itsours.claim.flags.node.RootNode;
@@ -27,7 +26,7 @@ public interface Flag {
     }
 
     static Flag valueOf(String input) throws InvalidFlagException {
-        return valueOf(FlagsManager.GLOBAL, input);
+        return valueOf(Flags.GLOBAL, input);
     }
 
     static Flag flag(RootNode rootNode, ChildNode... childNodes) {
@@ -35,18 +34,22 @@ public interface Flag {
     }
 
     static Flag flag(ChildNode... childNodes) {
-        return flag(FlagsManager.GLOBAL, childNodes);
+        return flag(Flags.GLOBAL, childNodes);
     }
 
     boolean includes(Flag other);
 
     void validateContext(Node.ChangeContext context) throws CommandSyntaxException;
 
+    boolean canChange(Node.ChangeContext context);
+
     Flag withNode(ChildNode node) throws InvalidFlagException;
 
     ChildNode[] getChildNodes();
 
     Node getLastNode();
+
+    ChildNode getLastChildNode();
 
     String asString();
 

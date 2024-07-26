@@ -8,7 +8,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.drex.itsours.claim.flags.Flag;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.node.ChildNode;
 import me.drex.itsours.claim.flags.node.Node;
 import me.drex.itsours.claim.flags.node.RootNode;
@@ -30,10 +30,10 @@ public class FlagArgument {
     public static final DynamicCommandExceptionType UNKNOWN_VALUE = new DynamicCommandExceptionType(input -> localized("text.itsours.argument.value.invalid", Map.of("input", literal(input.toString()))));
     public static final CommandSyntaxException FORBIDDEN = new SimpleCommandExceptionType(localized("text.itsours.argument.flags.forbidden")).create();
     public static final SuggestionProvider<ServerCommandSource> PLAYER_FLAG_PROVIDER = (context, builder) -> {
-        return CommandSource.suggestMatching(generateCandidates(FlagsManager.PLAYER, builder.getRemaining()), builder);
+        return CommandSource.suggestMatching(generateCandidates(Flags.PLAYER, builder.getRemaining()), builder);
     };
     public static final SuggestionProvider<ServerCommandSource> FLAG_PROVIDER = (context, builder) -> {
-        return CommandSource.suggestMatching(generateCandidates(FlagsManager.GLOBAL, builder.getRemaining()), builder);
+        return CommandSource.suggestMatching(generateCandidates(Flags.GLOBAL, builder.getRemaining()), builder);
     };
     public static final SuggestionProvider<ServerCommandSource> VALUE_PROVIDER = (source, builder) -> CommandSource.suggestMatching(Arrays.stream(Value.values()).map(value -> value.literal), builder);
 
@@ -50,7 +50,7 @@ public class FlagArgument {
     }
 
     public static Flag getPlayerFlag(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
-        return getPlayerFlag(ctx, name, FlagsManager.PLAYER);
+        return getPlayerFlag(ctx, name, Flags.PLAYER);
     }
 
     public static Flag getFlag(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
@@ -58,7 +58,7 @@ public class FlagArgument {
     }
 
     public static Flag getFlag(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
-        return getPlayerFlag(ctx, name, FlagsManager.GLOBAL);
+        return getPlayerFlag(ctx, name, Flags.GLOBAL);
     }
 
     private static Flag getPlayerFlag(CommandContext<ServerCommandSource> ctx, String name, RootNode rootNode) throws CommandSyntaxException {

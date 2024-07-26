@@ -1,13 +1,15 @@
-package me.drex.itsours.gui;
+package me.drex.itsours.gui.players;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.Flag;
 import me.drex.itsours.claim.groups.ClaimGroupManager;
 import me.drex.itsours.claim.groups.Group;
 import me.drex.itsours.command.GroupsCommand;
+import me.drex.itsours.gui.GuiContext;
+import me.drex.itsours.gui.PageGui;
 import me.drex.itsours.gui.flags.GroupFlagsGui;
 import me.drex.itsours.gui.util.ConfirmationGui;
 import me.drex.itsours.gui.util.GuiTextures;
@@ -50,7 +52,7 @@ public class GroupManagerGui extends PageGui<String> {
                 if (clickType.isLeft) {
                     // noop
                 } else if (clickType.isRight) {
-                    switchUi(new GroupFlagsGui(context, claim, groupId, group, Flag.flag(FlagsManager.PLAYER)));
+                    switchUi(new GroupFlagsGui(context, claim, groupId, group, Flag.flag(Flags.PLAYER)));
                 } else if (clickType.isMiddle) {
                     switchUi(new ConfirmationGui(context, "text.itsours.gui.playermanager.remove.confirm", Map.of("group_id", Text.literal(groupId)), () -> removeGroup(groupId)));
                 }

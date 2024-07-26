@@ -5,7 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.gui.ClaimGui;
 import me.drex.itsours.gui.GuiContext;
@@ -22,10 +22,13 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 public class GuiCommand extends AbstractCommand {
 
-    public static final GuiCommand INSTANCE = new GuiCommand();
+    public static final GuiCommand ADVANCED = new GuiCommand(true);
+    public static final GuiCommand SIMPLE = new GuiCommand(false);
+    private final boolean advanced;
 
-    private GuiCommand() {
-        super("gui");
+    private GuiCommand(boolean advanced) {
+        super(advanced ? "gui-advanced" : "gui");
+        this.advanced = advanced;
     }
 
     @Override
@@ -40,8 +43,8 @@ public class GuiCommand extends AbstractCommand {
                 ClaimArgument.ownClaims()
                     .executes(ctx -> {
                         AbstractClaim claim = ClaimArgument.getClaim(ctx);
-                        validateAction(ctx.getSource(), claim, FlagsManager.MODIFY);
-                        new ClaimGui(new GuiContext(ctx.getSource().getPlayerOrThrow()), claim).open();
+                        validateAction(ctx.getSource(), claim, Flags.MODIFY);
+                        new ClaimGui(new GuiContext(ctx.getSource().getPlayerOrThrow()), claim, advanced).open();
                         return 1;
                     })
             )

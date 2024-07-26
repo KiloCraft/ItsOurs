@@ -1,16 +1,18 @@
-package me.drex.itsours.gui;
+package me.drex.itsours.gui.players;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.Flag;
 import me.drex.itsours.claim.flags.holder.FlagData;
 import me.drex.itsours.claim.flags.util.Modify;
-import me.drex.itsours.claim.groups.ClaimGroupManager;
 import me.drex.itsours.command.TrustCommand;
+import me.drex.itsours.gui.GuiContext;
+import me.drex.itsours.gui.PageGui;
 import me.drex.itsours.gui.flags.PlayerFlagsGui;
+import me.drex.itsours.gui.players.PlayerGroupManagerGui;
 import me.drex.itsours.gui.util.ConfirmationGui;
 import me.drex.itsours.gui.util.GuiTextures;
 import me.drex.itsours.gui.util.PlayerSelectorGui;
@@ -25,16 +27,16 @@ import java.util.concurrent.CompletableFuture;
 
 import static me.drex.message.api.LocalizedMessage.localized;
 
-public class PlayerManagerGui extends PageGui<UUID> {
+public class AdvancedPlayerManagerGui extends PageGui<UUID> {
 
     private AbstractClaim claim;
     protected final List<PageGui.Filter<UUID>> filters = List.of(
         new Filter<>(localized("text.itsours.gui.playermanager.filter.all"), player -> true),
-        new Filter<>(localized("text.itsours.gui.playermanager.filter.trusted"), player -> claim.getGroupManager().getGroup(ClaimGroupManager.TRUSTED).players().contains(player)),
-        new Filter<>(localized("text.itsours.gui.playermanager.filter.not_trusted"), player -> !claim.getGroupManager().getGroup(ClaimGroupManager.TRUSTED).players().contains(player))
+        new Filter<>(localized("text.itsours.gui.playermanager.filter.trusted"), player -> claim.getGroupManager().trusted.players().contains(player)),
+        new Filter<>(localized("text.itsours.gui.playermanager.filter.not_trusted"), player -> !claim.getGroupManager().trusted.players().contains(player))
     );
 
-    public PlayerManagerGui(GuiContext context, AbstractClaim claim) {
+    public AdvancedPlayerManagerGui(GuiContext context, AbstractClaim claim) {
         super(context, ScreenHandlerType.GENERIC_9X6);
         this.claim = claim;
         this.setTitle(localized("text.itsours.gui.playermanager.title", claim.placeholders(context.server())));
@@ -67,13 +69,13 @@ public class PlayerManagerGui extends PageGui<UUID> {
             PlaceholderUtil.uuid("player_", player, context.server())
         )).setCallback(clickType -> {
             if (clickType.isLeft) {
-                switchUi(new PlayerFlagsGui(context, claim, player, Flag.flag(FlagsManager.PLAYER)));
+                switchUi(new PlayerFlagsGui(context, claim, player, Flag.flag(Flags.PLAYER)));
             } else if (clickType.isRight) {
                 switchUi(new PlayerGroupManagerGui(context, claim, player));
             } else if (clickType.isMiddle) {
                 switchUi(new ConfirmationGui(context, "text.itsours.gui.playermanager.reset.confirm", PlaceholderUtil.uuid("player_", player, context.server()), () -> {
                     // Reset player
-                    if (claim.checkAction(context.player.getUuid(), FlagsManager.MODIFY, Modify.FLAG.node())) {
+                    if (claim.checkAction(context.player.getUuid(), Flags.MODIFY, Modify.FLAG.node())) {
                         claim.getPlayerFlags().remove(player);
                         claim.getGroupManager().groups().forEach((s, group) -> group.players().remove(player));
                         build();

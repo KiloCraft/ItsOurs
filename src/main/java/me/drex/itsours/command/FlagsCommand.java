@@ -3,7 +3,7 @@ package me.drex.itsours.command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.Flag;
 import me.drex.itsours.claim.flags.context.GlobalContext;
 import me.drex.itsours.claim.flags.node.Node;
@@ -53,7 +53,7 @@ public class FlagsCommand extends AbstractCommand {
     }
 
     public int executeSet(ServerCommandSource src, AbstractClaim claim, Flag flag, Value value) throws CommandSyntaxException {
-        validateAction(src, claim, FlagsManager.MODIFY, Modify.FLAG.node());
+        validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         flag.validateContext(new Node.ChangeContext(claim, GlobalContext.INSTANCE, value, src));
         claim.getFlags().set(flag, value);
         src.sendFeedback(() -> localized("text.itsours.commands.flags.set", mergePlaceholderMaps(
@@ -68,7 +68,7 @@ public class FlagsCommand extends AbstractCommand {
     }
 
     public int executeCheck(ServerCommandSource src, AbstractClaim claim, Flag flag) throws CommandSyntaxException {
-        validateAction(src, claim, FlagsManager.MODIFY, Modify.FLAG.node());
+        validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         Value value = claim.getFlags().get(flag);
         src.sendFeedback(() -> localized("text.itsours.commands.flags.check", mergePlaceholderMaps(
                 Map.of(

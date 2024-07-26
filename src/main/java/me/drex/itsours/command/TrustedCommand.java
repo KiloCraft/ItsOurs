@@ -27,9 +27,7 @@ public class TrustedCommand extends AbstractCommand {
     }
 
     private int executeTrusted(ServerCommandSource src, AbstractClaim claim) {
-        Group trusted = claim.getGroupManager().getGroup(ClaimGroupManager.TRUSTED);
-
-        if (trusted.players().isEmpty()) {
+        if (claim.getGroupManager().trusted.players().isEmpty()) {
             src.sendError(localized("text.itsours.commands.trusted.empty"));
         } else {
             src.sendFeedback(() -> localized("text.itsours.commands.trusted", claim.placeholders(src.getServer())), false);

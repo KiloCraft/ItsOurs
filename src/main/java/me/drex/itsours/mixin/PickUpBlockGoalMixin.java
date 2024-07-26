@@ -2,7 +2,7 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.node.Node;
 import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.registry.Registries;
@@ -38,7 +38,7 @@ public abstract class PickUpBlockGoalMixin {
     public void itsours$canEndermanPickUp(CallbackInfo ci, Random random, World world, int i, int j, int k, BlockPos pos) {
         Optional<AbstractClaim> optional = ClaimList.getClaimAt(world, pos);
         if (optional.isPresent()) {
-            if (!optional.get().checkAction(this.enderman.getUuid(), FlagsManager.MINE, Node.registry(Registries.BLOCK, world.getBlockState(pos).getBlock()))) {
+            if (!optional.get().checkAction(this.enderman.getUuid(), Flags.MINE, Node.registry(Registries.BLOCK, world.getBlockState(pos).getBlock()))) {
                 ci.cancel();
             }
         }

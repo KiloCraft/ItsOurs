@@ -27,6 +27,7 @@ public class DataManager {
 
     public static final int CURRENT_DATA_VERSION = 9;
     private static Map<UUID, PlayerData> playerData = new HashMap<>();
+    // TODO Enable mob_spawn by default (or change to disable_mob_spawn for simple gui integration)
     private static FlagData defaultFlags = new FlagData();
     public static final Codec<?> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         ClaimList.CODEC.fieldOf("claims").forGetter((ignored) -> ClaimList.getClaims().stream().filter(claim -> claim instanceof Claim).map(claim -> (Claim) claim).toList()),

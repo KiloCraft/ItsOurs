@@ -8,7 +8,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.Flag;
 import me.drex.itsours.claim.flags.util.Modify;
 import me.drex.itsours.claim.flags.util.Value;
@@ -16,9 +16,8 @@ import me.drex.itsours.claim.groups.ClaimGroupManager;
 import me.drex.itsours.claim.groups.Group;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.command.argument.FlagArgument;
-import me.drex.itsours.gui.GroupManagerGui;
+import me.drex.itsours.gui.players.GroupManagerGui;
 import me.drex.itsours.gui.GuiContext;
-import me.drex.itsours.gui.PlayerManagerGui;
 import me.drex.itsours.util.PlaceholderUtil;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -102,7 +101,7 @@ public class GroupsCommand extends AbstractCommand {
     }
 
     public int createGroup(ServerCommandSource src, AbstractClaim claim, String groupId) throws CommandSyntaxException {
-        validateAction(src, claim, FlagsManager.MODIFY, Modify.FLAG.node());
+        validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
         Group group = groupManager.getGroup(groupId);
         if (group != null) throw ALREADY_EXISTS;
@@ -115,7 +114,7 @@ public class GroupsCommand extends AbstractCommand {
     }
 
     public int deleteGroup(ServerCommandSource src, AbstractClaim claim, String groupId) throws CommandSyntaxException {
-        validateAction(src, claim, FlagsManager.MODIFY, Modify.FLAG.node());
+        validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
         Group group = groupManager.getGroup(groupId);
         if (group == null) throw DOESNT_EXIST.create(groupId);
@@ -132,7 +131,7 @@ public class GroupsCommand extends AbstractCommand {
     }
 
     public int listGroups(ServerCommandSource src, AbstractClaim claim) throws CommandSyntaxException {
-        validateAction(src, claim, FlagsManager.MODIFY, Modify.FLAG.node());
+        validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
         MutableText groups = PlaceholderUtil.list(groupManager.getGroupIds(), (groupId) -> Map.of(
             "group_id", Text.literal(groupId)
@@ -145,7 +144,7 @@ public class GroupsCommand extends AbstractCommand {
     }
 
     public int setGroupFlags(ServerCommandSource src, AbstractClaim claim, String groupId, Flag flag, Value value) throws CommandSyntaxException {
-        validateAction(src, claim, FlagsManager.MODIFY, Modify.FLAG.node());
+        validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
         Group group = groupManager.getGroup(groupId);
         if (group == null) throw DOESNT_EXIST.create(groupId);
@@ -163,7 +162,7 @@ public class GroupsCommand extends AbstractCommand {
     }
 
     public int checkGroupFlags(ServerCommandSource src, AbstractClaim claim, String groupId, Flag flag) throws CommandSyntaxException {
-        validateAction(src, claim, FlagsManager.MODIFY, Modify.FLAG.node());
+        validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
         Group group = groupManager.getGroup(groupId);
         if (group == null) throw DOESNT_EXIST.create(groupId);
@@ -180,7 +179,7 @@ public class GroupsCommand extends AbstractCommand {
     }
 
     public int joinGroup(ServerCommandSource src, AbstractClaim claim, String groupId, Collection<GameProfile> targets) throws CommandSyntaxException {
-        validateAction(src, claim, FlagsManager.MODIFY, Modify.FLAG.node());
+        validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
         Group group = groupManager.getGroup(groupId);
         if (group == null) throw DOESNT_EXIST.create(groupId);
@@ -199,7 +198,7 @@ public class GroupsCommand extends AbstractCommand {
     }
 
     public int leaveGroup(ServerCommandSource src, AbstractClaim claim, String groupId, Collection<GameProfile> targets) throws CommandSyntaxException {
-        validateAction(src, claim, FlagsManager.MODIFY, Modify.FLAG.node());
+        validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
         Group group = groupManager.getGroup(groupId);
         if (group == null) throw DOESNT_EXIST.create(groupId);

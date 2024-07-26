@@ -71,10 +71,16 @@ public class FlagImpl implements Flag {
 
     @Override
     public void validateContext(Node.ChangeContext context) throws CommandSyntaxException {
-        if (!rootNode.canChange(context)) throw FlagArgument.FORBIDDEN;
+        if (!canChange(context)) throw FlagArgument.FORBIDDEN;
+    }
+
+    @Override
+    public boolean canChange(Node.ChangeContext context) {
+        if (!rootNode.canChange(context)) return false;
         for (Node node : childNodes) {
-            if (!node.canChange(context)) throw FlagArgument.FORBIDDEN;
+            if (!node.canChange(context)) return false;
         }
+        return true;
     }
 
     @Override
@@ -88,6 +94,14 @@ public class FlagImpl implements Flag {
             return childNodes[childNodes.length - 1];
         }
         return rootNode;
+    }
+
+    @Override
+    public ChildNode getLastChildNode() {
+        if (childNodes.length != 0) {
+            return childNodes[childNodes.length - 1];
+        }
+        throw new IllegalStateException("This node doesn't have any child nodes");
     }
 
     @Override

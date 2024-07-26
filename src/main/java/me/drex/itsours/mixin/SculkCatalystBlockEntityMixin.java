@@ -3,7 +3,7 @@ package me.drex.itsours.mixin;
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import net.minecraft.block.entity.SculkCatalystBlockEntity;
 import net.minecraft.block.entity.SculkSpreadManager;
 import net.minecraft.server.world.ServerWorld;
@@ -35,8 +35,8 @@ public abstract class SculkCatalystBlockEntityMixin {
         BlockPos oldPos = BlockPos.ofFloored(this.positionSource.getPos(world).orElse(Vec3d.ZERO));
         Optional<AbstractClaim> oldClaim = ClaimList.getClaimAt(world, oldPos);
         Optional<AbstractClaim> newClaim = ClaimList.getClaimAt(world, pos);
-        return ((oldClaim.isEmpty() || oldClaim.get().checkAction(null, FlagsManager.SCULK_CROSSES_BORDERS)) &&
-            (newClaim.isEmpty() || newClaim.get().checkAction(null, FlagsManager.SCULK_CROSSES_BORDERS))) || newClaim.equals(oldClaim);
+        return ((oldClaim.isEmpty() || oldClaim.get().checkAction(null, Flags.SCULK_CROSSES_BORDERS)) &&
+            (newClaim.isEmpty() || newClaim.get().checkAction(null, Flags.SCULK_CROSSES_BORDERS))) || newClaim.equals(oldClaim);
     }
 
 }

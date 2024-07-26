@@ -5,7 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.node.Node;
 import me.drex.itsours.util.ClaimFlags;
 import net.minecraft.entity.Entity;
@@ -48,11 +48,11 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         if (claim.isEmpty()) {
             return original;
         }
-        if (!claim.get().checkAction(null, FlagsManager.PVP) && entity instanceof PlayerEntity) {
+        if (!claim.get().checkAction(null, Flags.PVP) && entity instanceof PlayerEntity) {
             this.sendMessage(localized("text.itsours.action.disallowed.damage_player"), true);
             return false;
         }
-        if (!claim.get().checkAction(this.getUuid(), FlagsManager.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType())) && !(entity instanceof PlayerEntity)) {
+        if (!claim.get().checkAction(this.getUuid(), Flags.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType())) && !(entity instanceof PlayerEntity)) {
             this.sendMessage(localized("text.itsours.action.disallowed.damage_entity"), true);
             return false;
         }
@@ -71,11 +71,11 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         if (claim.isEmpty()) {
             return original;
         }
-        if (!claim.get().checkAction(null, FlagsManager.PVP) && entity instanceof PlayerEntity) {
+        if (!claim.get().checkAction(null, Flags.PVP) && entity instanceof PlayerEntity) {
             this.sendMessage(localized("text.itsours.action.disallowed.damage_player"), true);
             return Double.MAX_VALUE;
         }
-        if (!claim.get().checkAction(this.getUuid(), FlagsManager.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType())) && !(entity instanceof PlayerEntity)) {
+        if (!claim.get().checkAction(this.getUuid(), Flags.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType())) && !(entity instanceof PlayerEntity)) {
             this.sendMessage(localized("text.itsours.action.disallowed.damage_entity"), true);
             return Double.MAX_VALUE;
         }
@@ -95,7 +95,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
             "text.itsours.action.disallowed.interact_entity",
             () -> ActionResult.FAIL, 
             () -> original.call(entity, player, hand), 
-            FlagsManager.INTERACT_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType())
+            Flags.INTERACT_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType())
         );
     }
 
@@ -112,7 +112,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
             "text.itsours.action.disallowed.elytra",
             () -> false,
             () -> original.call(itemStack),
-            FlagsManager.GLIDE
+            Flags.GLIDE
         );
     }
 

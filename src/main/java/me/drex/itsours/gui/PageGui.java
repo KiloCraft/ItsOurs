@@ -1,6 +1,7 @@
 package me.drex.itsours.gui;
 
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
+import me.drex.itsours.gui.util.BaseGui;
 import me.drex.itsours.gui.util.GuiTextures;
 import net.minecraft.item.Items;
 import net.minecraft.screen.GenericContainerScreenHandler;

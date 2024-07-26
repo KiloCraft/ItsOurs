@@ -24,7 +24,7 @@ public class FlagsGui extends AbstractFlagsGui {
     public FlagsGui(GuiContext context, AbstractClaim claim, Flag flag) {
         super(context, claim.getFlags(), flag);
         this.claim = claim;
-        this.setTitle(localized("text.itsours.gui.flags.title", PlaceholderUtil.mergePlaceholderMaps(
+        this.setTitle(localized("text.itsours.gui.flags.advanced.title", PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(context.server()),
             Map.of("flag", Text.literal(flag.asString()))
         )));

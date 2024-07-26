@@ -27,10 +27,10 @@ public abstract class AbstractFlagsGui extends PageGui<ChildNode> {
     protected FlagData flagData;
     protected Flag flag;
     protected final List<PageGui.Filter<ChildNode>> filters = List.of(
-        new Filter<>(localized("text.itsours.gui.flags.filter.all"), childNode -> true),
-        new Filter<>(localized("text.itsours.gui.flags.filter.single"), childNode -> childNode instanceof LiteralNode),
-        new Filter<>(localized("text.itsours.gui.flags.filter.group"), childNode -> childNode instanceof GroupNode),
-        new Filter<>(localized("text.itsours.gui.flags.filter.modified"), childNode -> {
+        new Filter<>(localized("text.itsours.gui.flags.advanced.filter.all"), childNode -> true),
+        new Filter<>(localized("text.itsours.gui.flags.advanced.filter.single"), childNode -> childNode instanceof LiteralNode),
+        new Filter<>(localized("text.itsours.gui.flags.advanced.filter.group"), childNode -> childNode instanceof GroupNode),
+        new Filter<>(localized("text.itsours.gui.flags.advanced.filter.modified"), childNode -> {
             try {
                 return flagData.get(flag.withNode(childNode)) != Value.DEFAULT;
             } catch (InvalidFlagException ignored) {
@@ -63,12 +63,12 @@ public abstract class AbstractFlagsGui extends PageGui<ChildNode> {
             boolean isSimpleNode = lastNode.getNodes().isEmpty();
             String localizationId;
             if (lastNode instanceof GroupNode) {
-                localizationId = "text.itsours.gui.flags.element.lore.group";
+                localizationId = "text.itsours.gui.flags.advanced.element.lore.group";
             } else {
                 if (isSimpleNode) {
-                    localizationId = "text.itsours.gui.flags.element.lore.simple";
+                    localizationId = "text.itsours.gui.flags.advanced.element.lore.simple";
                 } else {
-                    localizationId = "text.itsours.gui.flags.element.lore.complex";
+                    localizationId = "text.itsours.gui.flags.advanced.element.lore.complex";
                 }
             }
             int damage = switch (value) {

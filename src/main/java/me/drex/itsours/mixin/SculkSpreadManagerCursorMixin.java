@@ -2,7 +2,7 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import net.minecraft.block.entity.SculkSpreadManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -29,8 +29,8 @@ public abstract class SculkSpreadManagerCursorMixin {
         if (!(access instanceof ServerWorld world)) return;
         Optional<AbstractClaim> oldClaim = ClaimList.getClaimAt(world, oldPos);
         Optional<AbstractClaim> newClaim = ClaimList.getClaimAt(world, returnValue);
-        if (((oldClaim.isPresent() && !oldClaim.get().checkAction(null, FlagsManager.SCULK_CROSSES_BORDERS)) ||
-            (newClaim.isPresent() && !newClaim.get().checkAction(null, FlagsManager.SCULK_CROSSES_BORDERS))) && !newClaim.equals(oldClaim)) {
+        if (((oldClaim.isPresent() && !oldClaim.get().checkAction(null, Flags.SCULK_CROSSES_BORDERS)) ||
+            (newClaim.isPresent() && !newClaim.get().checkAction(null, Flags.SCULK_CROSSES_BORDERS))) && !newClaim.equals(oldClaim)) {
             cir.setReturnValue(null);
         }
     }

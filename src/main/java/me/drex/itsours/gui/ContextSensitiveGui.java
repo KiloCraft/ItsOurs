@@ -3,9 +3,7 @@ package me.drex.itsours.gui;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.GuiInterface;
 import net.minecraft.item.Items;
-import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
 import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 
@@ -45,12 +43,11 @@ public interface ContextSensitiveGui extends GuiInterface {
     }
 
     default void fail() {
-        ServerPlayerEntity player = context().player;
-        player.networkHandler.sendPacket(new PlaySoundS2CPacket(Registries.SOUND_EVENT.getEntry(SoundEvents.ENTITY_VILLAGER_NO), SoundCategory.MASTER, player.getX(), player.getY(), player.getZ(), 1, 1, 0));
+        context().player.playSoundToPlayer(Registries.SOUND_EVENT.getEntry(SoundEvents.ENTITY_VILLAGER_NO).value(), SoundCategory.MASTER, 0.5f, 1f);
     }
 
     default void click() {
-        context().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1);
+        context().player.playSoundToPlayer(SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 0.5f, 1f);
     }
 
 }

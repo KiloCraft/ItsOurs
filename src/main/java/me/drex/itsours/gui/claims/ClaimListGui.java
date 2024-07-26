@@ -20,7 +20,7 @@ public abstract class ClaimListGui<T extends AbstractClaim> extends PageGui<T> {
         return guiElement(currentClaim ? Items.GOLD_BLOCK : Items.GRASS_BLOCK, "claimlist.entry", claim.placeholders(context.server()))
             .setCallback(clickType -> {
                 if (clickType.isLeft) {
-                    switchUi(new ClaimGui(context, claim));
+                    switchUi(new ClaimGui(context, claim, false));
                 } else if (clickType.isRight) {
                     if (!claim.getSubzones().isEmpty()) {
                         switchUi(new SubzoneListGui(context, claim));

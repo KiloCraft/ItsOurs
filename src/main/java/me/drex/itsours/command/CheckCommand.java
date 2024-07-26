@@ -6,7 +6,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.flags.Flag;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.util.Modify;
 import me.drex.itsours.claim.flags.visitor.Entry;
 import me.drex.itsours.claim.flags.visitor.FlagVisitor;
@@ -42,7 +42,7 @@ public class CheckCommand extends AbstractCommand {
     }
 
     private int execute(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Flag flag) throws CommandSyntaxException {
-        validateAction(src, claim, FlagsManager.MODIFY, Modify.CHECK.node());
+        validateAction(src, claim, Flags.MODIFY, Modify.CHECK.node());
         for (GameProfile target : targets) {
             FlagVisitor visitor = FlagVisitor.create();
             claim.visit(target.getId(), flag, visitor);

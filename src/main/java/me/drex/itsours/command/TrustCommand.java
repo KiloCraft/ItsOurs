@@ -4,10 +4,9 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.util.Modify;
 import me.drex.itsours.claim.groups.ClaimGroupManager;
-import me.drex.itsours.claim.groups.Group;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.util.PlaceholderUtil;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -43,13 +42,12 @@ public class TrustCommand extends AbstractCommand {
     }
 
     public int executeTrust(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets) throws CommandSyntaxException {
-        validateAction(src, claim, FlagsManager.MODIFY, Modify.FLAG.node());
+        validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
-        Group trusted = groupManager.getGroup(ClaimGroupManager.TRUSTED);
         int result = 0;
         if (trust) {
             for (GameProfile target : targets) {
-                if (trusted.players().add(target.getId())) {
+                if (groupManager.trusted.players().add(target.getId())) {
                     src.sendFeedback(() -> localized("text.itsours.commands.trust", PlaceholderUtil.mergePlaceholderMaps(
                         PlaceholderUtil.gameProfile("target_", target),
                         claim.placeholders(src.getServer())
@@ -64,7 +62,7 @@ public class TrustCommand extends AbstractCommand {
             }
         } else {
             for (GameProfile target : targets) {
-                if (trusted.players().remove(target.getId())) {
+                if (groupManager.trusted.players().remove(target.getId())) {
                     src.sendFeedback(() -> localized("text.itsours.commands.distrust", PlaceholderUtil.mergePlaceholderMaps(
                         PlaceholderUtil.gameProfile("target_", target),
                         claim.placeholders(src.getServer())

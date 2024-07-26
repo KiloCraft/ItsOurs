@@ -271,8 +271,8 @@ public abstract class AbstractClaim {
                 prefix + "depth", literal(String.valueOf(getDepth())),
                 prefix + "dimension", literal(dimension.getValue().toString()),
                 prefix + "subzones", Text.literal(String.valueOf(subzones.size())),
-                prefix + "trusted", list(groupManager.getGroup(ClaimGroupManager.TRUSTED).players(), uuid -> uuid("trusted_", uuid, server), "text.itsours.placeholders.trusted"),
-                prefix + "settings", flags.toText()
+                prefix + "trusted", list(groupManager.trusted.players(), uuid -> uuid("trusted_", uuid, server), "text.itsours.placeholders.trusted"),
+                prefix + "flags", flags.toText()
             ),
             uuid(prefix + "owner_", getOwner(), server),
             vec3i(prefix + "min_", box.getMin()),

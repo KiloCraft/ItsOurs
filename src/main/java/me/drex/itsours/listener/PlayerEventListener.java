@@ -1,8 +1,9 @@
 package me.drex.itsours.listener;
 
 import me.drex.itsours.claim.AbstractClaim;
+import me.drex.itsours.claim.flags.util.FlagBuilderUtil;
 import me.drex.itsours.claim.list.ClaimList;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.node.Node;
 import me.drex.itsours.data.DataManager;
 import me.drex.itsours.user.ClaimSelectingPlayer;
@@ -61,9 +62,9 @@ public class PlayerEventListener {
     private static TypedActionResult<ItemStack> onInteractItem(PlayerEntity player, World world, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(player);
-        if (claim.isEmpty() || !FlagsManager.USE_ITEM_PREDICATE.test(stack.getItem()))
+        if (claim.isEmpty() || !FlagBuilderUtil.USE_ITEM_PREDICATE.test(stack.getItem()))
             return TypedActionResult.pass(stack);
-        if (!claim.get().checkAction(player.getUuid(), FlagsManager.USE_ITEM, Node.registry(Registries.ITEM, stack.getItem()))) {
+        if (!claim.get().checkAction(player.getUuid(), Flags.USE_ITEM, Node.registry(Registries.ITEM, stack.getItem()))) {
             player.sendMessage(localized("text.itsours.action.disallowed.interact_item"), true);
             return TypedActionResult.fail(stack);
         }

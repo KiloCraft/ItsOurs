@@ -3,7 +3,7 @@ package me.drex.itsours.mixin;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.node.Node;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.TurtleEggBlock;
@@ -30,7 +30,7 @@ public abstract class TurtleEggBlockMixin {
     )
     public boolean itsours$canPlayerBreakEgg(boolean original, World world, BlockState state, BlockPos pos, Entity entity) {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, pos);
-        if (claim.isPresent() && entity instanceof PlayerEntity player && !claim.get().checkAction(entity.getUuid(), FlagsManager.MINE, Node.registry(Registries.BLOCK, (TurtleEggBlock) (Object) this))) {
+        if (claim.isPresent() && entity instanceof PlayerEntity player && !claim.get().checkAction(entity.getUuid(), Flags.MINE, Node.registry(Registries.BLOCK, (TurtleEggBlock) (Object) this))) {
             player.sendMessage(localized("text.itsours.action.disallowed.break_block"), true);
             return false;
         }

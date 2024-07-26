@@ -2,7 +2,7 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
@@ -27,7 +27,7 @@ public abstract class SpawnRestrictionMixin {
     )
     private static <T extends Entity> void itsours$canMobsSpawn(EntityType<T> type, ServerWorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random, CallbackInfoReturnable<Boolean> cir) {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world.toServerWorld(), pos);
-        if (claim.isPresent() && !claim.get().checkAction(null, FlagsManager.MOB_SPAWN)) {
+        if (claim.isPresent() && !claim.get().checkAction(null, Flags.MOB_SPAWN)) {
             cir.setReturnValue(false);
         }
     }

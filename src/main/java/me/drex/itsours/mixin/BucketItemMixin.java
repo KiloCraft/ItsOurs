@@ -3,7 +3,7 @@ package me.drex.itsours.mixin;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.node.Node;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BucketItem;
@@ -36,7 +36,7 @@ public abstract class BucketItemMixin extends Item {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, original.getBlockPos());
         if (claim.isEmpty())
             return original;
-        if (!claim.get().checkAction(player.getUuid(), FlagsManager.USE_ITEM, Node.registry(Registries.ITEM, this))) {
+        if (!claim.get().checkAction(player.getUuid(), Flags.USE_ITEM, Node.registry(Registries.ITEM, this))) {
             player.sendMessage(localized("text.itsours.action.disallowed.interact_item"), true);
             return BlockHitResult.createMissed(original.getPos(), original.getSide(), original.getBlockPos());
         }

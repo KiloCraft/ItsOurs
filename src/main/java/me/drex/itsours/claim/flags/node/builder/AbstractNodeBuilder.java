@@ -3,10 +3,12 @@ package me.drex.itsours.claim.flags.node.builder;
 import me.drex.itsours.claim.flags.node.AbstractChildNode;
 import me.drex.itsours.claim.flags.node.ChildNode;
 import me.drex.itsours.claim.flags.node.Node;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.Items;
+import me.drex.itsours.claim.flags.util.FlagBuilderUtil;
+import net.minecraft.entity.EntityType;
+import net.minecraft.item.*;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -42,6 +44,24 @@ public abstract class AbstractNodeBuilder {
         return this;
     }
 
+    protected <T> ItemConvertible getItem(T entry) {
+        Item item = null;
+        if (entry instanceof ItemConvertible convertible) {
+            Item asItem = convertible.asItem();
+            if (!asItem.equals(Items.AIR)) {
+                item = asItem;
+            }
+        } else if (entry instanceof EntityType<?> entityType) {
+            ItemStack itemStack = FlagBuilderUtil.ENTITY_PICK_BLOCK_STATE.get(entityType);
+            if (itemStack == null || itemStack.isEmpty()) {
+                item = Items.EGG;
+            } else {
+                item = itemStack.getItem();
+            }
+        }
+        return item;
+    }
+
     public AbstractNodeBuilder then(Collection<ChildNode> childNodes) {
         this.childNodes.addAll(childNodes);
         return this;
@@ -67,5 +87,12 @@ public abstract class AbstractNodeBuilder {
     }
 
     public abstract AbstractChildNode build();
+
+    public static String toShortIdentifier(Identifier identifier) {
+        if (identifier.getNamespace().equals(Identifier.DEFAULT_NAMESPACE)) {
+            return identifier.getPath();
+        }
+        return identifier.toString();
+    }
 
 }

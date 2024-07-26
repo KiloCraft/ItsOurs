@@ -40,7 +40,7 @@
   "text.itsours.commands.expand.outOfWorld": "You can't expand above / underneath the world!",
   "text.itsours.commands.shrink": "Claim '${claim_name}' was shrunk by ${distance} blocks into ${direction}, you receive ${blocks} claim blocks",
   "text.itsours.commands.shrink.shrunkToFar": "You can't shrink your claim that far",
-  "text.itsours.commands.info": "<white><bold>Claim Info:</bold>\n<yellow>* Name: <aqua>${claim_full_name}\n<yellow>* Owner: <light_purple><hover:'<italic>Click to copy uuid!'><copy_to_clipboard:${claim_owner_uuid}>${claim_owner_name}</copy_to_clipboard></hover>\n<yellow>* Size: <gray>${claim_size_x} <white>x <gray>${claim_size_y} <white>x <gray>${claim_size_z}\n<yellow>* Position: <hover:'<italic>Click to teleport!'><run_cmd:'/execute in ${claim_dimension} run tp @s ${claim_center_x} ~ ${claim_center_z}'><gold>${claim_min_x} ${claim_min_y} ${claim_min_z}</gold> <white>to</white> <gold>${claim_max_x} ${claim_max_y} ${claim_max_z}</gold></run_cmd></hover>\n<yellow>* Settings: ${claim_settings}\n<yellow>* Trusted: <dark_green>${claim_trusted}\n<yellow>* Dimension: <green>${claim_dimension}",
+  "text.itsours.commands.info": "<white><bold>Claim Info:</bold>\n<yellow>* Name: <aqua>${claim_full_name}\n<yellow>* Owner: <light_purple><hover:'<italic>Click to copy uuid!'><copy_to_clipboard:${claim_owner_uuid}>${claim_owner_name}</copy_to_clipboard></hover>\n<yellow>* Size: <gray>${claim_size_x} <white>x <gray>${claim_size_y} <white>x <gray>${claim_size_z}\n<yellow>* Position: <hover:'<italic>Click to teleport!'><run_cmd:'/execute in ${claim_dimension} run tp @s ${claim_center_x} ~ ${claim_center_z}'><gold>${claim_min_x} ${claim_min_y} ${claim_min_z}</gold> <white>to</white> <gold>${claim_max_x} ${claim_max_y} ${claim_max_z}</gold></run_cmd></hover>\n<yellow>* Flags: ${claim_flags}\n<yellow>* Trusted: <dark_green>${claim_trusted}\n<yellow>* Dimension: <green>${claim_dimension}",
   "text.itsours.commands.fly.enabled": "<green>Enabled claim flight",
   "text.itsours.commands.fly.disabled": "<red>Disabled claim flight",
   "text.itsours.commands.select.enabled": "<green>Claim selecting has been enabled (right / left click to select a claim area)",
@@ -100,7 +100,6 @@
   "text.itsours.gui.claimlist.entry.name": "${claim_full_name}",
   "text.itsours.gui.claimlist.entry.lore": "Subzones: <aqua>${claim_subzones}</aqua>\n\n<keybind:key.attack>: <gray>Open claim overview</gray>\n<keybind:key.use>: <gray>Open subzone list</gray>",
   "text.itsours.gui.group.title": "${group_id} | ${flag}",
-  "text.itsours.gui.flags.title": "${claim_full_name} | ${flag}",
   "text.itsours.gui.playerflags.title": "${player_name} | ${flag}",
   "text.itsours.gui.groupmanager.title": "${claim_full_name} | Group Manager",
   "text.itsours.gui.groupmanager.add": "<green>Add group",
@@ -121,28 +120,162 @@
   "text.itsours.gui.playermanager.filter.all": "All",
   "text.itsours.gui.playermanager.filter.trusted": "Trusted",
   "text.itsours.gui.playermanager.filter.not_trusted": "Not trusted",
-  "text.itsours.gui.flags.element.lore.simple": "${description}\nValue: <bold>${value}</bold>\n\n<keybind:key.attack>: <#a1ffa1>allow</color> / <#ffa1a1>deny</color> flags nodes",
-  "text.itsours.gui.flags.element.lore.complex": "${description}\nValue: <bold>${value}</bold>\n\n<keybind:key.attack>: <#a1ffa1>allow</color> / <#ffa1a1>deny</color> flags nodes\n<keybind:key.use>: <gray>View more specific flags</gray>",
-  "text.itsours.gui.flags.element.lore.group": "${description}\nValue: <bold>${value}</bold>\n\n<keybind:key.attack>: <#a1ffa1>allow</color> / <#ffa1a1>deny</color> flags nodes\n<keybind:key.pickItem>: <gray>View contained nodes</gray>",
-  "text.itsours.gui.flags.filter.all": "All",
-  "text.itsours.gui.flags.filter.single": "Single node",
-  "text.itsours.gui.flags.filter.group": "Group node",
-  "text.itsours.gui.flags.filter.modified": "Modified node",
+
+  "text.itsours.gui.playermanager.simple.trust": "<gold>Trust player",
+
+  "text.itsours.gui.playermanager.simple.entry.trusted.name": "<gray>${player_name} <gold>(Trusted)",
+  "text.itsours.gui.playermanager.simple.entry.trusted.lore": "<yellow>Trusted players have full access to the claim\n\n<white><keybind:key.attack>: Promote to <light_purple>Moderator\n<white><keybind:key.use>: Remove <gold>Trust",
+
+  "text.itsours.gui.playermanager.simple.entry.moderator.name": "<gray>${player_name} <light_purple>(Moderator)",
+  "text.itsours.gui.playermanager.simple.entry.moderator.lore": "<yellow>Moderators have full access to the claim\nand can expand/shrink it, trust players and more\n\n<white><keybind:key.use>: Demote to <gold>Trusted",
+
+  "text.itsours.gui.flags.advanced.title": "${claim_full_name} | ${flag}",
+  "text.itsours.gui.flags.advanced.element.lore.simple": "${description}\nValue: <bold>${value}</bold>\n\n<keybind:key.attack>: <#a1ffa1>allow</color> / <#ffa1a1>deny</color> flags nodes",
+  "text.itsours.gui.flags.advanced.element.lore.complex": "${description}\nValue: <bold>${value}</bold>\n\n<keybind:key.attack>: <#a1ffa1>allow</color> / <#ffa1a1>deny</color> flags nodes\n<keybind:key.use>: <gray>View more specific flags</gray>",
+  "text.itsours.gui.flags.advanced.element.lore.group": "${description}\nValue: <bold>${value}</bold>\n\n<keybind:key.attack>: <#a1ffa1>allow</color> / <#ffa1a1>deny</color> flags nodes\n<keybind:key.pickItem>: <gray>View contained nodes</gray>",
+  "text.itsours.gui.flags.advanced.filter.all": "All",
+  "text.itsours.gui.flags.advanced.filter.single": "Single node",
+  "text.itsours.gui.flags.advanced.filter.group": "Group node",
+  "text.itsours.gui.flags.advanced.filter.modified": "Modified node",
+
+  "text.itsours.gui.flags.simple.title": "${claim_full_name} | Claim flags",
+
+  "text.itsours.gui.flags.simple.mine.name": "<gold>Mine",
+  "text.itsours.gui.flags.simple.mine.description": "<yellow>Break blocks in the claim",
+
+  "text.itsours.gui.flags.simple.place.name": "<gold>Place",
+  "text.itsours.gui.flags.simple.place.description": "<yellow>Place blocks in the claim",
+
+  "text.itsours.gui.flags.simple.damage_entity.name": "<gold>Damage Entity",
+  "text.itsours.gui.flags.simple.damage_entity.description": "<yellow>Attack entities in the claim",
+
+  "text.itsours.gui.flags.simple.glide.name": "<gold>Glide",
+  "text.itsours.gui.flags.simple.glide.description": "<yellow>Use elytra in the claim",
+
+  "text.itsours.gui.flags.simple.pvp.name": "<gold>PvP",
+  "text.itsours.gui.flags.simple.pvp.description": "<yellow>Allow player vs player killing",
+
+  "text.itsours.gui.flags.simple.explosions.name": "<gold>Explosions",
+  "text.itsours.gui.flags.simple.explosions.description": "<yellow>Enable explosions (creeper, wither, tnt, ...) in the claim",
+
+  "text.itsours.gui.flags.simple.piston_crosses_borders.name": "<gold>Piston crosses borders",
+  "text.itsours.gui.flags.simple.piston_crosses_borders.description": "<yellow>Allow pistons to push blocks across the claim border",
+
+  "text.itsours.gui.flags.simple.fluid_crosses_borders.name": "<gold>Fluid crosses borders",
+  "text.itsours.gui.flags.simple.fluid_crosses_borders.description": "<yellow>Allow fluids cross the claim border",
+
+  "text.itsours.gui.flags.simple.sculk_crosses_borders.name": "<gold>Sculk crosses borders",
+  "text.itsours.gui.flags.simple.sculk_crosses_borders.description": "<yellow>Allow sculk to spread across the claim border",
+
+  "text.itsours.gui.flags.simple.use_item.bow.name": "<gold>Use bow",
+  "text.itsours.gui.flags.simple.use_item.bow.description": "<yellow>Shoot with bows",
+
+  "text.itsours.gui.flags.simple.use_item.crossbow.name": "<gold>Use crossbow",
+  "text.itsours.gui.flags.simple.use_item.crossbow.description": "<yellow>Shoot with crossbows",
+
+  "text.itsours.gui.flags.simple.use_item.ender_pearl.name": "<gold>Use ender pearl",
+  "text.itsours.gui.flags.simple.use_item.ender_pearl.description": "<yellow>Throw ender pearls",
+
+  "text.itsours.gui.flags.simple.interact_entity.boat.name": "<gold>Interact boat",
+  "text.itsours.gui.flags.simple.interact_entity.boat.description": "<yellow>Enter and drive boats",
+
+  "text.itsours.gui.flags.simple.interact_entity.minecart.name": "<gold>Interact minecart",
+  "text.itsours.gui.flags.simple.interact_entity.minecart.description": "<yellow>Enter and drive minecarts",
+
+  "text.itsours.gui.flags.simple.interact_entity.villager.name": "<gold>Interact villager",
+  "text.itsours.gui.flags.simple.interact_entity.villager.description": "<yellow>Trade with villagers",
+
+  "text.itsours.gui.flags.simple.interact_block.chest.name": "<gold>Interact chest",
+  "text.itsours.gui.flags.simple.interact_block.chest.description": "<yellow>Open/Use chests",
+
+  "text.itsours.gui.flags.simple.interact_block.barrel.name": "<gold>Interact barrel",
+  "text.itsours.gui.flags.simple.interact_block.barrel.description": "<yellow>Open/Use barrels",
+
+  "text.itsours.gui.flags.simple.interact_block.hopper.name": "<gold>Interact hopper",
+  "text.itsours.gui.flags.simple.interact_block.hopper.description": "<yellow>Open/Use hoppers",
+
+  "text.itsours.gui.flags.simple.interact_block.stonecutter.name": "<gold>Interact stonecutter",
+  "text.itsours.gui.flags.simple.interact_block.stonecutter.description": "<yellow>Use stonecutters",
+
+  "text.itsours.gui.flags.simple.interact_block.cartography_table.name": "<gold>Interact cartography table",
+  "text.itsours.gui.flags.simple.interact_block.cartography_table.description": "<yellow>Use cartography tables",
+
+  "text.itsours.gui.flags.simple.interact_block.smithing_table.name": "<gold>Interact smithing table",
+  "text.itsours.gui.flags.simple.interact_block.smithing_table.description": "<yellow>Use smithing tables",
+
+  "text.itsours.gui.flags.simple.interact_block.grindstone.name": "<gold>Interact grindstone",
+  "text.itsours.gui.flags.simple.interact_block.grindstone.description": "<yellow>Use grindstones",
+
+  "text.itsours.gui.flags.simple.interact_block.furnace.name": "<gold>Interact furnace",
+  "text.itsours.gui.flags.simple.interact_block.furnace.description": "<yellow>Open/Use furnaces",
+
+  "text.itsours.gui.flags.simple.interact_block.blast_furnace.name": "<gold>Interact blast furnace",
+  "text.itsours.gui.flags.simple.interact_block.blast_furnace.description": "<yellow>Open/Use blast furnaces",
+
+  "text.itsours.gui.flags.simple.interact_block.smoker.name": "<gold>Interact smoker",
+  "text.itsours.gui.flags.simple.interact_block.smoker.description": "<yellow>Open/Use smokers",
+
+  "text.itsours.gui.flags.simple.interact_block.beacon.name": "<gold>Interact beacon",
+  "text.itsours.gui.flags.simple.interact_block.beacon.description": "<yellow>Change beacons",
+
+  "text.itsours.gui.flags.simple.interact_block.enchanting_table.name": "<gold>Interact enchanting table",
+  "text.itsours.gui.flags.simple.interact_block.enchanting_table.description": "<yellow>Use enchanting tables",
+
+  "text.itsours.gui.flags.simple.interact_block.jukebox.name": "<gold>Interact jukebox",
+  "text.itsours.gui.flags.simple.interact_block.jukebox.description": "<yellow>Add and remove songs",
+
+  "text.itsours.gui.flags.simple.interact_block.ender_chest.name": "<gold>Interact ender chest",
+  "text.itsours.gui.flags.simple.interact_block.ender_chest.description": "<yellow>Use ender chests",
+
+  "text.itsours.gui.flags.simple.interact_block.lectern.name": "<gold>Interact lectern",
+  "text.itsours.gui.flags.simple.interact_block.lectern.description": "<yellow>Read lectern books",
+
+  "text.itsours.gui.flags.simple.interact_block.BEDS.name": "<gold>Interact beds",
+  "text.itsours.gui.flags.simple.interact_block.BEDS.description": "<yellow>Sleep in beds",
+
+  "text.itsours.gui.flags.simple.interact_block.ALL_SIGNS.name": "<gold>Interact sign",
+  "text.itsours.gui.flags.simple.interact_block.ALL_SIGNS.description": "<yellow>Change sign text, color & glow",
+
+  "text.itsours.gui.flags.simple.interact_block.ANVIL.name": "<gold>Interact anvil",
+  "text.itsours.gui.flags.simple.interact_block.ANVIL.description": "<yellow>Open/Use anvils",
+
+  "text.itsours.gui.flags.simple.interact_block.SHULKER_BOXES.name": "<gold>Interact shulker box",
+  "text.itsours.gui.flags.simple.interact_block.SHULKER_BOXES.description": "<yellow>Open/Use shulker boxes",
+
+  "text.itsours.gui.flags.simple.interact_block.PRESSURE_PLATES.name": "<gold>Interact pressure plate",
+  "text.itsours.gui.flags.simple.interact_block.PRESSURE_PLATES.description": "<yellow>Use pressure plates",
+
+  "text.itsours.gui.flags.simple.interact_block.BUTTONS.name": "<gold>Interact button",
+  "text.itsours.gui.flags.simple.interact_block.BUTTONS.description": "<yellow>Use buttons",
+
+  "text.itsours.gui.flags.simple.interact_block.FENCE_GATES.name": "<gold>Interact fence gate",
+  "text.itsours.gui.flags.simple.interact_block.FENCE_GATES.description": "<yellow>Use fence gates",
+
+  "text.itsours.gui.flags.simple.interact_block.TRAPDOORS.name": "<gold>Interact trap door",
+  "text.itsours.gui.flags.simple.interact_block.TRAPDOORS.description": "<yellow>Use trap doors",
+
+  "text.itsours.gui.flags.simple.interact_block.DOORS.name": "<gold>Interact door",
+  "text.itsours.gui.flags.simple.interact_block.DOORS.description": "<yellow>Use doors",
+
+  "text.itsours.gui.flags.simple.element.lore": "${description}\nValue: <bold>${value}</bold>",
+
   "text.itsours.gui.trustmanager.add": "<green>Trust player",
-  "text.itsours.gui.claim.flags.name": "<gray>Claim flags",
-  "text.itsours.gui.claim.flags.lore": "Change flags for all players",
-  "text.itsours.gui.claim.rename.name": "<yellow>Rename Claim",
-  "text.itsours.gui.claim.rename.lore": "Change your claim name",
+  "text.itsours.gui.claim.flags.name": "<gold>Claim flags",
+  "text.itsours.gui.claim.flags.lore": "<yellow>Change flags for all players",
+  "text.itsours.gui.claim.rename.name": "<gold>Rename Claim",
+  "text.itsours.gui.claim.rename.lore": "<yellow>Change your claim name",
   "text.itsours.gui.claim.rename.confirm": "Are you sure you want to rename ${claim_name} to ${input}?",
-  "text.itsours.gui.claim.remove.name": "<dark_red>Delete Claim",
+  "text.itsours.gui.claim.remove.name": "<gold>Delete Claim",
   "text.itsours.gui.claim.remove.lore": "<dark_red><bold>WARNING</bold>: This will permanently remove your claim!",
   "text.itsours.gui.claim.remove.confirm": "Are you sure you want to permanently remove ${claim_full_name}?",
-  "text.itsours.gui.claim.trustmanager.name": "Manage trusts",
-  "text.itsours.gui.claim.trustmanager.lore": "Trust / distrust players",
-  "text.itsours.gui.claim.groupmanager.name": "<aqua>Group Manager",
-  "text.itsours.gui.claim.groupmanager.lore": "Add, remove and modify claim groups",
-  "text.itsours.gui.claim.playermanager.name": "<gold>Player Manager",
-  "text.itsours.gui.claim.playermanager.lore": "Change flags for specific players",
+  "text.itsours.gui.claim.groupmanager.name": "<gold>Group Manager",
+  "text.itsours.gui.claim.groupmanager.lore": "<yellow>Add, remove and modify claim groups",
+  "text.itsours.gui.claim.playermanager.advanced.name": "<gold>Player Manager",
+  "text.itsours.gui.claim.playermanager.advanced.lore": "<yellow>Change flags for specific players",
+
+  "text.itsours.gui.claim.playermanager.simple.name": "<gold>Player Manager",
+  "text.itsours.gui.claim.playermanager.simple.lore": "<yellow>Trust players and promote them to moderators",
+
   "text.itsours.gui.node.group.description": "Contains ${count} nodes",
   "text.itsours.info.notProtected": "<hover:'<aqua>Click!</aqua>'><run_cmd:'/claim create'><yellow>This block is not protected, click this message to create a claim, to protect it.</yellow></run_cmd></hover>",
   "text.itsours.select.pos1": "<green>Position #1 set to ${pos_x} ${pos_z}",

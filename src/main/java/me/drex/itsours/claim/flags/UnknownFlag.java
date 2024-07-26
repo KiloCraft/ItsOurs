@@ -19,6 +19,11 @@ public class UnknownFlag implements Flag {
     }
 
     @Override
+    public boolean canChange(Node.ChangeContext context) {
+        return false;
+    }
+
+    @Override
     public Flag withNode(ChildNode node) {
         throw new UnsupportedOperationException();
     }
@@ -30,6 +35,11 @@ public class UnknownFlag implements Flag {
 
     @Override
     public Node getLastNode() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ChildNode getLastChildNode() {
         throw new UnsupportedOperationException();
     }
 

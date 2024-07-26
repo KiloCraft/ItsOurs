@@ -7,7 +7,7 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.Subzone;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.util.Modify;
 import me.drex.itsours.data.DataManager;
 import me.drex.itsours.util.ClaimBox;
@@ -46,7 +46,7 @@ public class ExpandCommand extends AbstractCommand {
     }
 
     private int execute(ServerCommandSource src, AbstractClaim claim, int distance) throws CommandSyntaxException {
-        validateAction(src, claim, FlagsManager.MODIFY, Modify.SIZE.node());
+        validateAction(src, claim, Flags.MODIFY, Modify.SIZE.node());
         ServerPlayerEntity player = src.getPlayerOrThrow();
         ServerWorld world = player.getServerWorld();
         UUID uuid = player.getUuid();

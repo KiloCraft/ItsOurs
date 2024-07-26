@@ -3,7 +3,7 @@ package me.drex.itsours.mixin;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.node.Node;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,7 +30,7 @@ public abstract class LecternScreenHandlerMixin {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(player);
         if (claim.isEmpty())
             return original;
-        if (!claim.get().checkAction(player.getUuid(), FlagsManager.MINE, Node.registry(Registries.BLOCK, Blocks.LECTERN))) {
+        if (!claim.get().checkAction(player.getUuid(), Flags.MINE, Node.registry(Registries.BLOCK, Blocks.LECTERN))) {
             player.sendMessage(localized("text.itsours.action.disallowed.interact_block"), true);
             return false;
         }

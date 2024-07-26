@@ -8,10 +8,10 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.Claim;
-import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.Subzone;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.util.Modify;
+import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.data.DataManager;
 import me.drex.itsours.user.ClaimSelectingPlayer;
@@ -115,6 +115,7 @@ public class CreateCommand extends AbstractCommand {
         ClaimBox selectedBox = ClaimBox.create(claimSelectingPlayer.getFirstPosition().withY(src.getWorld().getBottomY()), claimSelectingPlayer.getSecondPosition().withY(src.getWorld().getTopY() - 1));
         int result = executeCreate(src, claimName, selectedBox);
         claimSelectingPlayer.resetSelection();
+        ((ClaimTrackingPlayer) player).trackClaims();
         return result;
     }
 
@@ -125,11 +126,12 @@ public class CreateCommand extends AbstractCommand {
             if (subzone.getBox().intersects(claimBox)) throw INTERSECTS.create(subzone.getFullName());
             if (subzone.getName().equals(claimName)) throw ClaimArgument.NAME_TAKEN;
         }
-        validateAction(src, parent, FlagsManager.MODIFY, Modify.SUBZONE.node());
+        validateAction(src, parent, Flags.MODIFY, Modify.SUBZONE.node());
         Subzone subzone = new Subzone(claimName, claimBox, player.getServerWorld(), parent);
         ClaimList.addClaim(subzone);
         subzone.notifyTrackingChanges(src.getServer(), true);
         ((ClaimSelectingPlayer) player).resetSelection();
+        ((ClaimTrackingPlayer) player).trackClaims();
         return 1;
     }
 

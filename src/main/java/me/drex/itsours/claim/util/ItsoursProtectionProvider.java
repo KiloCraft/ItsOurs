@@ -4,7 +4,7 @@ import com.mojang.authlib.GameProfile;
 import eu.pb4.common.protection.api.ProtectionProvider;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.node.Node;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -58,7 +58,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canBreakBlock(World world, BlockPos pos, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, pos);
-            return optional.map(claim -> claim.checkAction(profile.getId(), FlagsManager.MINE)).orElse(true);
+            return optional.map(claim -> claim.checkAction(profile.getId(), Flags.MINE)).orElse(true);
         }
         return false;
     }
@@ -67,7 +67,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canExplodeBlock(World world, BlockPos pos, Explosion explosion, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, pos);
-            return optional.map(claim -> claim.checkAction(null, FlagsManager.EXPLOSIONS)).orElse(true);
+            return optional.map(claim -> claim.checkAction(null, Flags.EXPLOSIONS)).orElse(true);
         }
         return false;
     }
@@ -76,7 +76,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canPlaceBlock(World world, BlockPos pos, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, pos);
-            return optional.map(claim -> claim.checkAction(profile.getId(), FlagsManager.PLACE)).orElse(true);
+            return optional.map(claim -> claim.checkAction(profile.getId(), Flags.PLACE)).orElse(true);
         }
         return false;
     }
@@ -85,7 +85,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canInteractBlock(World world, BlockPos pos, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, pos);
-            return optional.map(claim -> claim.checkAction(profile.getId(), FlagsManager.INTERACT_BLOCK)).orElse(true);
+            return optional.map(claim -> claim.checkAction(profile.getId(), Flags.INTERACT_BLOCK)).orElse(true);
         }
         return false;
     }
@@ -94,7 +94,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canInteractEntity(World world, Entity entity, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, entity.getBlockPos());
-            return optional.map(claim -> claim.checkAction(profile.getId(), FlagsManager.INTERACT_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType()))).orElse(true);
+            return optional.map(claim -> claim.checkAction(profile.getId(), Flags.INTERACT_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType()))).orElse(true);
         }
         return false;
     }
@@ -103,7 +103,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     public boolean canDamageEntity(World world, Entity entity, GameProfile profile, @Nullable PlayerEntity player) {
         if (world instanceof ServerWorld serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, entity.getBlockPos());
-            return optional.map(claim -> claim.checkAction(profile.getId(), FlagsManager.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType()))).orElse(true);
+            return optional.map(claim -> claim.checkAction(profile.getId(), Flags.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType()))).orElse(true);
         }
         return false;
     }

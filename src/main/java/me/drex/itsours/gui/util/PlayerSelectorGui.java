@@ -1,13 +1,15 @@
 package me.drex.itsours.gui.util;
 
-import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.PropertyMap;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import me.drex.itsours.gui.GuiContext;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.UUID;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class PlayerSelectorGui extends StringInputGui {
@@ -21,12 +23,11 @@ public class PlayerSelectorGui extends StringInputGui {
 
     protected void build() {
         String input = getInput();
+        ProfileComponent profileComponent = new ProfileComponent(StringUtils.isBlank(input) ? Optional.empty() : Optional.of(input), Optional.empty(), new PropertyMap());
         setSlot(2,
             new GuiElementBuilder(Items.PLAYER_HEAD)
                 .setName(Text.literal(input))
-                // Name must be non-empty, so we default to "DrexHD"
-                // TODO 1.20.5
-                .setSkullOwner(new GameProfile(UUID.randomUUID(), StringUtils.isBlank(input) ? "DrexHD" : input), null)
+                .setComponent(DataComponentTypes.PROFILE, profileComponent)
                 .setCallback(() -> {
                     if (!StringUtils.isBlank(input)) {
                         consumer.accept(input);

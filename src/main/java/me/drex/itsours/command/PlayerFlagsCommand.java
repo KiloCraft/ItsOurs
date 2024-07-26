@@ -4,7 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
-import me.drex.itsours.claim.flags.FlagsManager;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.Flag;
 import me.drex.itsours.claim.flags.context.PlayerContext;
 import me.drex.itsours.claim.flags.holder.FlagData;
@@ -14,8 +14,7 @@ import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.command.argument.FlagArgument;
 import me.drex.itsours.gui.GuiContext;
-import me.drex.itsours.gui.PlayerManagerGui;
-import me.drex.itsours.gui.flags.FlagsGui;
+import me.drex.itsours.gui.players.AdvancedPlayerManagerGui;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -56,14 +55,14 @@ public class PlayerFlagsCommand extends AbstractCommand {
                     )
                 )
             ).executes(context -> {
-                new PlayerManagerGui(new GuiContext(context.getSource().getPlayerOrThrow()), ClaimArgument.getClaim(context)).open();
+                new AdvancedPlayerManagerGui(new GuiContext(context.getSource().getPlayerOrThrow()), ClaimArgument.getClaim(context)).open();
                 return 1;
             })
         );
     }
 
     public int executeSet(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Flag flag, Value value) throws CommandSyntaxException {
-        validateAction(src, claim, FlagsManager.MODIFY, Modify.FLAG.node());
+        validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         flag.validateContext(new Node.ChangeContext(claim, PlayerContext.INSTANCE, value, src));
         for (GameProfile target : targets) {
             claim.getPlayerFlags().computeIfAbsent(target.getId(), (ignored) -> new FlagData()).set(flag, value);
@@ -81,7 +80,7 @@ public class PlayerFlagsCommand extends AbstractCommand {
     }
 
     private int executeCheck(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Flag flag) throws CommandSyntaxException {
-        validateAction(src, claim, FlagsManager.MODIFY, Modify.FLAG.node());
+        validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         for (GameProfile target : targets) {
             Value value = claim.getPlayerFlags().getOrDefault(target.getId(), new FlagData()).get(flag);
             src.sendFeedback(() -> localized("text.itsours.commands.playerflags.check", mergePlaceholderMaps(
