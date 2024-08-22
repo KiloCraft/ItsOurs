@@ -5,11 +5,19 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import me.drex.itsours.claim.Claim;
+import me.drex.itsours.claim.flags.Flag;
+import me.drex.itsours.claim.flags.Flags;
+import me.drex.itsours.claim.flags.node.Node;
+import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.flags.holder.FlagData;
 import me.drex.itsours.user.PlayerData;
 import me.drex.itsours.util.Constants;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
+import net.minecraft.block.Blocks;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.*;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Uuids;
 import net.minecraft.util.WorldSavePath;
@@ -29,6 +37,18 @@ public class DataManager {
     private static Map<UUID, PlayerData> playerData = new HashMap<>();
     // TODO Enable mob_spawn by default (or change to disable_mob_spawn for simple gui integration)
     private static FlagData defaultFlags = new FlagData();
+    static {
+        // Vanilla behaviour
+        defaultFlags.set(Flag.flag(Flags.MOB_SPAWN), Value.ALLOW);
+        // Allow elytra
+        defaultFlags.set(Flag.flag(Flags.GLIDE), Value.ALLOW);
+        defaultFlags.set(Flag.flag(Flags.USE_ITEM, Node.item(Items.FIREWORK_ROCKET)), Value.ALLOW);
+        // Allow eating
+        defaultFlags.set(Flag.flag(Flags.USE_ITEM, Node.group(Registries.ITEM, ConventionalItemTags.FOODS)), Value.ALLOW);
+        // Allow basic blocks
+        defaultFlags.set(Flag.flag(Flags.INTERACT_BLOCK, Node.block(Blocks.CRAFTING_TABLE)), Value.ALLOW);
+        defaultFlags.set(Flag.flag(Flags.INTERACT_BLOCK, Node.block(Blocks.ENDER_CHEST)), Value.ALLOW);
+    }
     public static final Codec<?> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         ClaimList.CODEC.fieldOf("claims").forGetter((ignored) -> ClaimList.getClaims().stream().filter(claim -> claim instanceof Claim).map(claim -> (Claim) claim).toList()),
         FlagData.CODEC.fieldOf("default_flags").forGetter(ignored -> DataManager.defaultSettings()),
