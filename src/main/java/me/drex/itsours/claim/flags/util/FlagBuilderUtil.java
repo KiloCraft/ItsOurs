@@ -14,6 +14,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FlyingItemEntity;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
@@ -51,7 +52,7 @@ public class FlagBuilderUtil {
     public static void init() {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             for (EntityType<?> entityType : Registries.ENTITY_TYPE) {
-                Entity dummy = entityType.create(server.getOverworld());
+                Entity dummy = entityType.create(server.getOverworld(), SpawnReason.LOAD);
                 if (dummy == null) continue;
                 ItemStack pickBlockStack = dummy.getPickBlockStack();
                 if (pickBlockStack == null) {
@@ -78,8 +79,8 @@ public class FlagBuilderUtil {
     private static <T> List<ChildNode> getNodes(@NotNull final Registry<T> registry, List<ChildNode> child, Predicate<T> entryPredicate) {
         List<ChildNode> nodes = new LinkedList<>();
         // Group nodes
-        registry.streamTags().forEach(tagKey -> {
-            GroupNodeBuilder builder = new GroupNodeBuilder(registry, tagKey, entryPredicate);
+        registry.streamTags().forEach(registryEntries -> {
+            GroupNodeBuilder builder = new GroupNodeBuilder(registry, registryEntries.getTag(), entryPredicate);
             builder.then(child);
             GroupNode groupNode = builder.build();
             if (groupNode.getContained().size() > 1) {

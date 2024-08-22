@@ -17,7 +17,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -59,16 +58,16 @@ public class PlayerEventListener {
         return ActionResult.PASS;
     }
 
-    private static TypedActionResult<ItemStack> onInteractItem(PlayerEntity player, World world, Hand hand) {
+    private static ActionResult onInteractItem(PlayerEntity player, World world, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(player);
         if (claim.isEmpty() || !FlagBuilderUtil.USE_ITEM_PREDICATE.test(stack.getItem()))
-            return TypedActionResult.pass(stack);
+            return ActionResult.PASS;
         if (!claim.get().checkAction(player.getUuid(), Flags.USE_ITEM, Node.registry(Registries.ITEM, stack.getItem()))) {
             player.sendMessage(localized("text.itsours.action.disallowed.interact_item"), true);
-            return TypedActionResult.fail(stack);
+            return ActionResult.FAIL;
         }
-        return TypedActionResult.pass(stack);
+        return ActionResult.PASS;
     }
 
     private static void onSelectCorner(PlayerEntity player) {

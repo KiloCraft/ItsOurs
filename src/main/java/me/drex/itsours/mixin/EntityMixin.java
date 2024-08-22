@@ -1,6 +1,6 @@
 package me.drex.itsours.mixin;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.flags.Flags;
@@ -53,7 +53,7 @@ public abstract class EntityMixin {
     }
 
     @WrapWithCondition(
-        method = "checkBlockCollision",
+        method = "checkBlockCollision(Ljava/util/Set;)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V"

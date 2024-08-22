@@ -18,7 +18,6 @@ import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -62,16 +61,16 @@ public abstract class ServerPlayerInteractionManagerMixin {
         method = "interactBlock",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/block/BlockState;onUseWithItem(Lnet/minecraft/item/ItemStack;Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ItemActionResult;"
+            target = "Lnet/minecraft/block/BlockState;onUseWithItem(Lnet/minecraft/item/ItemStack;Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;"
         )
     )
-    private ItemActionResult itsours$canInteractBlockItemSpecific(BlockState blockState, ItemStack itemStack, World world, PlayerEntity playerEntity, Hand hand, BlockHitResult hit, Operation<ItemActionResult> original) {
+    private ActionResult itsours$canInteractBlockItemSpecific(BlockState blockState, ItemStack itemStack, World world, PlayerEntity playerEntity, Hand hand, BlockHitResult hit, Operation<ActionResult> original) {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, hit.getBlockPos());
         if (claim.isEmpty() || !FlagBuilderUtil.INTERACT_BLOCK_PREDICATE.test(blockState.getBlock()))
             return original.call(blockState, itemStack, world, playerEntity, hand, hit);
         if (!claim.get().checkAction(playerEntity.getUuid(), Flags.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
             player.sendMessage(localized("text.itsours.action.disallowed.interact_block"), true);
-            return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return ActionResult.PASS_TO_DEFAULT_BLOCK_ACTION;
         }
         return original.call(blockState, itemStack, world, playerEntity, hand, hit);
     }

@@ -112,7 +112,7 @@ public class CreateCommand extends AbstractCommand {
         ServerPlayerEntity player = src.getPlayer();
         ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
         if (!claimSelectingPlayer.arePositionsSet()) throw SELECT_FIRST;
-        ClaimBox selectedBox = ClaimBox.create(claimSelectingPlayer.getFirstPosition().withY(src.getWorld().getBottomY()), claimSelectingPlayer.getSecondPosition().withY(src.getWorld().getTopY() - 1));
+        ClaimBox selectedBox = ClaimBox.create(claimSelectingPlayer.getFirstPosition().withY(src.getWorld().getBottomY()), claimSelectingPlayer.getSecondPosition().withY(src.getWorld().getTopYInclusive()));
         int result = executeCreate(src, claimName, selectedBox);
         claimSelectingPlayer.resetSelection();
         ((ClaimTrackingPlayer) player).trackClaims();

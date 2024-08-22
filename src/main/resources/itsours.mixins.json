@@ -9,7 +9,7 @@
     "BoatItemMixin",
     "BucketItemMixin",
     "EntityMixin",
-    "ExplosionMixin",
+    "ExplosionImplMixin",
     "FarmlandBlockMixin",
     "FluidMixin",
     "ReplaceDiskEnchantmentEffectMixin",
