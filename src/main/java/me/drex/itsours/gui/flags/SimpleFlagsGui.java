@@ -16,6 +16,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.EntityTypeTags;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.MutableText;
@@ -42,7 +43,7 @@ public class SimpleFlagsGui extends PageGui<Flag> {
         Flag.flag(Flags.USE_ITEM, Node.item(Items.CROSSBOW)),
         Flag.flag(Flags.USE_ITEM, Node.item(Items.ENDER_PEARL)),
 
-        Flag.flag(Flags.INTERACT_ENTITY, Node.entity(EntityType.BOAT)),
+        Flag.flag(Flags.INTERACT_ENTITY, Node.group(Registries.ENTITY_TYPE, EntityTypeTags.BOAT)),
         Flag.flag(Flags.INTERACT_ENTITY, Node.entity(EntityType.MINECART)),
         Flag.flag(Flags.INTERACT_ENTITY, Node.entity(EntityType.VILLAGER)),
 

@@ -39,7 +39,7 @@ public class PlayerEventListener {
         ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
         final BlockPos pos = hitResult.getBlockPos();
         if (shouldSelect(player, hand, claimSelectingPlayer.getSecondPosition(), pos)) {
-            player.sendMessage(localized("text.itsours.select.pos2", PlaceholderUtil.vec3i("pos_", pos)));
+            player.sendMessage(localized("text.itsours.select.pos2", PlaceholderUtil.vec3i("pos_", pos)), false);
             claimSelectingPlayer.setSecondPosition(pos);
             onSelectCorner(player);
             return ActionResult.SUCCESS;
@@ -50,7 +50,7 @@ public class PlayerEventListener {
     private static ActionResult onBlockAttack(PlayerEntity player, World world, Hand hand, BlockPos pos, Direction direction) {
         ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
         if (shouldSelect(player, hand, claimSelectingPlayer.getFirstPosition(), pos)) {
-            player.sendMessage(localized("text.itsours.select.pos1", PlaceholderUtil.vec3i("pos_", pos)));
+            player.sendMessage(localized("text.itsours.select.pos1", PlaceholderUtil.vec3i("pos_", pos)), false);
             claimSelectingPlayer.setFirstPosition(pos);
             onSelectCorner(player);
             return ActionResult.SUCCESS;
@@ -74,9 +74,9 @@ public class PlayerEventListener {
         ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
         if (claimSelectingPlayer.arePositionsSet()) {
             if (ClaimList.getClaimsFrom(player.getUuid()).isEmpty()) {
-                player.sendMessage(localized("text.itsours.select.done.first"));
+                player.sendMessage(localized("text.itsours.select.done.first"), false);
             } else {
-                player.sendMessage(localized("text.itsours.select.done"));
+                player.sendMessage(localized("text.itsours.select.done"), false);
             }
         }
     }

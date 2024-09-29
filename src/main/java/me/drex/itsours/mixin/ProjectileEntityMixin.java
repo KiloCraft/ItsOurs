@@ -11,6 +11,7 @@ import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -50,7 +51,7 @@ public abstract class ProjectileEntityMixin extends Entity {
                 player.sendMessage(localized("text.itsours.action.disallowed.damage_player"), true);
             }
             if (entity instanceof PersistentProjectileEntity) {
-                if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill();
+                if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill((ServerWorld) entity.getWorld());
             }
             return;
         }
@@ -59,7 +60,7 @@ public abstract class ProjectileEntityMixin extends Entity {
                 player.sendMessage(localized("text.itsours.action.disallowed.damage_entity"), true);
             }
             if (entity instanceof PersistentProjectileEntity) {
-                if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill();
+                if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill((ServerWorld) entity.getWorld());
             }
             return;
         }

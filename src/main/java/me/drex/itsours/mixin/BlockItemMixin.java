@@ -71,7 +71,7 @@ public abstract class BlockItemMixin extends Item {
             PlayerEntity player = context.getPlayer();
             ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
             if (claimSelectingPlayer != null && ClaimList.getClaimsFrom(player.getUuid()).isEmpty()) {
-                player.sendMessage(localized("text.itsours.info.notProtected"));
+                player.sendMessage(localized("text.itsours.info.notProtected"), true);
                 claimSelectingPlayer.setFirstPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
                 claimSelectingPlayer.setSecondPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
             }

@@ -71,7 +71,7 @@ public class ClaimGroupManager {
     }
 
     public static Item getGroupIcon(String groupId) {
-        Optional<RegistryEntryList.Named<Item>> optional = Registries.ITEM.getEntryList(ItemTags.WOOL);
+        Optional<RegistryEntryList.Named<Item>> optional = Registries.ITEM.getOptional(ItemTags.WOOL);
         if (optional.isPresent()) {
             RegistryEntryList.Named<Item> entries = optional.get();
             return entries.get(Math.abs(groupId.hashCode()) % entries.size()).value();

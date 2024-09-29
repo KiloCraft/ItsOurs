@@ -53,7 +53,7 @@ public abstract class EntityMixin {
     }
 
     @WrapWithCondition(
-        method = "checkBlockCollision(Ljava/util/Set;)V",
+        method = "tickBlockCollision(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Vec3d;)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V"

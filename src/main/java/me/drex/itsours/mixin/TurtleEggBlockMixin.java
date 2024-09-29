@@ -25,7 +25,7 @@ public abstract class TurtleEggBlockMixin {
     @ModifyExpressionValue(
         method = "tryBreakEgg",
         at = @At(
-            value = "INVOKE", target = "Lnet/minecraft/block/TurtleEggBlock;breaksEgg(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;)Z"
+            value = "INVOKE", target = "Lnet/minecraft/block/TurtleEggBlock;breaksEgg(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/Entity;)Z"
         )
     )
     public boolean itsours$canPlayerBreakEgg(boolean original, World world, BlockState state, BlockPos pos, Entity entity) {

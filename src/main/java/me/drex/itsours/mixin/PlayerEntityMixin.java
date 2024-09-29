@@ -100,18 +100,18 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @WrapOperation(
-        method = "checkFallFlying",
+        method = "checkGliding",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/item/ElytraItem;isUsable(Lnet/minecraft/item/ItemStack;)Z"
+            target = "Lnet/minecraft/entity/player/PlayerEntity;canGlide()Z"
         )
     )
-    private boolean itsours$canStartGliding(ItemStack itemStack, Operation<Boolean> original) {
+    private boolean itsours$canStartGliding(PlayerEntity instance, Operation<Boolean> original) {
         return ClaimFlags.check(
             this,
             "text.itsours.action.disallowed.elytra",
             () -> false,
-            () -> original.call(itemStack),
+            () -> original.call(instance),
             Flags.GLIDE
         );
     }
