@@ -18,8 +18,8 @@ import static me.drex.message.api.LocalizedMessage.localized;
 public class PlayerClaimListGui extends ClaimListGui<Claim> {
     private final UUID uuid;
 
-    public PlayerClaimListGui(GuiContext context, UUID uuid) {
-        super(context);
+    public PlayerClaimListGui(GuiContext context, UUID uuid, boolean advanced) {
+        super(context, advanced);
         this.uuid = uuid;
         setTitle(localized("text.itsours.gui.claimlist.player.title", PlaceholderUtil.uuid("player_", uuid, context.server())));
     }

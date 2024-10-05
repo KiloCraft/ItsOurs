@@ -12,8 +12,8 @@ public class SubzoneListGui extends ClaimListGui<Subzone> {
 
     private final AbstractClaim parent;
 
-    public SubzoneListGui(GuiContext context, AbstractClaim parent) {
-        super(context);
+    public SubzoneListGui(GuiContext context, AbstractClaim parent, boolean advanced) {
+        super(context, advanced);
         this.parent = parent;
         setTitle(localized("text.itsours.gui.claimlist.claim.title", parent.placeholders(context.server())));
     }

@@ -9,9 +9,11 @@ import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandlerType;
 
 public abstract class ClaimListGui<T extends AbstractClaim> extends PageGui<T> {
+    private final boolean advanced;
 
-    public ClaimListGui(GuiContext context) {
+    public ClaimListGui(GuiContext context, boolean advanced) {
         super(context, ScreenHandlerType.GENERIC_9X3);
+        this.advanced = advanced;
     }
 
     @Override
@@ -20,10 +22,10 @@ public abstract class ClaimListGui<T extends AbstractClaim> extends PageGui<T> {
         return guiElement(currentClaim ? Items.GOLD_BLOCK : Items.GRASS_BLOCK, "claimlist.entry", claim.placeholders(context.server()))
             .setCallback(clickType -> {
                 if (clickType.isLeft) {
-                    switchUi(new ClaimGui(context, claim, false));
+                    switchUi(new ClaimGui(context, claim, advanced));
                 } else if (clickType.isRight) {
                     if (!claim.getSubzones().isEmpty()) {
-                        switchUi(new SubzoneListGui(context, claim));
+                        switchUi(new SubzoneListGui(context, claim, advanced));
                     } else {
                         fail();
                     }

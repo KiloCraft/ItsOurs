@@ -54,7 +54,7 @@ public class GuiCommand extends AbstractCommand {
     private int executeOpenGui(ServerCommandSource src, Collection<GameProfile> targets) throws CommandSyntaxException {
         if (targets.isEmpty()) throw EntityArgumentType.PLAYER_NOT_FOUND_EXCEPTION.create();
         if (targets.size() > 1) throw EntityArgumentType.TOO_MANY_PLAYERS_EXCEPTION.create();
-        PlayerClaimListGui gui = new PlayerClaimListGui(new GuiContext(src.getPlayerOrThrow()), targets.iterator().next().getId());
+        PlayerClaimListGui gui = new PlayerClaimListGui(new GuiContext(src.getPlayerOrThrow()), targets.iterator().next().getId(), advanced);
         gui.open();
         return 1;
     }
