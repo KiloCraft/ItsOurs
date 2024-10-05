@@ -10,6 +10,7 @@ import me.drex.itsours.util.ClaimBox;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.handler.PacketBundleHandler;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
@@ -21,6 +22,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,6 +34,7 @@ import java.util.function.Predicate;
 
 import static me.drex.itsours.claim.AbstractClaim.SHOW_BLOCKS;
 import static me.drex.itsours.claim.AbstractClaim.SHOW_BLOCKS_CENTER;
+import static net.minecraft.network.handler.PacketBundleHandler.MAX_PACKETS;
 import static net.minecraft.world.Heightmap.Type.OCEAN_FLOOR;
 
 @Unique
@@ -69,7 +72,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
         for (WorldChunk chunk : chunkBatch) {
             showChunk(chunk.getPos());
         }
-        sendPacketBundle();
+        sendBundlePackets();
     }
 
     private void showChunk(ChunkPos chunkPos) {
@@ -125,7 +128,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
         if (tracking) return;
         tracking = true;
         trackClaims0();
-        sendPacketBundle();
+        sendBundlePackets();
     }
 
     private void trackClaims0() {
@@ -137,7 +140,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
         if (!tracking) return;
         tracking = false;
         unTrackClaims0();
-        sendPacketBundle();
+        sendBundlePackets();
     }
 
     private void unTrackClaims0() {
@@ -154,7 +157,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
             if (trackedClaims.contains(claim)) {
                 unTrackClaims0();
                 trackClaims0();
-                sendPacketBundle();
+                sendBundlePackets();
             } else if (add) {
                 getChunkFilter().forEach(chunkPos -> {
                     if (claim.getBox().intersectsXZ(chunkPos.getStartX(), chunkPos.getStartZ(), chunkPos.getEndX(), chunkPos.getEndZ())) {
@@ -162,13 +165,18 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
                         showChunk(claim, chunkPos);
                     }
                 });
-                sendPacketBundle();
+                sendBundlePackets();
             }
         }
     }
 
-    private void sendPacketBundle() {
-        networkHandler.sendPacket(new BundleS2CPacket(new LinkedList<>(packets)));
+    private void sendBundlePackets() {
+        int bundlePackets = MathHelper.ceilDiv(packets.size(), MAX_PACKETS);
+        for (int i = 0; i < bundlePackets; i++) {
+            int fromIndex = MAX_PACKETS * i;
+            int toIndex = Math.min(packets.size(), MAX_PACKETS * (i + 1));
+            networkHandler.sendPacket(new BundleS2CPacket(new LinkedList<>(packets.subList(fromIndex, toIndex))));
+        }
         packets.clear();
     }
 
