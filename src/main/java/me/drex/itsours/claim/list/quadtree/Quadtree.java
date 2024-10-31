@@ -121,12 +121,12 @@ public class Quadtree {
 
     private List<AbstractClaim> queryIntersections(QuadtreeNode node, ClaimBox box) {
         List<AbstractClaim> result = new ArrayList<>();
-        if (node.boundary.intersects(box)) {
-            for (AbstractClaim claim : node.claims) {
-                if (claim.getBox().intersects(box)) {
-                    result.add(claim);
-                }
+        for (AbstractClaim claim : node.claims) {
+            if (claim.getBox().intersects(box)) {
+                result.add(claim);
             }
+        }
+        if (node.boundary.intersects(box)) {
             if (!node.isLeaf()) {
                 for (QuadtreeNode child : node.children) {
                     result.addAll(queryIntersections(child, box));
