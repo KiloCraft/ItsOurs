@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Optional;
 
-@Mixin(value = ExplosionImpl.class, priority = 500)
+@Mixin(value = ExplosionImpl.class, priority = 1500)
 public abstract class ExplosionImplMixin {
 
     @Shadow
@@ -27,7 +27,11 @@ public abstract class ExplosionImplMixin {
     private ServerWorld world;
 
     @WrapOperation(
-        method = "getBlocksToDestroy",
+        method = {
+            "getBlocksToDestroy",
+            // lithium compat
+            "traverseBlock"
+        },
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/explosion/ExplosionBehavior;canDestroyBlock(Lnet/minecraft/world/explosion/Explosion;Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;F)Z"
