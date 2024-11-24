@@ -52,7 +52,7 @@
   "text.itsours.commands.playerflags.set": "Set player flag ${flag} in ${claim_full_name} to ${value} for ${target_name}",
   "text.itsours.commands.playerflags.check": "Player flag ${flag} in ${claim_full_name} is set to ${value} for ${target_name}",
   "text.itsours.commands.list": "<yellow>${target_name}'s claims: ${claims}</yellow>",
-  "text.itsours.commands.list.entry": "<gold>${claim_name}</gold>",
+  "text.itsours.commands.list.entry": "<gold><click:run_command:'/claim info ${claim_full_name}'>${claim_name}</click></gold>",
   "text.itsours.commands.list.separator": "<gray>, </gray>",
   "text.itsours.commands.list.empty": "<red>${target_name} doesn't have any claims",
   "text.itsours.commands.message.enter": "Changed claim enter message to '${message}'",
@@ -176,8 +176,8 @@
   "text.itsours.gui.flags.simple.use_item.ender_pearl.name": "<gold>Use ender pearl",
   "text.itsours.gui.flags.simple.use_item.ender_pearl.description": "<yellow>Throw ender pearls",
 
-  "text.itsours.gui.flags.simple.interact_entity.boat.name": "<gold>Interact boat",
-  "text.itsours.gui.flags.simple.interact_entity.boat.description": "<yellow>Enter and drive boats",
+  "text.itsours.gui.flags.simple.interact_entity.BOAT.name": "<gold>Interact boat",
+  "text.itsours.gui.flags.simple.interact_entity.BOAT.description": "<yellow>Enter and drive boats",
 
   "text.itsours.gui.flags.simple.interact_entity.minecart.name": "<gold>Interact minecart",
   "text.itsours.gui.flags.simple.interact_entity.minecart.description": "<yellow>Enter and drive minecarts",
