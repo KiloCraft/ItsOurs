@@ -6,7 +6,6 @@ import me.drex.itsours.data.DataManager;
 import me.drex.itsours.user.ClaimSelectingPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -21,9 +20,9 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     private BlockPos firstPos = null;
     @Nullable
     private BlockPos secondPos = null;
-    private AbstractClaim lastShowClaim;
-    private BlockPos lastShowPos;
-    private ServerWorld lastShowWorld;
+
+    private AbstractClaim claim = null;
+
 
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
@@ -62,6 +61,16 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     @Override
     public void setFirstPosition(BlockPos pos) {
         firstPos = pos;
+    }
+
+    @Override
+    public AbstractClaim claim() {
+        return claim;
+    }
+
+    @Override
+    public void setClaim(AbstractClaim claim) {
+        this.claim = claim;
     }
 
 }

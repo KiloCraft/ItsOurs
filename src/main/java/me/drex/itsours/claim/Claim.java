@@ -42,7 +42,7 @@ public class Claim extends AbstractClaim {
         this.owner = owner;
     }
 
-    public Claim(String name, UUID owner, ClaimBox box, ServerWorld world) {
+    public Claim(String name, UUID owner, ClaimBox box, World world) {
         super(name, box, world);
         this.owner = owner;
     }

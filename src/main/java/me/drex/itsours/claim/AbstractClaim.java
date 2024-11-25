@@ -49,7 +49,7 @@ public abstract class AbstractClaim {
     private ClaimBox box;
 
 
-    public AbstractClaim(String name, ClaimBox box, ServerWorld world) {
+    public AbstractClaim(String name, ClaimBox box, World world) {
         this(name, box, world.getRegistryKey(), new ArrayList<>(), new FlagData(), new HashMap<>(), new ClaimGroupManager(), new ClaimMessages());
     }
 

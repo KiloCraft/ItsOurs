@@ -1,5 +1,6 @@
 package me.drex.itsours.user;
 
+import me.drex.itsours.claim.AbstractClaim;
 import net.minecraft.util.math.BlockPos;
 
 public interface ClaimSelectingPlayer {
@@ -16,4 +17,7 @@ public interface ClaimSelectingPlayer {
 
     void setFirstPosition(BlockPos pos);
 
+    AbstractClaim claim();
+
+    void setClaim(AbstractClaim claim);
 }
