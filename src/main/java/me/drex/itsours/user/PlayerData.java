@@ -12,15 +12,15 @@ public final class PlayerData {
         Codec.BOOL.optionalFieldOf("ignore", false).forGetter(PlayerData::ignore),
         Codec.BOOL.optionalFieldOf("select", false).forGetter(PlayerData::select),
         Codec.BOOL.optionalFieldOf("flight", false).forGetter(PlayerData::flight),
-        Codec.INT.optionalFieldOf("blocks", Constants.DEFAULT_CLAIM_BLOCKS).forGetter(PlayerData::blocks)
+        Codec.LONG.optionalFieldOf("blocks", Constants.DEFAULT_CLAIM_BLOCKS).forGetter(PlayerData::blocks)
     ).apply(instance, PlayerData::new));
 
     private boolean ignore;
     private boolean select;
     private boolean flight;
-    private int blocks;
+    private long blocks;
 
-    public PlayerData(boolean ignore, boolean select, boolean flight, int blocks) {
+    public PlayerData(boolean ignore, boolean select, boolean flight, long blocks) {
         this.ignore = ignore;
         this.select = select;
         this.flight = flight;
@@ -39,7 +39,7 @@ public final class PlayerData {
         return flight;
     }
 
-    public int blocks() {
+    public long blocks() {
         return blocks;
     }
 
@@ -55,7 +55,7 @@ public final class PlayerData {
         this.flight = flight;
     }
 
-    public void setBlocks(int blocks) {
+    public void setBlocks(long blocks) {
         this.blocks = blocks;
     }
 

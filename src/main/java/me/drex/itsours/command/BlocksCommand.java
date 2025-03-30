@@ -1,9 +1,10 @@
 package me.drex.itsours.command;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import eu.pb4.placeholders.api.PlaceholderContext;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.data.DataManager;
@@ -25,13 +26,15 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 public class BlocksCommand extends AbstractCommand {
 
+    public static final CommandSyntaxException OVERFLOW = new SimpleCommandExceptionType(localized("text.itsours.argument.general.overflow")).create();
+
     public static final BlocksCommand INSTANCE = new BlocksCommand();
 
     private BlocksCommand() {
         super("blocks");
     }
 
-    private static Map<String, Text> placeholders(int blocks, GameProfile target) {
+    private static Map<String, Text> placeholders(long blocks, GameProfile target) {
         return mergePlaceholderMaps(
             Map.of("blocks", Text.literal(String.valueOf(blocks))),
             gameProfile("target_", target)
@@ -43,10 +46,17 @@ public class BlocksCommand extends AbstractCommand {
         literal.then(
                 literal("add").then(
                     argument("targets", GameProfileArgumentType.gameProfile()).then(
-                        argument("blocks", IntegerArgumentType.integer())
-                            .executes(ctx -> addBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), IntegerArgumentType.getInteger(ctx, "blocks")))
+                        argument("blocks", LongArgumentType.longArg(1))
+                            .executes(ctx -> addBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), LongArgumentType.getLong(ctx, "blocks")))
                     )
                 ).requires(src -> ItsOurs.checkPermission(src, "itsours.blocks.add", 2))
+            ).then(
+                literal("remove").then(
+                    argument("targets", GameProfileArgumentType.gameProfile()).then(
+                        argument("blocks", LongArgumentType.longArg(1))
+                            .executes(ctx -> addBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), -LongArgumentType.getLong(ctx, "blocks")))
+                    )
+                ).requires(src -> ItsOurs.checkPermission(src, "itsours.blocks.remove", 2))
             )
             .then(
                 literal("check").then(
@@ -58,16 +68,16 @@ public class BlocksCommand extends AbstractCommand {
             .then(
                 literal("set").then(
                     argument("targets", GameProfileArgumentType.gameProfile()).then(
-                        argument("blocks", IntegerArgumentType.integer())
-                            .executes(ctx -> setBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), IntegerArgumentType.getInteger(ctx, "blocks")))
+                        argument("blocks", LongArgumentType.longArg(0))
+                            .executes(ctx -> setBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), LongArgumentType.getLong(ctx, "blocks")))
                     )
                 ).requires(src -> ItsOurs.checkPermission(src, "itsours.blocks.set", 2))
             )
             .then(
                 literal("give").then(
                     argument("targets", GameProfileArgumentType.gameProfile()).then(
-                        argument("blocks", IntegerArgumentType.integer(1))
-                            .executes(ctx -> giveBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), IntegerArgumentType.getInteger(ctx, "blocks")))
+                        argument("blocks", LongArgumentType.longArg(1))
+                            .executes(ctx -> giveBlocks(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "targets"), LongArgumentType.getLong(ctx, "blocks")))
                     )
                 ).requires(src -> ItsOurs.checkPermission(src, "itsours.blocks.give", 2))
             )
@@ -75,59 +85,80 @@ public class BlocksCommand extends AbstractCommand {
     }
 
     private int checkBlocks(ServerCommandSource src, Collection<GameProfile> targets) {
-        int result = 0;
+        long result = 0;
         for (GameProfile target : targets) {
-            int blocks = DataManager.getUserData(target.getId()).blocks();
+            long blocks = DataManager.getUserData(target.getId()).blocks();
             result += blocks;
             src.sendFeedback(() -> localized("text.itsours.commands.blocks", placeholders(blocks, target)), false);
         }
-        return result;
+        return (int) result;
     }
 
-    private int addBlocks(ServerCommandSource src, Collection<GameProfile> targets, int amount) {
-        int i = 0;
-        for (GameProfile target : targets) {
-            int blocks = DataManager.getUserData(target.getId()).blocks();
-            int newAmount = MathHelper.clamp(blocks + amount, 0, Integer.MAX_VALUE);
-            if (blocks == newAmount) continue;
-            DataManager.updateUserData(target.getId()).setBlocks(newAmount);
-            i++;
-            if (amount >= 0) {
-                src.sendFeedback(() -> localized("text.itsours.commands.blocks.add", placeholders(amount, target)), false);
-            } else {
-                src.sendFeedback(() -> localized("text.itsours.commands.blocks.remove", placeholders(-amount, target)), false);
+    private int addBlocks(ServerCommandSource src, Collection<GameProfile> targets, long amount) throws CommandSyntaxException {
+
+        try {
+            long[] newAmounts = new long[targets.size()];
+            int i = 0;
+            for (GameProfile target : targets) {
+                long blocks = DataManager.getUserData(target.getId()).blocks();
+                newAmounts[i] = Math.max(0, Math.addExact(blocks, amount));
+                i++;
             }
+
+            i = 0;
+            for (GameProfile target : targets) {
+                DataManager.updateUserData(target.getId()).setBlocks(newAmounts[i]);
+                if (amount >= 0) {
+                    src.sendFeedback(() -> localized("text.itsours.commands.blocks.add", placeholders(amount, target)), false);
+                } else {
+                    src.sendFeedback(() -> localized("text.itsours.commands.blocks.remove", placeholders(-amount, target)), false);
+                }
+                i++;
+            }
+            return i;
+
+        } catch (ArithmeticException e) {
+            throw OVERFLOW;
         }
-        return i;
     }
 
-    private int giveBlocks(ServerCommandSource src, Collection<GameProfile> targets, int amount) throws CommandSyntaxException {
-        int requiredAmount = targets.size() * amount;
-        int donatorBlocks = DataManager.getUserData(src.getPlayerOrThrow().getUuid()).blocks();
-        if (requiredAmount > donatorBlocks) {
-            src.sendError(localized("text.itsours.commands.blocks.give.notEnough"));
-            return -1;
+    private int giveBlocks(ServerCommandSource src, Collection<GameProfile> targets, long amount) throws CommandSyntaxException {
+        try {
+            long requiredAmount = Math.multiplyExact(amount, targets.size());
+            long donatorBlocks = DataManager.getUserData(src.getPlayerOrThrow().getUuid()).blocks();
+            if (requiredAmount > donatorBlocks) {
+                src.sendError(localized("text.itsours.commands.blocks.give.notEnough"));
+                return -1;
+            }
+            long[] newAmounts = new long[targets.size()];
+            int i = 0;
+            for (GameProfile target : targets) {
+                long receiverBlocks = DataManager.getUserData(target.getId()).blocks();
+                newAmounts[i] = Math.addExact(receiverBlocks, amount);
+                i++;
+            }
+
+            DataManager.updateUserData(src.getPlayer().getUuid()).setBlocks(donatorBlocks - requiredAmount);
+
+            i = 0;
+            for (GameProfile target : targets) {
+                DataManager.updateUserData(target.getId()).setBlocks(newAmounts[i]);
+                src.sendFeedback(() -> localized("text.itsours.commands.blocks.give", placeholders(amount, target)), false);
+                ServerPlayerEntity player = src.getServer().getPlayerManager().getPlayer(target.getId());
+                if (player != null)
+                    player.sendMessage(localized("text.itsours.commands.blocks.give.received", Map.of("blocks", Text.literal(String.valueOf(amount))), PlaceholderContext.of(src)), false);
+                i++;
+            }
+            return i;
+        } catch (ArithmeticException e) {
+            throw OVERFLOW;
         }
-        DataManager.updateUserData(src.getPlayer().getUuid()).setBlocks(donatorBlocks - requiredAmount);
-        int i = 0;
-        for (GameProfile target : targets) {
-            int receiverBlocks = DataManager.getUserData(target.getId()).blocks();
-            int newAmount = Math.min(receiverBlocks + amount, Integer.MAX_VALUE);
-            if (receiverBlocks == newAmount) continue;
-            DataManager.updateUserData(target.getId()).setBlocks(newAmount);
-            i++;
-            src.sendFeedback(() -> localized("text.itsours.commands.blocks.give", placeholders(amount, target)), false);
-            ServerPlayerEntity player = src.getServer().getPlayerManager().getPlayer(target.getId());
-            if (player != null)
-                player.sendMessage(localized("text.itsours.commands.blocks.give.received", Map.of("blocks", Text.literal(String.valueOf(amount))), PlaceholderContext.of(src)), false);
-        }
-        return i;
     }
 
-    private int setBlocks(ServerCommandSource src, Collection<GameProfile> targets, int amount) {
+    private int setBlocks(ServerCommandSource src, Collection<GameProfile> targets, long amount) {
         int i = 0;
         for (GameProfile target : targets) {
-            int newAmount = MathHelper.clamp(amount, 0, Integer.MAX_VALUE);
+            long newAmount = Math.max(amount, 0);
             DataManager.updateUserData(target.getId()).setBlocks(newAmount);
             src.sendFeedback(() -> localized("text.itsours.commands.blocks.set", placeholders(amount, target)), false);
             i++;

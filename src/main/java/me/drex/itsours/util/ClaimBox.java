@@ -50,12 +50,15 @@ public class ClaimBox extends BlockBox {
         return new BlockPos(getMaxX(), getMaxY(), getMaxZ());
     }
 
-    public int getArea() {
-        return (this.getMaxX() - this.getMinX() + 1) * (this.getMaxZ() - this.getMinZ() + 1);
+    public long getArea() {
+        long x = this.getMaxX() - this.getMinX() + 1;
+        long z = this.getMaxZ() - this.getMinZ() + 1;
+        return x * z;
     }
 
-    public int getVolume() {
-        return getArea() * (this.getMaxY() - this.getMinY() + 1);
+    public long getVolume() {
+        long y = this.getMaxY() - this.getMinY() + 1;
+        return getArea() * y;
     }
 
     public boolean contains(BlockBox other) {

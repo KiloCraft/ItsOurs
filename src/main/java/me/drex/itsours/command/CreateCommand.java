@@ -93,9 +93,9 @@ public class CreateCommand extends AbstractCommand {
         }
         // Main claim
         Claim claim = new Claim(claimName, uuid, claimBox, src.getWorld());
-        int requiredBlocks = claimBox.getArea();
+        long requiredBlocks = claimBox.getArea();
         // Check and remove claim blocks
-        int blocks = DataManager.getUserData(uuid).blocks();
+        long blocks = DataManager.getUserData(uuid).blocks();
         if (requiredBlocks > blocks) {
             src.sendError(localized("text.itsours.commands.expand.missingClaimBlocks", Map.of("blocks", Text.literal(String.valueOf(requiredBlocks - blocks)))));
             return 0;

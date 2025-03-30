@@ -52,14 +52,14 @@ public class ExpandCommand extends AbstractCommand {
         UUID uuid = player.getUuid();
         Direction direction = Direction.getEntityFacingOrder(player)[0];
         ClaimBox originalBox = claim.getBox();
-        int originalArea = originalBox.getArea();
+        long originalArea = originalBox.getArea();
         ClaimBox newBox = originalBox.expand(direction, expand ? distance : -distance);
-        int newArea = newBox.getArea();
+        long newArea = newBox.getArea();
         if (!expand && !originalBox.contains(newBox)) {
             src.sendError(localized("text.itsours.commands.shrink.shrunkToFar"));
             return 0;
         }
-        int areaIncrease = newArea - originalArea;
+        long areaIncrease = newArea - originalArea;
         for (AbstractClaim other : ClaimList.getClaims()) {
             if (
                 claim.getDimension().equals(other.getDimension()) &&
@@ -95,7 +95,7 @@ public class ExpandCommand extends AbstractCommand {
         }
         if (claim instanceof Claim) {
             // Check and remove claim blocks
-            int blocks = DataManager.getUserData(uuid).blocks();
+            long blocks = DataManager.getUserData(uuid).blocks();
             if (areaIncrease > blocks) {
                 src.sendError(localized("text.itsours.commands.expand.missingClaimBlocks", Map.of("blocks", literal(String.valueOf(areaIncrease - blocks)))));
                 return 0;
@@ -115,7 +115,7 @@ public class ExpandCommand extends AbstractCommand {
                 claim.placeholders(src.getServer())
             )
         ), false);
-        return areaIncrease;
+        return (int) areaIncrease;
     }
 
 }
