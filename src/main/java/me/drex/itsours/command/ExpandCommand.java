@@ -109,7 +109,7 @@ public class ExpandCommand extends AbstractCommand {
         src.sendFeedback(() -> localized("text.itsours.commands." + literal, mergePlaceholderMaps(
                 Map.of(
                     "distance", literal(String.valueOf(distance)),
-                    "direction", literal(direction.getName()),
+                    "direction", literal(direction.asString()),
                     "blocks", literal(String.valueOf(expand ? areaIncrease : -areaIncrease))
                 ),
                 claim.placeholders(src.getServer())
