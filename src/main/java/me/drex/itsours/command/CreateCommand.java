@@ -103,6 +103,7 @@ public class CreateCommand extends AbstractCommand {
         if (ClaimList.getClaim(claimName).isPresent()) throw ClaimArgument.NAME_TAKEN;
         DataManager.updateUserData(uuid).setBlocks(blocks - requiredBlocks);
         ClaimList.addClaim(claim);
+        src.sendFeedback(() -> localized("text.itsours.commands.create", claim.placeholders(src.getServer())), false);
         claim.notifyTrackingChanges(src.getServer(), true);
         // reset positions
         return 1;
