@@ -64,6 +64,10 @@ public class Flags {
         .description("glide")
         .icon(Items.ELYTRA)
         .build();
+    public static final AbstractChildNode CLAIM_FLY = literal("claim_fly")
+        .description("claim_fly")
+        .icon(Items.FEATHER)
+        .build();
 
     public static final AbstractChildNode MODIFY = literal("modify")
         .description("modify")
@@ -115,12 +119,14 @@ public class Flags {
         registerPlayerFlag(INTERACT_ENTITY);
         registerPlayerFlag(MODIFY);
         registerPlayerFlag(GLIDE);
+        registerPlayerFlag(CLAIM_FLY);
         // Global flags
         registerClaimFlag(PVP);
         registerClaimFlag(EXPLOSIONS);
         registerClaimFlag(FLUID_CROSSES_BORDERS);
         registerClaimFlag(PISTON_CROSSES_BORDERS);
         registerClaimFlag(SCULK_CROSSES_BORDERS);
+        registerClaimFlag(CLAIM_FLY);
         registerClaimFlag(MOB_SPAWN);
     }
 

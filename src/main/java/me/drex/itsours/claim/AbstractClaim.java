@@ -2,6 +2,7 @@ package me.drex.itsours.claim;
 
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.flags.Flag;
+import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.context.*;
 import me.drex.itsours.claim.flags.holder.FlagData;
 import me.drex.itsours.claim.flags.node.ChildNode;
@@ -146,7 +147,8 @@ public abstract class AbstractClaim {
     }
 
     public void onEnter(@Nullable AbstractClaim previousClaim, ServerPlayerEntity player) {
-        boolean isAllowed = ItsOurs.checkPermission(player.getCommandSource(), "itsours.fly", 2);
+        boolean isAllowed = ItsOurs.checkPermission(player.getCommandSource(), "itsours.fly", 2) &&
+            checkAction(player.getUuid(), Flags.CLAIM_FLY);
         boolean cachedFlying = isAllowed && player.getAbilities().flying;
         boolean cachedAllowFlying = player.getAbilities().allowFlying;
         boolean requiresUpdate = false;

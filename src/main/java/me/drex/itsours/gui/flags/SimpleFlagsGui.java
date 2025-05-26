@@ -33,6 +33,7 @@ public class SimpleFlagsGui extends PageGui<Flag> {
         Flag.flag(Flags.MINE),
         Flag.flag(Flags.DAMAGE_ENTITY),
         Flag.flag(Flags.GLIDE),
+        Flag.flag(Flags.CLAIM_FLY),
         Flag.flag(Flags.PVP),
         Flag.flag(Flags.EXPLOSIONS),
         Flag.flag(Flags.PISTON_CROSSES_BORDERS),
