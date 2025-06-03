@@ -91,10 +91,10 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     )
     private ActionResult itsours$canInteractEntity(Entity entity, PlayerEntity player, Hand hand, Operation<ActionResult> original) {
         return ClaimFlags.check(
-            this, 
+            this,
             "text.itsours.action.disallowed.interact_entity",
-            () -> ActionResult.FAIL, 
-            () -> original.call(entity, player, hand), 
+            () -> ActionResult.FAIL,
+            () -> original.call(entity, player, hand),
             Flags.INTERACT_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType())
         );
     }

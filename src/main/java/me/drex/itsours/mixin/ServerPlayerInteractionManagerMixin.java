@@ -1,6 +1,5 @@
 package me.drex.itsours.mixin;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import me.drex.itsours.claim.AbstractClaim;
@@ -39,23 +38,6 @@ public abstract class ServerPlayerInteractionManagerMixin {
     protected ServerPlayerEntity player;
     @Shadow
     protected ServerWorld world;
-
-    @ModifyExpressionValue(
-        method = "tryBreakBlock",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayerEntity;isBlockBreakingRestricted(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/GameMode;)Z"
-        )
-    )
-    private boolean itsours$canBreakBlock(boolean original, BlockPos pos) {
-        Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, pos);
-        if (claim.isEmpty()) return original;
-        if (!claim.get().checkAction(this.player.getUuid(), Flags.MINE, Node.registry(Registries.BLOCK, this.world.getBlockState(pos).getBlock()))) {
-            player.sendMessage(localized("text.itsours.action.disallowed.break_block"), true);
-            return true;
-        }
-        return original;
-    }
 
     @WrapOperation(
         method = "interactBlock",
