@@ -309,6 +309,7 @@
   "text.itsours.flags.modify.message.description": "Change claim enter- and leave message",
   "text.itsours.flags.modify.subzone.description": "Create claim subzones",
   "text.itsours.flags.modify.check.description": "Use /claim check command",
+  "text.itsours.flags.claim_fly.description": "Allow players to use claim fly",
   "text.itsours.flags.pvp.description": "Player vs Player",
   "text.itsours.flags.explosions.description": "Explosion block damage (eg. creeper explosion)",
   "text.itsours.flags.fluid_crosses_borders.description": "Fluids flowing across claim borders (eg. water flowing)",
