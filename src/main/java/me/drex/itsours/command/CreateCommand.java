@@ -128,7 +128,7 @@ public class CreateCommand extends AbstractCommand {
             if (subzone.getName().equals(claimName)) throw ClaimArgument.NAME_TAKEN;
         }
         validateAction(src, parent, Flags.MODIFY, Modify.SUBZONE.node());
-        Subzone subzone = new Subzone(claimName, claimBox, player.getServerWorld(), parent);
+        Subzone subzone = new Subzone(claimName, claimBox, player.getWorld(), parent);
         ClaimList.addClaim(subzone);
         subzone.notifyTrackingChanges(src.getServer(), true);
         ((ClaimSelectingPlayer) player).resetSelection();

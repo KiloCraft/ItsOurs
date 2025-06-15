@@ -35,7 +35,7 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
         cancellable = true
     )
     public void itsours$canInteract(PlayerEntity player, Vec3d hitPos, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
-        Optional<AbstractClaim> claim = ClaimList.getClaimAt(this.getEntityWorld(), this.getBlockPos());
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt(this.getWorld(), this.getBlockPos());
         if (claim.isEmpty()) return;
 
         if (!claim.get().checkAction(player.getUuid(), Flags.INTERACT_ENTITY, Node.registry(Registries.ENTITY_TYPE, this.getType()))) {

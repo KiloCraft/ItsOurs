@@ -126,7 +126,6 @@ public class Flags {
         registerClaimFlag(FLUID_CROSSES_BORDERS);
         registerClaimFlag(PISTON_CROSSES_BORDERS);
         registerClaimFlag(SCULK_CROSSES_BORDERS);
-        registerClaimFlag(CLAIM_FLY);
         registerClaimFlag(MOB_SPAWN);
     }
 

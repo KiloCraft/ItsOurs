@@ -44,7 +44,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         )
     )
     private boolean itsours$canDamageEntity(boolean original, Entity entity) {
-        Optional<AbstractClaim> claim = ClaimList.getClaimAt(entity.getEntityWorld(), entity.getBlockPos());
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt(entity.getWorld(), entity.getBlockPos());
         if (claim.isEmpty()) {
             return original;
         }

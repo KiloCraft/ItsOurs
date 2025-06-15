@@ -18,7 +18,7 @@ public abstract class ClaimListGui<T extends AbstractClaim> extends PageGui<T> {
 
     @Override
     protected GuiElementBuilder guiElement(AbstractClaim claim) {
-        boolean currentClaim = claim.contains(context.player.getBlockPos()) && claim.getDimension().equals(context.player.getServerWorld().getRegistryKey());
+        boolean currentClaim = claim.contains(context.player.getBlockPos()) && claim.getDimension().equals(context.player.getWorld().getRegistryKey());
         return guiElement(currentClaim ? Items.GOLD_BLOCK : Items.GRASS_BLOCK, "claimlist.entry", claim.placeholders(context.server()))
             .setCallback(clickType -> {
                 if (clickType.isLeft) {

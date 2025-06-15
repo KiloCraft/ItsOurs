@@ -41,8 +41,8 @@ import static net.minecraft.world.Heightmap.Type.OCEAN_FLOOR;
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin extends PlayerEntity implements ClaimTrackingPlayer {
 
-    public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
-        super(world, pos, yaw, gameProfile);
+    public ServerPlayerEntityMixin(World world, GameProfile profile) {
+        super(world, profile);
     }
 
     private static final Predicate<BlockState> BLOCKS_MOVEMENT = AbstractBlock.AbstractBlockState::blocksMovement;
@@ -54,7 +54,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     public abstract ChunkFilter getChunkFilter();
 
     @Shadow
-    public abstract ServerWorld getServerWorld();
+    public abstract ServerWorld getWorld();
 
     private final Long2ObjectMap<Set<BlockPos>> chunk2TrackedShowBlocks = new Long2ObjectArrayMap<>();
 
@@ -76,7 +76,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     }
 
     private void showChunk(ChunkPos chunkPos) {
-        List<AbstractClaim> claims = ClaimList.getIntersectingClaims(getServerWorld(), new ClaimBox(chunkPos.getStartX(), -Integer.MAX_VALUE, chunkPos.getStartZ(), chunkPos.getEndX(), Integer.MAX_VALUE, chunkPos.getEndZ()));
+        List<AbstractClaim> claims = ClaimList.getIntersectingClaims(getWorld(), new ClaimBox(chunkPos.getStartX(), -Integer.MAX_VALUE, chunkPos.getStartZ(), chunkPos.getEndX(), Integer.MAX_VALUE, chunkPos.getEndZ()));
         trackedClaims.addAll(claims);
         for (AbstractClaim claim : claims) {
             showChunk(claim, chunkPos);

@@ -156,6 +156,9 @@
   "text.itsours.gui.flags.simple.glide.name": "<gold>Glide",
   "text.itsours.gui.flags.simple.glide.description": "<yellow>Use elytra in the claim",
 
+  "text.itsours.gui.flags.simple.claim_fly.name": "<gold>Claim fly",
+  "text.itsours.gui.flags.simple.claim_fly.description": "<yellow>Allow players to use claim fly",
+
   "text.itsours.gui.flags.simple.pvp.name": "<gold>PvP",
   "text.itsours.gui.flags.simple.pvp.description": "<yellow>Allow player vs player killing",
 
