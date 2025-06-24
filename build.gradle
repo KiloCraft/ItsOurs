@@ -1,5 +1,6 @@
 plugins {
     id 'fabric-loom' version '1.10-SNAPSHOT'
+    id "me.modmuss50.mod-publish-plugin" version "0.8.4"
     id 'maven-publish'
 }
 
@@ -30,6 +31,20 @@ dependencies {
     modImplementation include("eu.pb4:common-protection-api:${project.common_protection_api_version}")
     modImplementation include("eu.pb4:placeholder-api:${project.placeholder_api_version}")
     modImplementation include("maven.modrinth:message-api:${project.message_api_version}")
+}
+
+publishMods {
+    file = remapJar.archiveFile
+    type = STABLE
+    changelog = providers.environmentVariable("CHANGELOG").getOrElse("No changelog provided")
+
+    displayName = "ItsOurs ${version.get()}"
+
+    github {
+        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        repository = providers.environmentVariable("GITHUB_REPOSITORY").getOrElse("DrexHD/ItsOurs")
+        commitish = providers.environmentVariable("GITHUB_REF_NAME").getOrElse("main")
+    }
 }
 
 processResources {
