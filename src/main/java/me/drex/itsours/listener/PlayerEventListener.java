@@ -61,7 +61,7 @@ public class PlayerEventListener {
 
     private static ActionResult onBlockAttack(PlayerEntity player, World world, Hand hand, BlockPos pos, Direction direction) {
         ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
-        Optional<AbstractClaim> claim = ClaimList.getClaimAt(player);
+        Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, pos);
         if (claim.isPresent()) {
             BlockState state = world.getBlockState(pos);
             if (!claim.get().checkAction(player.getUuid(), Flags.MINE, Node.registry(Registries.BLOCK, state.getBlock()))) {
