@@ -18,10 +18,12 @@ import me.drex.itsours.util.ClaimBox;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.network.packet.s2c.play.PositionFlag;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
@@ -149,18 +151,47 @@ public abstract class AbstractClaim {
     public void onEnter(@Nullable AbstractClaim previousClaim, ServerPlayerEntity player) {
         boolean isAllowed = ItsOurs.checkPermission(player.getCommandSource(), "itsours.fly", 2) &&
             checkAction(player.getUuid(), Flags.CLAIM_FLY);
-        boolean cachedFlying = isAllowed && player.getAbilities().flying;
+        updateFly(player, isAllowed);
+
+        player.sendMessage(messages.enter().map(Text::literal).orElse(localized("text.itsours.claim.enter", placeholders(player.getServer()))), true);
+    }
+
+    public void onLeave(@Nullable AbstractClaim nextClaim, ServerPlayerEntity player) {
+        if (nextClaim == null) {
+
+            updateFly(player, false);
+            player.sendMessage(messages.leave().map(Text::literal).orElse(localized("text.itsours.claim.leave", placeholders(player.getServer()))), true);
+        }
+    }
+
+    private static void updateFly(ServerPlayerEntity player, boolean isAllowed) {
+        boolean cachedFlying = player.getAbilities().flying;
         boolean cachedAllowFlying = player.getAbilities().allowFlying;
         boolean requiresUpdate = false;
         // Update abilities for respective gamemode
         player.interactionManager.getGameMode().setAbilities(player.getAbilities());
+
         // Enable flying if player enabled it
         if (!player.getAbilities().allowFlying) {
             player.getAbilities().allowFlying = DataManager.getUserData(player.getUuid()).flight() && isAllowed;
         }
-        // Set the flight state to what it was before entering
+        // Set the flight state to what it was before
         if (player.getAbilities().allowFlying) {
             player.getAbilities().flying = cachedFlying;
+        }
+
+        if (cachedFlying && !player.getAbilities().flying) {
+            BlockPos pos = getPosOnGround(player.getBlockPos(), player.getWorld());
+            player.teleport(player.getWorld(), player.getX(), pos.getY(), player.getZ(), EnumSet.noneOf(PositionFlag.class), player.getYaw(), player.getPitch(), true);
+            player.getWorld()
+                .spawnParticles(
+                    ParticleTypes.PORTAL,
+                    pos.getX(), player.getEyeY(), pos.getZ(),
+                    64,
+                    0, 0, 0,
+                    1
+                );
+            player.getWorld().playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1.0F, 2.0F);
         }
 
         requiresUpdate |= cachedFlying != player.getAbilities().flying;
@@ -168,30 +199,6 @@ public abstract class AbstractClaim {
 
         if (requiresUpdate) {
             player.sendAbilitiesUpdate();
-        }
-
-        player.sendMessage(messages.enter().map(Text::literal).orElse(localized("text.itsours.claim.enter", placeholders(player.getServer()))), true);
-    }
-
-    public void onLeave(@Nullable AbstractClaim nextClaim, ServerPlayerEntity player) {
-        if (nextClaim == null) {
-            boolean cachedFlying = player.getAbilities().flying;
-            boolean cachedAllowFlying = player.getAbilities().allowFlying;
-            boolean requiresUpdate = false;
-            // Update abilities for respective gamemode
-            player.interactionManager.getGameMode().setAbilities(player.getAbilities());
-            if (cachedFlying && !player.getAbilities().flying) {
-                BlockPos pos = getPosOnGround(player.getBlockPos(), player.getWorld());
-                if (pos.getY() + 3 < player.getY()) {
-                    player.teleport(player.getWorld(), player.getX(), pos.getY(), player.getZ(), EnumSet.noneOf(PositionFlag.class), player.getYaw(), player.getPitch(), true);
-                }
-            }
-            requiresUpdate |= cachedFlying != player.getAbilities().flying;
-            requiresUpdate |= cachedAllowFlying != player.getAbilities().allowFlying;
-            if (requiresUpdate) {
-                player.sendAbilitiesUpdate();
-            }
-            player.sendMessage(messages.leave().map(Text::literal).orElse(localized("text.itsours.claim.leave", placeholders(player.getServer()))), true);
         }
     }
 

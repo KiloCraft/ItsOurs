@@ -47,6 +47,8 @@ public class DataManager {
         // Allow basic blocks
         defaultFlags.set(Flag.flag(Flags.INTERACT_BLOCK, Node.block(Blocks.CRAFTING_TABLE)), Value.ALLOW);
         defaultFlags.set(Flag.flag(Flags.INTERACT_BLOCK, Node.block(Blocks.ENDER_CHEST)), Value.ALLOW);
+        // Allow claim fly
+        defaultFlags.set(Flag.flag(Flags.CLAIM_FLY), Value.ALLOW);
     }
     public static final Codec<?> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         ClaimList.CODEC.fieldOf("claims").forGetter((ignored) -> ClaimList.getClaims().stream().filter(claim -> claim instanceof Claim).map(claim -> (Claim) claim).toList()),
