@@ -11,6 +11,7 @@ import me.drex.itsours.util.ClaimFlags;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Tameable;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
@@ -90,6 +91,10 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         )
     )
     private ActionResult itsours$canInteractEntity(Entity entity, PlayerEntity player, Hand hand, Operation<ActionResult> original) {
+        // special case to allow owners to interact with their entities
+        if (entity instanceof Tameable tameable && tameable.getOwner() == player) {
+            return original.call(entity, player, hand);
+        }
         return ClaimFlags.check(
             this,
             "text.itsours.action.disallowed.interact_entity",
