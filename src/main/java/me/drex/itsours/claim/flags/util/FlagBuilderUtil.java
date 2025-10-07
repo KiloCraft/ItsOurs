@@ -4,8 +4,6 @@ import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.node.ChildNode;
 import me.drex.itsours.claim.flags.node.GroupNode;
-import me.drex.itsours.claim.flags.node.Node;
-import me.drex.itsours.claim.flags.node.builder.AbstractNodeBuilder;
 import me.drex.itsours.claim.flags.node.builder.GroupNodeBuilder;
 import me.drex.itsours.claim.flags.node.builder.LiteralNodeBuilder;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -17,7 +15,6 @@ import net.minecraft.entity.FlyingItemEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -52,17 +49,20 @@ public class FlagBuilderUtil {
     public static void init() {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             for (EntityType<?> entityType : Registries.ENTITY_TYPE) {
-                Entity dummy = entityType.create(server.getOverworld(), SpawnReason.LOAD);
-                if (dummy == null) continue;
-                ItemStack pickBlockStack = dummy.getPickBlockStack();
-                if (pickBlockStack == null) {
-                    if (dummy instanceof FlyingItemEntity flyingItemEntity) {
-                        pickBlockStack = flyingItemEntity.getStack();
-                    } else if (dummy instanceof PersistentProjectileEntity projectileEntity) {
-                        pickBlockStack = projectileEntity.getItemStack();
+                try {
+                    Entity dummy = entityType.create(server.getOverworld(), SpawnReason.LOAD);
+                    if (dummy == null) continue;
+                    ItemStack pickBlockStack = dummy.getPickBlockStack();
+                    if (pickBlockStack == null) {
+                        if (dummy instanceof FlyingItemEntity flyingItemEntity) {
+                            pickBlockStack = flyingItemEntity.getStack();
+                        } else if (dummy instanceof PersistentProjectileEntity projectileEntity) {
+                            pickBlockStack = projectileEntity.getItemStack();
+                        }
                     }
+                    ENTITY_PICK_BLOCK_STATE.put(entityType, pickBlockStack);
+                } catch (Exception ignored) {
                 }
-                ENTITY_PICK_BLOCK_STATE.put(entityType, pickBlockStack);
             }
             Flags.register();
         });
