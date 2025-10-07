@@ -18,7 +18,7 @@ import static me.drex.message.api.LocalizedMessage.localized;
 public class ClaimFlags {
 
     public static <T> T check(Entity entity, String localization, Supplier<T> failure, Supplier<T> success, ChildNode... childNodes) {
-        return check(entity, entity.getUuid(), entity.getWorld(), entity.getBlockPos(), localization, failure, success, childNodes);
+        return check(entity, entity.getUuid(), entity.getEntityWorld(), entity.getBlockPos(), localization, failure, success, childNodes);
     }
 
     public static <T> T check(@Nullable Entity entity, @Nullable UUID uuid, World world, BlockPos pos, String localization, Supplier<T> failure, Supplier<T> success, ChildNode... childNodes) {

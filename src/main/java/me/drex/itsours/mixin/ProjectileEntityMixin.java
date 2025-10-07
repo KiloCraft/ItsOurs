@@ -51,7 +51,7 @@ public abstract class ProjectileEntityMixin extends Entity {
                 player.sendMessage(localized("text.itsours.action.disallowed.damage_player"), true);
             }
             if (entity instanceof PersistentProjectileEntity) {
-                if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill((ServerWorld) entity.getWorld());
+                if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill((ServerWorld) entity.getEntityWorld());
             }
             return;
         }
@@ -60,7 +60,7 @@ public abstract class ProjectileEntityMixin extends Entity {
                 player.sendMessage(localized("text.itsours.action.disallowed.damage_entity"), true);
             }
             if (entity instanceof PersistentProjectileEntity) {
-                if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill((ServerWorld) entity.getWorld());
+                if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill((ServerWorld) entity.getEntityWorld());
             }
             return;
         }

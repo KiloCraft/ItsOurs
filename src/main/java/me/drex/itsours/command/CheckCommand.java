@@ -1,6 +1,5 @@
 package me.drex.itsours.command;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -14,6 +13,7 @@ import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.command.argument.FlagArgument;
 import me.drex.itsours.util.PlaceholderUtil;
 import net.minecraft.command.argument.GameProfileArgumentType;
+import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.*;
@@ -41,11 +41,11 @@ public class CheckCommand extends AbstractCommand {
         literal.then(claim);
     }
 
-    private int execute(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Flag flag) throws CommandSyntaxException {
+    private int execute(ServerCommandSource src, AbstractClaim claim, Collection<PlayerConfigEntry> targets, Flag flag) throws CommandSyntaxException {
         validateAction(src, claim, Flags.MODIFY, Modify.CHECK.node());
-        for (GameProfile target : targets) {
+        for (PlayerConfigEntry target : targets) {
             FlagVisitor visitor = FlagVisitor.create();
-            claim.visit(target.getId(), flag, visitor);
+            claim.visit(target.id(), flag, visitor);
             LinkedHashMap<AbstractClaim, List<Entry>> map = visitor.getEntries().stream()
                 .collect(Collectors.groupingBy(Entry::claim, LinkedHashMap::new, Collectors.toList()));
             src.sendFeedback(() -> localized("text.itsours.commands.check", Map.of(

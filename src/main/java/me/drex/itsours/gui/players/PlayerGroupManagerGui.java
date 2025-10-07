@@ -14,6 +14,7 @@ import me.drex.itsours.gui.PageGui;
 import me.drex.itsours.gui.flags.GroupFlagsGui;
 import me.drex.itsours.util.PlaceholderUtil;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -60,13 +61,13 @@ public class PlayerGroupManagerGui extends PageGui<String> {
                 boolean success = false;
                 if (hasGroup) {
                     try {
-                        GroupsCommand.INSTANCE.leaveGroup(context.player.getCommandSource().withSilent(), claim, groupId, Collections.singleton(new GameProfile(player, player.toString())));
+                        GroupsCommand.INSTANCE.leaveGroup(context.player.getCommandSource().withSilent(), claim, groupId, Collections.singleton(new PlayerConfigEntry(player, player.toString())));
                         success = true;
                     } catch (CommandSyntaxException ignored) {
                     }
                 } else {
                     try {
-                        GroupsCommand.INSTANCE.joinGroup(context.player.getCommandSource().withSilent(), claim, groupId, Collections.singleton(new GameProfile(player, player.toString())));
+                        GroupsCommand.INSTANCE.joinGroup(context.player.getCommandSource().withSilent(), claim, groupId, Collections.singleton(new PlayerConfigEntry(player, player.toString())));
                         success = true;
                     } catch (CommandSyntaxException ignored) {
                     }

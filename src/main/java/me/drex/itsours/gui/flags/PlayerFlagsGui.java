@@ -12,6 +12,7 @@ import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.command.PlayerFlagsCommand;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.util.PlaceholderUtil;
+import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.text.Text;
 
 import java.util.Collections;
@@ -45,7 +46,7 @@ public class PlayerFlagsGui extends AbstractFlagsGui {
     @Override
     boolean setValue(Flag flag, Value value) {
         try {
-            PlayerFlagsCommand.INSTANCE.executeSet(context.player.getCommandSource().withSilent(), claim, Collections.singleton(new GameProfile(player, player.toString())), flag, value);
+            PlayerFlagsCommand.INSTANCE.executeSet(context.player.getCommandSource().withSilent(), claim, Collections.singleton(new PlayerConfigEntry(player, player.toString())), flag, value);
             return true;
         } catch (CommandSyntaxException e) {
             return false;

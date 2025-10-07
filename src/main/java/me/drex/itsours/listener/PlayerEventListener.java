@@ -97,12 +97,12 @@ public class PlayerEventListener {
         if (claimSelectingPlayer.arePositionsSet()) {
             AbstractClaim previous = claimSelectingPlayer.claim();
             if (previous != null) {
-                previous.notifyTrackingChanges(player.getServer(), false);
+                previous.notifyTrackingChanges(player.getEntityWorld().getServer(), false);
             }
-            ClaimBox selectedBox = ClaimBox.create(claimSelectingPlayer.getFirstPosition().withY(player.getWorld().getBottomY()), claimSelectingPlayer.getSecondPosition().withY(player.getWorld().getTopYInclusive()));
+            ClaimBox selectedBox = ClaimBox.create(claimSelectingPlayer.getFirstPosition().withY(player.getEntityWorld().getBottomY()), claimSelectingPlayer.getSecondPosition().withY(player.getEntityWorld().getTopYInclusive()));
 
-            Claim claim = new Claim("", player.getUuid(), selectedBox, player.getWorld());
-            claim.notifyTrackingChanges(player.getServer(), true);
+            Claim claim = new Claim("", player.getUuid(), selectedBox, player.getEntityWorld());
+            claim.notifyTrackingChanges(player.getEntityWorld().getServer(), true);
             claimSelectingPlayer.setClaim(claim);
 
             if (ClaimList.getClaimsFrom(player.getUuid()).isEmpty()) {

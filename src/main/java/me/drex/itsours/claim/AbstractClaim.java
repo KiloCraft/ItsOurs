@@ -153,14 +153,14 @@ public abstract class AbstractClaim {
             checkAction(player.getUuid(), Flags.CLAIM_FLY);
         updateFly(player, isAllowed);
 
-        player.sendMessage(messages.enter().map(Text::literal).orElse(localized("text.itsours.claim.enter", placeholders(player.getServer()))), true);
+        player.sendMessage(messages.enter().map(Text::literal).orElse(localized("text.itsours.claim.enter", placeholders(player.getEntityWorld().getServer()))), true);
     }
 
     public void onLeave(@Nullable AbstractClaim nextClaim, ServerPlayerEntity player) {
         if (nextClaim == null) {
 
             updateFly(player, false);
-            player.sendMessage(messages.leave().map(Text::literal).orElse(localized("text.itsours.claim.leave", placeholders(player.getServer()))), true);
+            player.sendMessage(messages.leave().map(Text::literal).orElse(localized("text.itsours.claim.leave", placeholders(player.getEntityWorld().getServer()))), true);
         }
     }
 
@@ -181,9 +181,9 @@ public abstract class AbstractClaim {
         }
 
         if (cachedFlying && !player.getAbilities().flying) {
-            BlockPos pos = getPosOnGround(player.getBlockPos(), player.getWorld());
-            player.teleport(player.getWorld(), player.getX(), pos.getY(), player.getZ(), EnumSet.noneOf(PositionFlag.class), player.getYaw(), player.getPitch(), true);
-            player.getWorld()
+            BlockPos pos = getPosOnGround(player.getBlockPos(), player.getEntityWorld());
+            player.teleport(player.getEntityWorld(), player.getX(), pos.getY(), player.getZ(), EnumSet.noneOf(PositionFlag.class), player.getYaw(), player.getPitch(), true);
+            player.getEntityWorld()
                 .spawnParticles(
                     ParticleTypes.PORTAL,
                     pos.getX(), player.getEyeY(), pos.getZ(),
@@ -191,7 +191,7 @@ public abstract class AbstractClaim {
                     0, 0, 0,
                     1
                 );
-            player.getWorld().playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1.0F, 2.0F);
+            player.getEntityWorld().playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1.0F, 2.0F);
         }
 
         requiresUpdate |= cachedFlying != player.getAbilities().flying;

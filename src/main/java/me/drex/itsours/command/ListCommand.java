@@ -1,10 +1,10 @@
 package me.drex.itsours.command;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.list.ClaimList;
 import net.minecraft.command.argument.GameProfileArgumentType;
+import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.Collection;
@@ -30,13 +30,13 @@ public class ListCommand extends AbstractCommand {
                 argument("target", GameProfileArgumentType.gameProfile())
                     .executes(ctx -> executeList(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "target")))
             )
-            .executes(ctx -> executeList(ctx.getSource(), Collections.singleton(ctx.getSource().getPlayerOrThrow().getGameProfile())));
+            .executes(ctx -> executeList(ctx.getSource(), Collections.singleton(ctx.getSource().getPlayerOrThrow().getPlayerConfigEntry())));
     }
 
-    private int executeList(ServerCommandSource src, Collection<GameProfile> targets) {
+    private int executeList(ServerCommandSource src, Collection<PlayerConfigEntry> targets) {
         int i = 0;
-        for (GameProfile target : targets) {
-            List<Claim> claims = ClaimList.getClaimsFrom(target.getId());
+        for (PlayerConfigEntry target : targets) {
+            List<Claim> claims = ClaimList.getClaimsFrom(target.id());
             i += claims.size();
             if (claims.isEmpty()) {
                 src.sendFeedback(() -> localized("text.itsours.commands.list.empty", gameProfile("target_", target)), false);

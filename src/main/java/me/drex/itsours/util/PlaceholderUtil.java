@@ -2,6 +2,7 @@ package me.drex.itsours.util;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
@@ -18,13 +19,13 @@ import static net.minecraft.text.Text.literal;
 public class PlaceholderUtil {
 
     public static Map<String, Text> uuid(String prefix, UUID uuid, MinecraftServer server) {
-        return gameProfile(prefix, server.getUserCache().getByUuid(uuid).orElse(new GameProfile(uuid, uuid.toString())));
+        return gameProfile(prefix, server.getApiServices().nameToIdCache().getByUuid(uuid).orElse(new PlayerConfigEntry(uuid, uuid.toString())));
     }
 
-    public static Map<String, Text> gameProfile(String prefix, GameProfile profile) {
+    public static Map<String, Text> gameProfile(String prefix, PlayerConfigEntry profile) {
         return Map.of(
-            prefix + "name", literal(Objects.requireNonNullElse(profile.getName(), profile.getId().toString())),
-            prefix + "uuid", literal(ofNullable(profile.getId()).map(UUID::toString).orElse(profile.getName()))
+            prefix + "name", literal(profile.name()),
+            prefix + "uuid", literal(profile.id().toString())
         );
     }
 

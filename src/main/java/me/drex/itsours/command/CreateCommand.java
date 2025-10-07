@@ -77,7 +77,7 @@ public class CreateCommand extends AbstractCommand {
         UUID uuid = player.getUuid();
         if (AbstractClaim.isNameInvalid(claimName)) throw ClaimArgument.INVALID_NAME;
         Optional<AbstractClaim> optional = ClaimList.getClaims().stream().filter((claim) ->
-            claim.getDimension().equals(player.getWorld().getRegistryKey()) &&
+            claim.getDimension().equals(player.getEntityWorld().getRegistryKey()) &&
                 claimBox.intersects(claim.getBox())
         ).max(Comparator.comparingInt(AbstractClaim::getDepth));
         if (optional.isPresent()) {
@@ -128,7 +128,7 @@ public class CreateCommand extends AbstractCommand {
             if (subzone.getName().equals(claimName)) throw ClaimArgument.NAME_TAKEN;
         }
         validateAction(src, parent, Flags.MODIFY, Modify.SUBZONE.node());
-        Subzone subzone = new Subzone(claimName, claimBox, player.getWorld(), parent);
+        Subzone subzone = new Subzone(claimName, claimBox, player.getEntityWorld(), parent);
         ClaimList.addClaim(subzone);
         subzone.notifyTrackingChanges(src.getServer(), true);
         ((ClaimSelectingPlayer) player).resetSelection();

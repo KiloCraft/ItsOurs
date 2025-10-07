@@ -1,6 +1,5 @@
 package me.drex.itsours.command;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
@@ -10,6 +9,7 @@ import me.drex.itsours.claim.groups.ClaimGroupManager;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.util.PlaceholderUtil;
 import net.minecraft.command.argument.GameProfileArgumentType;
+import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.server.command.ServerCommandSource;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,13 +41,13 @@ public class TrustCommand extends AbstractCommand {
         );
     }
 
-    public int executeTrust(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets) throws CommandSyntaxException {
+    public int executeTrust(ServerCommandSource src, AbstractClaim claim, Collection<PlayerConfigEntry> targets) throws CommandSyntaxException {
         validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
         int result = 0;
         if (trust) {
-            for (GameProfile target : targets) {
-                if (groupManager.trusted.players().add(target.getId())) {
+            for (PlayerConfigEntry target : targets) {
+                if (groupManager.trusted.players().add(target.id())) {
                     src.sendFeedback(() -> localized("text.itsours.commands.trust", PlaceholderUtil.mergePlaceholderMaps(
                         PlaceholderUtil.gameProfile("target_", target),
                         claim.placeholders(src.getServer())
@@ -61,8 +61,8 @@ public class TrustCommand extends AbstractCommand {
                 }
             }
         } else {
-            for (GameProfile target : targets) {
-                if (groupManager.trusted.players().remove(target.getId())) {
+            for (PlayerConfigEntry target : targets) {
+                if (groupManager.trusted.players().remove(target.id())) {
                     src.sendFeedback(() -> localized("text.itsours.commands.distrust", PlaceholderUtil.mergePlaceholderMaps(
                         PlaceholderUtil.gameProfile("target_", target),
                         claim.placeholders(src.getServer())

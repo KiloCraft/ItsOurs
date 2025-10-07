@@ -1,6 +1,5 @@
 package me.drex.itsours.command;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.claim.AbstractClaim;
@@ -16,6 +15,7 @@ import me.drex.itsours.command.argument.FlagArgument;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.gui.players.AdvancedPlayerManagerGui;
 import net.minecraft.command.argument.GameProfileArgumentType;
+import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
@@ -61,11 +61,11 @@ public class PlayerFlagsCommand extends AbstractCommand {
         );
     }
 
-    public int executeSet(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Flag flag, Value value) throws CommandSyntaxException {
+    public int executeSet(ServerCommandSource src, AbstractClaim claim, Collection<PlayerConfigEntry> targets, Flag flag, Value value) throws CommandSyntaxException {
         validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         flag.validateContext(new Node.ChangeContext(claim, PlayerContext.INSTANCE, value, src));
-        for (GameProfile target : targets) {
-            claim.getPlayerFlags().computeIfAbsent(target.getId(), (ignored) -> new FlagData()).set(flag, value);
+        for (PlayerConfigEntry target : targets) {
+            claim.getPlayerFlags().computeIfAbsent(target.id(), (ignored) -> new FlagData()).set(flag, value);
             src.sendFeedback(() -> localized("text.itsours.commands.playerflags.set", mergePlaceholderMaps(
                     Map.of(
                         "flag", Text.literal(flag.asString()),
@@ -79,10 +79,10 @@ public class PlayerFlagsCommand extends AbstractCommand {
         return 1;
     }
 
-    private int executeCheck(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets, Flag flag) throws CommandSyntaxException {
+    private int executeCheck(ServerCommandSource src, AbstractClaim claim, Collection<PlayerConfigEntry> targets, Flag flag) throws CommandSyntaxException {
         validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
-        for (GameProfile target : targets) {
-            Value value = claim.getPlayerFlags().getOrDefault(target.getId(), new FlagData()).get(flag);
+        for (PlayerConfigEntry target : targets) {
+            Value value = claim.getPlayerFlags().getOrDefault(target.id(), new FlagData()).get(flag);
             src.sendFeedback(() -> localized("text.itsours.commands.playerflags.check", mergePlaceholderMaps(
                     Map.of(
                         "flag", Text.literal(flag.asString()),

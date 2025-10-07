@@ -44,6 +44,7 @@ public class SimplePlayerManagerGui extends PageGui<UUID> {
         boolean moderator = groupManager.moderator.players().contains(uuid);
         if (moderator) {
             return guiElement(Items.PLAYER_HEAD, "playermanager.simple.entry.moderator", PlaceholderUtil.uuid("player_", uuid, context.server()))
+                .setProfile(uuid)
                 .setCallback(clickType -> {
                     if (!claim.checkAction(player.getUuid(), Flags.MODIFY, Modify.FLAG.node())) {
                         fail();
@@ -59,6 +60,7 @@ public class SimplePlayerManagerGui extends PageGui<UUID> {
                 });
         } else {
             return guiElement(Items.PLAYER_HEAD, "playermanager.simple.entry.trusted", PlaceholderUtil.uuid("player_", uuid, context.server()))
+                .setProfile(uuid)
                 .setCallback(clickType -> {
                     if (!claim.checkAction(player.getUuid(), Flags.MODIFY, Modify.FLAG.node())) {
                         fail();
@@ -94,12 +96,12 @@ public class SimplePlayerManagerGui extends PageGui<UUID> {
                 .setSkullOwner(GuiTextures.GUI_ADD)
                 .setCallback(() -> {
                     switchUi(new PlayerSelectorGui(context, playerName -> {
-                        context.server().getUserCache().findByNameAsync(playerName).thenAcceptAsync(optionalGameProfile -> {
-                            optionalGameProfile.ifPresentOrElse(gameProfile -> {
-                                claim.getGroupManager().trusted.players().add(gameProfile.getId());
-                                click();
-                                build();
-                            }, this::fail);
+                        CompletableFuture.runAsync(() -> {
+                            context.server().getApiServices().profileRepository().findProfileByName(playerName).ifPresentOrElse(gameProfile -> {
+                                    claim.getGroupManager().trusted.players().add(gameProfile.id());
+                                    click();
+                                    build();
+                                }, this::fail);
                         }, context.server());
                     }));
                 });

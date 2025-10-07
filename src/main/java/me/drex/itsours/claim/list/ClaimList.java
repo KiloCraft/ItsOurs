@@ -61,7 +61,7 @@ public class ClaimList {
     }
 
     public static Optional<AbstractClaim> getClaimAt(Entity entity) {
-        return getClaimAt(entity.getWorld(), entity.getBlockPos());
+        return getClaimAt(entity.getEntityWorld(), entity.getBlockPos());
     }
 
     public static Optional<AbstractClaim> getClaimAt(ItemUsageContext context) {

@@ -53,8 +53,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     @Shadow
     public abstract ChunkFilter getChunkFilter();
 
-    @Shadow
-    public abstract ServerWorld getWorld();
+    @Shadow public abstract ServerWorld getEntityWorld();
 
     private final Long2ObjectMap<Set<BlockPos>> chunk2TrackedShowBlocks = new Long2ObjectArrayMap<>();
 
@@ -76,7 +75,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     }
 
     private void showChunk(ChunkPos chunkPos) {
-        List<AbstractClaim> claims = ClaimList.getIntersectingClaims(getWorld(), new ClaimBox(chunkPos.getStartX(), -Integer.MAX_VALUE, chunkPos.getStartZ(), chunkPos.getEndX(), Integer.MAX_VALUE, chunkPos.getEndZ()));
+        List<AbstractClaim> claims = ClaimList.getIntersectingClaims(getEntityWorld(), new ClaimBox(chunkPos.getStartX(), -Integer.MAX_VALUE, chunkPos.getStartZ(), chunkPos.getEndX(), Integer.MAX_VALUE, chunkPos.getEndZ()));
         trackedClaims.addAll(claims);
         for (AbstractClaim claim : claims) {
             showChunk(claim, chunkPos);
@@ -145,7 +144,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
 
     private void unTrackClaims0() {
         for (BlockPos blockPos : trackedShowBlocks) {
-            packets.add(new BlockUpdateS2CPacket(getWorld(), blockPos));
+            packets.add(new BlockUpdateS2CPacket(getEntityWorld(), blockPos));
         }
         chunk2TrackedShowBlocks.clear();
         trackedShowBlocks.clear();
@@ -181,7 +180,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     }
 
     private void sendFakeBlock(int x, int z, BlockState state) {
-        World world = getWorld();
+        World world = getEntityWorld();
         int y = world.getTopY(OCEAN_FLOOR, x, z);
         int playerY = (int) getY();
         BlockPos.Mutable pos = new BlockPos.Mutable(x, y - 1, z);

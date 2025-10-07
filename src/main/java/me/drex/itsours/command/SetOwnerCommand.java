@@ -1,6 +1,5 @@
 package me.drex.itsours.command;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOurs;
@@ -9,6 +8,7 @@ import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.util.PlaceholderUtil;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.GameProfileArgumentType;
+import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.Collection;
@@ -34,11 +34,11 @@ public class SetOwnerCommand extends AbstractCommand {
         ).requires(src -> ItsOurs.checkPermission(src, "itsours.setowner", 2));
     }
 
-    private int execute(ServerCommandSource src, AbstractClaim claim, Collection<GameProfile> targets) throws CommandSyntaxException {
+    private int execute(ServerCommandSource src, AbstractClaim claim, Collection<PlayerConfigEntry> targets) throws CommandSyntaxException {
         if (targets.isEmpty()) throw EntityArgumentType.PLAYER_NOT_FOUND_EXCEPTION.create();
         if (targets.size() > 1) throw EntityArgumentType.TOO_MANY_PLAYERS_EXCEPTION.create();
-        GameProfile profile = targets.iterator().next();
-        claim.getMainClaim().setOwner(profile.getId());
+        PlayerConfigEntry profile = targets.iterator().next();
+        claim.getMainClaim().setOwner(profile.id());
         src.sendFeedback(() -> localized("text.itsours.commands.setowner", PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(src.getServer()),
             PlaceholderUtil.gameProfile("target_", profile)

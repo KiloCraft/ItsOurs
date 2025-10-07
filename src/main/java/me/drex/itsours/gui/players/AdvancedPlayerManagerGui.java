@@ -19,6 +19,7 @@ import me.drex.itsours.gui.util.PlayerSelectorGui;
 import me.drex.itsours.util.PlaceholderUtil;
 import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 
@@ -50,8 +51,8 @@ public class AdvancedPlayerManagerGui extends PageGui<UUID> {
             elements.addAll(group.players());
         });
         return elements.stream().sorted((uuid1, uuid2) ->
-                context.server().getUserCache().getByUuid(uuid1).map(GameProfile::getName).orElse(uuid1.toString())
-                    .compareTo(context.server().getUserCache().getByUuid(uuid2).map(GameProfile::getName).orElse(uuid2.toString())))
+                context.server().getApiServices().nameToIdCache().getByUuid(uuid1).map(PlayerConfigEntry::name).orElse(uuid1.toString())
+                    .compareTo(context.server().getApiServices().nameToIdCache().getByUuid(uuid2).map(PlayerConfigEntry::name).orElse(uuid2.toString())))
             .toList();
     }
 
@@ -121,8 +122,8 @@ public class AdvancedPlayerManagerGui extends PageGui<UUID> {
 
     private void addPlayer(String name) {
         CompletableFuture.runAsync(() -> {
-            context.server().getUserCache().findByName(name).ifPresentOrElse(gameProfile -> {
-                claim.getPlayerFlags().putIfAbsent(gameProfile.getId(), new FlagData());
+            context.server().getApiServices().profileRepository().findProfileByName(name).ifPresentOrElse(gameProfile -> {
+                claim.getPlayerFlags().putIfAbsent(gameProfile.id(), new FlagData());
                 build();
             }, this::fail);
         }, context.server());
@@ -130,9 +131,9 @@ public class AdvancedPlayerManagerGui extends PageGui<UUID> {
 
     private void trustPlayer(String name) {
         CompletableFuture.runAsync(() -> {
-            context.server().getUserCache().findByName(name).ifPresentOrElse(gameProfile -> {
+            context.server().getApiServices().profileRepository().findProfileByName(name).ifPresentOrElse(gameProfile -> {
                 try {
-                    TrustCommand.TRUST.executeTrust(context.player.getCommandSource(), claim, Collections.singleton(gameProfile));
+                    TrustCommand.TRUST.executeTrust(context.player.getCommandSource(), claim, Collections.singleton(new PlayerConfigEntry(gameProfile)));
                     build();
                 } catch (CommandSyntaxException ignored) {
                     fail();

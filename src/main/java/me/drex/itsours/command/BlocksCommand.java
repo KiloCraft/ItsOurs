@@ -9,6 +9,7 @@ import eu.pb4.placeholders.api.PlaceholderContext;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.data.DataManager;
 import net.minecraft.command.argument.GameProfileArgumentType;
+import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -34,7 +35,7 @@ public class BlocksCommand extends AbstractCommand {
         super("blocks");
     }
 
-    private static Map<String, Text> placeholders(long blocks, GameProfile target) {
+    private static Map<String, Text> placeholders(long blocks, PlayerConfigEntry target) {
         return mergePlaceholderMaps(
             Map.of("blocks", Text.literal(String.valueOf(blocks))),
             gameProfile("target_", target)
@@ -81,33 +82,33 @@ public class BlocksCommand extends AbstractCommand {
                     )
                 ).requires(src -> ItsOurs.checkPermission(src, "itsours.blocks.give", 2))
             )
-            .executes(ctx -> checkBlocks(ctx.getSource(), Collections.singleton(ctx.getSource().getPlayer().getGameProfile())));
+            .executes(ctx -> checkBlocks(ctx.getSource(), Collections.singleton(ctx.getSource().getPlayerOrThrow().getPlayerConfigEntry())));
     }
 
-    private int checkBlocks(ServerCommandSource src, Collection<GameProfile> targets) {
+    private int checkBlocks(ServerCommandSource src, Collection<PlayerConfigEntry> targets) {
         long result = 0;
-        for (GameProfile target : targets) {
-            long blocks = DataManager.getUserData(target.getId()).blocks();
+        for (PlayerConfigEntry target : targets) {
+            long blocks = DataManager.getUserData(target.id()).blocks();
             result += blocks;
             src.sendFeedback(() -> localized("text.itsours.commands.blocks", placeholders(blocks, target)), false);
         }
         return (int) result;
     }
 
-    private int addBlocks(ServerCommandSource src, Collection<GameProfile> targets, long amount) throws CommandSyntaxException {
+    private int addBlocks(ServerCommandSource src, Collection<PlayerConfigEntry> targets, long amount) throws CommandSyntaxException {
 
         try {
             long[] newAmounts = new long[targets.size()];
             int i = 0;
-            for (GameProfile target : targets) {
-                long blocks = DataManager.getUserData(target.getId()).blocks();
+            for (PlayerConfigEntry target : targets) {
+                long blocks = DataManager.getUserData(target.id()).blocks();
                 newAmounts[i] = Math.max(0, Math.addExact(blocks, amount));
                 i++;
             }
 
             i = 0;
-            for (GameProfile target : targets) {
-                DataManager.updateUserData(target.getId()).setBlocks(newAmounts[i]);
+            for (PlayerConfigEntry target : targets) {
+                DataManager.updateUserData(target.id()).setBlocks(newAmounts[i]);
                 if (amount >= 0) {
                     src.sendFeedback(() -> localized("text.itsours.commands.blocks.add", placeholders(amount, target)), false);
                 } else {
@@ -122,7 +123,7 @@ public class BlocksCommand extends AbstractCommand {
         }
     }
 
-    private int giveBlocks(ServerCommandSource src, Collection<GameProfile> targets, long amount) throws CommandSyntaxException {
+    private int giveBlocks(ServerCommandSource src, Collection<PlayerConfigEntry> targets, long amount) throws CommandSyntaxException {
         try {
             long requiredAmount = Math.multiplyExact(amount, targets.size());
             long donatorBlocks = DataManager.getUserData(src.getPlayerOrThrow().getUuid()).blocks();
@@ -132,8 +133,8 @@ public class BlocksCommand extends AbstractCommand {
             }
             long[] newAmounts = new long[targets.size()];
             int i = 0;
-            for (GameProfile target : targets) {
-                long receiverBlocks = DataManager.getUserData(target.getId()).blocks();
+            for (PlayerConfigEntry target : targets) {
+                long receiverBlocks = DataManager.getUserData(target.id()).blocks();
                 newAmounts[i] = Math.addExact(receiverBlocks, amount);
                 i++;
             }
@@ -141,10 +142,10 @@ public class BlocksCommand extends AbstractCommand {
             DataManager.updateUserData(src.getPlayer().getUuid()).setBlocks(donatorBlocks - requiredAmount);
 
             i = 0;
-            for (GameProfile target : targets) {
-                DataManager.updateUserData(target.getId()).setBlocks(newAmounts[i]);
+            for (PlayerConfigEntry target : targets) {
+                DataManager.updateUserData(target.id()).setBlocks(newAmounts[i]);
                 src.sendFeedback(() -> localized("text.itsours.commands.blocks.give", placeholders(amount, target)), false);
-                ServerPlayerEntity player = src.getServer().getPlayerManager().getPlayer(target.getId());
+                ServerPlayerEntity player = src.getServer().getPlayerManager().getPlayer(target.id());
                 if (player != null)
                     player.sendMessage(localized("text.itsours.commands.blocks.give.received", Map.of("blocks", Text.literal(String.valueOf(amount))), PlaceholderContext.of(src)), false);
                 i++;
@@ -155,11 +156,11 @@ public class BlocksCommand extends AbstractCommand {
         }
     }
 
-    private int setBlocks(ServerCommandSource src, Collection<GameProfile> targets, long amount) {
+    private int setBlocks(ServerCommandSource src, Collection<PlayerConfigEntry> targets, long amount) {
         int i = 0;
-        for (GameProfile target : targets) {
+        for (PlayerConfigEntry target : targets) {
             long newAmount = Math.max(amount, 0);
-            DataManager.updateUserData(target.getId()).setBlocks(newAmount);
+            DataManager.updateUserData(target.id()).setBlocks(newAmount);
             src.sendFeedback(() -> localized("text.itsours.commands.blocks.set", placeholders(amount, target)), false);
             i++;
         }

@@ -15,6 +15,6 @@ public class GuiContext {
     }
 
     public MinecraftServer server() {
-        return player.getServer();
+        return player.getEntityWorld().getServer();
     }
 }

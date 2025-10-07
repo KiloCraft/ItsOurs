@@ -1,6 +1,5 @@
 package me.drex.itsours.command;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.ItsOurs;
@@ -12,6 +11,7 @@ import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.gui.claims.PlayerClaimListGui;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.GameProfileArgumentType;
+import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.Collection;
@@ -48,13 +48,13 @@ public class GuiCommand extends AbstractCommand {
                         return 1;
                     })
             )
-            .executes(ctx -> executeOpenGui(ctx.getSource(), List.of(ctx.getSource().getPlayerOrThrow().getGameProfile())));
+            .executes(ctx -> executeOpenGui(ctx.getSource(), List.of(ctx.getSource().getPlayerOrThrow().getPlayerConfigEntry())));
     }
 
-    private int executeOpenGui(ServerCommandSource src, Collection<GameProfile> targets) throws CommandSyntaxException {
+    private int executeOpenGui(ServerCommandSource src, Collection<PlayerConfigEntry> targets) throws CommandSyntaxException {
         if (targets.isEmpty()) throw EntityArgumentType.PLAYER_NOT_FOUND_EXCEPTION.create();
         if (targets.size() > 1) throw EntityArgumentType.TOO_MANY_PLAYERS_EXCEPTION.create();
-        PlayerClaimListGui gui = new PlayerClaimListGui(new GuiContext(src.getPlayerOrThrow()), targets.iterator().next().getId(), advanced);
+        PlayerClaimListGui gui = new PlayerClaimListGui(new GuiContext(src.getPlayerOrThrow()), targets.iterator().next().id(), advanced);
         gui.open();
         return 1;
     }
