@@ -56,10 +56,10 @@ public abstract class EntityMixin {
         method = "method_67632",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/EntityCollisionHandler;)V"
+            target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/EntityCollisionHandler;Z)V"
         )
     )
-    private boolean itsours$onBlockCollision(BlockState blockState, World world, BlockPos pos, Entity entity, EntityCollisionHandler entityCollisionHandler) {
+    private boolean itsours$onBlockCollision(BlockState blockState, World world, BlockPos pos, Entity entity, EntityCollisionHandler entityCollisionHandler, boolean b) {
         ServerPlayerEntity playerEntity = null;
         if (entity instanceof ProjectileEntity projectileEntity && (blockState.getBlock() instanceof ButtonBlock || blockState.getBlock() instanceof AbstractPressurePlateBlock)) {
             if (projectileEntity.getOwner() != null && projectileEntity.getOwner() instanceof ServerPlayerEntity) {
