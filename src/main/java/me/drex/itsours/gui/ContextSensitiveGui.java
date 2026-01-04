@@ -43,11 +43,11 @@ public interface ContextSensitiveGui extends GuiInterface {
     }
 
     default void fail() {
-        context().player.playSoundToPlayer(Registries.SOUND_EVENT.getEntry(SoundEvents.ENTITY_VILLAGER_NO).value(), SoundCategory.MASTER, 0.5f, 1f);
+        context().player.playSound(Registries.SOUND_EVENT.getEntry(SoundEvents.ENTITY_VILLAGER_NO).value(), 0.5f, 1f);
     }
 
     default void click() {
-        context().player.playSoundToPlayer(SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 0.5f, 1f);
+        context().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1f);
     }
 
 }

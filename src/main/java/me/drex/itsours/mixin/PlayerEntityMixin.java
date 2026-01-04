@@ -38,7 +38,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     public abstract void sendMessage(Text message, boolean actionBar);
 
     @ModifyExpressionValue(
-        method = "attack",
+        method = "cannotAttack",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/entity/Entity;isAttackable()Z"
@@ -61,7 +61,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     @ModifyExpressionValue(
-        method = "attack",
+        method = "doSweepingAttack",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/entity/player/PlayerEntity;squaredDistanceTo(Lnet/minecraft/entity/Entity;)D"

@@ -8,6 +8,7 @@ public class ItsOursMod implements DedicatedServerModInitializer {
      */
     @Override
     public void onInitializeServer() {
+//        MixinEnvironment.getCurrentEnvironment().audit();
         ItsOurs.INSTANCE.registerEvents();
     }
 }
