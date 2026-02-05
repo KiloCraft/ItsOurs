@@ -79,7 +79,7 @@ public abstract class AbstractClaim {
             if (blockPos.getY() < 1) {
                 return pos;
             }
-        } while (!world.getBlockState(blockPos).isFullCube(world, pos));
+        } while (world.getBlockState(blockPos).getCollisionShape(world, pos).isEmpty());
 
         return blockPos.up();
     }
