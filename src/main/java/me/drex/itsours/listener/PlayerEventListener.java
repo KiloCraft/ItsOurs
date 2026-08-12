@@ -33,6 +33,7 @@ import net.minecraft.world.level.Level;
 import java.util.Optional;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.sendMessage;
 
 public class PlayerEventListener {
 
@@ -51,7 +52,7 @@ public class PlayerEventListener {
         ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
         final BlockPos pos = hitResult.getBlockPos();
         if (shouldSelect(player, hand)) {
-            player.displayClientMessage(localized("text.itsours.select.pos2", PlaceholderUtil.vec3i("pos_", pos), player), false);
+            sendMessage(player, localized("text.itsours.select.pos2", PlaceholderUtil.vec3i("pos_", pos), player), false);
             claimSelectingPlayer.setSecondPosition(pos);
             onSelectCorner(player);
             return InteractionResult.SUCCESS;
@@ -65,12 +66,12 @@ public class PlayerEventListener {
         if (claim.isPresent()) {
             BlockState state = world.getBlockState(pos);
             if (!claim.get().checkAction(player.getUUID(), Flags.MINE, Node.registry(BuiltInRegistries.BLOCK, state.getBlock()))) {
-                player.displayClientMessage(localized("text.itsours.action.disallowed.break_block", player), true);
+                sendMessage(player, localized("text.itsours.action.disallowed.break_block", player), true);
                 return InteractionResult.FAIL;
             }
         }
         if (shouldSelect(player, hand)) {
-            player.displayClientMessage(localized("text.itsours.select.pos1", PlaceholderUtil.vec3i("pos_", pos), player), false);
+            sendMessage(player, localized("text.itsours.select.pos1", PlaceholderUtil.vec3i("pos_", pos), player), false);
             claimSelectingPlayer.setFirstPosition(pos);
             onSelectCorner(player);
             return InteractionResult.SUCCESS;
@@ -84,7 +85,7 @@ public class PlayerEventListener {
         if (claim.isEmpty() || !FlagBuilderUtil.USE_ITEM_PREDICATE.test(stack.getItem()))
             return InteractionResult.PASS;
         if (!claim.get().checkAction(player.getUUID(), Flags.USE_ITEM, Node.registry(BuiltInRegistries.ITEM, stack.getItem()))) {
-            player.displayClientMessage(localized("text.itsours.action.disallowed.interact_item", player), true);
+            sendMessage(player, localized("text.itsours.action.disallowed.interact_item", player), true);
             return InteractionResult.FAIL;
         }
         return InteractionResult.PASS;
@@ -106,9 +107,9 @@ public class PlayerEventListener {
             claimSelectingPlayer.setClaim(claim);
 
             if (ClaimList.getClaimsFrom(player.getUUID()).isEmpty()) {
-                player.displayClientMessage(localized("text.itsours.select.done.first", player), false);
+                sendMessage(player, localized("text.itsours.select.done.first", player), false);
             } else {
-                player.displayClientMessage(localized("text.itsours.select.done", player), false);
+                sendMessage(player, localized("text.itsours.select.done", player), false);
             }
         }
     }

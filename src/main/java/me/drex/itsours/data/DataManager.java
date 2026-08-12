@@ -64,6 +64,7 @@ public class DataManager {
 
     public static final Set<String> unknownFlags = new HashSet<>();
     private static boolean loadingFailed = false;
+    private static boolean initialized = false;
 
     public static void init(List<Claim> claims, FlagData defaultFlags, Map<UUID, PlayerData> players) {
         ClaimList.load(claims);
@@ -80,7 +81,7 @@ public class DataManager {
     }
 
     public static void load(MinecraftServer server) {
-        Path data = server.getWorldPath(LevelResource.ROOT).resolve("claims.dat");
+        Path data = server.getWorldPath(LevelResource.DATA).resolve("itsours").resolve("claims.dat");
         if (Files.notExists(data)) {
             LOGGER.debug("Claim data file not found.");
         } else {
@@ -91,6 +92,7 @@ public class DataManager {
                 dynamic.remove("dataVersion");
                 dynamic = FIXER.update(ItsOursTypeReferences.ROOT, dynamic, dataVersion, CURRENT_DATA_VERSION);
                 Tag element = dynamic.getValue();
+                initialized = true;
                 DataResult<?> dataResult = CODEC.parse(NbtOps.INSTANCE, element);
                 dataResult.getOrThrow(error -> new IllegalStateException("Failed to parse claim data: '" + error + "'"));
                 if (unknownFlags.isEmpty()) {
@@ -109,24 +111,26 @@ public class DataManager {
     }
 
     public static void save(MinecraftServer server) {
-        if (loadingFailed) return;
+        if (loadingFailed || !initialized) return;
         DataResult<Tag> dataResult = CODEC.encodeStart(NbtOps.INSTANCE, null);
         Tag nbtElement = dataResult.resultOrPartial(error -> LOGGER.error("Failed to encode claim data: '{}'", error)).orElseThrow();
-        Path data = server.getWorldPath(LevelResource.ROOT).resolve("claims.dat");
-        Path backup = server.getWorldPath(LevelResource.ROOT).resolve("claims.dat_old");
+        Path basePath = server.getWorldPath(LevelResource.DATA).resolve("itsours");
+        Path data = basePath.resolve("claims.dat");
+        Path backup = basePath.resolve("claims.dat_old");
         if (!(nbtElement instanceof CompoundTag root)) {
             return;
         }
         root.putInt("dataVersion", CURRENT_DATA_VERSION);
         if (Files.exists(data)) {
             try {
-                LOGGER.debug("Creating backup of: " + data + " (" + Files.size(data) / 1024 + "kb)");
+                LOGGER.debug("Creating backup of: {} ({}kb)", data, Files.size(data) / 1024);
                 Files.move(data, backup, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 LOGGER.error("Failed to create backup of {} at {}", data, backup, e);
             }
         }
         try {
+            Files.createDirectories(basePath);
             NbtIo.writeCompressed(root, Files.newOutputStream(data));
         } catch (IOException e) {
             LOGGER.error("Failed to save claim data {}", data, e);

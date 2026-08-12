@@ -64,7 +64,7 @@ public class GroupManagerGui extends PageGui<String> {
             return new GuiElementBuilder(Items.PLAYER_HEAD)
                 .setName(message("text.itsours.gui.groupmanager.add"))
                 .hideDefaultTooltip()
-                .setSkullOwner(GuiTextures.GUI_ADD)
+                .setProfile(GuiTextures.GUI_ADD)
                 .setCallback(() -> {
                     switchUi(new ValidStringInputGui(context, "", input -> claim.getGroupManager().getGroup(input) == null, this::addGroup) {
                     });

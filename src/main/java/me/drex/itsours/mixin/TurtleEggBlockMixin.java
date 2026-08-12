@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import java.util.Optional;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.sendMessage;
 
 @Mixin(TurtleEggBlock.class)
 public abstract class TurtleEggBlockMixin {
@@ -31,7 +32,7 @@ public abstract class TurtleEggBlockMixin {
     public boolean itsours$canPlayerBreakEgg(boolean original, Level world, BlockState state, BlockPos pos, Entity entity) {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, pos);
         if (claim.isPresent() && entity instanceof Player player && !claim.get().checkAction(entity.getUUID(), Flags.MINE, Node.registry(BuiltInRegistries.BLOCK, (TurtleEggBlock) (Object) this))) {
-            player.displayClientMessage(localized("text.itsours.action.disallowed.break_block", player), true);
+            sendMessage(player, localized("text.itsours.action.disallowed.break_block", player), true);
             return false;
         }
         return original;

@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.sendMessage;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin {
@@ -58,7 +59,7 @@ public abstract class EntityMixin {
     }
 
     @WrapWithCondition(
-        method = "method_67632",
+        method = "lambda$checkInsideBlocks$0",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/level/block/state/BlockState;entityInside(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/InsideBlockEffectApplier;Z)V"
@@ -85,7 +86,7 @@ public abstract class EntityMixin {
             return true;
         }
         if (!claim.get().checkAction(playerEntity.getUUID(), Flags.INTERACT_BLOCK, Node.registry(BuiltInRegistries.BLOCK, blockState.getBlock()))) {
-            playerEntity.displayClientMessage(localized("text.itsours.action.disallowed.interact_block", playerEntity), true);
+            sendMessage(playerEntity, localized("text.itsours.action.disallowed.interact_block", playerEntity), true);
             return false;
         }
         return true;
@@ -118,14 +119,14 @@ public abstract class EntityMixin {
             if (cause == this$entity) return;
             if (!claim.get().checkAction(null, Flags.PVP) && this$entity instanceof Player) {
                 if (cause instanceof Player player) {
-                    player.displayClientMessage(localized("text.itsours.action.disallowed.damage_player", player), true);
+                    sendMessage(player, localized("text.itsours.action.disallowed.damage_player", player), true);
                 }
                 cir.setReturnValue(true);
                 return;
             }
             if (!claim.get().checkAction(cause.getUUID(), Flags.DAMAGE_ENTITY, Node.registry(BuiltInRegistries.ENTITY_TYPE, this.getType())) && !(this$entity instanceof Player)) {
                 if (cause instanceof Player player) {
-                    player.displayClientMessage(localized("text.itsours.action.disallowed.damage_entity", player), true);
+                    sendMessage(player, localized("text.itsours.action.disallowed.damage_entity", player), true);
                 }
                 cir.setReturnValue(true);
             }

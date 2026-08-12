@@ -28,7 +28,7 @@ public class ValidStringInputGui extends StringInputGui {
         String input = getInput();
         boolean validNewName = isValid.test(input);
         setSlot(2,
-            new GuiElementBuilder(validNewName ? Items.GREEN_STAINED_GLASS_PANE : Items.RED_STAINED_GLASS_PANE)
+            new GuiElementBuilder(validNewName ? Items.STAINED_GLASS_PANE.green() : Items.STAINED_GLASS_PANE.red())
                 .setName(Component.literal(input).withStyle(validNewName ? ChatFormatting.GREEN : ChatFormatting.RED))
                 .setCallback(() -> {
                     if (validNewName) {

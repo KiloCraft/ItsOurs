@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Optional;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.sendMessage;
 
 @Mixin(ScaffoldingBlock.class)
 public abstract class ScaffoldingBlockMixin {
@@ -25,7 +26,7 @@ public abstract class ScaffoldingBlockMixin {
         if (ctx.getPlayer() == null) return;
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(ctx.getLevel(), ctx.getClickedPos());
         if (claim.isPresent() && !claim.get().checkAction(ctx.getPlayer().getUUID(), Flags.PLACE, Node.registry(BuiltInRegistries.BLOCK, (ScaffoldingBlock) (Object) this))) {
-            ctx.getPlayer().displayClientMessage(localized("text.itsours.action.disallowed.place_block", ctx.getPlayer()), true);
+            sendMessage(ctx.getPlayer(), localized("text.itsours.action.disallowed.place_block", ctx.getPlayer()), true);
             cir.setReturnValue(null);
         }
     }

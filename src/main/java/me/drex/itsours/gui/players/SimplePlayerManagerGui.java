@@ -83,7 +83,7 @@ public class SimplePlayerManagerGui extends PageGui<UUID> {
     @Override
     public CompletableFuture<GuiElementBuilder> guiElementFuture(UUID uuid) {
         return CompletableFuture.supplyAsync(() -> guiElement(uuid)
-            .setSkullOwner(new GameProfile(uuid, uuid.toString()), context.server()), Util.backgroundExecutor());
+            .setProfile(new GameProfile(uuid, uuid.toString())), Util.backgroundExecutor());
     }
 
     @Override
@@ -92,7 +92,7 @@ public class SimplePlayerManagerGui extends PageGui<UUID> {
             return new GuiElementBuilder(Items.PLAYER_HEAD)
                 .setName(message("text.itsours.gui.playermanager.simple.trust"))
                 .hideDefaultTooltip()
-                .setSkullOwner(GuiTextures.GUI_ADD)
+                .setProfile(GuiTextures.GUI_ADD)
                 .setCallback(() -> {
                     switchUi(new PlayerSelectorGui(context, playerName -> {
                         CompletableFuture.runAsync(() -> {

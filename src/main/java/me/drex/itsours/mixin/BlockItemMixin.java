@@ -25,6 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Optional;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.sendMessage;
 
 @Mixin(BlockItem.class)
 public abstract class BlockItemMixin extends Item {
@@ -48,7 +49,7 @@ public abstract class BlockItemMixin extends Item {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(context);
         if (claim.isEmpty()) return original;
         if (!claim.get().checkAction(context.getPlayer().getUUID(), Flags.PLACE, Node.registry(BuiltInRegistries.BLOCK, this.getBlock()))) {
-            context.getPlayer().displayClientMessage(localized("text.itsours.action.disallowed.place_block", context.getPlayer()), true);
+            sendMessage(context.getPlayer(), localized("text.itsours.action.disallowed.place_block", context.getPlayer()), true);
             return false;
         }
         return original;
@@ -72,7 +73,7 @@ public abstract class BlockItemMixin extends Item {
             Player player = context.getPlayer();
             ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
             if (claimSelectingPlayer != null && ClaimList.getClaimsFrom(player.getUUID()).isEmpty()) {
-                player.displayClientMessage(localized("text.itsours.info.notProtected", player), true);
+                sendMessage(player, localized("text.itsours.info.notProtected", player), true);
                 claimSelectingPlayer.setFirstPosition(new BlockPos(blockPos.getX() + 3, blockPos.getY(), blockPos.getZ() + 3));
                 claimSelectingPlayer.setSecondPosition(new BlockPos(blockPos.getX() - 3, blockPos.getY(), blockPos.getZ() - 3));
             }

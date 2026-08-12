@@ -26,7 +26,8 @@
     "itsours.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.9.0",
+    "fabricloader": ">=0.19.3",
+    "java": ">=25",
     "fabric-api-base": "*",
     "fabric-lifecycle-events-v1": "*"
   }

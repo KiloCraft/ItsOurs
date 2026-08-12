@@ -1,6 +1,5 @@
 package me.drex.itsours.claim.util;
 
-import com.mojang.authlib.GameProfile;
 import eu.pb4.common.protection.api.ProtectionProvider;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
@@ -10,6 +9,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
@@ -55,7 +55,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     }
 
     @Override
-    public boolean canBreakBlock(Level world, BlockPos pos, GameProfile profile, @Nullable Player player) {
+    public boolean canBreakBlock(Level world, BlockPos pos, NameAndId profile, @Nullable Player player) {
         if (world instanceof ServerLevel serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, pos);
             return optional.map(claim -> claim.checkAction(profile.id(), Flags.MINE)).orElse(true);
@@ -64,7 +64,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     }
 
     @Override
-    public boolean canExplodeBlock(Level world, BlockPos pos, Explosion explosion, GameProfile profile, @Nullable Player player) {
+    public boolean canExplodeBlock(Level world, BlockPos pos, Explosion explosion, NameAndId profile, @Nullable Player player) {
         if (world instanceof ServerLevel serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, pos);
             return optional.map(claim -> claim.checkAction(null, Flags.EXPLOSIONS)).orElse(true);
@@ -73,7 +73,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     }
 
     @Override
-    public boolean canPlaceBlock(Level world, BlockPos pos, GameProfile profile, @Nullable Player player) {
+    public boolean canPlaceBlock(Level world, BlockPos pos, NameAndId profile, @Nullable Player player) {
         if (world instanceof ServerLevel serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, pos);
             return optional.map(claim -> claim.checkAction(profile.id(), Flags.PLACE)).orElse(true);
@@ -82,7 +82,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     }
 
     @Override
-    public boolean canInteractBlock(Level world, BlockPos pos, GameProfile profile, @Nullable Player player) {
+    public boolean canInteractBlock(Level world, BlockPos pos, NameAndId profile, @Nullable Player player) {
         if (world instanceof ServerLevel serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, pos);
             return optional.map(claim -> claim.checkAction(profile.id(), Flags.INTERACT_BLOCK)).orElse(true);
@@ -91,7 +91,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     }
 
     @Override
-    public boolean canInteractEntity(Level world, Entity entity, GameProfile profile, @Nullable Player player) {
+    public boolean canInteractEntity(Level world, Entity entity, NameAndId profile, @Nullable Player player) {
         if (world instanceof ServerLevel serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, entity.blockPosition());
             return optional.map(claim -> claim.checkAction(profile.id(), Flags.INTERACT_ENTITY, Node.registry(BuiltInRegistries.ENTITY_TYPE, entity.getType()))).orElse(true);
@@ -100,7 +100,7 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     }
 
     @Override
-    public boolean canDamageEntity(Level world, Entity entity, GameProfile profile, @Nullable Player player) {
+    public boolean canDamageEntity(Level world, Entity entity, NameAndId profile, @Nullable Player player) {
         if (world instanceof ServerLevel serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, entity.blockPosition());
             return optional.map(claim -> claim.checkAction(profile.id(), Flags.DAMAGE_ENTITY, Node.registry(BuiltInRegistries.ENTITY_TYPE, entity.getType()))).orElse(true);

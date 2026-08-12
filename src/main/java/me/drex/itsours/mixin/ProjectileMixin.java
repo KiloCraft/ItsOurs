@@ -2,7 +2,6 @@ package me.drex.itsours.mixin;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
-import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.node.Node;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -22,6 +21,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.Optional;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.sendMessage;
+import static me.drex.itsours.claim.flags.Flags.DAMAGE_ENTITY;
+import static me.drex.itsours.claim.flags.Flags.PVP;
 
 @Mixin(Projectile.class)
 public abstract class ProjectileMixin extends Entity {
@@ -46,18 +48,18 @@ public abstract class ProjectileMixin extends Entity {
             this.onHitEntity(hitResult);
             return;
         }
-        if (!claim.get().checkAction(null, Flags.PVP) && hitResult.getEntity() instanceof Player) {
+        if (!claim.get().checkAction(null, PVP) && hitResult.getEntity() instanceof Player) {
             if (entity.getOwner() instanceof Player player) {
-                player.displayClientMessage(localized("text.itsours.action.disallowed.damage_player", player), true);
+                sendMessage(player, localized("text.itsours.action.disallowed.damage_player", player), true);
             }
             if (entity instanceof AbstractArrow) {
                 if (((AbstractArrow) entity).getPierceLevel() > 0) entity.kill((ServerLevel) entity.level());
             }
             return;
         }
-        if (!claim.get().checkAction(entity.getOwner().getUUID(), Flags.DAMAGE_ENTITY, Node.registry(BuiltInRegistries.ENTITY_TYPE, hitResult.getEntity().getType())) && !(hitResult.getEntity() instanceof Player)) {
+        if (!claim.get().checkAction(entity.getOwner().getUUID(), DAMAGE_ENTITY, Node.registry(BuiltInRegistries.ENTITY_TYPE, hitResult.getEntity().getType())) && !(hitResult.getEntity() instanceof Player)) {
             if (entity.getOwner() instanceof Player player) {
-                player.displayClientMessage(localized("text.itsours.action.disallowed.damage_entity", player), true);
+                sendMessage(player, localized("text.itsours.action.disallowed.damage_entity", player), true);
             }
             if (entity instanceof AbstractArrow) {
                 if (((AbstractArrow) entity).getPierceLevel() > 0) entity.kill((ServerLevel) entity.level());

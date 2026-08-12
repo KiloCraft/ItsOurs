@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import java.util.Optional;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.sendMessage;
 
 @Mixin(BoatItem.class)
 public abstract class BoatItemMixin extends Item {
@@ -38,7 +39,7 @@ public abstract class BoatItemMixin extends Item {
         if (claim.isEmpty())
             return original;
         if (!claim.get().checkAction(player.getUUID(), Flags.USE_ITEM, Node.registry(BuiltInRegistries.ITEM, this))) {
-            player.displayClientMessage(localized("text.itsours.action.disallowed.interact_item", player), true);
+            sendMessage(player, localized("text.itsours.action.disallowed.interact_item", player), true);
             return BlockHitResult.miss(original.getLocation(), original.getDirection(), original.getBlockPos());
         }
         return original;

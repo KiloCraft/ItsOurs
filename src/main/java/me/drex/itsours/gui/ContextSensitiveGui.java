@@ -1,7 +1,7 @@
 package me.drex.itsours.gui;
 
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
-import eu.pb4.sgui.api.gui.GuiInterface;
+import eu.pb4.sgui.api.gui.GuiLike;
 import me.drex.itsours.util.LocalizedMessage;
 import net.minecraft.world.item.Items;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -12,7 +12,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.Map;
 
-public interface ContextSensitiveGui extends GuiInterface {
+public interface ContextSensitiveGui extends GuiLike {
 
     default MutableComponent message(String key) {
         return LocalizedMessage.localized(key, context().player);

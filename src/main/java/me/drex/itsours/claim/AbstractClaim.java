@@ -35,13 +35,14 @@ import java.util.regex.Pattern;
 
 import static me.drex.itsours.util.PlaceholderUtil.*;
 import static me.drex.itsours.util.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.sendMessage;
 import static net.minecraft.network.chat.Component.literal;
 
 public abstract class AbstractClaim {
 
     public static final Pattern NAME = Pattern.compile("\\w{3,16}");
-    public static final Block[] SHOW_BLOCKS = {Blocks.RED_WOOL, Blocks.ORANGE_WOOL, Blocks.YELLOW_WOOL, Blocks.LIME_WOOL, Blocks.GREEN_WOOL, Blocks.CYAN_WOOL, Blocks.LIGHT_BLUE_WOOL, Blocks.BLUE_WOOL, Blocks.PURPLE_WOOL, Blocks.MAGENTA_WOOL, Blocks.PINK_WOOL};
-    public static final Block[] SHOW_BLOCKS_CENTER = {Blocks.BLUE_TERRACOTTA, Blocks.PURPLE_TERRACOTTA, Blocks.MAGENTA_TERRACOTTA, Blocks.PINK_TERRACOTTA, Blocks.RED_TERRACOTTA, Blocks.ORANGE_TERRACOTTA, Blocks.YELLOW_TERRACOTTA, Blocks.LIME_TERRACOTTA, Blocks.GREEN_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.LIGHT_BLUE_TERRACOTTA};
+    public static final Block[] SHOW_BLOCKS = {Blocks.WOOL.red(), Blocks.WOOL.orange(), Blocks.WOOL.yellow(), Blocks.WOOL.lime(), Blocks.WOOL.green(), Blocks.WOOL.cyan(), Blocks.WOOL.lightBlue(), Blocks.WOOL.blue(), Blocks.WOOL.purple(), Blocks.WOOL.magenta(), Blocks.WOOL.pink()};
+    public static final Block[] SHOW_BLOCKS_CENTER = {Blocks.DYED_TERRACOTTA.blue(), Blocks.DYED_TERRACOTTA.purple(), Blocks.DYED_TERRACOTTA.magenta(), Blocks.DYED_TERRACOTTA.pink(), Blocks.DYED_TERRACOTTA.red(), Blocks.DYED_TERRACOTTA.orange(), Blocks.DYED_TERRACOTTA.yellow(), Blocks.DYED_TERRACOTTA.lime(), Blocks.DYED_TERRACOTTA.green(), Blocks.DYED_TERRACOTTA.cyan(), Blocks.DYED_TERRACOTTA.lightBlue()};
     private final ResourceKey<Level> dimension;
     private final List<Subzone> subzones;
     private final FlagData flags;
@@ -153,14 +154,14 @@ public abstract class AbstractClaim {
             checkAction(player.getUUID(), Flags.CLAIM_FLY);
         updateFly(player, isAllowed);
 
-        player.displayClientMessage(messages.enter().map(Component::literal).orElse(localized("text.itsours.claim.enter", placeholders(player.level().getServer()), player)), true);
+        sendMessage(player, messages.enter().map(Component::literal).orElse(localized("text.itsours.claim.enter", placeholders(player.level().getServer()), player)), true);
     }
 
     public void onLeave(@Nullable AbstractClaim nextClaim, ServerPlayer player) {
         if (nextClaim == null) {
 
             updateFly(player, false);
-            player.displayClientMessage(messages.leave().map(Component::literal).orElse(localized("text.itsours.claim.leave", placeholders(player.level().getServer()), player)), true);
+            sendMessage(player, messages.leave().map(Component::literal).orElse(localized("text.itsours.claim.leave", placeholders(player.level().getServer()), player)), true);
         }
     }
 

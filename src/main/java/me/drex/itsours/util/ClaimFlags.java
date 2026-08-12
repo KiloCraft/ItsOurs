@@ -14,6 +14,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.sendMessage;
 
 public class ClaimFlags {
 
@@ -25,7 +26,7 @@ public class ClaimFlags {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, pos);
         if (claim.isPresent() && !claim.get().checkAction(uuid, childNodes)) {
             if (entity instanceof ServerPlayer player) {
-                player.displayClientMessage(localized(localization, player), true);
+                sendMessage(player, localized(localization, player), true);
             }
             return failure.get();
         }

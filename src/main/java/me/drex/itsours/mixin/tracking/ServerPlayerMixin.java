@@ -116,7 +116,7 @@ public abstract class ServerPlayerMixin extends Player implements ClaimTrackingP
 
     @Override
     public void onChunkUnload(ChunkPos pos) {
-        Set<BlockPos> removedBlocks = chunk2TrackedShowBlocks.remove(pos.toLong());
+        Set<BlockPos> removedBlocks = chunk2TrackedShowBlocks.remove(pos.pack());
         if (removedBlocks != null) {
             trackedShowBlocks.removeAll(removedBlocks);
         }
@@ -199,7 +199,7 @@ public abstract class ServerPlayerMixin extends Player implements ClaimTrackingP
 
         packets.add(new ClientboundBlockUpdatePacket(pos, state));
 
-        long chunkPos = ChunkPos.asLong(SectionPos.blockToSectionCoord(x), SectionPos.blockToSectionCoord(z));
+        long chunkPos = ChunkPos.pack(SectionPos.blockToSectionCoord(x), SectionPos.blockToSectionCoord(z));
         chunk2TrackedShowBlocks.computeIfAbsent(chunkPos, l -> new HashSet<>());
         chunk2TrackedShowBlocks.get(chunkPos).add(pos);
         trackedShowBlocks.add(pos);

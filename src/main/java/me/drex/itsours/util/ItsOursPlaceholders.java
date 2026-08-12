@@ -14,7 +14,7 @@ public class ItsOursPlaceholders {
     }
 
     public static void register() {
-        Placeholders.register(location("blocks"), (context, argument) -> {
+        Placeholders.registerServer(location("blocks"), (context, argument) -> {
             if (context.hasPlayer()) {
                 return PlaceholderResult.value(String.valueOf(DataManager.getUserData(context.player().getUUID()).blocks()));
             } else {

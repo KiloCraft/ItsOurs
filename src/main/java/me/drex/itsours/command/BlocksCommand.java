@@ -22,6 +22,7 @@ import java.util.Map;
 import static me.drex.itsours.util.PlaceholderUtil.gameProfile;
 import static me.drex.itsours.util.PlaceholderUtil.mergePlaceholderMaps;
 import static me.drex.itsours.util.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.sendMessage;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
@@ -147,7 +148,7 @@ public class BlocksCommand extends AbstractCommand {
                 src.sendSuccess(() -> localized("text.itsours.commands.blocks.give", placeholders(amount, target)), false);
                 ServerPlayer player = src.getServer().getPlayerList().getPlayer(target.id());
                 if (player != null)
-                    player.displayClientMessage(localized("text.itsours.commands.blocks.give.received", Map.of("blocks", Component.literal(String.valueOf(amount))), player), false);
+                    sendMessage(player, localized("text.itsours.commands.blocks.give.received", Map.of("blocks", Component.literal(String.valueOf(amount))), player), false);
                 i++;
             }
             return i;

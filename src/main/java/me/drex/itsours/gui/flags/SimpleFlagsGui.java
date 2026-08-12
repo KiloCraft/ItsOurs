@@ -12,6 +12,7 @@ import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.gui.PageGui;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.Items;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.BlockTags;
@@ -45,8 +46,8 @@ public class SimpleFlagsGui extends PageGui<Flag> {
         Flag.flag(Flags.USE_ITEM, Node.item(Items.ENDER_PEARL)),
 
         Flag.flag(Flags.INTERACT_ENTITY, Node.group(BuiltInRegistries.ENTITY_TYPE, EntityTypeTags.BOAT)),
-        Flag.flag(Flags.INTERACT_ENTITY, Node.entity(EntityType.MINECART)),
-        Flag.flag(Flags.INTERACT_ENTITY, Node.entity(EntityType.VILLAGER)),
+        Flag.flag(Flags.INTERACT_ENTITY, Node.entity(EntityTypes.MINECART)),
+        Flag.flag(Flags.INTERACT_ENTITY, Node.entity(EntityTypes.VILLAGER)),
 
         Flag.flag(Flags.INTERACT_BLOCK, Node.block(Blocks.CHEST)),
         Flag.flag(Flags.INTERACT_BLOCK, Node.block(Blocks.BARREL)),

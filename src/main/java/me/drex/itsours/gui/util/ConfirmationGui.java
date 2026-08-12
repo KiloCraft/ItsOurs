@@ -40,13 +40,13 @@ public class ConfirmationGui extends SimpleGui implements ContextSensitiveGui {
         for (int i = 0; i < getSize(); i++) {
             int lineIndex = i % 9;
             if (lineIndex <= 2) {
-                this.setSlot(i, new GuiElementBuilder(Items.RED_STAINED_GLASS_PANE)
+                this.setSlot(i, new GuiElementBuilder(Items.STAINED_GLASS_PANE.red())
                     .setName(message("text.itsours.gui.cancel"))
                     .hideDefaultTooltip()
                     .setCallback(this::backCallback)
                 );
             } else if (lineIndex > 5) {
-                this.setSlot(i, new GuiElementBuilder(Items.GREEN_STAINED_GLASS_PANE)
+                this.setSlot(i, new GuiElementBuilder(Items.STAINED_GLASS_PANE.green())
                     .setName(message("text.itsours.gui.confirm"))
                     .hideDefaultTooltip()
                     .setCallback(() -> {
@@ -55,7 +55,7 @@ public class ConfirmationGui extends SimpleGui implements ContextSensitiveGui {
                     })
                 );
             } else {
-                this.setSlot(i, new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE)
+                this.setSlot(i, new GuiElementBuilder(Items.STAINED_GLASS_PANE.gray())
                     .setName(message(id, placeholders))
                     .hideDefaultTooltip()
                 );

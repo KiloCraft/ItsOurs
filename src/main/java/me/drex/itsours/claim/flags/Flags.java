@@ -10,6 +10,7 @@ import me.drex.itsours.claim.flags.util.Modify;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.Items;
 import net.minecraft.core.registries.BuiltInRegistries;
 
@@ -58,7 +59,7 @@ public class Flags {
     public static final AbstractChildNode DAMAGE_ENTITY = literal("damage_entity")
         .description("damage_entity")
         .icon(Items.DIAMOND_SWORD)
-        .then(FlagBuilderUtil.getNodes(BuiltInRegistries.ENTITY_TYPE, entityType -> !entityType.equals(EntityType.PLAYER)))
+        .then(FlagBuilderUtil.getNodes(BuiltInRegistries.ENTITY_TYPE, entityType -> !entityType.equals(EntityTypes.PLAYER)))
         .build();
     public static final AbstractChildNode GLIDE = literal("glide")
         .description("glide")

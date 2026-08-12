@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.14-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT'
     id "me.modmuss50.mod-publish-plugin" version "1.1.0"
     id 'maven-publish'
 }
@@ -20,21 +20,20 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
+    implementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
 
     // Mod dependencies
-    modImplementation include("me.lucko:fabric-permissions-api:${project.permission_version}")
-    modImplementation include("eu.pb4:sgui:${project.sgui_version}")
-    modImplementation include("eu.pb4:common-protection-api:${project.common_protection_api_version}")
-    modImplementation include("eu.pb4:placeholder-api:${project.placeholder_api_version}")
-    modImplementation include("xyz.nucleoid:server-translations-api:${project.server_translations_api_version}")
+    include implementation("me.lucko:fabric-permissions-api:${project.permission_version}")
+    include implementation("eu.pb4:sgui:${project.sgui_version}")
+    include implementation("eu.pb4:common-protection-api:${project.common_protection_api_version}")
+    include implementation("eu.pb4:placeholder-api:${project.placeholder_api_version}")
+    include implementation("xyz.nucleoid:server-translations-api:${project.server_translations_api_version}")
 }
 
 publishMods {
-    file = remapJar.archiveFile
+    file = jar.archiveFile
     type = STABLE
     changelog = providers.environmentVariable("CHANGELOG").getOrElse("No changelog provided")
 
@@ -57,7 +56,11 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
-    it.options.release = 17
+    it.options.release = 25
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
 }
 
 

@@ -2,6 +2,7 @@ package me.drex.itsours.util;
 
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.PlaceholderContext;
+import eu.pb4.placeholders.api.ServerPlaceholderContext;
 import eu.pb4.placeholders.api.node.DynamicTextNode;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.parsers.NodeParser;
@@ -30,7 +31,7 @@ public interface LocalizedMessage {
     NodeParser PARSER = NodeParser.builder()
         .quickText()
         .simplifiedTextFormat()
-        .globalPlaceholders()
+        .serverPlaceholders()
         .placeholders(TagLikeParser.PLACEHOLDER_USER, STATIC_PLACEHOLDERS)
         .build();
     Style DEFAULT_LORE_STYLE = Style.EMPTY
@@ -50,7 +51,7 @@ public interface LocalizedMessage {
     }
 
     static MutableComponent localized(String key, Map<String, Component> placeholders, PlaceholderContext context) {
-        LocalizationTarget target = context.player() != null ? LocalizationTarget.of(context.player()) : LocalizationTarget.ofSystem();
+        LocalizationTarget target = context.player() instanceof ServerPlayer player ? LocalizationTarget.of(player) : LocalizationTarget.ofSystem();
         return localized(key, placeholders, target, context);
     }
 
@@ -59,7 +60,7 @@ public interface LocalizedMessage {
     }
 
     static MutableComponent localized(String key, Map<String, Component> placeholders, CommandSourceStack source) {
-        return localized(key, placeholders, PlaceholderContext.of(source));
+        return localized(key, placeholders, ServerPlaceholderContext.of(source));
     }
 
     static MutableComponent localized(String key, ServerPlayer player) {
@@ -78,7 +79,7 @@ public interface LocalizedMessage {
     }
 
     static MutableComponent localized(String key, Map<String, Component> placeholders, ServerPlayer player) {
-        return localized(key, placeholders, LocalizationTarget.of(player), PlaceholderContext.of(player));
+        return localized(key, placeholders, LocalizationTarget.of(player), ServerPlaceholderContext.of(player));
     }
 
     static List<Component> splitLines(Component text) {
@@ -106,7 +107,15 @@ public interface LocalizedMessage {
         }
         ParserContext parserContext = context != null ? context.asParserContext() : ParserContext.of();
         parserContext.with(STATIC_PLACEHOLDERS, placeholderGetter(placeholders));
-        return (MutableComponent) PARSER.parseText(TextNode.of(message), parserContext);
+        return (MutableComponent) PARSER.parseComponent(TextNode.of(message), parserContext);
+    }
+
+    static void sendMessage(Player player, Component message, boolean overlay) {
+        if (overlay) {
+            player.sendOverlayMessage(message);
+        } else {
+            player.sendSystemMessage(message);
+        }
     }
 
     private static Function<String, @Nullable Component> placeholderGetter(Map<String, Component> placeholders) {
