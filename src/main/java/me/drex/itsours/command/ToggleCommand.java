@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 
 public class ToggleCommand extends AbstractCommand {
 

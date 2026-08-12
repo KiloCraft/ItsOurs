@@ -15,7 +15,6 @@ import net.minecraft.text.Text;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import static me.drex.message.api.LocalizedMessage.localized;
 
 public class FlagsGui extends AbstractFlagsGui {
 
@@ -24,7 +23,7 @@ public class FlagsGui extends AbstractFlagsGui {
     public FlagsGui(GuiContext context, AbstractClaim claim, Flag flag) {
         super(context, claim.getFlags(), flag);
         this.claim = claim;
-        this.setTitle(localized("text.itsours.gui.flags.advanced.title", PlaceholderUtil.mergePlaceholderMaps(
+        this.setTitle(message("text.itsours.gui.flags.advanced.title", PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(context.server()),
             Map.of("flag", Text.literal(flag.asString()))
         )));

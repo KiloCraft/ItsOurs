@@ -3,11 +3,10 @@ package me.drex.itsours.command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.user.ClaimTrackingPlayer;
-import me.drex.message.api.LocalizedMessage;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 
 public class ShowCommand extends AbstractCommand {
 

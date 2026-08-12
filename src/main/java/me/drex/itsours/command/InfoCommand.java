@@ -6,7 +6,7 @@ import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.command.argument.ClaimArgument;
 import net.minecraft.server.command.ServerCommandSource;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 
 public class InfoCommand extends AbstractCommand {
 

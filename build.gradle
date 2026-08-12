@@ -30,7 +30,7 @@ dependencies {
     modImplementation include("eu.pb4:sgui:${project.sgui_version}")
     modImplementation include("eu.pb4:common-protection-api:${project.common_protection_api_version}")
     modImplementation include("eu.pb4:placeholder-api:${project.placeholder_api_version}")
-    modImplementation include("maven.modrinth:message-api:${project.message_api_version}")
+    modImplementation include("xyz.nucleoid:server-translations-api:${project.server_translations_api_version}")
 }
 
 publishMods {
@@ -64,4 +64,3 @@ tasks.withType(JavaCompile).configureEach {
 jar {
     from "LICENSE"
 }
-

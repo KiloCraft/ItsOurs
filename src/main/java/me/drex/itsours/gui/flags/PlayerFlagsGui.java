@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-import static me.drex.message.api.LocalizedMessage.localized;
 
 public class PlayerFlagsGui extends AbstractFlagsGui {
 
@@ -31,7 +30,7 @@ public class PlayerFlagsGui extends AbstractFlagsGui {
         super(context, claim.getPlayerFlags().getOrDefault(player, new FlagData()), flag);
         this.claim = claim;
         this.player = player;
-        this.setTitle(localized("text.itsours.gui.playerflags.title", PlaceholderUtil.mergePlaceholderMaps(
+        this.setTitle(message("text.itsours.gui.playerflags.title", PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(context.server()),
             PlaceholderUtil.uuid("player_", player, context.server()),
             Map.of("flag", Text.literal(flag.asString()))

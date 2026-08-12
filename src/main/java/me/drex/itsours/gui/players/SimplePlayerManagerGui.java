@@ -18,7 +18,6 @@ import net.minecraft.util.Util;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-import static me.drex.message.api.LocalizedMessage.localized;
 
 public class SimplePlayerManagerGui extends PageGui<UUID> {
 
@@ -27,7 +26,7 @@ public class SimplePlayerManagerGui extends PageGui<UUID> {
     public SimplePlayerManagerGui(GuiContext context, AbstractClaim claim) {
         super(context, ScreenHandlerType.GENERIC_9X6);
         this.claim = claim;
-        this.setTitle(localized("text.itsours.gui.playermanager.title", claim.placeholders(context.server())));
+        this.setTitle(message("text.itsours.gui.playermanager.title", claim.placeholders(context.server())));
     }
 
     @Override
@@ -91,7 +90,7 @@ public class SimplePlayerManagerGui extends PageGui<UUID> {
     public GuiElementBuilder buildNavigationBar(int index) {
         if (index == 0) {
             return new GuiElementBuilder(Items.PLAYER_HEAD)
-                .setName(localized("text.itsours.gui.playermanager.simple.trust"))
+                .setName(message("text.itsours.gui.playermanager.simple.trust"))
                 .hideDefaultTooltip()
                 .setSkullOwner(GuiTextures.GUI_ADD)
                 .setCallback(() -> {

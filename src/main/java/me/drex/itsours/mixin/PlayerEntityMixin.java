@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Optional;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin extends LivingEntity {
@@ -50,11 +50,11 @@ public abstract class PlayerEntityMixin extends LivingEntity {
             return original;
         }
         if (!claim.get().checkAction(null, Flags.PVP) && entity instanceof PlayerEntity) {
-            this.sendMessage(localized("text.itsours.action.disallowed.damage_player"), true);
+            this.sendMessage(localized("text.itsours.action.disallowed.damage_player", (PlayerEntity) (Object) this), true);
             return false;
         }
         if (!claim.get().checkAction(this.getUuid(), Flags.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType())) && !(entity instanceof PlayerEntity)) {
-            this.sendMessage(localized("text.itsours.action.disallowed.damage_entity"), true);
+            this.sendMessage(localized("text.itsours.action.disallowed.damage_entity", (PlayerEntity) (Object) this), true);
             return false;
         }
         return original;
@@ -73,11 +73,11 @@ public abstract class PlayerEntityMixin extends LivingEntity {
             return original;
         }
         if (!claim.get().checkAction(null, Flags.PVP) && entity instanceof PlayerEntity) {
-            this.sendMessage(localized("text.itsours.action.disallowed.damage_player"), true);
+            this.sendMessage(localized("text.itsours.action.disallowed.damage_player", (PlayerEntity) (Object) this), true);
             return Double.MAX_VALUE;
         }
         if (!claim.get().checkAction(this.getUuid(), Flags.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType())) && !(entity instanceof PlayerEntity)) {
-            this.sendMessage(localized("text.itsours.action.disallowed.damage_entity"), true);
+            this.sendMessage(localized("text.itsours.action.disallowed.damage_entity", (PlayerEntity) (Object) this), true);
             return Double.MAX_VALUE;
         }
         return original;

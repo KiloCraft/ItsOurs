@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Optional;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 
 @Mixin(LecternScreenHandler.class)
 public abstract class LecternScreenHandlerMixin {
@@ -31,7 +31,7 @@ public abstract class LecternScreenHandlerMixin {
         if (claim.isEmpty())
             return original;
         if (!claim.get().checkAction(player.getUuid(), Flags.MINE, Node.registry(Registries.BLOCK, Blocks.LECTERN))) {
-            player.sendMessage(localized("text.itsours.action.disallowed.interact_block"), true);
+            player.sendMessage(localized("text.itsours.action.disallowed.interact_block", player), true);
             return false;
         }
         return original;

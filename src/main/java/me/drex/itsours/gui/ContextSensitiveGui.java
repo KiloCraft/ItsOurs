@@ -2,14 +2,25 @@ package me.drex.itsours.gui;
 
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.GuiInterface;
+import me.drex.itsours.util.LocalizedMessage;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import java.util.Map;
 
 public interface ContextSensitiveGui extends GuiInterface {
+
+    default MutableText message(String key) {
+        return LocalizedMessage.localized(key, context().player);
+    }
+
+    default MutableText message(String key, Map<String, Text> placeholders) {
+        return LocalizedMessage.localized(key, placeholders, context().player);
+    }
 
     GuiContext context();
 
@@ -37,7 +48,7 @@ public interface ContextSensitiveGui extends GuiInterface {
 
     default GuiElementBuilder backElement() {
         return new GuiElementBuilder(Items.BARRIER)
-            .setName(localized(!context().guiStack.isEmpty() ? "text.itsours.gui.back" : "text.itsours.gui.close"))
+            .setName(message(!context().guiStack.isEmpty() ? "text.itsours.gui.back" : "text.itsours.gui.close"))
             .hideDefaultTooltip()
             .setCallback(this::backCallback);
     }

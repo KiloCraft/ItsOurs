@@ -22,7 +22,6 @@ import net.minecraft.text.Text;
 import java.util.Collection;
 import java.util.Map;
 
-import static me.drex.message.api.LocalizedMessage.localized;
 
 public class GroupManagerGui extends PageGui<String> {
 
@@ -31,7 +30,7 @@ public class GroupManagerGui extends PageGui<String> {
     public GroupManagerGui(GuiContext context, AbstractClaim claim) {
         super(context, ScreenHandlerType.GENERIC_9X6);
         this.claim = claim;
-        this.setTitle(localized("text.itsours.gui.groupmanager.title", claim.placeholders(context.server())));
+        this.setTitle(message("text.itsours.gui.groupmanager.title", claim.placeholders(context.server())));
     }
 
     @Override
@@ -63,7 +62,7 @@ public class GroupManagerGui extends PageGui<String> {
     public GuiElementBuilder buildNavigationBar(int index) {
         if (index == 0) {
             return new GuiElementBuilder(Items.PLAYER_HEAD)
-                .setName(localized("text.itsours.gui.groupmanager.add"))
+                .setName(message("text.itsours.gui.groupmanager.add"))
                 .hideDefaultTooltip()
                 .setSkullOwner(GuiTextures.GUI_ADD)
                 .setCallback(() -> {

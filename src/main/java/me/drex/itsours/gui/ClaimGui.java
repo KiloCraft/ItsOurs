@@ -21,7 +21,6 @@ import net.minecraft.text.Text;
 
 import java.util.Map;
 
-import static me.drex.message.api.LocalizedMessage.localized;
 
 public class ClaimGui extends BaseGui {
 
@@ -36,7 +35,7 @@ public class ClaimGui extends BaseGui {
 
     @Override
     public void build() {
-        this.setTitle(localized("text.itsours.gui.claim.title", claim.placeholders(context.server())));
+        this.setTitle(message("text.itsours.gui.claim.title", claim.placeholders(context.server())));
         if (advanced) {
             this.setSlot(0, switchElement(Items.REDSTONE, "claim.flags", new FlagsGui(context, claim, Flag.flag())));
         } else {

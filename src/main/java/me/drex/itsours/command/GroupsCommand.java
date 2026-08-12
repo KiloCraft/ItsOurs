@@ -28,7 +28,7 @@ import net.minecraft.text.Text;
 import java.util.Collection;
 import java.util.Map;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -217,4 +217,3 @@ public class GroupsCommand extends AbstractCommand {
     }
 
 }
-

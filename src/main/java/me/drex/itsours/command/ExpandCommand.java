@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static me.drex.itsours.util.PlaceholderUtil.mergePlaceholderMaps;
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.text.Text.literal;
 

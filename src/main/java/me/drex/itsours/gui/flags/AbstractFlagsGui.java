@@ -20,17 +20,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.splitLines;
 
 public abstract class AbstractFlagsGui extends PageGui<ChildNode> {
 
     protected FlagData flagData;
     protected Flag flag;
     protected final List<PageGui.Filter<ChildNode>> filters = List.of(
-        new Filter<>(localized("text.itsours.gui.flags.advanced.filter.all"), childNode -> true),
-        new Filter<>(localized("text.itsours.gui.flags.advanced.filter.single"), childNode -> childNode instanceof LiteralNode),
-        new Filter<>(localized("text.itsours.gui.flags.advanced.filter.group"), childNode -> childNode instanceof GroupNode),
-        new Filter<>(localized("text.itsours.gui.flags.advanced.filter.modified"), childNode -> {
+        new Filter<>(message("text.itsours.gui.flags.advanced.filter.all"), childNode -> true),
+        new Filter<>(message("text.itsours.gui.flags.advanced.filter.single"), childNode -> childNode instanceof LiteralNode),
+        new Filter<>(message("text.itsours.gui.flags.advanced.filter.group"), childNode -> childNode instanceof GroupNode),
+        new Filter<>(message("text.itsours.gui.flags.advanced.filter.modified"), childNode -> {
             try {
                 return flagData.get(flag.withNode(childNode)) != Value.DEFAULT;
             } catch (InvalidFlagException ignored) {
@@ -78,7 +78,7 @@ public abstract class AbstractFlagsGui extends PageGui<ChildNode> {
             };
             return new GuiElementBuilder(childNode.getIcon().asItem())
                 .setName(Text.literal(childNode.getName()))
-                .addLoreLine(localized(localizationId, Map.of("description", childNode.getDescription(), "value", value.format())))
+                .setLore(splitLines(message(localizationId, Map.of("description", childNode.getDescription(), "value", value.format()))))
                 .hideDefaultTooltip()
                 .setComponent(DataComponentTypes.MAX_STACK_SIZE, 1)
                 .setComponent(DataComponentTypes.MAX_DAMAGE, Integer.MAX_VALUE)

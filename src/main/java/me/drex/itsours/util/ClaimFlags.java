@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 
 public class ClaimFlags {
 
@@ -25,7 +25,7 @@ public class ClaimFlags {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, pos);
         if (claim.isPresent() && !claim.get().checkAction(uuid, childNodes)) {
             if (entity instanceof ServerPlayerEntity player) {
-                player.sendMessage(localized(localization), true);
+                player.sendMessage(localized(localization, player), true);
             }
             return failure.get();
         }

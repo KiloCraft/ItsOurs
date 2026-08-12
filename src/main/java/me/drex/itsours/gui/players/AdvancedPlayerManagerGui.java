@@ -26,21 +26,20 @@ import net.minecraft.util.Util;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-import static me.drex.message.api.LocalizedMessage.localized;
 
 public class AdvancedPlayerManagerGui extends PageGui<UUID> {
 
     private AbstractClaim claim;
     protected final List<PageGui.Filter<UUID>> filters = List.of(
-        new Filter<>(localized("text.itsours.gui.playermanager.filter.all"), player -> true),
-        new Filter<>(localized("text.itsours.gui.playermanager.filter.trusted"), player -> claim.getGroupManager().trusted.players().contains(player)),
-        new Filter<>(localized("text.itsours.gui.playermanager.filter.not_trusted"), player -> !claim.getGroupManager().trusted.players().contains(player))
+        new Filter<>(message("text.itsours.gui.playermanager.filter.all"), player -> true),
+        new Filter<>(message("text.itsours.gui.playermanager.filter.trusted"), player -> claim.getGroupManager().trusted.players().contains(player)),
+        new Filter<>(message("text.itsours.gui.playermanager.filter.not_trusted"), player -> !claim.getGroupManager().trusted.players().contains(player))
     );
 
     public AdvancedPlayerManagerGui(GuiContext context, AbstractClaim claim) {
         super(context, ScreenHandlerType.GENERIC_9X6);
         this.claim = claim;
-        this.setTitle(localized("text.itsours.gui.playermanager.title", claim.placeholders(context.server())));
+        this.setTitle(message("text.itsours.gui.playermanager.title", claim.placeholders(context.server())));
     }
 
     @Override
@@ -98,14 +97,14 @@ public class AdvancedPlayerManagerGui extends PageGui<UUID> {
     public GuiElementBuilder buildNavigationBar(int index) {
         return switch (index) {
             case 0 -> new GuiElementBuilder(Items.PLAYER_HEAD)
-                .setName(localized("text.itsours.gui.playermanager.add"))
+                .setName(message("text.itsours.gui.playermanager.add"))
                 .hideDefaultTooltip()
                 .setSkullOwner(GuiTextures.GUI_ADD)
                 .setCallback(() -> {
                     switchUi(new PlayerSelectorGui(context, this::addPlayer));
                 });
             case 1 -> new GuiElementBuilder(Items.PLAYER_HEAD)
-                .setName(localized("text.itsours.gui.playermanager.trust"))
+                .setName(message("text.itsours.gui.playermanager.trust"))
                 .hideDefaultTooltip()
                 .setSkullOwner(GuiTextures.GUI_ADD)
                 .setCallback(() -> {

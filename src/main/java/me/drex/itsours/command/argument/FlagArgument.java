@@ -19,7 +19,7 @@ import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.*;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.text.Text.literal;
 import static net.minecraft.util.Identifier.NAMESPACE_SEPARATOR;

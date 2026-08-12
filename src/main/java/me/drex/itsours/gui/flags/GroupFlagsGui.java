@@ -16,7 +16,6 @@ import net.minecraft.text.Text;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import static me.drex.message.api.LocalizedMessage.localized;
 
 public class GroupFlagsGui extends AbstractFlagsGui {
 
@@ -31,7 +30,7 @@ public class GroupFlagsGui extends AbstractFlagsGui {
         this.groupId = groupId;
         this.group = group;
         this.groupContext = claim.getGroupManager().context(groupId, group);
-        this.setTitle(localized("text.itsours.gui.group.title", PlaceholderUtil.mergePlaceholderMaps(
+        this.setTitle(message("text.itsours.gui.group.title", PlaceholderUtil.mergePlaceholderMaps(
             Map.of("group_id", Text.literal(groupId)),
             Map.of("flag", Text.literal(flag.asString()))
         )));

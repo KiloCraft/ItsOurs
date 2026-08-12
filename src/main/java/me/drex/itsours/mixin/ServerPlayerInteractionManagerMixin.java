@@ -27,7 +27,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Optional;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 
 @Mixin(ServerPlayerInteractionManager.class)
 public abstract class ServerPlayerInteractionManagerMixin {
@@ -51,7 +51,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
         if (claim.isEmpty() || !FlagBuilderUtil.INTERACT_BLOCK_PREDICATE.test(blockState.getBlock()))
             return original.call(blockState, itemStack, world, playerEntity, hand, hit);
         if (!claim.get().checkAction(playerEntity.getUuid(), Flags.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
-            player.sendMessage(localized("text.itsours.action.disallowed.interact_block"), true);
+            player.sendMessage(localized("text.itsours.action.disallowed.interact_block", player), true);
             return ActionResult.PASS_TO_DEFAULT_BLOCK_ACTION;
         }
         return original.call(blockState, itemStack, world, playerEntity, hand, hit);
@@ -69,7 +69,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
         if (claim.isEmpty() || !FlagBuilderUtil.INTERACT_BLOCK_PREDICATE.test(blockState.getBlock()))
             return original.call(blockState, world, playerEntity, hit);
         if (!claim.get().checkAction(playerEntity.getUuid(), Flags.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
-            player.sendMessage(localized("text.itsours.action.disallowed.interact_block"), true);
+            player.sendMessage(localized("text.itsours.action.disallowed.interact_block", player), true);
             return ActionResult.FAIL;
         }
         return original.call(blockState, world, playerEntity, hit);
@@ -89,7 +89,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
             return;
         }
         if (!claim.get().checkAction(playerEntity.getUuid(), Flags.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
-            player.sendMessage(localized("text.itsours.action.disallowed.interact_block"), true);
+            player.sendMessage(localized("text.itsours.action.disallowed.interact_block", player), true);
             return;
         }
         original.call(blockState, world, pos, playerEntity);
@@ -107,7 +107,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
         if (claim.isEmpty() || !FlagBuilderUtil.USE_ON_BLOCK_PREDICATE.test(itemStack.getItem()))
             return original.call(itemStack, context);
         if (!claim.get().checkAction(player.getUuid(), Flags.USE_ON_BLOCK, Node.registry(Registries.ITEM, itemStack.getItem()))) {
-            player.sendMessage(localized("text.itsours.action.disallowed.interact_item_on_block"), true);
+            player.sendMessage(localized("text.itsours.action.disallowed.interact_item_on_block", player), true);
             return ActionResult.FAIL;
         }
         return original.call(itemStack, context);

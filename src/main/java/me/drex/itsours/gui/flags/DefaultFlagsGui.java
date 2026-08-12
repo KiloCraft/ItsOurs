@@ -8,13 +8,12 @@ import net.minecraft.text.Text;
 
 import java.util.Map;
 
-import static me.drex.message.api.LocalizedMessage.localized;
 
 public class DefaultFlagsGui extends AbstractFlagsGui {
 
     public DefaultFlagsGui(GuiContext context, Flag flag) {
         super(context, DataManager.defaultSettings(), flag);
-        this.setTitle(localized("text.itsours.gui.default.title", Map.of("flag", Text.literal(flag.asString()))));
+        this.setTitle(message("text.itsours.gui.default.title", Map.of("flag", Text.literal(flag.asString()))));
     }
 
     @Override

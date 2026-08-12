@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
-import static me.drex.message.api.LocalizedMessage.localized;
 
 public class PlayerGroupManagerGui extends PageGui<String> {
 
@@ -34,7 +33,7 @@ public class PlayerGroupManagerGui extends PageGui<String> {
         super(context, ScreenHandlerType.GENERIC_9X6);
         this.claim = claim;
         this.player = player;
-        this.setTitle(localized("text.itsours.gui.playergroupmanager.title", PlaceholderUtil.mergePlaceholderMaps(
+        this.setTitle(message("text.itsours.gui.playergroupmanager.title", PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(context.server()),
             PlaceholderUtil.uuid("player_", player, context.server())
         )));

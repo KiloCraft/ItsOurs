@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static me.drex.itsours.util.PlaceholderUtil.*;
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 import static net.minecraft.server.command.CommandManager.argument;
 
 public class ListCommand extends AbstractCommand {

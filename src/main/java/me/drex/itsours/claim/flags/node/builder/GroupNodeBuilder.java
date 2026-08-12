@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 
 public class GroupNodeBuilder extends AbstractNodeBuilder {
 

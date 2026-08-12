@@ -34,7 +34,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import static me.drex.itsours.util.PlaceholderUtil.*;
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 import static net.minecraft.text.Text.literal;
 
 public abstract class AbstractClaim {
@@ -153,14 +153,14 @@ public abstract class AbstractClaim {
             checkAction(player.getUuid(), Flags.CLAIM_FLY);
         updateFly(player, isAllowed);
 
-        player.sendMessage(messages.enter().map(Text::literal).orElse(localized("text.itsours.claim.enter", placeholders(player.getEntityWorld().getServer()))), true);
+        player.sendMessage(messages.enter().map(Text::literal).orElse(localized("text.itsours.claim.enter", placeholders(player.getEntityWorld().getServer()), player)), true);
     }
 
     public void onLeave(@Nullable AbstractClaim nextClaim, ServerPlayerEntity player) {
         if (nextClaim == null) {
 
             updateFly(player, false);
-            player.sendMessage(messages.leave().map(Text::literal).orElse(localized("text.itsours.claim.leave", placeholders(player.getEntityWorld().getServer()))), true);
+            player.sendMessage(messages.leave().map(Text::literal).orElse(localized("text.itsours.claim.leave", placeholders(player.getEntityWorld().getServer()), player)), true);
         }
     }
 

@@ -2,7 +2,7 @@ package me.drex.itsours.claim.flags.context;
 
 import net.minecraft.text.Text;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 
 public class IgnoreContext implements WeightedContext {
 

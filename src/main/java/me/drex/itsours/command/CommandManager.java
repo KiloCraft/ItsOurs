@@ -32,7 +32,6 @@ public class CommandManager {
             ListCommand.INSTANCE,
             MessageCommand.INSTANCE,
             PlayerFlagsCommand.INSTANCE,
-            ReloadCommand.INSTANCE,
             RemoveCommand.INSTANCE,
             RenameCommand.INSTANCE,
             GroupsCommand.INSTANCE,

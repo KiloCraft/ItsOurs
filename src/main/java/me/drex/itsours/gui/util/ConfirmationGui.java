@@ -10,7 +10,6 @@ import net.minecraft.text.Text;
 
 import java.util.Map;
 
-import static me.drex.message.api.LocalizedMessage.localized;
 
 public class ConfirmationGui extends SimpleGui implements ContextSensitiveGui {
 
@@ -42,13 +41,13 @@ public class ConfirmationGui extends SimpleGui implements ContextSensitiveGui {
             int lineIndex = i % 9;
             if (lineIndex <= 2) {
                 this.setSlot(i, new GuiElementBuilder(Items.RED_STAINED_GLASS_PANE)
-                    .setName(localized("text.itsours.gui.cancel"))
+                    .setName(message("text.itsours.gui.cancel"))
                     .hideDefaultTooltip()
                     .setCallback(this::backCallback)
                 );
             } else if (lineIndex > 5) {
                 this.setSlot(i, new GuiElementBuilder(Items.GREEN_STAINED_GLASS_PANE)
-                    .setName(localized("text.itsours.gui.confirm"))
+                    .setName(message("text.itsours.gui.confirm"))
                     .hideDefaultTooltip()
                     .setCallback(() -> {
                         runnable.run();
@@ -57,7 +56,7 @@ public class ConfirmationGui extends SimpleGui implements ContextSensitiveGui {
                 );
             } else {
                 this.setSlot(i, new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE)
-                    .setName(localized(id, placeholders))
+                    .setName(message(id, placeholders))
                     .hideDefaultTooltip()
                 );
             }

@@ -2,7 +2,7 @@ package me.drex.itsours.claim.flags.util;
 
 import net.minecraft.text.Text;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 
 public enum Value {
     ALLOW(true, "allow", "text.itsours.value.allow"),

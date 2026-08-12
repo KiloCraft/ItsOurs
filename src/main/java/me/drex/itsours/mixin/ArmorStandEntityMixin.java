@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 
 @Mixin(ArmorStandEntity.class)
 public abstract class ArmorStandEntityMixin extends LivingEntity {
@@ -39,7 +39,7 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
         if (claim.isEmpty()) return;
 
         if (!claim.get().checkAction(player.getUuid(), Flags.INTERACT_ENTITY, Node.registry(Registries.ENTITY_TYPE, this.getType()))) {
-            player.sendMessage(localized("text.itsours.action.disallowed.interact_entity"), true);
+            player.sendMessage(localized("text.itsours.action.disallowed.interact_entity", player), true);
             cir.setReturnValue(ActionResult.FAIL);
         }
     }

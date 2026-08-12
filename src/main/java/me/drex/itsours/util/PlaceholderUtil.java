@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 import static java.lang.String.valueOf;
 import static java.util.Optional.ofNullable;
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 import static net.minecraft.text.Text.literal;
 
 public class PlaceholderUtil {

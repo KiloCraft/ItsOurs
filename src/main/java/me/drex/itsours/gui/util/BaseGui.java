@@ -10,7 +10,7 @@ import net.minecraft.text.Text;
 
 import java.util.Map;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.splitLines;
 
 public abstract class BaseGui extends SimpleGui implements ContextSensitiveGui {
 
@@ -53,9 +53,9 @@ public abstract class BaseGui extends SimpleGui implements ContextSensitiveGui {
 
     protected GuiElementBuilder guiElement(Item item, String name, Map<String, Text> placeholders) {
         GuiElementBuilder builder = new GuiElementBuilder(item)
-            .setName(localized("text.itsours.gui." + name + ".name", placeholders))
+            .setName(message("text.itsours.gui." + name + ".name", placeholders))
             .hideDefaultTooltip();
-        builder.addLoreLine(localized("text.itsours.gui." + name + ".lore", placeholders));
+        builder.setLore(splitLines(message("text.itsours.gui." + name + ".lore", placeholders)));
         return builder;
     }
 

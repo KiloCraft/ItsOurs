@@ -10,7 +10,6 @@ import me.drex.itsours.claim.flags.node.Node;
 import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.gui.PageGui;
-import me.drex.message.api.LocalizedMessage;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Items;
@@ -23,8 +22,9 @@ import net.minecraft.text.MutableText;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.splitLines;
 
 public class SimpleFlagsGui extends PageGui<Flag> {
 
@@ -78,7 +78,7 @@ public class SimpleFlagsGui extends PageGui<Flag> {
     public SimpleFlagsGui(GuiContext context, AbstractClaim claim) {
         super(context, ScreenHandlerType.GENERIC_9X6);
         this.claim = claim;
-        this.setTitle(localized("text.itsours.gui.flags.simple.title", claim.placeholders(context.server())));
+        this.setTitle(message("text.itsours.gui.flags.simple.title", claim.placeholders(context.server())));
     }
 
     @Override
@@ -100,15 +100,15 @@ public class SimpleFlagsGui extends PageGui<Flag> {
         }
         boolean allowed = value.value;
 
-        MutableText lore = LocalizedMessage.builder("text.itsours.gui.flags.simple.element.lore")
-            .addPlaceholder("description", localized("text.itsours.gui.flags.simple.%s.description".formatted(flag.asString())))
-            .addPlaceholder("value", value.format())
-            .build();
+        MutableText lore = message("text.itsours.gui.flags.simple.element.lore", Map.of(
+            "description", message("text.itsours.gui.flags.simple.%s.description".formatted(flag.asString())),
+            "value", value.format()
+        ));
 
         ChildNode lastChildNode = flag.getLastChildNode();
         return new GuiElementBuilder(lastChildNode.getIcon().asItem())
-            .setName(localized("text.itsours.gui.flags.simple.%s.name".formatted(flag.asString())))
-            .addLoreLine(lore)
+            .setName(message("text.itsours.gui.flags.simple.%s.name".formatted(flag.asString())))
+            .setLore(splitLines(lore))
             .hideDefaultTooltip()
             .glow(allowed)
             .setCallback(() -> {

@@ -27,7 +27,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Objects;
 import java.util.Optional;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin {
@@ -80,7 +80,7 @@ public abstract class EntityMixin {
             return true;
         }
         if (!claim.get().checkAction(playerEntity.getUuid(), Flags.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
-            playerEntity.sendMessage(localized("text.itsours.action.disallowed.interact_block"), true);
+            playerEntity.sendMessage(localized("text.itsours.action.disallowed.interact_block", playerEntity), true);
             return false;
         }
         return true;
@@ -113,14 +113,14 @@ public abstract class EntityMixin {
             if (cause == this$entity) return;
             if (!claim.get().checkAction(null, Flags.PVP) && this$entity instanceof PlayerEntity) {
                 if (cause instanceof PlayerEntity player) {
-                    player.sendMessage(localized("text.itsours.action.disallowed.damage_player"), true);
+                    player.sendMessage(localized("text.itsours.action.disallowed.damage_player", player), true);
                 }
                 cir.setReturnValue(true);
                 return;
             }
             if (!claim.get().checkAction(cause.getUuid(), Flags.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, this.getType())) && !(this$entity instanceof PlayerEntity)) {
                 if (cause instanceof PlayerEntity player) {
-                    player.sendMessage(localized("text.itsours.action.disallowed.damage_entity"), true);
+                    player.sendMessage(localized("text.itsours.action.disallowed.damage_entity", player), true);
                 }
                 cir.setReturnValue(true);
             }

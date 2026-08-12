@@ -13,7 +13,6 @@ import net.minecraft.item.Items;
 import java.util.Collection;
 import java.util.UUID;
 
-import static me.drex.message.api.LocalizedMessage.localized;
 
 public class PlayerClaimListGui extends ClaimListGui<Claim> {
     private final UUID uuid;
@@ -21,7 +20,7 @@ public class PlayerClaimListGui extends ClaimListGui<Claim> {
     public PlayerClaimListGui(GuiContext context, UUID uuid, boolean advanced) {
         super(context, advanced);
         this.uuid = uuid;
-        setTitle(localized("text.itsours.gui.claimlist.player.title", PlaceholderUtil.uuid("player_", uuid, context.server())));
+        setTitle(message("text.itsours.gui.claimlist.player.title", PlaceholderUtil.uuid("player_", uuid, context.server())));
     }
 
     @Override

@@ -6,7 +6,6 @@ import me.drex.itsours.gui.GuiContext;
 
 import java.util.Collection;
 
-import static me.drex.message.api.LocalizedMessage.localized;
 
 public class SubzoneListGui extends ClaimListGui<Subzone> {
 
@@ -15,7 +14,7 @@ public class SubzoneListGui extends ClaimListGui<Subzone> {
     public SubzoneListGui(GuiContext context, AbstractClaim parent, boolean advanced) {
         super(context, advanced);
         this.parent = parent;
-        setTitle(localized("text.itsours.gui.claimlist.claim.title", parent.placeholders(context.server())));
+        setTitle(message("text.itsours.gui.claimlist.claim.title", parent.placeholders(context.server())));
     }
 
     @Override

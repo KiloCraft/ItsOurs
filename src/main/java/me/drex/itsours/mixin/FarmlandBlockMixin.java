@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Optional;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 
 @Mixin(FarmlandBlock.class)
 public abstract class FarmlandBlockMixin {
@@ -29,7 +29,7 @@ public abstract class FarmlandBlockMixin {
     private boolean itsours$canPlayerTrample(Entity entity, BlockState state, World world, BlockPos pos) {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, pos);
         if (claim.isPresent() && entity instanceof PlayerEntity player && !claim.get().checkAction(entity.getUuid(), Flags.MINE, Node.registry(Registries.BLOCK, (FarmlandBlock) (Object) this))) {
-            player.sendMessage(localized("text.itsours.action.disallowed.break_block"), true);
+            player.sendMessage(localized("text.itsours.action.disallowed.break_block", player), true);
             return false;
         }
         return true;

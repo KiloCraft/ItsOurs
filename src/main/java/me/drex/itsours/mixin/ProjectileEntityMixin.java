@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.Optional;
 
-import static me.drex.message.api.LocalizedMessage.localized;
+import static me.drex.itsours.util.LocalizedMessage.localized;
 
 @Mixin(ProjectileEntity.class)
 public abstract class ProjectileEntityMixin extends Entity {
@@ -48,7 +48,7 @@ public abstract class ProjectileEntityMixin extends Entity {
         }
         if (!claim.get().checkAction(null, Flags.PVP) && hitResult.getEntity() instanceof PlayerEntity) {
             if (entity.getOwner() instanceof PlayerEntity player) {
-                player.sendMessage(localized("text.itsours.action.disallowed.damage_player"), true);
+                player.sendMessage(localized("text.itsours.action.disallowed.damage_player", player), true);
             }
             if (entity instanceof PersistentProjectileEntity) {
                 if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill((ServerWorld) entity.getEntityWorld());
@@ -57,7 +57,7 @@ public abstract class ProjectileEntityMixin extends Entity {
         }
         if (!claim.get().checkAction(entity.getOwner().getUuid(), Flags.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, hitResult.getEntity().getType())) && !(hitResult.getEntity() instanceof PlayerEntity)) {
             if (entity.getOwner() instanceof PlayerEntity player) {
-                player.sendMessage(localized("text.itsours.action.disallowed.damage_entity"), true);
+                player.sendMessage(localized("text.itsours.action.disallowed.damage_entity", player), true);
             }
             if (entity instanceof PersistentProjectileEntity) {
                 if (((PersistentProjectileEntity) entity).getPierceLevel() > 0) entity.kill((ServerWorld) entity.getEntityWorld());
