@@ -4,9 +4,9 @@ import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import me.drex.itsours.gui.ContextSensitiveGui;
 import me.drex.itsours.gui.GuiContext;
-import net.minecraft.item.Item;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.text.Text;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.network.chat.Component;
 
 import java.util.Map;
 
@@ -16,7 +16,7 @@ public abstract class BaseGui extends SimpleGui implements ContextSensitiveGui {
 
     protected GuiContext context;
 
-    public BaseGui(GuiContext context, ScreenHandlerType<?> type) {
+    public BaseGui(GuiContext context, MenuType<?> type) {
         super(type, context.player, false);
         this.context = context;
     }
@@ -51,7 +51,7 @@ public abstract class BaseGui extends SimpleGui implements ContextSensitiveGui {
         return guiElement(item, name, Map.of());
     }
 
-    protected GuiElementBuilder guiElement(Item item, String name, Map<String, Text> placeholders) {
+    protected GuiElementBuilder guiElement(Item item, String name, Map<String, Component> placeholders) {
         GuiElementBuilder builder = new GuiElementBuilder(item)
             .setName(message("text.itsours.gui." + name + ".name", placeholders))
             .hideDefaultTooltip();

@@ -1,13 +1,13 @@
 package me.drex.itsours.claim.flags.node;
 
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.text.MutableText;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.network.chat.MutableComponent;
 
 public interface ChildNode extends Node {
 
-    ItemConvertible getIcon();
+    ItemLike getIcon();
 
-    MutableText getDescription();
+    MutableComponent getDescription();
 
     String getId();
 

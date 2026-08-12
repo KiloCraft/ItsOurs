@@ -2,8 +2,8 @@ package me.drex.itsours.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
 
 public class CommandManager {
 
@@ -14,8 +14,8 @@ public class CommandManager {
     private CommandManager() {
     }
 
-    public void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, net.minecraft.server.command.CommandManager.RegistrationEnvironment environment) {
-        LiteralArgumentBuilder<ServerCommandSource> claim = LiteralArgumentBuilder.literal(LITERAL);
+    public void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess, net.minecraft.commands.Commands.CommandSelection environment) {
+        LiteralArgumentBuilder<CommandSourceStack> claim = LiteralArgumentBuilder.literal(LITERAL);
 
         final AbstractCommand[] commands = new AbstractCommand[]{
             BlocksCommand.INSTANCE,

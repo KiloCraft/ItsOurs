@@ -12,8 +12,8 @@ import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.command.PlayerFlagsCommand;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.util.PlaceholderUtil;
-import net.minecraft.server.PlayerConfigEntry;
-import net.minecraft.text.Text;
+import net.minecraft.server.players.NameAndId;
+import net.minecraft.network.chat.Component;
 
 import java.util.Collections;
 import java.util.Map;
@@ -33,19 +33,19 @@ public class PlayerFlagsGui extends AbstractFlagsGui {
         this.setTitle(message("text.itsours.gui.playerflags.title", PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(context.server()),
             PlaceholderUtil.uuid("player_", player, context.server()),
-            Map.of("flag", Text.literal(flag.asString()))
+            Map.of("flag", Component.literal(flag.asString()))
         )));
     }
 
     @Override
     public Predicate<ChildNode> elementFilter() {
-        return childNode -> childNode.canChange(new Node.ChangeContext(claim, PlayerContext.INSTANCE, Value.DEFAULT, context.player.getCommandSource()));
+        return childNode -> childNode.canChange(new Node.ChangeContext(claim, PlayerContext.INSTANCE, Value.DEFAULT, context.player.createCommandSourceStack()));
     }
 
     @Override
     boolean setValue(Flag flag, Value value) {
         try {
-            PlayerFlagsCommand.INSTANCE.executeSet(context.player.getCommandSource().withSilent(), claim, Collections.singleton(new PlayerConfigEntry(player, player.toString())), flag, value);
+            PlayerFlagsCommand.INSTANCE.executeSet(context.player.createCommandSourceStack().withSuppressedOutput(), claim, Collections.singleton(new NameAndId(player, player.toString())), flag, value);
             return true;
         } catch (CommandSyntaxException e) {
             return false;

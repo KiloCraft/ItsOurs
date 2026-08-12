@@ -3,22 +3,22 @@ package me.drex.itsours.gui;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.GuiInterface;
 import me.drex.itsours.util.LocalizedMessage;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.world.item.Items;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.Map;
 
 public interface ContextSensitiveGui extends GuiInterface {
 
-    default MutableText message(String key) {
+    default MutableComponent message(String key) {
         return LocalizedMessage.localized(key, context().player);
     }
 
-    default MutableText message(String key, Map<String, Text> placeholders) {
+    default MutableComponent message(String key, Map<String, Component> placeholders) {
         return LocalizedMessage.localized(key, placeholders, context().player);
     }
 
@@ -54,7 +54,7 @@ public interface ContextSensitiveGui extends GuiInterface {
     }
 
     default void fail() {
-        context().player.playSound(Registries.SOUND_EVENT.getEntry(SoundEvents.ENTITY_VILLAGER_NO).value(), 0.5f, 1f);
+        context().player.playSound(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.VILLAGER_NO).value(), 0.5f, 1f);
     }
 
     default void click() {

@@ -4,9 +4,9 @@ import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import me.drex.itsours.gui.ContextSensitiveGui;
 import me.drex.itsours.gui.GuiContext;
-import net.minecraft.item.Items;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.text.Text;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.network.chat.Component;
 
 import java.util.Map;
 
@@ -15,15 +15,15 @@ public class ConfirmationGui extends SimpleGui implements ContextSensitiveGui {
 
     private final GuiContext context;
     private final String id;
-    private final Map<String, Text> placeholders;
+    private final Map<String, Component> placeholders;
     private final Runnable runnable;
 
     public ConfirmationGui(GuiContext context, String id, Runnable runnable) {
         this(context, id, Map.of(), runnable);
     }
 
-    public ConfirmationGui(GuiContext context, String id, Map<String, Text> placeholders, Runnable runnable) {
-        super(ScreenHandlerType.GENERIC_9X3, context.player, false);
+    public ConfirmationGui(GuiContext context, String id, Map<String, Component> placeholders, Runnable runnable) {
+        super(MenuType.GENERIC_9x3, context.player, false);
         this.context = context;
         this.id = id;
         this.placeholders = placeholders;

@@ -1,6 +1,6 @@
 package me.drex.itsours.claim.flags.util;
 
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
 
@@ -31,7 +31,7 @@ public enum Value {
         };
     }
 
-    public Text format() {
+    public Component format() {
         return localized(this.translationId);
     }
 }

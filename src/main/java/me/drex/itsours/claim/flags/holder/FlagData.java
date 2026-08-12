@@ -8,8 +8,8 @@ import me.drex.itsours.claim.flags.context.WeightedContext;
 import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.claim.flags.visitor.FlagVisitor;
 import me.drex.itsours.util.PlaceholderUtil;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -66,9 +66,9 @@ public class FlagData {
         return data.size();
     }
 
-    public Text toText() {
+    public Component toText() {
         return PlaceholderUtil.list(data.entrySet(), flagEntry ->
-                Map.of("flag", Text.literal(flagEntry.getKey().asString()).formatted(flagEntry.getValue() ? Formatting.GREEN : Formatting.RED)),
+                Map.of("flag", Component.literal(flagEntry.getKey().asString()).withStyle(flagEntry.getValue() ? ChatFormatting.GREEN : ChatFormatting.RED)),
             "text.itsours.placeholders.flags");
     }
 

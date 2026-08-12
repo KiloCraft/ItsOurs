@@ -17,10 +17,10 @@ import me.drex.itsours.gui.util.ConfirmationGui;
 import me.drex.itsours.gui.util.GuiTextures;
 import me.drex.itsours.gui.util.PlayerSelectorGui;
 import me.drex.itsours.util.PlaceholderUtil;
-import net.minecraft.item.Items;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.PlayerConfigEntry;
-import net.minecraft.text.Text;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.server.players.NameAndId;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Util;
 
 import java.util.*;
@@ -37,7 +37,7 @@ public class AdvancedPlayerManagerGui extends PageGui<UUID> {
     );
 
     public AdvancedPlayerManagerGui(GuiContext context, AbstractClaim claim) {
-        super(context, ScreenHandlerType.GENERIC_9X6);
+        super(context, MenuType.GENERIC_9x6);
         this.claim = claim;
         this.setTitle(message("text.itsours.gui.playermanager.title", claim.placeholders(context.server())));
     }
@@ -50,8 +50,8 @@ public class AdvancedPlayerManagerGui extends PageGui<UUID> {
             elements.addAll(group.players());
         });
         return elements.stream().sorted((uuid1, uuid2) ->
-                context.server().getApiServices().nameToIdCache().getByUuid(uuid1).map(PlayerConfigEntry::name).orElse(uuid1.toString())
-                    .compareTo(context.server().getApiServices().nameToIdCache().getByUuid(uuid2).map(PlayerConfigEntry::name).orElse(uuid2.toString())))
+                context.server().services().nameToIdCache().get(uuid1).map(NameAndId::name).orElse(uuid1.toString())
+                    .compareTo(context.server().services().nameToIdCache().get(uuid2).map(NameAndId::name).orElse(uuid2.toString())))
             .toList();
     }
 
@@ -63,7 +63,7 @@ public class AdvancedPlayerManagerGui extends PageGui<UUID> {
             Map.of(
                 "groups", PlaceholderUtil.list(claim.getGroupManager().groups().entrySet().stream().filter(entry -> entry.getValue().players().contains(player)).toList(),
                     groupEntry -> Map.of(
-                        "group_id", Text.literal(groupEntry.getKey())
+                        "group_id", Component.literal(groupEntry.getKey())
                     ), "text.itsours.gui.playermanager.entry.groups"),
                 "flags", playerFlags.toText()),
             PlaceholderUtil.uuid("player_", player, context.server())
@@ -75,7 +75,7 @@ public class AdvancedPlayerManagerGui extends PageGui<UUID> {
             } else if (clickType.isMiddle) {
                 switchUi(new ConfirmationGui(context, "text.itsours.gui.playermanager.reset.confirm", PlaceholderUtil.uuid("player_", player, context.server()), () -> {
                     // Reset player
-                    if (claim.checkAction(context.player.getUuid(), Flags.MODIFY, Modify.FLAG.node())) {
+                    if (claim.checkAction(context.player.getUUID(), Flags.MODIFY, Modify.FLAG.node())) {
                         claim.getPlayerFlags().remove(player);
                         claim.getGroupManager().groups().forEach((s, group) -> group.players().remove(player));
                         build();
@@ -90,7 +90,7 @@ public class AdvancedPlayerManagerGui extends PageGui<UUID> {
     @Override
     public CompletableFuture<GuiElementBuilder> guiElementFuture(UUID uuid) {
         return CompletableFuture.supplyAsync(() -> guiElement(uuid)
-            .setSkullOwner(new GameProfile(uuid, uuid.toString()), context.server()), Util.getMainWorkerExecutor());
+            .setSkullOwner(new GameProfile(uuid, uuid.toString()), context.server()), Util.backgroundExecutor());
     }
 
     @Override
@@ -121,7 +121,7 @@ public class AdvancedPlayerManagerGui extends PageGui<UUID> {
 
     private void addPlayer(String name) {
         CompletableFuture.runAsync(() -> {
-            context.server().getApiServices().profileRepository().findProfileByName(name).ifPresentOrElse(gameProfile -> {
+            context.server().services().profileRepository().findProfileByName(name).ifPresentOrElse(gameProfile -> {
                 claim.getPlayerFlags().putIfAbsent(gameProfile.id(), new FlagData());
                 build();
             }, this::fail);
@@ -130,9 +130,9 @@ public class AdvancedPlayerManagerGui extends PageGui<UUID> {
 
     private void trustPlayer(String name) {
         CompletableFuture.runAsync(() -> {
-            context.server().getApiServices().profileRepository().findProfileByName(name).ifPresentOrElse(gameProfile -> {
+            context.server().services().profileRepository().findProfileByName(name).ifPresentOrElse(gameProfile -> {
                 try {
-                    TrustCommand.TRUST.executeTrust(context.player.getCommandSource(), claim, Collections.singleton(new PlayerConfigEntry(gameProfile)));
+                    TrustCommand.TRUST.executeTrust(context.player.createCommandSourceStack(), claim, Collections.singleton(new NameAndId(gameProfile)));
                     build();
                 } catch (CommandSyntaxException ignored) {
                     fail();

@@ -17,18 +17,18 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 import java.util.Optional;
 
@@ -36,7 +36,7 @@ import static me.drex.itsours.util.LocalizedMessage.localized;
 
 public class PlayerEventListener {
 
-    public static final Identifier BEFORE_DEFAULT = Identifier.of(ItsOurs.MOD_ID, "before_default");
+    public static final Identifier BEFORE_DEFAULT = Identifier.fromNamespaceAndPath(ItsOurs.MOD_ID, "before_default");
 
     public static void registerPlayerListeners() {
         UseBlockCallback.EVENT.addPhaseOrdering(BEFORE_DEFAULT, Event.DEFAULT_PHASE);
@@ -47,73 +47,73 @@ public class PlayerEventListener {
         UseItemCallback.EVENT.register(BEFORE_DEFAULT, PlayerEventListener::onInteractItem);
     }
 
-    private static ActionResult onBlockUse(PlayerEntity player, World world, Hand hand, BlockHitResult hitResult) {
+    private static InteractionResult onBlockUse(Player player, Level world, InteractionHand hand, BlockHitResult hitResult) {
         ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
         final BlockPos pos = hitResult.getBlockPos();
         if (shouldSelect(player, hand)) {
-            player.sendMessage(localized("text.itsours.select.pos2", PlaceholderUtil.vec3i("pos_", pos), player), false);
+            player.displayClientMessage(localized("text.itsours.select.pos2", PlaceholderUtil.vec3i("pos_", pos), player), false);
             claimSelectingPlayer.setSecondPosition(pos);
             onSelectCorner(player);
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
-    private static ActionResult onBlockAttack(PlayerEntity player, World world, Hand hand, BlockPos pos, Direction direction) {
+    private static InteractionResult onBlockAttack(Player player, Level world, InteractionHand hand, BlockPos pos, Direction direction) {
         ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, pos);
         if (claim.isPresent()) {
             BlockState state = world.getBlockState(pos);
-            if (!claim.get().checkAction(player.getUuid(), Flags.MINE, Node.registry(Registries.BLOCK, state.getBlock()))) {
-                player.sendMessage(localized("text.itsours.action.disallowed.break_block", player), true);
-                return ActionResult.FAIL;
+            if (!claim.get().checkAction(player.getUUID(), Flags.MINE, Node.registry(BuiltInRegistries.BLOCK, state.getBlock()))) {
+                player.displayClientMessage(localized("text.itsours.action.disallowed.break_block", player), true);
+                return InteractionResult.FAIL;
             }
         }
         if (shouldSelect(player, hand)) {
-            player.sendMessage(localized("text.itsours.select.pos1", PlaceholderUtil.vec3i("pos_", pos), player), false);
+            player.displayClientMessage(localized("text.itsours.select.pos1", PlaceholderUtil.vec3i("pos_", pos), player), false);
             claimSelectingPlayer.setFirstPosition(pos);
             onSelectCorner(player);
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
-    private static ActionResult onInteractItem(PlayerEntity player, World world, Hand hand) {
-        ItemStack stack = player.getStackInHand(hand);
+    private static InteractionResult onInteractItem(Player player, Level world, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(player);
         if (claim.isEmpty() || !FlagBuilderUtil.USE_ITEM_PREDICATE.test(stack.getItem()))
-            return ActionResult.PASS;
-        if (!claim.get().checkAction(player.getUuid(), Flags.USE_ITEM, Node.registry(Registries.ITEM, stack.getItem()))) {
-            player.sendMessage(localized("text.itsours.action.disallowed.interact_item", player), true);
-            return ActionResult.FAIL;
+            return InteractionResult.PASS;
+        if (!claim.get().checkAction(player.getUUID(), Flags.USE_ITEM, Node.registry(BuiltInRegistries.ITEM, stack.getItem()))) {
+            player.displayClientMessage(localized("text.itsours.action.disallowed.interact_item", player), true);
+            return InteractionResult.FAIL;
         }
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
-    private static void onSelectCorner(PlayerEntity player) {
+    private static void onSelectCorner(Player player) {
         ClaimSelectingPlayer claimSelectingPlayer = (ClaimSelectingPlayer) player;
         ClaimTrackingPlayer claimTrackingPlayer = (ClaimTrackingPlayer)player;
         claimTrackingPlayer.trackClaims();
         if (claimSelectingPlayer.arePositionsSet()) {
             AbstractClaim previous = claimSelectingPlayer.claim();
             if (previous != null) {
-                previous.notifyTrackingChanges(player.getEntityWorld().getServer(), false);
+                previous.notifyTrackingChanges(player.level().getServer(), false);
             }
-            ClaimBox selectedBox = ClaimBox.create(claimSelectingPlayer.getFirstPosition().withY(player.getEntityWorld().getBottomY()), claimSelectingPlayer.getSecondPosition().withY(player.getEntityWorld().getTopYInclusive()));
+            ClaimBox selectedBox = ClaimBox.create(claimSelectingPlayer.getFirstPosition().atY(player.level().getMinY()), claimSelectingPlayer.getSecondPosition().atY(player.level().getMaxY()));
 
-            Claim claim = new Claim("", player.getUuid(), selectedBox, player.getEntityWorld());
-            claim.notifyTrackingChanges(player.getEntityWorld().getServer(), true);
+            Claim claim = new Claim("", player.getUUID(), selectedBox, player.level());
+            claim.notifyTrackingChanges(player.level().getServer(), true);
             claimSelectingPlayer.setClaim(claim);
 
-            if (ClaimList.getClaimsFrom(player.getUuid()).isEmpty()) {
-                player.sendMessage(localized("text.itsours.select.done.first", player), false);
+            if (ClaimList.getClaimsFrom(player.getUUID()).isEmpty()) {
+                player.displayClientMessage(localized("text.itsours.select.done.first", player), false);
             } else {
-                player.sendMessage(localized("text.itsours.select.done", player), false);
+                player.displayClientMessage(localized("text.itsours.select.done", player), false);
             }
         }
     }
 
-    private static boolean shouldSelect(PlayerEntity player, Hand hand) {
-        return player.getStackInHand(hand).isOf(Constants.SELECT_ITEM) || DataManager.getUserData(player.getUuid()).select();
+    private static boolean shouldSelect(Player player, InteractionHand hand) {
+        return player.getItemInHand(hand).is(Constants.SELECT_ITEM) || DataManager.getUserData(player.getUUID()).select();
     }
 }

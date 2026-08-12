@@ -9,9 +9,9 @@ import me.drex.itsours.claim.flags.util.FlagBuilderUtil;
 import me.drex.itsours.claim.flags.util.Modify;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Items;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 import java.util.Arrays;
 
@@ -28,37 +28,37 @@ public class Flags {
     public static final AbstractChildNode USE_ITEM = literal("use_item")
         .description("use_item")
         .icon(Items.FIREWORK_ROCKET)
-        .then(FlagBuilderUtil.getNodes(Registries.ITEM, FlagBuilderUtil.USE_ITEM_PREDICATE))
+        .then(FlagBuilderUtil.getNodes(BuiltInRegistries.ITEM, FlagBuilderUtil.USE_ITEM_PREDICATE))
         .build();
     public static final AbstractChildNode USE_ON_BLOCK = literal("use_on_block")
         .description("use_on_block")
         .icon(Items.IRON_SHOVEL)
-        .then(FlagBuilderUtil.getNodes(Registries.ITEM, FlagBuilderUtil.USE_ON_BLOCK_PREDICATE))
+        .then(FlagBuilderUtil.getNodes(BuiltInRegistries.ITEM, FlagBuilderUtil.USE_ON_BLOCK_PREDICATE))
         .build();
     public static final AbstractChildNode INTERACT_BLOCK = literal("interact_block")
         .description("interact_block")
         .icon(Items.FURNACE)
-        .then(FlagBuilderUtil.getNodes(Registries.BLOCK, FlagBuilderUtil.INTERACT_BLOCK_PREDICATE))
+        .then(FlagBuilderUtil.getNodes(BuiltInRegistries.BLOCK, FlagBuilderUtil.INTERACT_BLOCK_PREDICATE))
         .build();
     public static final AbstractChildNode INTERACT_ENTITY = literal("interact_entity")
         .description("interact_entity")
         .icon(Items.VILLAGER_SPAWN_EGG)
-        .then(FlagBuilderUtil.getNodes(Registries.ENTITY_TYPE))
+        .then(FlagBuilderUtil.getNodes(BuiltInRegistries.ENTITY_TYPE))
         .build();
     public static final AbstractChildNode PLACE = literal("place")
         .description("place")
         .icon(Items.MANGROVE_PLANKS)
-        .then(FlagBuilderUtil.getNodes(Registries.BLOCK))
+        .then(FlagBuilderUtil.getNodes(BuiltInRegistries.BLOCK))
         .build();
     public static final AbstractChildNode MINE = literal("mine")
         .description("mine")
         .icon(Items.NETHERITE_PICKAXE)
-        .then(FlagBuilderUtil.getNodes(Registries.BLOCK))
+        .then(FlagBuilderUtil.getNodes(BuiltInRegistries.BLOCK))
         .build();
     public static final AbstractChildNode DAMAGE_ENTITY = literal("damage_entity")
         .description("damage_entity")
         .icon(Items.DIAMOND_SWORD)
-        .then(FlagBuilderUtil.getNodes(Registries.ENTITY_TYPE, entityType -> !entityType.equals(EntityType.PLAYER)))
+        .then(FlagBuilderUtil.getNodes(BuiltInRegistries.ENTITY_TYPE, entityType -> !entityType.equals(EntityType.PLAYER)))
         .build();
     public static final AbstractChildNode GLIDE = literal("glide")
         .description("glide")

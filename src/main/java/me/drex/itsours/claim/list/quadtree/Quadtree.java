@@ -2,7 +2,7 @@ package me.drex.itsours.claim.list.quadtree;
 
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.util.ClaimBox;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -102,7 +102,7 @@ public class Quadtree {
         List<AbstractClaim> result = new ArrayList<>();
         if (node.contains(pos)) {
             for (AbstractClaim claim : node.claims) {
-                if (claim.getBox().contains(pos)) {
+                if (claim.getBox().isInside(pos)) {
                     result.add(claim);
                 }
             }

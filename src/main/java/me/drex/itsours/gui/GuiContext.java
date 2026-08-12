@@ -1,20 +1,20 @@
 package me.drex.itsours.gui;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Stack;
 
 public class GuiContext {
 
-    public final ServerPlayerEntity player;
+    public final ServerPlayer player;
     public final Stack<ContextSensitiveGui> guiStack = new Stack<>();
 
-    public GuiContext(ServerPlayerEntity player) {
+    public GuiContext(ServerPlayer player) {
         this.player = player;
     }
 
     public MinecraftServer server() {
-        return player.getEntityWorld().getServer();
+        return player.level().getServer();
     }
 }

@@ -11,9 +11,9 @@ import me.drex.itsours.claim.flags.util.InvalidFlagException;
 import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.gui.PageGui;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.text.Text;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.network.chat.Component;
 
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +40,7 @@ public abstract class AbstractFlagsGui extends PageGui<ChildNode> {
     );
 
     protected AbstractFlagsGui(GuiContext context, FlagData flagData, Flag flag) {
-        super(context, ScreenHandlerType.GENERIC_9X6);
+        super(context, MenuType.GENERIC_9x6);
         this.flagData = flagData;
         this.flag = flag;
     }
@@ -77,12 +77,12 @@ public abstract class AbstractFlagsGui extends PageGui<ChildNode> {
                 case DENY -> Integer.MAX_VALUE;
             };
             return new GuiElementBuilder(childNode.getIcon().asItem())
-                .setName(Text.literal(childNode.getName()))
+                .setName(Component.literal(childNode.getName()))
                 .setLore(splitLines(message(localizationId, Map.of("description", childNode.getDescription(), "value", value.format()))))
                 .hideDefaultTooltip()
-                .setComponent(DataComponentTypes.MAX_STACK_SIZE, 1)
-                .setComponent(DataComponentTypes.MAX_DAMAGE, Integer.MAX_VALUE)
-                .setComponent(DataComponentTypes.DAMAGE, damage)
+                .setComponent(DataComponents.MAX_STACK_SIZE, 1)
+                .setComponent(DataComponents.MAX_DAMAGE, Integer.MAX_VALUE)
+                .setComponent(DataComponents.DAMAGE, damage)
                 .setCallback(clickType -> {
                     if (clickType.isLeft) {
                         Value nextValue = value.next();

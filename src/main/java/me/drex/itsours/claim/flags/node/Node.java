@@ -6,13 +6,13 @@ import me.drex.itsours.claim.flags.node.builder.AbstractNodeBuilder;
 import me.drex.itsours.claim.flags.node.builder.GroupNodeBuilder;
 import me.drex.itsours.claim.flags.node.builder.LiteralNodeBuilder;
 import me.drex.itsours.claim.flags.util.Value;
-import net.minecraft.block.Block;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
+import net.minecraft.tags.TagKey;
+import net.minecraft.commands.CommandSourceStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -34,15 +34,15 @@ public interface Node {
     }
 
     static ChildNode entity(EntityType<?> entityType) {
-        return registry(Registries.ENTITY_TYPE, entityType);
+        return registry(BuiltInRegistries.ENTITY_TYPE, entityType);
     }
 
     static ChildNode block(Block block) {
-        return registry(Registries.BLOCK, block);
+        return registry(BuiltInRegistries.BLOCK, block);
     }
 
     static ChildNode item(Item item) {
-        return registry(Registries.ITEM, item);
+        return registry(BuiltInRegistries.ITEM, item);
     }
 
     static GroupNodeBuilder group(String id) {
@@ -59,7 +59,7 @@ public interface Node {
     boolean canChange(ChangeContext context);
 
     record ChangeContext(@Nullable AbstractClaim claim, WeightedContext context, Value value,
-                         ServerCommandSource source) {
+                         CommandSourceStack source) {
     }
 
 }

@@ -3,7 +3,7 @@ package me.drex.itsours.claim.list.quadtree;
 import com.google.common.base.MoreObjects;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.util.ClaimBox;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ public class QuadtreeNode {
     }
 
     public boolean contains(BlockPos pos) {
-        return boundary.contains(pos);
+        return boundary.isInside(pos);
     }
 
     @Override

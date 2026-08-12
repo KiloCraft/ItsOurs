@@ -8,7 +8,7 @@ import me.drex.itsours.claim.flags.Flag;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.gui.flags.DefaultFlagsGui;
 import me.drex.itsours.util.PlaceholderUtil;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -30,7 +30,7 @@ public class PlayerClaimListGui extends ClaimListGui<Claim> {
 
     @Override
     public GuiElementBuilder buildNavigationBar(int index) {
-        if (index == 7 && ItsOurs.checkPermission(context.player.getCommandSource(), "itsours.permissions.default", 2)) {
+        if (index == 7 && ItsOurs.checkPermission(context.player.createCommandSourceStack(), "itsours.permissions.default", 2)) {
             return switchElement(Items.COOKED_BEEF, "claimlist.default", new DefaultFlagsGui(context, Flag.flag()));
         }
         return super.buildNavigationBar(index);

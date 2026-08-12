@@ -8,12 +8,12 @@ import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.util.ClaimMessages;
 import me.drex.itsours.user.ClaimTrackingPlayer;
 import me.drex.itsours.util.ClaimBox;
-import net.minecraft.registry.RegistryKey;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Uuids;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.world.level.Level;
 
 import java.util.*;
 
@@ -21,12 +21,12 @@ public class Claim extends AbstractClaim {
 
     public static final Codec<Claim> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         Codec.STRING.fieldOf("name").forGetter(AbstractClaim::getName),
-        Uuids.INT_STREAM_CODEC.fieldOf("owner").forGetter(AbstractClaim::getOwner),
+        UUIDUtil.CODEC.fieldOf("owner").forGetter(AbstractClaim::getOwner),
         ClaimBox.CODEC.fieldOf("box").forGetter(AbstractClaim::getBox),
-        World.CODEC.fieldOf("dimension").forGetter(AbstractClaim::getDimension),
+        Level.RESOURCE_KEY_CODEC.fieldOf("dimension").forGetter(AbstractClaim::getDimension),
         Codec.list(Subzone.CODEC).fieldOf("subzones").forGetter(AbstractClaim::getSubzones),
         FlagData.CODEC.fieldOf("flags").forGetter(AbstractClaim::getFlags),
-        Codec.unboundedMap(Uuids.STRING_CODEC, FlagData.CODEC).fieldOf("player_flags").forGetter(AbstractClaim::getPlayerFlags),
+        Codec.unboundedMap(UUIDUtil.STRING_CODEC, FlagData.CODEC).fieldOf("player_flags").forGetter(AbstractClaim::getPlayerFlags),
         ClaimGroupManager.CODEC.fieldOf("groups").forGetter(AbstractClaim::getGroupManager),
         ClaimMessages.CODEC.fieldOf("messages").forGetter(AbstractClaim::getMessages)
     ).apply(instance, (name, owner, box, dimension, subzones, flags, playerFlags, groups, claimMessages) -> {
@@ -37,12 +37,12 @@ public class Claim extends AbstractClaim {
 
     private UUID owner;
 
-    public Claim(String name, UUID owner, ClaimBox box, RegistryKey<World> dimension, List<Subzone> subzones, FlagData flags, Map<UUID, FlagData> playerFlags, ClaimGroupManager groups, ClaimMessages messages) {
+    public Claim(String name, UUID owner, ClaimBox box, ResourceKey<Level> dimension, List<Subzone> subzones, FlagData flags, Map<UUID, FlagData> playerFlags, ClaimGroupManager groups, ClaimMessages messages) {
         super(name, box, dimension, new ArrayList<>(subzones), flags, new HashMap<>(playerFlags), groups, messages);
         this.owner = owner;
     }
 
-    public Claim(String name, UUID owner, ClaimBox box, World world) {
+    public Claim(String name, UUID owner, ClaimBox box, Level world) {
         super(name, box, world);
         this.owner = owner;
     }

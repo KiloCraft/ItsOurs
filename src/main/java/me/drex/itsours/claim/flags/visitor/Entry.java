@@ -6,7 +6,7 @@ import me.drex.itsours.claim.flags.context.WeightedContext;
 import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.util.PlaceholderUtil;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -16,11 +16,11 @@ public record Entry(AbstractClaim claim,
                     WeightedContext context,
                     Value value) implements Comparable<Entry> {
 
-    public Map<String, Text> placeholders(MinecraftServer server) {
+    public Map<String, Component> placeholders(MinecraftServer server) {
         return PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(server),
             Map.of(
-                "flag", Text.literal(flag.asString()),
+                "flag", Component.literal(flag.asString()),
                 "context", context.toText(),
                 "value", value.format()
             )

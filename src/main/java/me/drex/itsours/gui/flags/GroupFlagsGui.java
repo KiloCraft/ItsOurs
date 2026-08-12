@@ -11,7 +11,7 @@ import me.drex.itsours.claim.groups.Group;
 import me.drex.itsours.command.GroupsCommand;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.util.PlaceholderUtil;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 import java.util.Map;
 import java.util.function.Predicate;
@@ -31,20 +31,20 @@ public class GroupFlagsGui extends AbstractFlagsGui {
         this.group = group;
         this.groupContext = claim.getGroupManager().context(groupId, group);
         this.setTitle(message("text.itsours.gui.group.title", PlaceholderUtil.mergePlaceholderMaps(
-            Map.of("group_id", Text.literal(groupId)),
-            Map.of("flag", Text.literal(flag.asString()))
+            Map.of("group_id", Component.literal(groupId)),
+            Map.of("flag", Component.literal(flag.asString()))
         )));
     }
 
     @Override
     public Predicate<ChildNode> elementFilter() {
-        return childNode -> childNode.canChange(new Node.ChangeContext(claim, groupContext, Value.DEFAULT, context.player.getCommandSource()));
+        return childNode -> childNode.canChange(new Node.ChangeContext(claim, groupContext, Value.DEFAULT, context.player.createCommandSourceStack()));
     }
 
     @Override
     boolean setValue(Flag flag, Value value) {
         try {
-            GroupsCommand.INSTANCE.setGroupFlags(context.player.getCommandSource().withSilent(), claim, groupId, flag, value);
+            GroupsCommand.INSTANCE.setGroupFlags(context.player.createCommandSourceStack().withSuppressedOutput(), claim, groupId, flag, value);
             return true;
         } catch (CommandSyntaxException e) {
             return false;

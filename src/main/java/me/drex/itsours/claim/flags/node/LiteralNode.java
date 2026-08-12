@@ -1,14 +1,14 @@
 package me.drex.itsours.claim.flags.node;
 
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.text.MutableText;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.network.chat.MutableComponent;
 
 import java.util.List;
 import java.util.function.Predicate;
 
 public class LiteralNode extends AbstractChildNode {
 
-    public LiteralNode(String id, MutableText description, List<ChildNode> nodes, ItemConvertible icon, Predicate<ChangeContext> changePredicate) {
+    public LiteralNode(String id, MutableComponent description, List<ChildNode> nodes, ItemLike icon, Predicate<ChangeContext> changePredicate) {
         super(id, description, nodes, icon, changePredicate);
     }
 

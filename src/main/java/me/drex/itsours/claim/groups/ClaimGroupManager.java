@@ -7,11 +7,11 @@ import me.drex.itsours.claim.flags.context.GroupContext;
 import me.drex.itsours.claim.flags.holder.FlagData;
 import me.drex.itsours.claim.flags.node.ChildNode;
 import me.drex.itsours.claim.flags.util.Value;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.HolderSet;
+import net.minecraft.tags.ItemTags;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -71,9 +71,9 @@ public class ClaimGroupManager {
     }
 
     public static Item getGroupIcon(String groupId) {
-        Optional<RegistryEntryList.Named<Item>> optional = Registries.ITEM.getOptional(ItemTags.WOOL);
+        Optional<HolderSet.Named<Item>> optional = BuiltInRegistries.ITEM.get(ItemTags.WOOL);
         if (optional.isPresent()) {
-            RegistryEntryList.Named<Item> entries = optional.get();
+            HolderSet.Named<Item> entries = optional.get();
             return entries.get(Math.abs(groupId.hashCode()) % entries.size()).value();
         } else {
             return Items.STONE;

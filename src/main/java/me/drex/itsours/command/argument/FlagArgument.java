@@ -14,54 +14,54 @@ import me.drex.itsours.claim.flags.node.Node;
 import me.drex.itsours.claim.flags.node.RootNode;
 import me.drex.itsours.claim.flags.util.InvalidFlagException;
 import me.drex.itsours.claim.flags.util.Value;
-import net.minecraft.command.CommandSource;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.CommandSourceStack;
 
 import java.util.*;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.text.Text.literal;
-import static net.minecraft.util.Identifier.NAMESPACE_SEPARATOR;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.network.chat.Component.literal;
+import static net.minecraft.resources.Identifier.NAMESPACE_SEPARATOR;
 
 public class FlagArgument {
 
     public static final DynamicCommandExceptionType UNKNOWN_FLAG = new DynamicCommandExceptionType(input -> localized("text.itsours.argument.flags.unknown", Map.of("input", literal(input.toString()))));
     public static final DynamicCommandExceptionType UNKNOWN_VALUE = new DynamicCommandExceptionType(input -> localized("text.itsours.argument.value.invalid", Map.of("input", literal(input.toString()))));
     public static final CommandSyntaxException FORBIDDEN = new SimpleCommandExceptionType(localized("text.itsours.argument.flags.forbidden")).create();
-    public static final SuggestionProvider<ServerCommandSource> PLAYER_FLAG_PROVIDER = (context, builder) -> {
-        return CommandSource.suggestMatching(generateCandidates(Flags.PLAYER, builder.getRemaining()), builder);
+    public static final SuggestionProvider<CommandSourceStack> PLAYER_FLAG_PROVIDER = (context, builder) -> {
+        return SharedSuggestionProvider.suggest(generateCandidates(Flags.PLAYER, builder.getRemaining()), builder);
     };
-    public static final SuggestionProvider<ServerCommandSource> FLAG_PROVIDER = (context, builder) -> {
-        return CommandSource.suggestMatching(generateCandidates(Flags.GLOBAL, builder.getRemaining()), builder);
+    public static final SuggestionProvider<CommandSourceStack> FLAG_PROVIDER = (context, builder) -> {
+        return SharedSuggestionProvider.suggest(generateCandidates(Flags.GLOBAL, builder.getRemaining()), builder);
     };
-    public static final SuggestionProvider<ServerCommandSource> VALUE_PROVIDER = (source, builder) -> CommandSource.suggestMatching(Arrays.stream(Value.values()).map(value -> value.literal), builder);
+    public static final SuggestionProvider<CommandSourceStack> VALUE_PROVIDER = (source, builder) -> SharedSuggestionProvider.suggest(Arrays.stream(Value.values()).map(value -> value.literal), builder);
 
-    public static RequiredArgumentBuilder<ServerCommandSource, String> playerFlag() {
+    public static RequiredArgumentBuilder<CommandSourceStack, String> playerFlag() {
         return playerFlag("player_flag");
     }
 
-    public static RequiredArgumentBuilder<ServerCommandSource, String> flag() {
+    public static RequiredArgumentBuilder<CommandSourceStack, String> flag() {
         return flag("flag");
     }
 
-    public static Flag getPlayerFlag(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    public static Flag getPlayerFlag(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return getPlayerFlag(ctx, "player_flag");
     }
 
-    public static Flag getPlayerFlag(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
+    public static Flag getPlayerFlag(CommandContext<CommandSourceStack> ctx, String name) throws CommandSyntaxException {
         return getPlayerFlag(ctx, name, Flags.PLAYER);
     }
 
-    public static Flag getFlag(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    public static Flag getFlag(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return getFlag(ctx, "flag");
     }
 
-    public static Flag getFlag(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
+    public static Flag getFlag(CommandContext<CommandSourceStack> ctx, String name) throws CommandSyntaxException {
         return getPlayerFlag(ctx, name, Flags.GLOBAL);
     }
 
-    private static Flag getPlayerFlag(CommandContext<ServerCommandSource> ctx, String name, RootNode rootNode) throws CommandSyntaxException {
+    private static Flag getPlayerFlag(CommandContext<CommandSourceStack> ctx, String name, RootNode rootNode) throws CommandSyntaxException {
         String string = StringArgumentType.getString(ctx, name).replace('+', NAMESPACE_SEPARATOR);
         try {
             return Flag.valueOf(rootNode, string);
@@ -70,29 +70,29 @@ public class FlagArgument {
         }
     }
 
-    public static Value getValue(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    public static Value getValue(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return getValue(ctx, "value");
     }
 
-    public static Value getValue(CommandContext<ServerCommandSource> ctx, String name) throws CommandSyntaxException {
+    public static Value getValue(CommandContext<CommandSourceStack> ctx, String name) throws CommandSyntaxException {
         String string = StringArgumentType.getString(ctx, name);
         Optional<Value> optional = Arrays.stream(Value.values()).filter(value -> value.literal.equals(string)).findFirst();
         return optional.orElseThrow(() -> UNKNOWN_VALUE.create(string));
     }
 
-    public static RequiredArgumentBuilder<ServerCommandSource, String> playerFlag(String name) {
+    public static RequiredArgumentBuilder<CommandSourceStack, String> playerFlag(String name) {
         return argument(name, StringArgumentType.string()).suggests(PLAYER_FLAG_PROVIDER);
     }
 
-    public static RequiredArgumentBuilder<ServerCommandSource, String> flag(String name) {
+    public static RequiredArgumentBuilder<CommandSourceStack, String> flag(String name) {
         return argument(name, StringArgumentType.string()).suggests(FLAG_PROVIDER);
     }
 
-    public static RequiredArgumentBuilder<ServerCommandSource, String> value() {
+    public static RequiredArgumentBuilder<CommandSourceStack, String> value() {
         return value("value");
     }
 
-    public static RequiredArgumentBuilder<ServerCommandSource, String> value(String name) {
+    public static RequiredArgumentBuilder<CommandSourceStack, String> value(String name) {
         return argument(name, StringArgumentType.word()).suggests(VALUE_PROVIDER);
     }
 

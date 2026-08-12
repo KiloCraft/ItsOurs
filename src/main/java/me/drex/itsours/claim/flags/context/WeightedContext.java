@@ -1,6 +1,6 @@
 package me.drex.itsours.claim.flags.context;
 
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 public interface WeightedContext extends Comparable<WeightedContext> {
@@ -14,7 +14,7 @@ public interface WeightedContext extends Comparable<WeightedContext> {
 
     long getWeight();
 
-    Text toText();
+    Component toText();
 
     @Override
     default int compareTo(@NotNull WeightedContext other) {

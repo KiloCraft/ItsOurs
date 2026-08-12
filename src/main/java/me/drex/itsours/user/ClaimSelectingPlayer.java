@@ -1,7 +1,7 @@
 package me.drex.itsours.user;
 
 import me.drex.itsours.claim.AbstractClaim;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 public interface ClaimSelectingPlayer {
 

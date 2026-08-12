@@ -14,13 +14,16 @@ import me.drex.itsours.claim.flags.holder.FlagData;
 import me.drex.itsours.user.PlayerData;
 import me.drex.itsours.util.Constants;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.Items;
 import net.minecraft.nbt.*;
-import net.minecraft.registry.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Uuids;
-import net.minecraft.util.WorldSavePath;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,7 +46,7 @@ public class DataManager {
         defaultFlags.set(Flag.flag(Flags.GLIDE), Value.ALLOW);
         defaultFlags.set(Flag.flag(Flags.USE_ITEM, Node.item(Items.FIREWORK_ROCKET)), Value.ALLOW);
         // Allow eating
-        defaultFlags.set(Flag.flag(Flags.USE_ITEM, Node.group(Registries.ITEM, ConventionalItemTags.FOODS)), Value.ALLOW);
+        defaultFlags.set(Flag.flag(Flags.USE_ITEM, Node.group(BuiltInRegistries.ITEM, ConventionalItemTags.FOODS)), Value.ALLOW);
         // Allow basic blocks
         defaultFlags.set(Flag.flag(Flags.INTERACT_BLOCK, Node.block(Blocks.CRAFTING_TABLE)), Value.ALLOW);
         defaultFlags.set(Flag.flag(Flags.INTERACT_BLOCK, Node.block(Blocks.ENDER_CHEST)), Value.ALLOW);
@@ -53,7 +56,7 @@ public class DataManager {
     public static final Codec<?> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         ClaimList.CODEC.fieldOf("claims").forGetter((ignored) -> ClaimList.getClaims().stream().filter(claim -> claim instanceof Claim).map(claim -> (Claim) claim).toList()),
         FlagData.CODEC.fieldOf("default_flags").forGetter(ignored -> DataManager.defaultSettings()),
-        Codec.unboundedMap(Uuids.STRING_CODEC, PlayerData.CODEC).fieldOf("players").forGetter(ignored -> DataManager.playerData())
+        Codec.unboundedMap(UUIDUtil.STRING_CODEC, PlayerData.CODEC).fieldOf("players").forGetter(ignored -> DataManager.playerData())
     ).apply(instance, (claims, defaultFlags, playerData) -> {
         init(claims, defaultFlags, playerData);
         return null;
@@ -77,17 +80,17 @@ public class DataManager {
     }
 
     public static void load(MinecraftServer server) {
-        Path data = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat");
+        Path data = server.getWorldPath(LevelResource.ROOT).resolve("claims.dat");
         if (Files.notExists(data)) {
             LOGGER.debug("Claim data file not found.");
         } else {
             try {
                 LOGGER.info("Loading claim data {}kB", Files.size(data) / 1024);
-                Dynamic<NbtElement> dynamic = new Dynamic<>(NbtOps.INSTANCE, NbtIo.readCompressed(data, NbtSizeTracker.ofUnlimitedBytes()));
+                Dynamic<Tag> dynamic = new Dynamic<>(NbtOps.INSTANCE, NbtIo.readCompressed(data, NbtAccounter.unlimitedHeap()));
                 int dataVersion = dynamic.get("dataVersion").asInt(CURRENT_DATA_VERSION);
                 dynamic.remove("dataVersion");
                 dynamic = FIXER.update(ItsOursTypeReferences.ROOT, dynamic, dataVersion, CURRENT_DATA_VERSION);
-                NbtElement element = dynamic.getValue();
+                Tag element = dynamic.getValue();
                 DataResult<?> dataResult = CODEC.parse(NbtOps.INSTANCE, element);
                 dataResult.getOrThrow(error -> new IllegalStateException("Failed to parse claim data: '" + error + "'"));
                 if (unknownFlags.isEmpty()) {
@@ -107,11 +110,11 @@ public class DataManager {
 
     public static void save(MinecraftServer server) {
         if (loadingFailed) return;
-        DataResult<NbtElement> dataResult = CODEC.encodeStart(NbtOps.INSTANCE, null);
-        NbtElement nbtElement = dataResult.resultOrPartial(error -> LOGGER.error("Failed to encode claim data: '{}'", error)).orElseThrow();
-        Path data = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat");
-        Path backup = server.getSavePath(WorldSavePath.ROOT).resolve("claims.dat_old");
-        if (!(nbtElement instanceof NbtCompound root)) {
+        DataResult<Tag> dataResult = CODEC.encodeStart(NbtOps.INSTANCE, null);
+        Tag nbtElement = dataResult.resultOrPartial(error -> LOGGER.error("Failed to encode claim data: '{}'", error)).orElseThrow();
+        Path data = server.getWorldPath(LevelResource.ROOT).resolve("claims.dat");
+        Path backup = server.getWorldPath(LevelResource.ROOT).resolve("claims.dat_old");
+        if (!(nbtElement instanceof CompoundTag root)) {
             return;
         }
         root.putInt("dataVersion", CURRENT_DATA_VERSION);

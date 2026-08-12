@@ -6,10 +6,10 @@ import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.Subzone;
 import me.drex.itsours.claim.list.quadtree.Quadtree;
 import me.drex.itsours.util.ClaimBox;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import java.util.*;
 
@@ -61,20 +61,20 @@ public class ClaimList {
     }
 
     public static Optional<AbstractClaim> getClaimAt(Entity entity) {
-        return getClaimAt(entity.getEntityWorld(), entity.getBlockPos());
+        return getClaimAt(entity.level(), entity.blockPosition());
     }
 
-    public static Optional<AbstractClaim> getClaimAt(ItemUsageContext context) {
-        return getClaimAt(context.getWorld(), context.getBlockPos());
+    public static Optional<AbstractClaim> getClaimAt(UseOnContext context) {
+        return getClaimAt(context.getLevel(), context.getClickedPos());
     }
 
-    public static Optional<AbstractClaim> getClaimAt(World world, BlockPos pos) {
+    public static Optional<AbstractClaim> getClaimAt(Level world, BlockPos pos) {
         List<AbstractClaim> claims = quadtree.query(pos);
         AbstractClaim result = null;
         int maxDepth = -1;
         for (AbstractClaim claim : claims) {
             // Check world and y-axis
-            if (!claim.getDimension().equals(world.getRegistryKey()) || !claim.contains(pos)) continue;
+            if (!claim.getDimension().equals(world.dimension()) || !claim.contains(pos)) continue;
             // Get claim with the highest claim depth
             if (claim.getDepth() > maxDepth) {
                 maxDepth = claim.getDepth();
@@ -84,9 +84,9 @@ public class ClaimList {
         return Optional.ofNullable(result);
     }
 
-    public static List<AbstractClaim> getIntersectingClaims(World world, ClaimBox box) {
+    public static List<AbstractClaim> getIntersectingClaims(Level world, ClaimBox box) {
         List<AbstractClaim> claims = quadtree.queryIntersections(box);
-        claims.removeIf(abstractClaim -> !abstractClaim.getDimension().equals(world.getRegistryKey()));
+        claims.removeIf(abstractClaim -> !abstractClaim.getDimension().equals(world.dimension()));
         return claims;
     }
 

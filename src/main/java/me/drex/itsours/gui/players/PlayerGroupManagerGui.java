@@ -13,10 +13,10 @@ import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.gui.PageGui;
 import me.drex.itsours.gui.flags.GroupFlagsGui;
 import me.drex.itsours.util.PlaceholderUtil;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.PlayerConfigEntry;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.server.players.NameAndId;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -30,7 +30,7 @@ public class PlayerGroupManagerGui extends PageGui<String> {
     private final UUID player;
 
     public PlayerGroupManagerGui(GuiContext context, AbstractClaim claim, UUID player) {
-        super(context, ScreenHandlerType.GENERIC_9X6);
+        super(context, MenuType.GENERIC_9x6);
         this.claim = claim;
         this.player = player;
         this.setTitle(message("text.itsours.gui.playergroupmanager.title", PlaceholderUtil.mergePlaceholderMaps(
@@ -51,7 +51,7 @@ public class PlayerGroupManagerGui extends PageGui<String> {
         GuiElementBuilder builder = guiElement(ClaimGroupManager.getGroupIcon(groupId), "playergroupmanager.entry", PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(context.server()),
             Map.of(
-                "group_id", Text.literal(groupId).formatted(hasGroup ? Formatting.GREEN : Formatting.RED)
+                "group_id", Component.literal(groupId).withStyle(hasGroup ? ChatFormatting.GREEN : ChatFormatting.RED)
             ),
             PlaceholderUtil.uuid("player_", player, context.server())
         )).setCallback(clickType -> {
@@ -60,13 +60,13 @@ public class PlayerGroupManagerGui extends PageGui<String> {
                 boolean success = false;
                 if (hasGroup) {
                     try {
-                        GroupsCommand.INSTANCE.leaveGroup(context.player.getCommandSource().withSilent(), claim, groupId, Collections.singleton(new PlayerConfigEntry(player, player.toString())));
+                        GroupsCommand.INSTANCE.leaveGroup(context.player.createCommandSourceStack().withSuppressedOutput(), claim, groupId, Collections.singleton(new NameAndId(player, player.toString())));
                         success = true;
                     } catch (CommandSyntaxException ignored) {
                     }
                 } else {
                     try {
-                        GroupsCommand.INSTANCE.joinGroup(context.player.getCommandSource().withSilent(), claim, groupId, Collections.singleton(new PlayerConfigEntry(player, player.toString())));
+                        GroupsCommand.INSTANCE.joinGroup(context.player.createCommandSourceStack().withSuppressedOutput(), claim, groupId, Collections.singleton(new NameAndId(player, player.toString())));
                         success = true;
                     } catch (CommandSyntaxException ignored) {
                     }

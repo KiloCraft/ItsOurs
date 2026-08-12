@@ -3,7 +3,7 @@ package me.drex.itsours.claim.groups;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import me.drex.itsours.claim.flags.holder.FlagData;
-import net.minecraft.util.Uuids;
+import net.minecraft.core.UUIDUtil;
 
 import java.util.HashSet;
 import java.util.List;
@@ -14,7 +14,7 @@ public class Group {
 
     public static final Codec<Group> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         FlagData.CODEC.optionalFieldOf("flags", new FlagData()).forGetter(Group::flags),
-        Uuids.INT_STREAM_CODEC.listOf().xmap(Set::copyOf, List::copyOf).optionalFieldOf("players", new HashSet<>()).forGetter(Group::players)
+        UUIDUtil.CODEC.listOf().xmap(Set::copyOf, List::copyOf).optionalFieldOf("players", new HashSet<>()).forGetter(Group::players)
     ).apply(instance, Group::new));
 
     private final FlagData flags;

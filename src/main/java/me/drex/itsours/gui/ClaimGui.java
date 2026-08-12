@@ -15,9 +15,9 @@ import me.drex.itsours.gui.util.BaseGui;
 import me.drex.itsours.gui.util.ConfirmationGui;
 import me.drex.itsours.gui.util.ValidStringInputGui;
 import me.drex.itsours.util.PlaceholderUtil;
-import net.minecraft.item.Items;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.text.Text;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.network.chat.Component;
 
 import java.util.Map;
 
@@ -28,7 +28,7 @@ public class ClaimGui extends BaseGui {
     private final boolean advanced;
 
     public ClaimGui(GuiContext context, AbstractClaim claim, boolean advanced) {
-        super(context, ScreenHandlerType.GENERIC_9X1);
+        super(context, MenuType.GENERIC_9x1);
         this.claim = claim;
         this.advanced = advanced;
     }
@@ -52,7 +52,7 @@ public class ClaimGui extends BaseGui {
         this.setSlot(6, switchElement(Items.NAME_TAG, "claim.rename", new ValidStringInputGui(context, claim.getName(), claim::canRename, input -> {
             switchUi(new ConfirmationGui(context, "text.itsours.gui.claim.rename.confirm", PlaceholderUtil.mergePlaceholderMaps(
                 claim.placeholders(context.server()),
-                Map.of("input", Text.literal(input))
+                Map.of("input", Component.literal(input))
             ), () -> rename(input)));
         })));
         this.setSlot(7, switchElement(Items.REDSTONE_BLOCK, "claim.remove", new ConfirmationGui(context, "text.itsours.gui.claim.remove.confirm", claim.placeholders(context.server()), () -> {
@@ -60,7 +60,7 @@ public class ClaimGui extends BaseGui {
                 while (!context.guiStack.isEmpty() && !(context.guiStack.peek() instanceof ClaimListGui<?>)) {
                     context.guiStack.pop();
                 }
-                RemoveCommand.INSTANCE.executeRemoveConfirmed(context.player.getCommandSource(), claim);
+                RemoveCommand.INSTANCE.executeRemoveConfirmed(context.player.createCommandSourceStack(), claim);
             } catch (CommandSyntaxException e) {
                 fail();
             }
@@ -71,7 +71,7 @@ public class ClaimGui extends BaseGui {
         try {
             // Go back to the previous gui
             context.guiStack.pop();
-            RenameCommand.INSTANCE.executeRename(context.player.getCommandSource(), claim, name);
+            RenameCommand.INSTANCE.executeRename(context.player.createCommandSourceStack(), claim, name);
         } catch (CommandSyntaxException ignored) {
             fail();
         }

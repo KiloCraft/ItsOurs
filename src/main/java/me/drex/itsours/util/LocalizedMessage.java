@@ -6,15 +6,15 @@ import eu.pb4.placeholders.api.node.DynamicTextNode;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.parsers.NodeParser;
 import eu.pb4.placeholders.api.parsers.TagLikeParser;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.PlainTextContent;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextContent;
-import net.minecraft.util.Formatting;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.PlainTextContents;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentContents;
+import net.minecraft.ChatFormatting;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.server.translations.api.Localization;
 import xyz.nucleoid.server.translations.api.LocalizationTarget;
@@ -26,7 +26,7 @@ import java.util.function.Function;
 
 public interface LocalizedMessage {
 
-    ParserContext.Key<Function<String, @Nullable Text>> STATIC_PLACEHOLDERS = DynamicTextNode.key("itsours:static_placeholders");
+    ParserContext.Key<Function<String, @Nullable Component>> STATIC_PLACEHOLDERS = DynamicTextNode.key("itsours:static_placeholders");
     NodeParser PARSER = NodeParser.builder()
         .quickText()
         .simplifiedTextFormat()
@@ -34,56 +34,56 @@ public interface LocalizedMessage {
         .placeholders(TagLikeParser.PLACEHOLDER_USER, STATIC_PLACEHOLDERS)
         .build();
     Style DEFAULT_LORE_STYLE = Style.EMPTY
-        .withColor(Formatting.WHITE)
+        .withColor(ChatFormatting.WHITE)
         .withItalic(false);
 
-    static MutableText localized(String key) {
+    static MutableComponent localized(String key) {
         return localized(key, Map.of(), LocalizationTarget.ofSystem(), null);
     }
 
-    static MutableText localized(String key, Map<String, Text> placeholders) {
+    static MutableComponent localized(String key, Map<String, Component> placeholders) {
         return localized(key, placeholders, LocalizationTarget.ofSystem(), null);
     }
 
-    static MutableText localized(String key, PlaceholderContext context) {
+    static MutableComponent localized(String key, PlaceholderContext context) {
         return localized(key, Map.of(), context);
     }
 
-    static MutableText localized(String key, Map<String, Text> placeholders, PlaceholderContext context) {
+    static MutableComponent localized(String key, Map<String, Component> placeholders, PlaceholderContext context) {
         LocalizationTarget target = context.player() != null ? LocalizationTarget.of(context.player()) : LocalizationTarget.ofSystem();
         return localized(key, placeholders, target, context);
     }
 
-    static MutableText localized(String key, ServerCommandSource source) {
+    static MutableComponent localized(String key, CommandSourceStack source) {
         return localized(key, Map.of(), source);
     }
 
-    static MutableText localized(String key, Map<String, Text> placeholders, ServerCommandSource source) {
+    static MutableComponent localized(String key, Map<String, Component> placeholders, CommandSourceStack source) {
         return localized(key, placeholders, PlaceholderContext.of(source));
     }
 
-    static MutableText localized(String key, ServerPlayerEntity player) {
+    static MutableComponent localized(String key, ServerPlayer player) {
         return localized(key, Map.of(), player);
     }
 
-    static MutableText localized(String key, PlayerEntity player) {
+    static MutableComponent localized(String key, Player player) {
         return localized(key, Map.of(), player);
     }
 
-    static MutableText localized(String key, Map<String, Text> placeholders, PlayerEntity player) {
-        if (player instanceof ServerPlayerEntity serverPlayer) {
+    static MutableComponent localized(String key, Map<String, Component> placeholders, Player player) {
+        if (player instanceof ServerPlayer serverPlayer) {
             return localized(key, placeholders, serverPlayer);
         }
         return localized(key, placeholders);
     }
 
-    static MutableText localized(String key, Map<String, Text> placeholders, ServerPlayerEntity player) {
+    static MutableComponent localized(String key, Map<String, Component> placeholders, ServerPlayer player) {
         return localized(key, placeholders, LocalizationTarget.of(player), PlaceholderContext.of(player));
     }
 
-    static List<Text> splitLines(Text text) {
-        List<Text> result = new ArrayList<>();
-        MutableText[] currentLine = {Text.empty()};
+    static List<Component> splitLines(Component text) {
+        List<Component> result = new ArrayList<>();
+        MutableComponent[] currentLine = {Component.empty()};
         splitLines(currentLine, DEFAULT_LORE_STYLE, text, result);
         if (!currentLine[0].getSiblings().isEmpty()) {
             result.add(currentLine[0]);
@@ -91,46 +91,46 @@ public interface LocalizedMessage {
         return result;
     }
 
-    static List<Text> splitLines(Iterable<? extends Text> texts) {
-        List<Text> result = new ArrayList<>();
-        for (Text text : texts) {
+    static List<Component> splitLines(Iterable<? extends Component> texts) {
+        List<Component> result = new ArrayList<>();
+        for (Component text : texts) {
             result.addAll(splitLines(text));
         }
         return result;
     }
 
-    private static MutableText localized(String key, Map<String, Text> placeholders, LocalizationTarget target, @Nullable PlaceholderContext context) {
+    private static MutableComponent localized(String key, Map<String, Component> placeholders, LocalizationTarget target, @Nullable PlaceholderContext context) {
         String message = Localization.raw(key, target);
         if (message == null) {
             message = key;
         }
         ParserContext parserContext = context != null ? context.asParserContext() : ParserContext.of();
         parserContext.with(STATIC_PLACEHOLDERS, placeholderGetter(placeholders));
-        return (MutableText) PARSER.parseText(TextNode.of(message), parserContext);
+        return (MutableComponent) PARSER.parseText(TextNode.of(message), parserContext);
     }
 
-    private static Function<String, @Nullable Text> placeholderGetter(Map<String, Text> placeholders) {
-        return key -> placeholders.getOrDefault(key, Text.literal("${" + key + "}"));
+    private static Function<String, @Nullable Component> placeholderGetter(Map<String, Component> placeholders) {
+        return key -> placeholders.getOrDefault(key, Component.literal("${" + key + "}"));
     }
 
-    private static void splitLines(MutableText[] currentLine, Style parentStyle, Text text, List<Text> result) {
-        TextContent content = text.getContent();
-        Style style = text.getStyle().withParent(parentStyle);
-        if (content instanceof PlainTextContent.Literal literal) {
-            String[] lines = literal.string().split("\n", -1);
+    private static void splitLines(MutableComponent[] currentLine, Style parentStyle, Component text, List<Component> result) {
+        ComponentContents content = text.getContents();
+        Style style = text.getStyle().applyTo(parentStyle);
+        if (content instanceof PlainTextContents.LiteralContents literal) {
+            String[] lines = literal.text().split("\n", -1);
             for (int i = 0; i < lines.length; i++) {
                 if (i > 0) {
                     result.add(currentLine[0]);
-                    currentLine[0] = Text.empty();
+                    currentLine[0] = Component.empty();
                 }
                 if (!lines[i].isEmpty()) {
-                    currentLine[0].append(Text.literal(lines[i]).setStyle(style));
+                    currentLine[0].append(Component.literal(lines[i]).setStyle(style));
                 }
             }
         } else {
-            currentLine[0].append(MutableText.of(content).setStyle(style));
+            currentLine[0].append(MutableComponent.create(content).setStyle(style));
         }
-        for (Text sibling : text.getSiblings()) {
+        for (Component sibling : text.getSiblings()) {
             splitLines(currentLine, style, sibling, result);
         }
     }

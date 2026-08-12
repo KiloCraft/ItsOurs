@@ -2,8 +2,8 @@ package me.drex.itsours.claim.flags.util;
 
 import me.drex.itsours.claim.flags.node.ChildNode;
 import me.drex.itsours.claim.flags.node.Node;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.Items;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.item.Items;
 
 public enum Modify {
 
@@ -15,7 +15,7 @@ public enum Modify {
 
     private final ChildNode node;
 
-    Modify(String id, ItemConvertible icon) {
+    Modify(String id, ItemLike icon) {
         this.node = Node.literal(id).icon(icon).description("modify." + id).build();
     }
 

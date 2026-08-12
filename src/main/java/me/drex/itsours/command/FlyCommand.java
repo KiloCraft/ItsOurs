@@ -7,9 +7,9 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.user.PlayerData;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.World;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 
 import java.util.Optional;
 
@@ -22,20 +22,20 @@ public class FlyCommand extends ToggleCommand {
     }
 
     @Override
-    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    protected void register(LiteralArgumentBuilder<CommandSourceStack> literal) {
         super.register(literal.requires(src -> ItsOurs.checkPermission(src, "itsours.fly", 2)));
     }
 
     @Override
-    protected void afterToggle(ServerCommandSource src, boolean newValue) throws CommandSyntaxException {
-        ServerPlayerEntity player = src.getPlayerOrThrow();
+    protected void afterToggle(CommandSourceStack src, boolean newValue) throws CommandSyntaxException {
+        ServerPlayer player = src.getPlayerOrException();
         Optional<AbstractClaim> optional = ClaimList.getClaimAt(player);
-        if (optional.isPresent() && optional.get().checkAction(player.getUuid(), Flags.CLAIM_FLY)) {
-            player.interactionManager.getGameMode().setAbilities(player.getAbilities());
+        if (optional.isPresent() && optional.get().checkAction(player.getUUID(), Flags.CLAIM_FLY)) {
+            player.gameMode.getGameModeForPlayer().updatePlayerAbilities(player.getAbilities());
             if (newValue) {
-                player.getAbilities().allowFlying = true;
+                player.getAbilities().mayfly = true;
             }
-            player.sendAbilitiesUpdate();
+            player.onUpdateAbilities();
         }
         super.afterToggle(src, newValue);
     }

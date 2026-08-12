@@ -7,7 +7,7 @@ import com.mojang.datafixers.schemas.Schema;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.OptionalDynamic;
 import me.drex.itsours.data.ItsOursTypeReferences;
-import net.minecraft.util.Uuids;
+import net.minecraft.core.UUIDUtil;
 
 import java.util.*;
 import java.util.function.Function;
@@ -45,7 +45,7 @@ public class PermissionDataFix extends DataFix {
         });
         if (!trustedPlayers.isEmpty()) {
             Dynamic<?> finalClaim = claim;
-            Dynamic<?> trustedPlayersDynamic = claim.createList(trustedPlayers.stream().map(Uuids::toIntArray).map(ints -> finalClaim.createIntList(IntStream.of(ints))));
+            Dynamic<?> trustedPlayersDynamic = claim.createList(trustedPlayers.stream().map(UUIDUtil::uuidToIntArray).map(ints -> finalClaim.createIntList(IntStream.of(ints))));
             claim = claim.set("roles", claim.createMap(Map.of(
                 claim.createString("trusted"),
                 claim.createMap(Map.of(

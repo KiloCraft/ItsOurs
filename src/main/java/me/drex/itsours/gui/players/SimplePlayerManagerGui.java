@@ -11,8 +11,8 @@ import me.drex.itsours.gui.PageGui;
 import me.drex.itsours.gui.util.GuiTextures;
 import me.drex.itsours.gui.util.PlayerSelectorGui;
 import me.drex.itsours.util.PlaceholderUtil;
-import net.minecraft.item.Items;
-import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.util.Util;
 
 import java.util.*;
@@ -24,7 +24,7 @@ public class SimplePlayerManagerGui extends PageGui<UUID> {
     private final AbstractClaim claim;
 
     public SimplePlayerManagerGui(GuiContext context, AbstractClaim claim) {
-        super(context, ScreenHandlerType.GENERIC_9X6);
+        super(context, MenuType.GENERIC_9x6);
         this.claim = claim;
         this.setTitle(message("text.itsours.gui.playermanager.title", claim.placeholders(context.server())));
     }
@@ -45,7 +45,7 @@ public class SimplePlayerManagerGui extends PageGui<UUID> {
             return guiElement(Items.PLAYER_HEAD, "playermanager.simple.entry.moderator", PlaceholderUtil.uuid("player_", uuid, context.server()))
                 .setProfile(uuid)
                 .setCallback(clickType -> {
-                    if (!claim.checkAction(player.getUuid(), Flags.MODIFY, Modify.FLAG.node())) {
+                    if (!claim.checkAction(player.getUUID(), Flags.MODIFY, Modify.FLAG.node())) {
                         fail();
                         return;
                     }
@@ -61,7 +61,7 @@ public class SimplePlayerManagerGui extends PageGui<UUID> {
             return guiElement(Items.PLAYER_HEAD, "playermanager.simple.entry.trusted", PlaceholderUtil.uuid("player_", uuid, context.server()))
                 .setProfile(uuid)
                 .setCallback(clickType -> {
-                    if (!claim.checkAction(player.getUuid(), Flags.MODIFY, Modify.FLAG.node())) {
+                    if (!claim.checkAction(player.getUUID(), Flags.MODIFY, Modify.FLAG.node())) {
                         fail();
                         return;
                     }
@@ -83,7 +83,7 @@ public class SimplePlayerManagerGui extends PageGui<UUID> {
     @Override
     public CompletableFuture<GuiElementBuilder> guiElementFuture(UUID uuid) {
         return CompletableFuture.supplyAsync(() -> guiElement(uuid)
-            .setSkullOwner(new GameProfile(uuid, uuid.toString()), context.server()), Util.getMainWorkerExecutor());
+            .setSkullOwner(new GameProfile(uuid, uuid.toString()), context.server()), Util.backgroundExecutor());
     }
 
     @Override
@@ -96,7 +96,7 @@ public class SimplePlayerManagerGui extends PageGui<UUID> {
                 .setCallback(() -> {
                     switchUi(new PlayerSelectorGui(context, playerName -> {
                         CompletableFuture.runAsync(() -> {
-                            context.server().getApiServices().profileRepository().findProfileByName(playerName).ifPresentOrElse(gameProfile -> {
+                            context.server().services().profileRepository().findProfileByName(playerName).ifPresentOrElse(gameProfile -> {
                                     claim.getGroupManager().trusted.players().add(gameProfile.id());
                                     click();
                                     build();

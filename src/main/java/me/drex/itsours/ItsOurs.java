@@ -10,11 +10,11 @@ import me.drex.itsours.util.ItsOursPlaceholders;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.command.permission.Permission;
-import net.minecraft.command.permission.PermissionLevel;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,7 +28,7 @@ public class ItsOurs {
     }
 
     protected void registerEvents() {
-        CommonProtection.register(Identifier.of(MOD_ID, "claim_protection"), ItsoursProtectionProvider.INSTANCE);
+        CommonProtection.register(Identifier.fromNamespaceAndPath(MOD_ID, "claim_protection"), ItsoursProtectionProvider.INSTANCE);
         ItsOursPlaceholders.register();
         FlagBuilderUtil.init();
         CommandRegistrationCallback.EVENT.register(CommandManager.INSTANCE::register);
@@ -36,11 +36,11 @@ public class ItsOurs {
         PlayerEventListener.registerPlayerListeners();
     }
 
-    public static boolean checkPermission(ServerCommandSource src, String permission, int fallback) {
+    public static boolean checkPermission(CommandSourceStack src, String permission, int fallback) {
         try {
             return Permissions.check(src, permission, fallback);
         } catch (Throwable ignored) {
-            return src.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(MathHelper.clamp(fallback, 0, PermissionLevel.OWNERS.getLevel()))));
+            return src.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.byId(Mth.clamp(fallback, 0, PermissionLevel.OWNERS.id()))));
         }
     }
 

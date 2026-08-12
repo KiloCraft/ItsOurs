@@ -10,15 +10,15 @@ import me.drex.itsours.claim.flags.node.Node;
 import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.gui.PageGui;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.registry.tag.EntityTypeTags;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.MutableText;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Items;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.MutableComponent;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,7 +44,7 @@ public class SimpleFlagsGui extends PageGui<Flag> {
         Flag.flag(Flags.USE_ITEM, Node.item(Items.CROSSBOW)),
         Flag.flag(Flags.USE_ITEM, Node.item(Items.ENDER_PEARL)),
 
-        Flag.flag(Flags.INTERACT_ENTITY, Node.group(Registries.ENTITY_TYPE, EntityTypeTags.BOAT)),
+        Flag.flag(Flags.INTERACT_ENTITY, Node.group(BuiltInRegistries.ENTITY_TYPE, EntityTypeTags.BOAT)),
         Flag.flag(Flags.INTERACT_ENTITY, Node.entity(EntityType.MINECART)),
         Flag.flag(Flags.INTERACT_ENTITY, Node.entity(EntityType.VILLAGER)),
 
@@ -63,27 +63,27 @@ public class SimpleFlagsGui extends PageGui<Flag> {
         Flag.flag(Flags.INTERACT_BLOCK, Node.block(Blocks.JUKEBOX)),
         Flag.flag(Flags.INTERACT_BLOCK, Node.block(Blocks.ENDER_CHEST)),
         Flag.flag(Flags.INTERACT_BLOCK, Node.block(Blocks.LECTERN)),
-        Flag.flag(Flags.INTERACT_BLOCK, Node.group(Registries.BLOCK, BlockTags.BEDS)),
-        Flag.flag(Flags.INTERACT_BLOCK, Node.group(Registries.BLOCK, BlockTags.ALL_SIGNS)),
-        Flag.flag(Flags.INTERACT_BLOCK, Node.group(Registries.BLOCK, BlockTags.ANVIL)),
-        Flag.flag(Flags.INTERACT_BLOCK, Node.group(Registries.BLOCK, BlockTags.SHULKER_BOXES)),
-        Flag.flag(Flags.INTERACT_BLOCK, Node.group(Registries.BLOCK, BlockTags.PRESSURE_PLATES)),
-        Flag.flag(Flags.INTERACT_BLOCK, Node.group(Registries.BLOCK, BlockTags.BUTTONS)),
-        Flag.flag(Flags.INTERACT_BLOCK, Node.group(Registries.BLOCK, BlockTags.FENCE_GATES)),
-        Flag.flag(Flags.INTERACT_BLOCK, Node.group(Registries.BLOCK, BlockTags.TRAPDOORS)),
-        Flag.flag(Flags.INTERACT_BLOCK, Node.group(Registries.BLOCK, BlockTags.DOORS))
+        Flag.flag(Flags.INTERACT_BLOCK, Node.group(BuiltInRegistries.BLOCK, BlockTags.BEDS)),
+        Flag.flag(Flags.INTERACT_BLOCK, Node.group(BuiltInRegistries.BLOCK, BlockTags.ALL_SIGNS)),
+        Flag.flag(Flags.INTERACT_BLOCK, Node.group(BuiltInRegistries.BLOCK, BlockTags.ANVIL)),
+        Flag.flag(Flags.INTERACT_BLOCK, Node.group(BuiltInRegistries.BLOCK, BlockTags.SHULKER_BOXES)),
+        Flag.flag(Flags.INTERACT_BLOCK, Node.group(BuiltInRegistries.BLOCK, BlockTags.PRESSURE_PLATES)),
+        Flag.flag(Flags.INTERACT_BLOCK, Node.group(BuiltInRegistries.BLOCK, BlockTags.BUTTONS)),
+        Flag.flag(Flags.INTERACT_BLOCK, Node.group(BuiltInRegistries.BLOCK, BlockTags.FENCE_GATES)),
+        Flag.flag(Flags.INTERACT_BLOCK, Node.group(BuiltInRegistries.BLOCK, BlockTags.TRAPDOORS)),
+        Flag.flag(Flags.INTERACT_BLOCK, Node.group(BuiltInRegistries.BLOCK, BlockTags.DOORS))
     );
     private final AbstractClaim claim;
 
     public SimpleFlagsGui(GuiContext context, AbstractClaim claim) {
-        super(context, ScreenHandlerType.GENERIC_9X6);
+        super(context, MenuType.GENERIC_9x6);
         this.claim = claim;
         this.setTitle(message("text.itsours.gui.flags.simple.title", claim.placeholders(context.server())));
     }
 
     @Override
     public Collection<Flag> elements() {
-        ServerCommandSource source = player.getCommandSource();
+        CommandSourceStack source = player.createCommandSourceStack();
         return SIMPLE_FLAGS.stream().filter(flag -> {
             boolean allowed = claim.getFlags().get(flag).value;
             return flag.canChange(new Node.ChangeContext(claim, GlobalContext.INSTANCE, allowed ? Value.DEFAULT : Value.ALLOW, source));
@@ -100,7 +100,7 @@ public class SimpleFlagsGui extends PageGui<Flag> {
         }
         boolean allowed = value.value;
 
-        MutableText lore = message("text.itsours.gui.flags.simple.element.lore", Map.of(
+        MutableComponent lore = message("text.itsours.gui.flags.simple.element.lore", Map.of(
             "description", message("text.itsours.gui.flags.simple.%s.description".formatted(flag.asString())),
             "value", value.format()
         ));

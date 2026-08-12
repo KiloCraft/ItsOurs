@@ -3,8 +3,8 @@ package me.drex.itsours.command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.user.ClaimTrackingPlayer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
 
@@ -21,19 +21,19 @@ public class ShowCommand extends AbstractCommand {
     }
 
     @Override
-    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    protected void register(LiteralArgumentBuilder<CommandSourceStack> literal) {
         literal.executes(ctx -> execute(ctx.getSource()));
     }
 
-    private int execute(ServerCommandSource src) throws CommandSyntaxException {
-        ServerPlayerEntity player = src.getPlayerOrThrow();
+    private int execute(CommandSourceStack src) throws CommandSyntaxException {
+        ServerPlayer player = src.getPlayerOrException();
         ClaimTrackingPlayer claimTrackingPlayer = (ClaimTrackingPlayer)player;
         if (show) {
             claimTrackingPlayer.trackClaims();
-            src.sendFeedback(() -> localized("text.itsours.commands.show"), false);
+            src.sendSuccess(() -> localized("text.itsours.commands.show"), false);
         } else {
             claimTrackingPlayer.unTrackClaims();
-            src.sendFeedback(() -> localized("text.itsours.commands.hide"), false);
+            src.sendSuccess(() -> localized("text.itsours.commands.hide"), false);
         }
         return 1;
     }

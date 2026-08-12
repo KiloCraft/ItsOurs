@@ -1,13 +1,13 @@
 package me.drex.itsours.claim.flags.context;
 
 import me.drex.itsours.claim.groups.Group;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
-import static net.minecraft.text.Text.literal;
+import static net.minecraft.network.chat.Component.literal;
 
 public record GroupContext(String id, int priority, Group group) implements WeightedContext {
 
@@ -17,7 +17,7 @@ public record GroupContext(String id, int priority, Group group) implements Weig
     }
 
     @Override
-    public Text toText() {
+    public Component toText() {
         return localized("text.itsours.flag.context.group", Map.of("group_id", literal(id)));
     }
 

@@ -11,10 +11,10 @@ import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.util.Modify;
 import me.drex.itsours.data.DataManager;
 import me.drex.itsours.util.ClaimBox;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Direction;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.Direction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -22,8 +22,8 @@ import java.util.UUID;
 
 import static me.drex.itsours.util.PlaceholderUtil.mergePlaceholderMaps;
 import static me.drex.itsours.util.LocalizedMessage.localized;
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.text.Text.literal;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.network.chat.Component.literal;
 
 public class ExpandCommand extends AbstractCommand {
 
@@ -38,25 +38,25 @@ public class ExpandCommand extends AbstractCommand {
     }
 
     @Override
-    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    protected void register(LiteralArgumentBuilder<CommandSourceStack> literal) {
         literal.then(
             argument("distance", IntegerArgumentType.integer(1))
                 .executes(ctx -> execute(ctx.getSource(), getClaim(ctx.getSource().getEntity()), IntegerArgumentType.getInteger(ctx, "distance")))
         );
     }
 
-    private int execute(ServerCommandSource src, AbstractClaim claim, int distance) throws CommandSyntaxException {
+    private int execute(CommandSourceStack src, AbstractClaim claim, int distance) throws CommandSyntaxException {
         validateAction(src, claim, Flags.MODIFY, Modify.SIZE.node());
-        ServerPlayerEntity player = src.getPlayerOrThrow();
-        ServerWorld world = player.getEntityWorld();
-        UUID uuid = player.getUuid();
-        Direction direction = Direction.getEntityFacingOrder(player)[0];
+        ServerPlayer player = src.getPlayerOrException();
+        ServerLevel world = player.level();
+        UUID uuid = player.getUUID();
+        Direction direction = Direction.orderedByNearest(player)[0];
         ClaimBox originalBox = claim.getBox();
         long originalArea = originalBox.getArea();
         ClaimBox newBox = originalBox.expand(direction, expand ? distance : -distance);
         long newArea = newBox.getArea();
         if (!expand && !originalBox.contains(newBox)) {
-            src.sendError(localized("text.itsours.commands.shrink.shrunkToFar"));
+            src.sendFailure(localized("text.itsours.commands.shrink.shrunkToFar"));
             return 0;
         }
         long areaIncrease = newArea - originalArea;
@@ -67,26 +67,26 @@ public class ExpandCommand extends AbstractCommand {
                     !claim.equals(other) &&
                     newBox.intersects(other.getBox())
             ) {
-                src.sendError(localized("text.itsours.commands.expand.intersects", other.placeholders(src.getServer())));
+                src.sendFailure(localized("text.itsours.commands.expand.intersects", other.placeholders(src.getServer())));
                 return 0;
             }
         }
         for (Subzone subzone : claim.getSubzones()) {
             if (!newBox.contains(subzone.getBox())) {
-                src.sendError(localized("text.itsours.commands.expand.subzoneOutside", mergePlaceholderMaps(
+                src.sendFailure(localized("text.itsours.commands.expand.subzoneOutside", mergePlaceholderMaps(
                     subzone.placeholders(src.getServer(), "subzone_"),
                     claim.placeholders(src.getServer())
                 )));
                 return 0;
             }
         }
-        if (newBox.getMinY() < world.getBottomY() || newBox.getMaxY() > world.getTopYInclusive()) {
-            src.sendError(localized("text.itsours.commands.expand.outOfWorld"));
+        if (newBox.minY() < world.getMinY() || newBox.maxY() > world.getMaxY()) {
+            src.sendFailure(localized("text.itsours.commands.expand.outOfWorld"));
             return 0;
         }
         if (claim instanceof Subzone subzone) {
             if (!subzone.getParent().getBox().contains(newBox)) {
-                src.sendError(localized("text.itsours.commands.expand.subzoneOutside", mergePlaceholderMaps(
+                src.sendFailure(localized("text.itsours.commands.expand.subzoneOutside", mergePlaceholderMaps(
                     subzone.placeholders(src.getServer(), "subzone_"),
                     subzone.getParent().placeholders(src.getServer())
                 )));
@@ -97,7 +97,7 @@ public class ExpandCommand extends AbstractCommand {
             // Check and remove claim blocks
             long blocks = DataManager.getUserData(uuid).blocks();
             if (areaIncrease > blocks) {
-                src.sendError(localized("text.itsours.commands.expand.missingClaimBlocks", Map.of("blocks", literal(String.valueOf(areaIncrease - blocks)))));
+                src.sendFailure(localized("text.itsours.commands.expand.missingClaimBlocks", Map.of("blocks", literal(String.valueOf(areaIncrease - blocks)))));
                 return 0;
             }
             DataManager.updateUserData(uuid).setBlocks(blocks - areaIncrease);
@@ -106,10 +106,10 @@ public class ExpandCommand extends AbstractCommand {
         claim.setBox(newBox);
         claim.notifyTrackingChanges(src.getServer(), false);
 
-        src.sendFeedback(() -> localized("text.itsours.commands." + literal, mergePlaceholderMaps(
+        src.sendSuccess(() -> localized("text.itsours.commands." + literal, mergePlaceholderMaps(
                 Map.of(
                     "distance", literal(String.valueOf(distance)),
-                    "direction", literal(direction.asString()),
+                    "direction", literal(direction.getSerializedName()),
                     "blocks", literal(String.valueOf(expand ? areaIncrease : -areaIncrease))
                 ),
                 claim.placeholders(src.getServer())

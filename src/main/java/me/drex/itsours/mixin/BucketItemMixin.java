@@ -5,12 +5,13 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.node.Node;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Item.Properties;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -21,7 +22,7 @@ import static me.drex.itsours.util.LocalizedMessage.localized;
 @Mixin(BucketItem.class)
 public abstract class BucketItemMixin extends Item {
 
-    public BucketItemMixin(Settings settings) {
+    public BucketItemMixin(Properties settings) {
         super(settings);
     }
 
@@ -29,16 +30,16 @@ public abstract class BucketItemMixin extends Item {
         method = "use",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/item/BucketItem;raycast(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/RaycastContext$FluidHandling;)Lnet/minecraft/util/hit/BlockHitResult;"
+            target = "Lnet/minecraft/world/item/BucketItem;getPlayerPOVHitResult(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/ClipContext$Fluid;)Lnet/minecraft/world/phys/BlockHitResult;"
         )
     )
-    private BlockHitResult itsours$canUseBucket(BlockHitResult original, World world, PlayerEntity player) {
+    private BlockHitResult itsours$canUseBucket(BlockHitResult original, Level world, Player player) {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, original.getBlockPos());
         if (claim.isEmpty())
             return original;
-        if (!claim.get().checkAction(player.getUuid(), Flags.USE_ITEM, Node.registry(Registries.ITEM, this))) {
-            player.sendMessage(localized("text.itsours.action.disallowed.interact_item", player), true);
-            return BlockHitResult.createMissed(original.getPos(), original.getSide(), original.getBlockPos());
+        if (!claim.get().checkAction(player.getUUID(), Flags.USE_ITEM, Node.registry(BuiltInRegistries.ITEM, this))) {
+            player.displayClientMessage(localized("text.itsours.action.disallowed.interact_item", player), true);
+            return BlockHitResult.miss(original.getLocation(), original.getDirection(), original.getBlockPos());
         }
         return original;
     }

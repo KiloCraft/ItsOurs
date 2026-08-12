@@ -9,16 +9,16 @@ import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.gui.ClaimGui;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.gui.claims.PlayerClaimListGui;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.argument.GameProfileArgumentType;
-import net.minecraft.server.PlayerConfigEntry;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.server.players.NameAndId;
+import net.minecraft.commands.CommandSourceStack;
 
 import java.util.Collection;
 import java.util.List;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 
 public class GuiCommand extends AbstractCommand {
 
@@ -32,11 +32,11 @@ public class GuiCommand extends AbstractCommand {
     }
 
     @Override
-    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    protected void register(LiteralArgumentBuilder<CommandSourceStack> literal) {
         literal.then(
                 literal("-player").then(
-                    argument("target", GameProfileArgumentType.gameProfile())
-                        .executes(ctx -> executeOpenGui(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "target")))
+                    argument("target", GameProfileArgument.gameProfile())
+                        .executes(ctx -> executeOpenGui(ctx.getSource(), GameProfileArgument.getGameProfiles(ctx, "target")))
                         .requires(src -> ItsOurs.checkPermission(src, "itsours.gui.others", 2))
                 )
             ).then(
@@ -44,17 +44,17 @@ public class GuiCommand extends AbstractCommand {
                     .executes(ctx -> {
                         AbstractClaim claim = ClaimArgument.getClaim(ctx);
                         validateAction(ctx.getSource(), claim, Flags.MODIFY);
-                        new ClaimGui(new GuiContext(ctx.getSource().getPlayerOrThrow()), claim, advanced).open();
+                        new ClaimGui(new GuiContext(ctx.getSource().getPlayerOrException()), claim, advanced).open();
                         return 1;
                     })
             )
-            .executes(ctx -> executeOpenGui(ctx.getSource(), List.of(ctx.getSource().getPlayerOrThrow().getPlayerConfigEntry())));
+            .executes(ctx -> executeOpenGui(ctx.getSource(), List.of(ctx.getSource().getPlayerOrException().nameAndId())));
     }
 
-    private int executeOpenGui(ServerCommandSource src, Collection<PlayerConfigEntry> targets) throws CommandSyntaxException {
-        if (targets.isEmpty()) throw EntityArgumentType.PLAYER_NOT_FOUND_EXCEPTION.create();
-        if (targets.size() > 1) throw EntityArgumentType.TOO_MANY_PLAYERS_EXCEPTION.create();
-        PlayerClaimListGui gui = new PlayerClaimListGui(new GuiContext(src.getPlayerOrThrow()), targets.iterator().next().id(), advanced);
+    private int executeOpenGui(CommandSourceStack src, Collection<NameAndId> targets) throws CommandSyntaxException {
+        if (targets.isEmpty()) throw EntityArgument.NO_PLAYERS_FOUND.create();
+        if (targets.size() > 1) throw EntityArgument.ERROR_NOT_SINGLE_PLAYER.create();
+        PlayerClaimListGui gui = new PlayerClaimListGui(new GuiContext(src.getPlayerOrException()), targets.iterator().next().id(), advanced);
         gui.open();
         return 1;
     }

@@ -10,7 +10,7 @@ import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.command.FlagsCommand;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.util.PlaceholderUtil;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 import java.util.Map;
 import java.util.function.Predicate;
@@ -25,19 +25,19 @@ public class FlagsGui extends AbstractFlagsGui {
         this.claim = claim;
         this.setTitle(message("text.itsours.gui.flags.advanced.title", PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(context.server()),
-            Map.of("flag", Text.literal(flag.asString()))
+            Map.of("flag", Component.literal(flag.asString()))
         )));
     }
 
     @Override
     public Predicate<ChildNode> elementFilter() {
-        return childNode -> childNode.canChange(new Node.ChangeContext(claim, GlobalContext.INSTANCE, Value.DEFAULT, context.player.getCommandSource()));
+        return childNode -> childNode.canChange(new Node.ChangeContext(claim, GlobalContext.INSTANCE, Value.DEFAULT, context.player.createCommandSourceStack()));
     }
 
     @Override
     boolean setValue(Flag flag, Value value) {
         try {
-            FlagsCommand.INSTANCE.executeSet(player.getCommandSource().withSilent(), claim, flag, value);
+            FlagsCommand.INSTANCE.executeSet(player.createCommandSourceStack().withSuppressedOutput(), claim, flag, value);
             return true;
         } catch (CommandSyntaxException e) {
             return false;

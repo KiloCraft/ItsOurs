@@ -18,29 +18,29 @@ import me.drex.itsours.command.argument.FlagArgument;
 import me.drex.itsours.gui.players.GroupManagerGui;
 import me.drex.itsours.gui.GuiContext;
 import me.drex.itsours.util.PlaceholderUtil;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.argument.GameProfileArgumentType;
-import net.minecraft.server.PlayerConfigEntry;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.server.players.NameAndId;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.Collection;
 import java.util.Map;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 
 public class GroupsCommand extends AbstractCommand {
 
     public static final GroupsCommand INSTANCE = new GroupsCommand();
 
     public static final CommandSyntaxException ALREADY_EXISTS = new SimpleCommandExceptionType(localized("text.itsours.commands.groups.create.alreadyExists")).create();
-    public static final DynamicCommandExceptionType DOESNT_EXIST = new DynamicCommandExceptionType((groupId) -> localized("text.itsours.commands.groups.doesntExist", Map.of("group_id", Text.literal(groupId.toString()))));
-    public static final SuggestionProvider<ServerCommandSource> GROUP_ARGUMENT = (context, builder) -> {
+    public static final DynamicCommandExceptionType DOESNT_EXIST = new DynamicCommandExceptionType((groupId) -> localized("text.itsours.commands.groups.doesntExist", Map.of("group_id", Component.literal(groupId.toString()))));
+    public static final SuggestionProvider<CommandSourceStack> GROUP_ARGUMENT = (context, builder) -> {
         AbstractClaim claim = ClaimArgument.getClaim(context);
-        return CommandSource.suggestMatching(claim.getGroupManager().getGroupIds(), builder);
+        return SharedSuggestionProvider.suggest(claim.getGroupManager().getGroupIds(), builder);
     };
 
     public GroupsCommand() {
@@ -48,7 +48,7 @@ public class GroupsCommand extends AbstractCommand {
     }
 
     @Override
-    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    protected void register(LiteralArgumentBuilder<CommandSourceStack> literal) {
         literal
             .then(
                 ClaimArgument.ownClaims()
@@ -82,17 +82,17 @@ public class GroupsCommand extends AbstractCommand {
                     ).then(
                         literal("join").then(
                             argument("group", StringArgumentType.word()).suggests(GROUP_ARGUMENT).then(
-                                argument("targets", GameProfileArgumentType.gameProfile()).executes(ctx -> joinGroup(ctx.getSource(), ClaimArgument.getClaim(ctx), StringArgumentType.getString(ctx, "group"), GameProfileArgumentType.getProfileArgument(ctx, "targets")))
+                                argument("targets", GameProfileArgument.gameProfile()).executes(ctx -> joinGroup(ctx.getSource(), ClaimArgument.getClaim(ctx), StringArgumentType.getString(ctx, "group"), GameProfileArgument.getGameProfiles(ctx, "targets")))
                             )
                         )
                     ).then(
                         literal("leave").then(
                             argument("group", StringArgumentType.word()).suggests(GROUP_ARGUMENT).then(
-                                argument("targets", GameProfileArgumentType.gameProfile()).executes(ctx -> leaveGroup(ctx.getSource(), ClaimArgument.getClaim(ctx), StringArgumentType.getString(ctx, "group"), GameProfileArgumentType.getProfileArgument(ctx, "targets")))
+                                argument("targets", GameProfileArgument.gameProfile()).executes(ctx -> leaveGroup(ctx.getSource(), ClaimArgument.getClaim(ctx), StringArgumentType.getString(ctx, "group"), GameProfileArgument.getGameProfiles(ctx, "targets")))
                             )
                         )
                     ).executes(context -> {
-                        new GroupManagerGui(new GuiContext(context.getSource().getPlayerOrThrow()), ClaimArgument.getClaim(context)).open();
+                        new GroupManagerGui(new GuiContext(context.getSource().getPlayerOrException()), ClaimArgument.getClaim(context)).open();
                         return 1;
                     })
             );
@@ -100,60 +100,60 @@ public class GroupsCommand extends AbstractCommand {
 
     }
 
-    public int createGroup(ServerCommandSource src, AbstractClaim claim, String groupId) throws CommandSyntaxException {
+    public int createGroup(CommandSourceStack src, AbstractClaim claim, String groupId) throws CommandSyntaxException {
         validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
         Group group = groupManager.getGroup(groupId);
         if (group != null) throw ALREADY_EXISTS;
         groupManager.createGroup(groupId);
-        src.sendFeedback(() -> localized("text.itsours.commands.groups.create", PlaceholderUtil.mergePlaceholderMaps(
+        src.sendSuccess(() -> localized("text.itsours.commands.groups.create", PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(src.getServer()),
-            Map.of("group_id", Text.literal(groupId))
+            Map.of("group_id", Component.literal(groupId))
         )), false);
         return 1;
     }
 
-    public int deleteGroup(ServerCommandSource src, AbstractClaim claim, String groupId) throws CommandSyntaxException {
+    public int deleteGroup(CommandSourceStack src, AbstractClaim claim, String groupId) throws CommandSyntaxException {
         validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
         Group group = groupManager.getGroup(groupId);
         if (group == null) throw DOESNT_EXIST.create(groupId);
         if (groupManager.deleteGroup(groupId)) {
-            src.sendFeedback(() -> localized("text.itsours.commands.groups.remove", PlaceholderUtil.mergePlaceholderMaps(
+            src.sendSuccess(() -> localized("text.itsours.commands.groups.remove", PlaceholderUtil.mergePlaceholderMaps(
                 claim.placeholders(src.getServer()),
-                Map.of("group_id", Text.literal(groupId))
+                Map.of("group_id", Component.literal(groupId))
             )), false);
             return 1;
         } else {
-            src.sendError(localized("text.itsours.commands.groups.remove.defaultGroups"));
+            src.sendFailure(localized("text.itsours.commands.groups.remove.defaultGroups"));
             return 0;
         }
     }
 
-    public int listGroups(ServerCommandSource src, AbstractClaim claim) throws CommandSyntaxException {
+    public int listGroups(CommandSourceStack src, AbstractClaim claim) throws CommandSyntaxException {
         validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
-        MutableText groups = PlaceholderUtil.list(groupManager.getGroupIds(), (groupId) -> Map.of(
-            "group_id", Text.literal(groupId)
+        MutableComponent groups = PlaceholderUtil.list(groupManager.getGroupIds(), (groupId) -> Map.of(
+            "group_id", Component.literal(groupId)
         ), "text.itsours.commands.groups.list.list");
-        src.sendFeedback(() -> localized("text.itsours.commands.groups.list", PlaceholderUtil.mergePlaceholderMaps(
+        src.sendSuccess(() -> localized("text.itsours.commands.groups.list", PlaceholderUtil.mergePlaceholderMaps(
             Map.of("groups", groups),
             claim.placeholders(src.getServer())
         )), false);
         return groupManager.groups().size();
     }
 
-    public int setGroupFlags(ServerCommandSource src, AbstractClaim claim, String groupId, Flag flag, Value value) throws CommandSyntaxException {
+    public int setGroupFlags(CommandSourceStack src, AbstractClaim claim, String groupId, Flag flag, Value value) throws CommandSyntaxException {
         validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
         Group group = groupManager.getGroup(groupId);
         if (group == null) throw DOESNT_EXIST.create(groupId);
         group.flags().set(flag, value);
-        src.sendFeedback(() -> localized("text.itsours.commands.groups.set", PlaceholderUtil.mergePlaceholderMaps(
+        src.sendSuccess(() -> localized("text.itsours.commands.groups.set", PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(src.getServer()),
             Map.of(
-                "group_id", Text.literal(groupId),
-                "flag", Text.literal(flag.asString()),
+                "group_id", Component.literal(groupId),
+                "flag", Component.literal(flag.asString()),
                 "value", value.format()
             )
         )), false);
@@ -161,35 +161,35 @@ public class GroupsCommand extends AbstractCommand {
 
     }
 
-    public int checkGroupFlags(ServerCommandSource src, AbstractClaim claim, String groupId, Flag flag) throws CommandSyntaxException {
+    public int checkGroupFlags(CommandSourceStack src, AbstractClaim claim, String groupId, Flag flag) throws CommandSyntaxException {
         validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
         Group group = groupManager.getGroup(groupId);
         if (group == null) throw DOESNT_EXIST.create(groupId);
         Value value = group.flags().get(flag);
-        src.sendFeedback(() -> localized("text.itsours.commands.groups.check", PlaceholderUtil.mergePlaceholderMaps(
+        src.sendSuccess(() -> localized("text.itsours.commands.groups.check", PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(src.getServer()),
             Map.of(
-                "group_id", Text.literal(groupId),
-                "flag", Text.literal(flag.asString()),
+                "group_id", Component.literal(groupId),
+                "flag", Component.literal(flag.asString()),
                 "value", value.format()
             )
         )), false);
         return 1;
     }
 
-    public int joinGroup(ServerCommandSource src, AbstractClaim claim, String groupId, Collection<PlayerConfigEntry> targets) throws CommandSyntaxException {
+    public int joinGroup(CommandSourceStack src, AbstractClaim claim, String groupId, Collection<NameAndId> targets) throws CommandSyntaxException {
         validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
         Group group = groupManager.getGroup(groupId);
         if (group == null) throw DOESNT_EXIST.create(groupId);
         int success = 0;
-        for (PlayerConfigEntry target : targets) {
+        for (NameAndId target : targets) {
             if (group.players().add(target.id())) {
-                src.sendFeedback(() -> localized("text.itsours.commands.groups.create", PlaceholderUtil.mergePlaceholderMaps(
+                src.sendSuccess(() -> localized("text.itsours.commands.groups.create", PlaceholderUtil.mergePlaceholderMaps(
                     claim.placeholders(src.getServer()),
                     PlaceholderUtil.gameProfile("target_", target),
-                    Map.of("group_id", Text.literal(groupId))
+                    Map.of("group_id", Component.literal(groupId))
                 )), false);
                 success++;
             }
@@ -197,18 +197,18 @@ public class GroupsCommand extends AbstractCommand {
         return success;
     }
 
-    public int leaveGroup(ServerCommandSource src, AbstractClaim claim, String groupId, Collection<PlayerConfigEntry> targets) throws CommandSyntaxException {
+    public int leaveGroup(CommandSourceStack src, AbstractClaim claim, String groupId, Collection<NameAndId> targets) throws CommandSyntaxException {
         validateAction(src, claim, Flags.MODIFY, Modify.FLAG.node());
         ClaimGroupManager groupManager = claim.getGroupManager();
         Group group = groupManager.getGroup(groupId);
         if (group == null) throw DOESNT_EXIST.create(groupId);
         int success = 0;
-        for (PlayerConfigEntry target : targets) {
+        for (NameAndId target : targets) {
             if (group.players().remove(target.id())) {
-                src.sendFeedback(() -> localized("text.itsours.commands.groups.leave", PlaceholderUtil.mergePlaceholderMaps(
+                src.sendSuccess(() -> localized("text.itsours.commands.groups.leave", PlaceholderUtil.mergePlaceholderMaps(
                     claim.placeholders(src.getServer()),
                     PlaceholderUtil.gameProfile("target_", target),
-                    Map.of("group_id", Text.literal(groupId))
+                    Map.of("group_id", Component.literal(groupId))
                 )), false);
                 success++;
             }

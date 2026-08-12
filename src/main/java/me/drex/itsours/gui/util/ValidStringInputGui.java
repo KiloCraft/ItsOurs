@@ -2,9 +2,9 @@ package me.drex.itsours.gui.util;
 
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import me.drex.itsours.gui.GuiContext;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.world.item.Items;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.function.Consumer;
@@ -29,7 +29,7 @@ public class ValidStringInputGui extends StringInputGui {
         boolean validNewName = isValid.test(input);
         setSlot(2,
             new GuiElementBuilder(validNewName ? Items.GREEN_STAINED_GLASS_PANE : Items.RED_STAINED_GLASS_PANE)
-                .setName(Text.literal(input).formatted(validNewName ? Formatting.GREEN : Formatting.RED))
+                .setName(Component.literal(input).withStyle(validNewName ? ChatFormatting.GREEN : ChatFormatting.RED))
                 .setCallback(() -> {
                     if (validNewName) {
                         if (!StringUtils.isBlank(input)) {

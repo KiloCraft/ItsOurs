@@ -1,7 +1,7 @@
 package me.drex.itsours.util;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 // TODO: Make configurable
 public class Constants {

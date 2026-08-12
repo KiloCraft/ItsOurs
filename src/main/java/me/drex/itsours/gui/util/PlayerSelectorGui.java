@@ -2,8 +2,8 @@ package me.drex.itsours.gui.util;
 
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import me.drex.itsours.gui.GuiContext;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
+import net.minecraft.world.item.Items;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.function.Consumer;
@@ -25,7 +25,7 @@ public class PlayerSelectorGui extends StringInputGui {
     private void build(boolean dynamicProfile) {
         String input = getInput();
         GuiElementBuilder builder = new GuiElementBuilder(Items.PLAYER_HEAD)
-            .setName(Text.literal(input))
+            .setName(Component.literal(input))
             .setCallback(() -> {
                 if (!StringUtils.isBlank(input)) {
                     consumer.accept(input);

@@ -3,7 +3,7 @@ package me.drex.itsours.command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.drex.itsours.ItsOurs;
 import me.drex.itsours.user.PlayerData;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
 
 public class IgnoreCommand extends ToggleCommand {
 
@@ -14,7 +14,7 @@ public class IgnoreCommand extends ToggleCommand {
     }
 
     @Override
-    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    protected void register(LiteralArgumentBuilder<CommandSourceStack> literal) {
         super.register(literal.requires(src -> ItsOurs.checkPermission(src, "itsours.ignore", 2)));
     }
 

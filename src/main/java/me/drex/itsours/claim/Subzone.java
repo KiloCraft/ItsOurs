@@ -8,10 +8,10 @@ import me.drex.itsours.claim.flags.visitor.FlagVisitor;
 import me.drex.itsours.claim.groups.ClaimGroupManager;
 import me.drex.itsours.claim.util.ClaimMessages;
 import me.drex.itsours.util.ClaimBox;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Uuids;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -21,10 +21,10 @@ public class Subzone extends AbstractClaim {
     public static final Codec<Subzone> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         Codec.STRING.fieldOf("name").forGetter(AbstractClaim::getName),
         ClaimBox.CODEC.fieldOf("box").forGetter(AbstractClaim::getBox),
-        World.CODEC.fieldOf("dimension").forGetter(AbstractClaim::getDimension),
+        Level.RESOURCE_KEY_CODEC.fieldOf("dimension").forGetter(AbstractClaim::getDimension),
         Codec.lazyInitialized(() -> Codec.list(Subzone.CODEC)).optionalFieldOf("subzones", new ArrayList<>()).forGetter(AbstractClaim::getSubzones),
         FlagData.CODEC.fieldOf("flags").forGetter(AbstractClaim::getFlags),
-        Codec.unboundedMap(Uuids.STRING_CODEC, FlagData.CODEC).optionalFieldOf("player_flags", new HashMap<>()).forGetter(AbstractClaim::getPlayerFlags),
+        Codec.unboundedMap(UUIDUtil.STRING_CODEC, FlagData.CODEC).optionalFieldOf("player_flags", new HashMap<>()).forGetter(AbstractClaim::getPlayerFlags),
         ClaimGroupManager.CODEC.fieldOf("groups").forGetter(AbstractClaim::getGroupManager),
         ClaimMessages.CODEC.fieldOf("messages").forGetter(AbstractClaim::getMessages)
     ).apply(instance, (name, box, dimension, subzones, flags, playerFlags, groups, claimMessages) -> {
@@ -35,11 +35,11 @@ public class Subzone extends AbstractClaim {
 
     AbstractClaim parent;
 
-    private Subzone(String name, ClaimBox box, RegistryKey<World> dimension, List<Subzone> subzones, FlagData flags, Map<UUID, FlagData> playerFlags, ClaimGroupManager groups, ClaimMessages messages) {
+    private Subzone(String name, ClaimBox box, ResourceKey<Level> dimension, List<Subzone> subzones, FlagData flags, Map<UUID, FlagData> playerFlags, ClaimGroupManager groups, ClaimMessages messages) {
         super(name, box, dimension, new ArrayList<>(subzones), flags, new HashMap<>(playerFlags), groups, messages);
     }
 
-    public Subzone(String name, ClaimBox box, ServerWorld world, AbstractClaim parent) {
+    public Subzone(String name, ClaimBox box, ServerLevel world, AbstractClaim parent) {
         super(name, box, world);
         // Make sure the parent isn't also in the subzone list (getDepth() would get an infinite loop)
         this.parent = parent;

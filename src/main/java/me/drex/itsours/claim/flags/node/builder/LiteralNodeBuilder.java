@@ -1,8 +1,8 @@
 package me.drex.itsours.claim.flags.node.builder;
 
 import me.drex.itsours.claim.flags.node.LiteralNode;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.registry.Registry;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.core.Registry;
 
 public class LiteralNodeBuilder extends AbstractNodeBuilder {
 
@@ -11,8 +11,8 @@ public class LiteralNodeBuilder extends AbstractNodeBuilder {
     }
 
     public <T> LiteralNodeBuilder(Registry<T> registry, T value) {
-        super(toShortIdentifier(registry.getId(value)));
-        ItemConvertible item = getItem(value);
+        super(toShortIdentifier(registry.getKey(value)));
+        ItemLike item = getItem(value);
         if (item != null) {
             icon(item);
         }

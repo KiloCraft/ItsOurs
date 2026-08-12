@@ -5,18 +5,23 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.node.Node;
-import net.minecraft.block.AbstractPressurePlateBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ButtonBlock;
-import net.minecraft.entity.*;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.TraceableEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.block.BasePressurePlateBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -39,11 +44,11 @@ public abstract class EntityMixin {
 
     @Inject(method = "tick", at = @At("RETURN"))
     public void itsours$onTick(CallbackInfo ci) {
-        if ((Object) this instanceof ServerPlayerEntity player) {
-            if (player.getBlockPos() == null) return;
+        if ((Object) this instanceof ServerPlayer player) {
+            if (player.blockPosition() == null) return;
             AbstractClaim claim = ClaimList.getClaimAt(player).orElse(null);
             if (!Objects.equals(pclaim, claim)) {
-                if (player.networkHandler != null) {
+                if (player.connection != null) {
                     if (pclaim != null) pclaim.onLeave(claim, player);
                     if (claim != null) claim.onEnter(pclaim, player);
                 }
@@ -56,19 +61,19 @@ public abstract class EntityMixin {
         method = "method_67632",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/EntityCollisionHandler;Z)V"
+            target = "Lnet/minecraft/world/level/block/state/BlockState;entityInside(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/InsideBlockEffectApplier;Z)V"
         )
     )
-    private boolean itsours$onBlockCollision(BlockState blockState, World world, BlockPos pos, Entity entity, EntityCollisionHandler entityCollisionHandler, boolean b) {
-        ServerPlayerEntity playerEntity = null;
-        if (entity instanceof ProjectileEntity projectileEntity && (blockState.getBlock() instanceof ButtonBlock || blockState.getBlock() instanceof AbstractPressurePlateBlock)) {
-            if (projectileEntity.getOwner() != null && projectileEntity.getOwner() instanceof ServerPlayerEntity) {
-                playerEntity = (ServerPlayerEntity) projectileEntity.getOwner();
+    private boolean itsours$onBlockCollision(BlockState blockState, Level world, BlockPos pos, Entity entity, InsideBlockEffectApplier entityCollisionHandler, boolean b) {
+        ServerPlayer playerEntity = null;
+        if (entity instanceof Projectile projectileEntity && (blockState.getBlock() instanceof ButtonBlock || blockState.getBlock() instanceof BasePressurePlateBlock)) {
+            if (projectileEntity.getOwner() != null && projectileEntity.getOwner() instanceof ServerPlayer) {
+                playerEntity = (ServerPlayer) projectileEntity.getOwner();
             }
-        } else if (entity instanceof ServerPlayerEntity && blockState.getBlock() instanceof AbstractPressurePlateBlock) {
-            playerEntity = (ServerPlayerEntity) entity;
-        } else if (entity instanceof ItemEntity item && blockState.getBlock() instanceof AbstractPressurePlateBlock) {
-            if (item.getOwner() != null && item.getOwner() instanceof ServerPlayerEntity owner) {
+        } else if (entity instanceof ServerPlayer && blockState.getBlock() instanceof BasePressurePlateBlock) {
+            playerEntity = (ServerPlayer) entity;
+        } else if (entity instanceof ItemEntity item && blockState.getBlock() instanceof BasePressurePlateBlock) {
+            if (item.getOwner() != null && item.getOwner() instanceof ServerPlayer owner) {
                 playerEntity = owner;
             }
         }
@@ -79,27 +84,27 @@ public abstract class EntityMixin {
         if (claim.isEmpty()) {
             return true;
         }
-        if (!claim.get().checkAction(playerEntity.getUuid(), Flags.INTERACT_BLOCK, Node.registry(Registries.BLOCK, blockState.getBlock()))) {
-            playerEntity.sendMessage(localized("text.itsours.action.disallowed.interact_block", playerEntity), true);
+        if (!claim.get().checkAction(playerEntity.getUUID(), Flags.INTERACT_BLOCK, Node.registry(BuiltInRegistries.BLOCK, blockState.getBlock()))) {
+            playerEntity.displayClientMessage(localized("text.itsours.action.disallowed.interact_block", playerEntity), true);
             return false;
         }
         return true;
     }
 
     @Inject(
-        method = "isImmuneToExplosion",
+        method = "ignoreExplosion",
         at = @At("RETURN"),
         cancellable = true
     )
     private void itsours$preventExplosionImpact(Explosion explosion, CallbackInfoReturnable<Boolean> cir) {
-        Entity cause = explosion.getEntity();
+        Entity cause = explosion.getDirectSourceEntity();
         Entity this$entity = (Entity) (Object) this;
-        if (cause instanceof Ownable ownable) {
+        if (cause instanceof TraceableEntity ownable) {
             Entity owner = ownable.getOwner();
             if (owner != null) {
                 cause = owner;
             }
-        } else if (cause instanceof MobEntity mobEntity) {
+        } else if (cause instanceof Mob mobEntity) {
             LivingEntity target = mobEntity.getTarget();
             if (target != null) {
                 cause = target;
@@ -111,16 +116,16 @@ public abstract class EntityMixin {
         }
         if (cause != null) {
             if (cause == this$entity) return;
-            if (!claim.get().checkAction(null, Flags.PVP) && this$entity instanceof PlayerEntity) {
-                if (cause instanceof PlayerEntity player) {
-                    player.sendMessage(localized("text.itsours.action.disallowed.damage_player", player), true);
+            if (!claim.get().checkAction(null, Flags.PVP) && this$entity instanceof Player) {
+                if (cause instanceof Player player) {
+                    player.displayClientMessage(localized("text.itsours.action.disallowed.damage_player", player), true);
                 }
                 cir.setReturnValue(true);
                 return;
             }
-            if (!claim.get().checkAction(cause.getUuid(), Flags.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, this.getType())) && !(this$entity instanceof PlayerEntity)) {
-                if (cause instanceof PlayerEntity player) {
-                    player.sendMessage(localized("text.itsours.action.disallowed.damage_entity", player), true);
+            if (!claim.get().checkAction(cause.getUUID(), Flags.DAMAGE_ENTITY, Node.registry(BuiltInRegistries.ENTITY_TYPE, this.getType())) && !(this$entity instanceof Player)) {
+                if (cause instanceof Player player) {
+                    player.displayClientMessage(localized("text.itsours.action.disallowed.damage_entity", player), true);
                 }
                 cir.setReturnValue(true);
             }

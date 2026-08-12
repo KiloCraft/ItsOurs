@@ -3,14 +3,14 @@ package me.drex.itsours.gui;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import me.drex.itsours.gui.util.BaseGui;
 import me.drex.itsours.gui.util.GuiTextures;
-import net.minecraft.item.Items;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -26,9 +26,9 @@ public abstract class PageGui<T> extends BaseGui {
     private int pageIndex = 0;
     private int filterIndex = 0;
 
-    public PageGui(GuiContext context, ScreenHandlerType<? extends GenericContainerScreenHandler> type) {
+    public PageGui(GuiContext context, MenuType<? extends ChestMenu> type) {
         super(context, type);
-        if (type == ScreenHandlerType.GENERIC_9X1) throw new IllegalArgumentException();
+        if (type == MenuType.GENERIC_9x1) throw new IllegalArgumentException();
         if (getWidth() != WIDTH) throw new IllegalArgumentException();
     }
 
@@ -56,7 +56,7 @@ public abstract class PageGui<T> extends BaseGui {
             if (future != null) {
                 futures.add(future);
                 final int finalI = i;
-                future.thenAcceptAsync(guiElement -> this.setSlot(finalI, guiElement), Util.getMainWorkerExecutor());
+                future.thenAcceptAsync(guiElement -> this.setSlot(finalI, guiElement), Util.backgroundExecutor());
             }
         }
         for (int i = pageElements.size(); i < pageElementSize; i++) {
@@ -74,8 +74,8 @@ public abstract class PageGui<T> extends BaseGui {
             case 4:
                 yield new GuiElementBuilder(Items.BOOK)
                     .setName(message("text.itsours.gui.currentPage", Map.of(
-                        "page", Text.literal(String.valueOf(pageIndex + 1)),
-                        "max_page", Text.literal(String.valueOf(maxPageIndex() + 1))
+                        "page", Component.literal(String.valueOf(pageIndex + 1)),
+                        "max_page", Component.literal(String.valueOf(maxPageIndex() + 1))
                     )));
             case 5:
                 yield pageIndex != maxPageIndex() ? new GuiElementBuilder(Items.PLAYER_HEAD)
@@ -86,7 +86,7 @@ public abstract class PageGui<T> extends BaseGui {
                 yield !filters().isEmpty() ? new GuiElementBuilder(Items.PAPER)
                     .setName(message("text.itsours.gui.filter"))
                     .setLore(splitLines(
-                        filters().stream().map(filter -> (Text) (filters().indexOf(filter) == filterIndex ? filter.text().copy().formatted(Formatting.BOLD) : filter.text())).toList()
+                        filters().stream().map(filter -> (Component) (filters().indexOf(filter) == filterIndex ? filter.text().copy().withStyle(ChatFormatting.BOLD) : filter.text())).toList()
                     ))
                     .setCallback(clickType -> {
                         int diff;
@@ -108,7 +108,7 @@ public abstract class PageGui<T> extends BaseGui {
     }
 
     public void updatePage(int pageIndex) {
-        this.pageIndex = MathHelper.clamp(pageIndex, 0, maxPageIndex());
+        this.pageIndex = Mth.clamp(pageIndex, 0, maxPageIndex());
         click();
         rebuild();
     }
@@ -120,7 +120,7 @@ public abstract class PageGui<T> extends BaseGui {
     private int maxPageIndex() {
         List<T> elements = filteredElements();
         if (elements.isEmpty()) return 0;
-        return MathHelper.ceil(elements.size() / (double) (getSize() - WIDTH)) - 1;
+        return Mth.ceil(elements.size() / (double) (getSize() - WIDTH)) - 1;
     }
 
     public abstract Collection<T> elements();
@@ -143,7 +143,7 @@ public abstract class PageGui<T> extends BaseGui {
         return null;
     }
 
-    public record Filter<T>(MutableText text, Predicate<T> predicate) {
+    public record Filter<T>(MutableComponent text, Predicate<T> predicate) {
 
     }
 

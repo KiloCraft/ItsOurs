@@ -3,11 +3,11 @@ package me.drex.itsours.mixin;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.data.DataManager;
-import net.minecraft.network.ClientConnection;
+import net.minecraft.network.Connection;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.PlayerManager;
-import net.minecraft.server.network.ConnectedClientData;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.players.PlayerList;
+import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,26 +17,26 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
 
-@Mixin(PlayerManager.class)
-public abstract class PlayerManagerMixin {
+@Mixin(PlayerList.class)
+public abstract class PlayerListMixin {
 
     @Shadow
     @Final
     private MinecraftServer server;
 
     @Inject(
-        method = "onPlayerConnect",
+        method = "placeNewPlayer",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayerEntity;onSpawn()V"
+            target = "Lnet/minecraft/server/level/ServerPlayer;initInventoryMenu()V"
         )
     )
-    public void itsours$onPlayerConnect(ClientConnection connection, ServerPlayerEntity player, ConnectedClientData clientData, CallbackInfo ci) {
+    public void itsours$onPlayerConnect(Connection connection, ServerPlayer player, CommonListenerCookie clientData, CallbackInfo ci) {
         Optional<AbstractClaim> optional = ClaimList.getClaimAt(player);
         optional.ifPresent(claim -> claim.onEnter(null, player));
     }
 
-    @Inject(method = "saveAllPlayerData", at = @At("HEAD"))
+    @Inject(method = "saveAll", at = @At("HEAD"))
     public void itsours$onSave(CallbackInfo ci) {
         DataManager.save(this.server);
     }

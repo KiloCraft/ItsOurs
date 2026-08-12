@@ -1,7 +1,7 @@
 package me.drex.itsours.claim.flags.node;
 
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.text.MutableText;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.network.chat.MutableComponent;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -10,7 +10,7 @@ public class GroupNode extends AbstractChildNode {
 
     private final List<ChildNode> contained;
 
-    public GroupNode(String id, MutableText description, List<ChildNode> nodes, ItemConvertible icon, Predicate<ChangeContext> changePredicate, List<ChildNode> contained) {
+    public GroupNode(String id, MutableComponent description, List<ChildNode> nodes, ItemLike icon, Predicate<ChangeContext> changePredicate, List<ChildNode> contained) {
         super(id, description, nodes, icon, changePredicate);
         this.contained = contained;
     }

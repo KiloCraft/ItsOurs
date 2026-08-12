@@ -5,10 +5,10 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.node.Node;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.screen.LecternScreenHandler;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.inventory.LecternMenu;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -16,22 +16,22 @@ import java.util.Optional;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
 
-@Mixin(LecternScreenHandler.class)
-public abstract class LecternScreenHandlerMixin {
+@Mixin(LecternMenu.class)
+public abstract class LecternMenuMixin {
 
     @ModifyExpressionValue(
-        method = "onButtonClick",
+        method = "clickMenuButton",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/entity/player/PlayerEntity;canModifyBlocks()Z"
+            target = "Lnet/minecraft/world/entity/player/Player;mayBuild()Z"
         )
     )
-    public boolean itsours$canTakeBook(boolean original, PlayerEntity player) {
+    public boolean itsours$canTakeBook(boolean original, Player player) {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(player);
         if (claim.isEmpty())
             return original;
-        if (!claim.get().checkAction(player.getUuid(), Flags.MINE, Node.registry(Registries.BLOCK, Blocks.LECTERN))) {
-            player.sendMessage(localized("text.itsours.action.disallowed.interact_block", player), true);
+        if (!claim.get().checkAction(player.getUUID(), Flags.MINE, Node.registry(BuiltInRegistries.BLOCK, Blocks.LECTERN))) {
+            player.displayClientMessage(localized("text.itsours.action.disallowed.interact_block", player), true);
             return false;
         }
         return original;

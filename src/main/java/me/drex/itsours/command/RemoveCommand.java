@@ -11,11 +11,11 @@ import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.data.DataManager;
 import me.drex.itsours.user.ClaimTrackingPlayer;
 import me.drex.itsours.user.PlayerData;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.literal;
 
 public class RemoveCommand extends AbstractCommand {
 
@@ -25,7 +25,7 @@ public class RemoveCommand extends AbstractCommand {
         super("remove");
     }
 
-    public static void removeClaim(ServerCommandSource src, AbstractClaim claim) {
+    public static void removeClaim(CommandSourceStack src, AbstractClaim claim) {
         // Remove claim from its parents' subzone list
         if (claim instanceof Subzone subzone) {
             subzone.getParent().removeSubzone((Subzone) claim);
@@ -48,7 +48,7 @@ public class RemoveCommand extends AbstractCommand {
     }
 
     @Override
-    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    protected void register(LiteralArgumentBuilder<CommandSourceStack> literal) {
         literal.then(
                 ClaimArgument.ownClaims()
                     .then(
@@ -60,19 +60,19 @@ public class RemoveCommand extends AbstractCommand {
             .executes(ctx -> executeRemove(ctx.getSource(), getClaim(ctx.getSource().getPlayer())));
     }
 
-    public int executeRemove(ServerCommandSource src, AbstractClaim claim) throws CommandSyntaxException {
-        if (claim.getOwner().equals(src.getEntityOrThrow().getUuid()) || ItsOurs.checkPermission(src, "itsours.remove", 2)) {
-            src.sendFeedback(() -> localized("text.itsours.commands.remove", claim.placeholders(src.getServer())), false);
+    public int executeRemove(CommandSourceStack src, AbstractClaim claim) throws CommandSyntaxException {
+        if (claim.getOwner().equals(src.getEntityOrException().getUUID()) || ItsOurs.checkPermission(src, "itsours.remove", 2)) {
+            src.sendSuccess(() -> localized("text.itsours.commands.remove", claim.placeholders(src.getServer())), false);
             return 1;
         } else {
             throw MISSING_PERMISSION;
         }
     }
 
-    public int executeRemoveConfirmed(ServerCommandSource src, AbstractClaim claim) throws CommandSyntaxException {
-        if (claim.getOwner().equals(src.getEntityOrThrow().getUuid()) || ItsOurs.checkPermission(src, "itsours.remove", 2)) {
+    public int executeRemoveConfirmed(CommandSourceStack src, AbstractClaim claim) throws CommandSyntaxException {
+        if (claim.getOwner().equals(src.getEntityOrException().getUUID()) || ItsOurs.checkPermission(src, "itsours.remove", 2)) {
             removeClaim(src, claim);
-            src.sendFeedback(() -> localized("text.itsours.commands.remove.success", claim.placeholders(src.getServer())), false);
+            src.sendSuccess(() -> localized("text.itsours.commands.remove.success", claim.placeholders(src.getServer())), false);
             return 1;
         } else {
             throw MISSING_PERMISSION;

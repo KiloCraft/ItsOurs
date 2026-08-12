@@ -12,15 +12,15 @@ import me.drex.itsours.claim.flags.visitor.FlagVisitor;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.command.argument.FlagArgument;
 import me.drex.itsours.util.PlaceholderUtil;
-import net.minecraft.command.argument.GameProfileArgumentType;
-import net.minecraft.server.PlayerConfigEntry;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.server.players.NameAndId;
+import net.minecraft.commands.CommandSourceStack;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static me.drex.itsours.util.LocalizedMessage.localized;
-import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.commands.Commands.argument;
 
 public class CheckCommand extends AbstractCommand {
 
@@ -31,24 +31,24 @@ public class CheckCommand extends AbstractCommand {
     }
 
     @Override
-    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
-        RequiredArgumentBuilder<ServerCommandSource, String> claim = ClaimArgument.ownClaims().then(
-            argument("targets", GameProfileArgumentType.gameProfile()).then(
+    protected void register(LiteralArgumentBuilder<CommandSourceStack> literal) {
+        RequiredArgumentBuilder<CommandSourceStack, String> claim = ClaimArgument.ownClaims().then(
+            argument("targets", GameProfileArgument.gameProfile()).then(
                 FlagArgument.playerFlag()
-                    .executes(ctx -> execute(ctx.getSource(), ClaimArgument.getClaim(ctx), GameProfileArgumentType.getProfileArgument(ctx, "targets"), FlagArgument.getPlayerFlag(ctx)))
+                    .executes(ctx -> execute(ctx.getSource(), ClaimArgument.getClaim(ctx), GameProfileArgument.getGameProfiles(ctx, "targets"), FlagArgument.getPlayerFlag(ctx)))
             )
         );
         literal.then(claim);
     }
 
-    private int execute(ServerCommandSource src, AbstractClaim claim, Collection<PlayerConfigEntry> targets, Flag flag) throws CommandSyntaxException {
+    private int execute(CommandSourceStack src, AbstractClaim claim, Collection<NameAndId> targets, Flag flag) throws CommandSyntaxException {
         validateAction(src, claim, Flags.MODIFY, Modify.CHECK.node());
-        for (PlayerConfigEntry target : targets) {
+        for (NameAndId target : targets) {
             FlagVisitor visitor = FlagVisitor.create();
             claim.visit(target.id(), flag, visitor);
             LinkedHashMap<AbstractClaim, List<Entry>> map = visitor.getEntries().stream()
                 .collect(Collectors.groupingBy(Entry::claim, LinkedHashMap::new, Collectors.toList()));
-            src.sendFeedback(() -> localized("text.itsours.commands.check", Map.of(
+            src.sendSuccess(() -> localized("text.itsours.commands.check", Map.of(
                 "list", PlaceholderUtil.list(map.entrySet(), claimCheckResult -> {
                     return PlaceholderUtil.mergePlaceholderMaps(
                         claimCheckResult.getKey().placeholders(src.getServer()),

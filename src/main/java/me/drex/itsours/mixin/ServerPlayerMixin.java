@@ -4,17 +4,17 @@ import com.mojang.authlib.GameProfile;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.data.DataManager;
 import me.drex.itsours.user.ClaimSelectingPlayer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixin extends PlayerEntity implements ClaimSelectingPlayer {
+@Mixin(ServerPlayer.class)
+public abstract class ServerPlayerMixin extends Player implements ClaimSelectingPlayer {
 
     @Nullable
     private BlockPos firstPos = null;
@@ -23,12 +23,12 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
 
     private AbstractClaim claim = null;
 
-    public ServerPlayerEntityMixin(World world, GameProfile profile) {
+    public ServerPlayerMixin(Level world, GameProfile profile) {
         super(world, profile);
     }
 
     @Shadow
-    public abstract void sendMessage(Text message);
+    public abstract void sendSystemMessage(Component message);
 
     @Override
     public boolean arePositionsSet() {
@@ -39,7 +39,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Cl
     public void resetSelection() {
         this.firstPos = null;
         this.secondPos = null;
-        DataManager.updateUserData(getUuid()).setSelect(false);
+        DataManager.updateUserData(getUUID()).setSelect(false);
     }
 
     @Override

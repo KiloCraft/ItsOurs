@@ -4,7 +4,7 @@ import me.drex.itsours.claim.flags.Flag;
 import me.drex.itsours.claim.flags.util.Value;
 import me.drex.itsours.data.DataManager;
 import me.drex.itsours.gui.GuiContext;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 import java.util.Map;
 
@@ -13,7 +13,7 @@ public class DefaultFlagsGui extends AbstractFlagsGui {
 
     public DefaultFlagsGui(GuiContext context, Flag flag) {
         super(context, DataManager.defaultSettings(), flag);
-        this.setTitle(message("text.itsours.gui.default.title", Map.of("flag", Text.literal(flag.asString()))));
+        this.setTitle(message("text.itsours.gui.default.title", Map.of("flag", Component.literal(flag.asString()))));
     }
 
     @Override

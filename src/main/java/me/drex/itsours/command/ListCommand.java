@@ -3,9 +3,9 @@ package me.drex.itsours.command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.drex.itsours.claim.Claim;
 import me.drex.itsours.claim.list.ClaimList;
-import net.minecraft.command.argument.GameProfileArgumentType;
-import net.minecraft.server.PlayerConfigEntry;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.server.players.NameAndId;
+import net.minecraft.commands.CommandSourceStack;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -14,7 +14,7 @@ import java.util.Map;
 
 import static me.drex.itsours.util.PlaceholderUtil.*;
 import static me.drex.itsours.util.LocalizedMessage.localized;
-import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.commands.Commands.argument;
 
 public class ListCommand extends AbstractCommand {
 
@@ -25,23 +25,23 @@ public class ListCommand extends AbstractCommand {
     }
 
     @Override
-    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    protected void register(LiteralArgumentBuilder<CommandSourceStack> literal) {
         literal.then(
-                argument("target", GameProfileArgumentType.gameProfile())
-                    .executes(ctx -> executeList(ctx.getSource(), GameProfileArgumentType.getProfileArgument(ctx, "target")))
+                argument("target", GameProfileArgument.gameProfile())
+                    .executes(ctx -> executeList(ctx.getSource(), GameProfileArgument.getGameProfiles(ctx, "target")))
             )
-            .executes(ctx -> executeList(ctx.getSource(), Collections.singleton(ctx.getSource().getPlayerOrThrow().getPlayerConfigEntry())));
+            .executes(ctx -> executeList(ctx.getSource(), Collections.singleton(ctx.getSource().getPlayerOrException().nameAndId())));
     }
 
-    private int executeList(ServerCommandSource src, Collection<PlayerConfigEntry> targets) {
+    private int executeList(CommandSourceStack src, Collection<NameAndId> targets) {
         int i = 0;
-        for (PlayerConfigEntry target : targets) {
+        for (NameAndId target : targets) {
             List<Claim> claims = ClaimList.getClaimsFrom(target.id());
             i += claims.size();
             if (claims.isEmpty()) {
-                src.sendFeedback(() -> localized("text.itsours.commands.list.empty", gameProfile("target_", target)), false);
+                src.sendSuccess(() -> localized("text.itsours.commands.list.empty", gameProfile("target_", target)), false);
             } else {
-                src.sendFeedback(() -> localized("text.itsours.commands.list", mergePlaceholderMaps(
+                src.sendSuccess(() -> localized("text.itsours.commands.list", mergePlaceholderMaps(
                     Map.of("claims", list(claims, claim -> claim.placeholders(src.getServer()), "text.itsours.commands.list")),
                     gameProfile("target_", target)
                 )), false);

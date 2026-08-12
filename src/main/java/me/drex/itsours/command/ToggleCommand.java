@@ -4,8 +4,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.drex.itsours.data.DataManager;
 import me.drex.itsours.user.PlayerData;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiConsumer;
@@ -28,24 +28,24 @@ public class ToggleCommand extends AbstractCommand {
     }
 
     @Override
-    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    protected void register(LiteralArgumentBuilder<CommandSourceStack> literal) {
         literal.executes(ctx -> executeToggle(ctx.getSource()));
     }
 
-    private int executeToggle(ServerCommandSource src) throws CommandSyntaxException {
-        ServerPlayerEntity player = src.getPlayerOrThrow();
-        PlayerData userData = DataManager.updateUserData(player.getUuid());
+    private int executeToggle(CommandSourceStack src) throws CommandSyntaxException {
+        ServerPlayer player = src.getPlayerOrException();
+        PlayerData userData = DataManager.updateUserData(player.getUUID());
         boolean newValue = !dataGetter.apply(userData);
         dataSetter.accept(userData, newValue);
         if (newValue) {
-            src.sendFeedback(() -> localized(translationId + ".enabled"), false);
+            src.sendSuccess(() -> localized(translationId + ".enabled"), false);
         } else {
-            src.sendFeedback(() -> localized(translationId + ".disabled"), false);
+            src.sendSuccess(() -> localized(translationId + ".disabled"), false);
         }
         afterToggle(src, newValue);
         return 1;
     }
 
-    protected void afterToggle(ServerCommandSource src, boolean newValue) throws CommandSyntaxException {
+    protected void afterToggle(CommandSourceStack src, boolean newValue) throws CommandSyntaxException {
     }
 }

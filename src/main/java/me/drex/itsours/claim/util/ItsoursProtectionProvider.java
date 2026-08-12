@@ -6,16 +6,16 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.claim.flags.Flags;
 import me.drex.itsours.claim.flags.node.Node;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.Explosion;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -28,8 +28,8 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     }
 
     @Override
-    public boolean isProtected(World world, BlockPos pos) {
-        if (world instanceof ServerWorld serverWorld) {
+    public boolean isProtected(Level world, BlockPos pos) {
+        if (world instanceof ServerLevel serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, pos);
             return optional.isPresent();
         }
@@ -37,16 +37,16 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     }
 
     @Override
-    public boolean isAreaProtected(World world, Box area) {
+    public boolean isAreaProtected(Level world, AABB area) {
         for (AbstractClaim claim : ClaimList.getClaims()) {
             if (claim.getBox().contains(
-                new BlockBox(
-                    MathHelper.floor(area.minX),
-                    MathHelper.floor(area.minY),
-                    MathHelper.floor(area.minZ),
-                    MathHelper.floor(area.maxX),
-                    MathHelper.floor(area.maxY),
-                    MathHelper.floor(area.maxZ))
+                new BoundingBox(
+                    Mth.floor(area.minX),
+                    Mth.floor(area.minY),
+                    Mth.floor(area.minZ),
+                    Mth.floor(area.maxX),
+                    Mth.floor(area.maxY),
+                    Mth.floor(area.maxZ))
             )) {
                 return true;
             }
@@ -55,8 +55,8 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     }
 
     @Override
-    public boolean canBreakBlock(World world, BlockPos pos, GameProfile profile, @Nullable PlayerEntity player) {
-        if (world instanceof ServerWorld serverWorld) {
+    public boolean canBreakBlock(Level world, BlockPos pos, GameProfile profile, @Nullable Player player) {
+        if (world instanceof ServerLevel serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, pos);
             return optional.map(claim -> claim.checkAction(profile.id(), Flags.MINE)).orElse(true);
         }
@@ -64,8 +64,8 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     }
 
     @Override
-    public boolean canExplodeBlock(World world, BlockPos pos, Explosion explosion, GameProfile profile, @Nullable PlayerEntity player) {
-        if (world instanceof ServerWorld serverWorld) {
+    public boolean canExplodeBlock(Level world, BlockPos pos, Explosion explosion, GameProfile profile, @Nullable Player player) {
+        if (world instanceof ServerLevel serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, pos);
             return optional.map(claim -> claim.checkAction(null, Flags.EXPLOSIONS)).orElse(true);
         }
@@ -73,8 +73,8 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     }
 
     @Override
-    public boolean canPlaceBlock(World world, BlockPos pos, GameProfile profile, @Nullable PlayerEntity player) {
-        if (world instanceof ServerWorld serverWorld) {
+    public boolean canPlaceBlock(Level world, BlockPos pos, GameProfile profile, @Nullable Player player) {
+        if (world instanceof ServerLevel serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, pos);
             return optional.map(claim -> claim.checkAction(profile.id(), Flags.PLACE)).orElse(true);
         }
@@ -82,8 +82,8 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     }
 
     @Override
-    public boolean canInteractBlock(World world, BlockPos pos, GameProfile profile, @Nullable PlayerEntity player) {
-        if (world instanceof ServerWorld serverWorld) {
+    public boolean canInteractBlock(Level world, BlockPos pos, GameProfile profile, @Nullable Player player) {
+        if (world instanceof ServerLevel serverWorld) {
             Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, pos);
             return optional.map(claim -> claim.checkAction(profile.id(), Flags.INTERACT_BLOCK)).orElse(true);
         }
@@ -91,19 +91,19 @@ public class ItsoursProtectionProvider implements ProtectionProvider {
     }
 
     @Override
-    public boolean canInteractEntity(World world, Entity entity, GameProfile profile, @Nullable PlayerEntity player) {
-        if (world instanceof ServerWorld serverWorld) {
-            Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, entity.getBlockPos());
-            return optional.map(claim -> claim.checkAction(profile.id(), Flags.INTERACT_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType()))).orElse(true);
+    public boolean canInteractEntity(Level world, Entity entity, GameProfile profile, @Nullable Player player) {
+        if (world instanceof ServerLevel serverWorld) {
+            Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, entity.blockPosition());
+            return optional.map(claim -> claim.checkAction(profile.id(), Flags.INTERACT_ENTITY, Node.registry(BuiltInRegistries.ENTITY_TYPE, entity.getType()))).orElse(true);
         }
         return false;
     }
 
     @Override
-    public boolean canDamageEntity(World world, Entity entity, GameProfile profile, @Nullable PlayerEntity player) {
-        if (world instanceof ServerWorld serverWorld) {
-            Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, entity.getBlockPos());
-            return optional.map(claim -> claim.checkAction(profile.id(), Flags.DAMAGE_ENTITY, Node.registry(Registries.ENTITY_TYPE, entity.getType()))).orElse(true);
+    public boolean canDamageEntity(Level world, Entity entity, GameProfile profile, @Nullable Player player) {
+        if (world instanceof ServerLevel serverWorld) {
+            Optional<AbstractClaim> optional = ClaimList.getClaimAt(serverWorld, entity.blockPosition());
+            return optional.map(claim -> claim.checkAction(profile.id(), Flags.DAMAGE_ENTITY, Node.registry(BuiltInRegistries.ENTITY_TYPE, entity.getType()))).orElse(true);
         }
         return false;
     }

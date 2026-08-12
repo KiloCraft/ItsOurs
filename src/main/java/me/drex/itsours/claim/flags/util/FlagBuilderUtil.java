@@ -7,24 +7,28 @@ import me.drex.itsours.claim.flags.node.GroupNode;
 import me.drex.itsours.claim.flags.node.builder.GroupNodeBuilder;
 import me.drex.itsours.claim.flags.node.builder.LiteralNodeBuilder;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.block.*;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.FlyingItemEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.ItemSupplier;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.BasePressurePlateBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -34,30 +38,30 @@ import java.util.function.Predicate;
 public class FlagBuilderUtil {
     public static final Map<EntityType<?>, ItemStack> ENTITY_PICK_BLOCK_STATE = new HashMap<>();
 
-    public static final Predicate<Item> USE_ITEM_PREDICATE = item -> overrides(item.getClass(), Item.class, Flags.DEV_ENV ? "use" : "method_7836", World.class, PlayerEntity.class, Hand.class) || item.getComponents().contains(DataComponentTypes.FOOD);
-    public static final Predicate<Item> USE_ON_BLOCK_PREDICATE = item -> (overrides(item.getClass(), Item.class, Flags.DEV_ENV ? "useOnBlock" : "method_7884", ItemUsageContext.class)) && !(item instanceof BlockItem);
+    public static final Predicate<Item> USE_ITEM_PREDICATE = item -> overrides(item.getClass(), Item.class, Flags.DEV_ENV ? "use" : "method_7836", Level.class, Player.class, InteractionHand.class) || item.components().has(DataComponents.FOOD);
+    public static final Predicate<Item> USE_ON_BLOCK_PREDICATE = item -> (overrides(item.getClass(), Item.class, Flags.DEV_ENV ? "useOn" : "method_7884", UseOnContext.class)) && !(item instanceof BlockItem);
     public static final Predicate<Block> INTERACT_BLOCK_PREDICATE = block -> {
-        boolean onUseWithItem = overrides(block.getClass(), Block.class, Flags.DEV_ENV ? "onUseWithItem" : "method_55765", ItemStack.class, BlockState.class, World.class, BlockPos.class, PlayerEntity.class, Hand.class, BlockHitResult.class);
-        boolean onUse = overrides(block.getClass(), Block.class, Flags.DEV_ENV ? "onUse" : "method_55766", BlockState.class, World.class, BlockPos.class, PlayerEntity.class, BlockHitResult.class);
+        boolean onUseWithItem = overrides(block.getClass(), Block.class, Flags.DEV_ENV ? "useItemOn" : "method_55765", ItemStack.class, BlockState.class, Level.class, BlockPos.class, Player.class, InteractionHand.class, BlockHitResult.class);
+        boolean onUse = overrides(block.getClass(), Block.class, Flags.DEV_ENV ? "useWithoutItem" : "method_55766", BlockState.class, Level.class, BlockPos.class, Player.class, BlockHitResult.class);
         // Instant-mine interactions (dragon egg, note block and redstone ore)
-        boolean onBlockBreakStart = overrides(block.getClass(), Block.class, Flags.DEV_ENV ? "onBlockBreakStart" : "method_9606", BlockState.class, World.class, BlockPos.class, PlayerEntity.class);
-        return !(block instanceof StairsBlock) &&
+        boolean onBlockBreakStart = overrides(block.getClass(), Block.class, Flags.DEV_ENV ? "attack" : "method_9606", BlockState.class, Level.class, BlockPos.class, Player.class);
+        return !(block instanceof StairBlock) &&
             (onUseWithItem || onUse || onBlockBreakStart ||
-                block instanceof ButtonBlock || block instanceof AbstractPressurePlateBlock);
+                block instanceof ButtonBlock || block instanceof BasePressurePlateBlock);
     };
 
     public static void init() {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-            for (EntityType<?> entityType : Registries.ENTITY_TYPE) {
+            for (EntityType<?> entityType : BuiltInRegistries.ENTITY_TYPE) {
                 try {
-                    Entity dummy = entityType.create(server.getOverworld(), SpawnReason.LOAD);
+                    Entity dummy = entityType.create(server.overworld(), EntitySpawnReason.LOAD);
                     if (dummy == null) continue;
-                    ItemStack pickBlockStack = dummy.getPickBlockStack();
+                    ItemStack pickBlockStack = dummy.getPickResult();
                     if (pickBlockStack == null) {
-                        if (dummy instanceof FlyingItemEntity flyingItemEntity) {
-                            pickBlockStack = flyingItemEntity.getStack();
-                        } else if (dummy instanceof PersistentProjectileEntity projectileEntity) {
-                            pickBlockStack = projectileEntity.getItemStack();
+                        if (dummy instanceof ItemSupplier flyingItemEntity) {
+                            pickBlockStack = flyingItemEntity.getItem();
+                        } else if (dummy instanceof AbstractArrow projectileEntity) {
+                            pickBlockStack = projectileEntity.getPickupItemStackOrigin();
                         }
                     }
                     ENTITY_PICK_BLOCK_STATE.put(entityType, pickBlockStack);
@@ -79,8 +83,8 @@ public class FlagBuilderUtil {
     private static <T> List<ChildNode> getNodes(@NotNull final Registry<T> registry, List<ChildNode> child, Predicate<T> entryPredicate) {
         List<ChildNode> nodes = new LinkedList<>();
         // Group nodes
-        registry.streamTags().forEach(registryEntries -> {
-            GroupNodeBuilder builder = new GroupNodeBuilder(registry, registryEntries.getTag(), entryPredicate);
+        registry.getTags().forEach(registryEntries -> {
+            GroupNodeBuilder builder = new GroupNodeBuilder(registry, registryEntries.key(), entryPredicate);
             builder.then(child);
             GroupNode groupNode = builder.build();
             if (groupNode.getContained().size() > 1) {
@@ -90,7 +94,7 @@ public class FlagBuilderUtil {
 
         // Single nodes
         for (T entry : registry) {
-            assert registry.getId(entry) != null;
+            assert registry.getKey(entry) != null;
             LiteralNodeBuilder builder = new LiteralNodeBuilder(registry, entry);
             builder.then(child);
             if (!entryPredicate.test(entry)) continue;

@@ -7,14 +7,14 @@ import me.drex.itsours.ItsOurs;
 import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.command.argument.ClaimArgument;
 import me.drex.itsours.util.PlaceholderUtil;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 
 import java.util.Map;
 
 import static me.drex.itsours.claim.AbstractClaim.isNameInvalid;
 import static me.drex.itsours.util.LocalizedMessage.localized;
-import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.commands.Commands.argument;
 
 public class RenameCommand extends AbstractCommand {
 
@@ -25,7 +25,7 @@ public class RenameCommand extends AbstractCommand {
     }
 
     @Override
-    protected void register(LiteralArgumentBuilder<ServerCommandSource> literal) {
+    protected void register(LiteralArgumentBuilder<CommandSourceStack> literal) {
         literal
             .then(
                 ClaimArgument.ownClaims()
@@ -36,13 +36,13 @@ public class RenameCommand extends AbstractCommand {
             );
     }
 
-    public int executeRename(ServerCommandSource src, AbstractClaim claim, String newName) throws CommandSyntaxException {
-        if (claim.getOwner().equals(src.getEntityOrThrow().getUuid()) || ItsOurs.checkPermission(src, "itsours.rename", 2)) {
+    public int executeRename(CommandSourceStack src, AbstractClaim claim, String newName) throws CommandSyntaxException {
+        if (claim.getOwner().equals(src.getEntityOrException().getUUID()) || ItsOurs.checkPermission(src, "itsours.rename", 2)) {
             if (isNameInvalid(newName)) throw ClaimArgument.INVALID_NAME;
             if (!claim.canRename(newName)) throw ClaimArgument.NAME_TAKEN;
-            Map<String, Text> oldClaimPlaceholders = claim.placeholders(src.getServer(), "old_claim_");
+            Map<String, Component> oldClaimPlaceholders = claim.placeholders(src.getServer(), "old_claim_");
             claim.setName(newName);
-            src.sendFeedback(() -> localized("text.itsours.commands.rename.success", PlaceholderUtil.mergePlaceholderMaps(
+            src.sendSuccess(() -> localized("text.itsours.commands.rename.success", PlaceholderUtil.mergePlaceholderMaps(
                 oldClaimPlaceholders,
                 claim.placeholders(src.getServer())
             )), false);

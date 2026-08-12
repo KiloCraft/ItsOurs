@@ -4,11 +4,14 @@ import me.drex.itsours.claim.flags.node.AbstractChildNode;
 import me.drex.itsours.claim.flags.node.ChildNode;
 import me.drex.itsours.claim.flags.node.Node;
 import me.drex.itsours.claim.flags.util.FlagBuilderUtil;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.*;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -21,8 +24,8 @@ public abstract class AbstractNodeBuilder {
 
     protected final String id;
     protected final List<ChildNode> childNodes = new LinkedList<>();
-    protected MutableText description = Text.empty();
-    protected ItemConvertible icon = Items.STONE;
+    protected MutableComponent description = Component.empty();
+    protected ItemLike icon = Items.STONE;
     protected Predicate<Node.ChangeContext> changePredicate = context -> true;
 
     public AbstractNodeBuilder(String id) {
@@ -34,19 +37,19 @@ public abstract class AbstractNodeBuilder {
         return this;
     }
 
-    public AbstractNodeBuilder description(MutableText description) {
+    public AbstractNodeBuilder description(MutableComponent description) {
         this.description = description;
         return this;
     }
 
-    public AbstractNodeBuilder icon(ItemConvertible icon) {
+    public AbstractNodeBuilder icon(ItemLike icon) {
         this.icon = icon;
         return this;
     }
 
-    protected <T> ItemConvertible getItem(T entry) {
+    protected <T> ItemLike getItem(T entry) {
         Item item = null;
-        if (entry instanceof ItemConvertible convertible) {
+        if (entry instanceof ItemLike convertible) {
             Item asItem = convertible.asItem();
             if (!asItem.equals(Items.AIR)) {
                 item = asItem;

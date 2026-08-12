@@ -15,9 +15,9 @@ import me.drex.itsours.gui.util.ConfirmationGui;
 import me.drex.itsours.gui.util.GuiTextures;
 import me.drex.itsours.gui.util.ValidStringInputGui;
 import me.drex.itsours.util.PlaceholderUtil;
-import net.minecraft.item.Items;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.text.Text;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.network.chat.Component;
 
 import java.util.Collection;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class GroupManagerGui extends PageGui<String> {
     private final AbstractClaim claim;
 
     public GroupManagerGui(GuiContext context, AbstractClaim claim) {
-        super(context, ScreenHandlerType.GENERIC_9X6);
+        super(context, MenuType.GENERIC_9x6);
         this.claim = claim;
         this.setTitle(message("text.itsours.gui.groupmanager.title", claim.placeholders(context.server())));
     }
@@ -44,7 +44,7 @@ public class GroupManagerGui extends PageGui<String> {
         return guiElement(ClaimGroupManager.getGroupIcon(groupId), "groupmanager.entry", PlaceholderUtil.mergePlaceholderMaps(
             claim.placeholders(context.server()),
             Map.of(
-                "group_id", Text.literal(groupId)
+                "group_id", Component.literal(groupId)
             )
         ))
             .setCallback(clickType -> {
@@ -53,7 +53,7 @@ public class GroupManagerGui extends PageGui<String> {
                 } else if (clickType.isRight) {
                     switchUi(new GroupFlagsGui(context, claim, groupId, group, Flag.flag(Flags.PLAYER)));
                 } else if (clickType.isMiddle) {
-                    switchUi(new ConfirmationGui(context, "text.itsours.gui.playermanager.remove.confirm", Map.of("group_id", Text.literal(groupId)), () -> removeGroup(groupId)));
+                    switchUi(new ConfirmationGui(context, "text.itsours.gui.playermanager.remove.confirm", Map.of("group_id", Component.literal(groupId)), () -> removeGroup(groupId)));
                 }
             });
     }
@@ -75,7 +75,7 @@ public class GroupManagerGui extends PageGui<String> {
 
     private void removeGroup(String groupId) {
         try {
-            if (GroupsCommand.INSTANCE.deleteGroup(context.player.getCommandSource(), claim, groupId) > 0) {
+            if (GroupsCommand.INSTANCE.deleteGroup(context.player.createCommandSourceStack(), claim, groupId) > 0) {
                 click();
                 build();
             } else {
@@ -88,7 +88,7 @@ public class GroupManagerGui extends PageGui<String> {
 
     private void addGroup(String groupId) {
         try {
-            GroupsCommand.INSTANCE.createGroup(context.player.getCommandSource(), claim, groupId);
+            GroupsCommand.INSTANCE.createGroup(context.player.createCommandSourceStack(), claim, groupId);
             click();
             build();
         } catch (CommandSyntaxException e) {
