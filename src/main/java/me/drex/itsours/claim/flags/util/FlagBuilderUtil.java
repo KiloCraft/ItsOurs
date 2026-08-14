@@ -38,13 +38,13 @@ import java.util.function.Predicate;
 public class FlagBuilderUtil {
     public static final Map<EntityType<?>, ItemStack> ENTITY_PICK_BLOCK_STATE = new HashMap<>();
 
-    public static final Predicate<Item> USE_ITEM_PREDICATE = item -> overrides(item.getClass(), Item.class, Flags.DEV_ENV ? "use" : "method_7836", Level.class, Player.class, InteractionHand.class) || item.components().has(DataComponents.FOOD);
-    public static final Predicate<Item> USE_ON_BLOCK_PREDICATE = item -> (overrides(item.getClass(), Item.class, Flags.DEV_ENV ? "useOn" : "method_7884", UseOnContext.class)) && !(item instanceof BlockItem);
+    public static final Predicate<Item> USE_ITEM_PREDICATE = item -> overrides(item.getClass(), Item.class, "use", Level.class, Player.class, InteractionHand.class) || item.components().has(DataComponents.FOOD);
+    public static final Predicate<Item> USE_ON_BLOCK_PREDICATE = item -> (overrides(item.getClass(), Item.class, "useOn", UseOnContext.class)) && !(item instanceof BlockItem);
     public static final Predicate<Block> INTERACT_BLOCK_PREDICATE = block -> {
-        boolean onUseWithItem = overrides(block.getClass(), Block.class, Flags.DEV_ENV ? "useItemOn" : "method_55765", ItemStack.class, BlockState.class, Level.class, BlockPos.class, Player.class, InteractionHand.class, BlockHitResult.class);
-        boolean onUse = overrides(block.getClass(), Block.class, Flags.DEV_ENV ? "useWithoutItem" : "method_55766", BlockState.class, Level.class, BlockPos.class, Player.class, BlockHitResult.class);
+        boolean onUseWithItem = overrides(block.getClass(), Block.class, "useItemOn", ItemStack.class, BlockState.class, Level.class, BlockPos.class, Player.class, InteractionHand.class, BlockHitResult.class);
+        boolean onUse = overrides(block.getClass(), Block.class, "useWithoutItem", BlockState.class, Level.class, BlockPos.class, Player.class, BlockHitResult.class);
         // Instant-mine interactions (dragon egg, note block and redstone ore)
-        boolean onBlockBreakStart = overrides(block.getClass(), Block.class, Flags.DEV_ENV ? "attack" : "method_9606", BlockState.class, Level.class, BlockPos.class, Player.class);
+        boolean onBlockBreakStart = overrides(block.getClass(), Block.class, "attack", BlockState.class, Level.class, BlockPos.class, Player.class);
         return !(block instanceof StairBlock) &&
             (onUseWithItem || onUse || onBlockBreakStart ||
                 block instanceof ButtonBlock || block instanceof BasePressurePlateBlock);

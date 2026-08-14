@@ -7,9 +7,6 @@ import me.drex.itsours.claim.flags.node.ChildNode;
 import me.drex.itsours.claim.flags.node.RootNode;
 import me.drex.itsours.claim.flags.util.FlagBuilderUtil;
 import me.drex.itsours.claim.flags.util.Modify;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.Items;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -19,8 +16,6 @@ import java.util.Arrays;
 import static me.drex.itsours.claim.flags.node.Node.literal;
 
 public class Flags {
-
-    public static final boolean DEV_ENV = FabricLoader.getInstance().isDevelopmentEnvironment();
 
     public static final RootNode PLAYER = new RootNode("player");
     public static final RootNode GLOBAL = new RootNode("global");
