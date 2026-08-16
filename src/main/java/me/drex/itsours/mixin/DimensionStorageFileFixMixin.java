@@ -20,6 +20,6 @@ public abstract class DimensionStorageFileFixMixin extends FileFix {
 
     @Inject(method = "makeFixer", at = @At("TAIL"))
     public void addFix(CallbackInfo ci) {
-        this.addFileFixOperation(FileFixOperations.applyInFolders(FileRelation.OLD_OVERWORLD, List.of(FileFixOperations.move("claims.dat", "itsours/claims.dat"))));
+        this.addFileFixOperation(FileFixOperations.applyInFolders(FileRelation.OLD_OVERWORLD, List.of(FileFixOperations.move("claims.dat", "data/itsours/claims.dat"))));
     }
 }
