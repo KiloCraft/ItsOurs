@@ -99,14 +99,14 @@ public class AdvancedPlayerManagerGui extends PageGui<UUID> {
             case 0 -> new GuiElementBuilder(Items.PLAYER_HEAD)
                 .setName(message("text.itsours.gui.playermanager.add"))
                 .hideDefaultTooltip()
-                .setProfile(GuiTextures.GUI_ADD)
+                .setProfileSkinTexture(GuiTextures.GUI_ADD)
                 .setCallback(() -> {
                     switchUi(new PlayerSelectorGui(context, this::addPlayer));
                 });
             case 1 -> new GuiElementBuilder(Items.PLAYER_HEAD)
                 .setName(message("text.itsours.gui.playermanager.trust"))
                 .hideDefaultTooltip()
-                .setProfile(GuiTextures.GUI_ADD)
+                .setProfileSkinTexture(GuiTextures.GUI_ADD)
                 .setCallback(() -> {
                     switchUi(new PlayerSelectorGui(context, this::trustPlayer));
                 });

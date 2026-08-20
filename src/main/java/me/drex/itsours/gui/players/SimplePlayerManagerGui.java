@@ -92,7 +92,7 @@ public class SimplePlayerManagerGui extends PageGui<UUID> {
             return new GuiElementBuilder(Items.PLAYER_HEAD)
                 .setName(message("text.itsours.gui.playermanager.simple.trust"))
                 .hideDefaultTooltip()
-                .setProfile(GuiTextures.GUI_ADD)
+                .setProfileSkinTexture(GuiTextures.GUI_ADD)
                 .setCallback(() -> {
                     switchUi(new PlayerSelectorGui(context, playerName -> {
                         CompletableFuture.runAsync(() -> {

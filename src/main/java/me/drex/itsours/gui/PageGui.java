@@ -68,7 +68,7 @@ public abstract class PageGui<T> extends BaseGui {
         return switch (index) {
             case 3:
                 yield pageIndex != 0 ? new GuiElementBuilder(Items.PLAYER_HEAD)
-                    .setProfile(GuiTextures.GUI_PREVIOUS_PAGE)
+                    .setProfileSkinTexture(GuiTextures.GUI_PREVIOUS_PAGE)
                     .setName(message("text.itsours.gui.previousPage"))
                     .setCallback(() -> updatePage(pageIndex - 1)) : null;
             case 4:
@@ -79,7 +79,7 @@ public abstract class PageGui<T> extends BaseGui {
                     )));
             case 5:
                 yield pageIndex != maxPageIndex() ? new GuiElementBuilder(Items.PLAYER_HEAD)
-                    .setProfile(GuiTextures.GUI_NEXT_PAGE)
+                    .setProfileSkinTexture(GuiTextures.GUI_NEXT_PAGE)
                     .setName(message("text.itsours.gui.nextPage"))
                     .setCallback(() -> updatePage(pageIndex + 1)) : null;
             case 6:
