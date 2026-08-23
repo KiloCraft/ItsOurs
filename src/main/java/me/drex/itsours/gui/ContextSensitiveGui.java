@@ -3,6 +3,10 @@ package me.drex.itsours.gui;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.GuiLike;
 import me.drex.itsours.util.LocalizedMessage;
+import net.minecraft.core.Holder;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Items;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundSource;
@@ -54,11 +58,17 @@ public interface ContextSensitiveGui extends GuiLike {
     }
 
     default void fail() {
-        context().player.playSound(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.VILLAGER_NO).value(), 0.5f, 1f);
+        playSound(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.VILLAGER_NO), 0.5f, 1f);
+    }
+
+    private void playSound(Holder<SoundEvent> sound, float volume, float pitch) {
+        ServerPlayer player = context().player;
+        player.connection.send(new ClientboundSoundPacket(sound, SoundSource.UI, player.getX(), player.getY(), player.getZ(), volume, pitch, 0));
+
     }
 
     default void click() {
-        context().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1f);
+        playSound(SoundEvents.UI_BUTTON_CLICK, 0.5f, 1f);
     }
 
 }
