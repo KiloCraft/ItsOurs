@@ -23,7 +23,7 @@ public class TrustedCommand extends AbstractCommand {
                 ClaimArgument.ownClaims()
                     .executes(ctx -> executeTrusted(ctx.getSource(), ClaimArgument.getClaim(ctx)))
             )
-            .executes(ctx -> executeTrusted(ctx.getSource(), getClaim(ctx.getSource().getPlayer())));
+            .executes(ctx -> executeTrusted(ctx.getSource(), getClaim(ctx.getSource())));
     }
 
     private int executeTrusted(CommandSourceStack src, AbstractClaim claim) {

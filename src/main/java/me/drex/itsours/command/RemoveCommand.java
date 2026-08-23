@@ -57,7 +57,7 @@ public class RemoveCommand extends AbstractCommand {
                     )
                     .executes(ctx -> executeRemove(ctx.getSource(), ClaimArgument.getClaim(ctx)))
             )
-            .executes(ctx -> executeRemove(ctx.getSource(), getClaim(ctx.getSource().getPlayer())));
+            .executes(ctx -> executeRemove(ctx.getSource(), getClaim(ctx.getSource())));
     }
 
     public int executeRemove(CommandSourceStack src, AbstractClaim claim) throws CommandSyntaxException {
@@ -65,7 +65,7 @@ public class RemoveCommand extends AbstractCommand {
             src.sendSuccess(() -> localized("text.itsours.commands.remove", claim.placeholders(src.getServer())), false);
             return 1;
         } else {
-            throw MISSING_PERMISSION;
+            throw MISSING_PERMISSION.create(src);
         }
     }
 
@@ -75,7 +75,7 @@ public class RemoveCommand extends AbstractCommand {
             src.sendSuccess(() -> localized("text.itsours.commands.remove.success", claim.placeholders(src.getServer())), false);
             return 1;
         } else {
-            throw MISSING_PERMISSION;
+            throw MISSING_PERMISSION.create(src);
         }
     }
 

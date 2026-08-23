@@ -41,7 +41,7 @@ public class ExpandCommand extends AbstractCommand {
     protected void register(LiteralArgumentBuilder<CommandSourceStack> literal) {
         literal.then(
             argument("distance", IntegerArgumentType.integer(1))
-                .executes(ctx -> execute(ctx.getSource(), getClaim(ctx.getSource().getEntity()), IntegerArgumentType.getInteger(ctx, "distance")))
+                .executes(ctx -> execute(ctx.getSource(), getClaim(ctx.getSource()), IntegerArgumentType.getInteger(ctx, "distance")))
         );
     }
 

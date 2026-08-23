@@ -22,7 +22,7 @@ public class InfoCommand extends AbstractCommand {
                 ClaimArgument.ownClaims()
                     .executes(ctx -> executeInfo(ctx.getSource(), ClaimArgument.getClaim(ctx)))
             )
-            .executes(ctx -> executeInfo(ctx.getSource(), getClaim(ctx.getSource().getPlayer())));
+            .executes(ctx -> executeInfo(ctx.getSource(), getClaim(ctx.getSource())));
     }
 
     private int executeInfo(CommandSourceStack src, AbstractClaim claim) {

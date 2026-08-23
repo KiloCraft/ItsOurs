@@ -48,7 +48,7 @@ public class RenameCommand extends AbstractCommand {
             )), false);
             return 1;
         } else {
-            throw MISSING_PERMISSION;
+            throw MISSING_PERMISSION.create(src);
         }
     }
 
