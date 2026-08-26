@@ -51,7 +51,7 @@ public class FlagBuilderUtil {
     };
 
     public static void init() {
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             for (EntityType<?> entityType : BuiltInRegistries.ENTITY_TYPE) {
                 try {
                     Entity dummy = entityType.create(server.overworld(), EntitySpawnReason.LOAD);
