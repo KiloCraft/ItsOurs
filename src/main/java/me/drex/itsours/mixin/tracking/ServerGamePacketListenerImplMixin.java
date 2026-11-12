@@ -28,7 +28,7 @@ public abstract class ServerGamePacketListenerImplMixin {
         )
     )
     private void itsours$shouldUpdateBlock(ServerGamePacketListenerImpl instance, Packet<?> packet, Operation<Void> original, ServerboundUseItemOnPacket playerInteractBlockC2SPacket) {
-        if (!((ClaimTrackingPlayer) player).isTracked(playerInteractBlockC2SPacket.getHitResult().getBlockPos())) {
+        if (!((ClaimTrackingPlayer) player).isTracked(playerInteractBlockC2SPacket.hitResult().getBlockPos())) {
             original.call(instance, packet);
         }
     }

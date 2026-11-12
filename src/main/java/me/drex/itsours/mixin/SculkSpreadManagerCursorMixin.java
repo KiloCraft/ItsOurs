@@ -23,7 +23,7 @@ public abstract class SculkSpreadManagerCursorMixin {
      * Sculk veins may still generate on the border of claims.
      */
     @Inject(method = "getValidMovementPos", at = @At("TAIL"), cancellable = true)
-    private static void itsours$dontSpreadCrossBorder(LevelAccessor access, BlockPos oldPos, RandomSource random, CallbackInfoReturnable<BlockPos> cir) {
+    private static void itsours$dontSpreadCrossBorder(LevelAccessor access, BlockPos oldPos, RandomSource random, BlockPos origin, SculkSpreader spreader, CallbackInfoReturnable<BlockPos> cir) {
         BlockPos returnValue = cir.getReturnValue();
         if (returnValue == null) return;
         if (!(access instanceof ServerLevel world)) return;

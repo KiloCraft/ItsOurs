@@ -25,11 +25,11 @@ public abstract class FarmBlockMixin {
 
     @WrapWithCondition(
         method = "fallOn",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/FarmlandBlock;turnToDirt(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V")
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/FarmlandBlock;turnToBaseBlock(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V")
     )
-    private boolean itsours$canPlayerTrample(Entity entity, BlockState state, Level world, BlockPos pos) {
+    private boolean itsours$canPlayerTrample(FarmlandBlock instance, Entity entity, BlockState state, Level world, BlockPos pos) {
         Optional<AbstractClaim> claim = ClaimList.getClaimAt(world, pos);
-        if (claim.isPresent() && entity instanceof Player player && !claim.get().checkAction(entity.getUUID(), Flags.MINE, Node.registry(BuiltInRegistries.BLOCK, (FarmlandBlock) (Object) this))) {
+        if (claim.isPresent() && entity instanceof Player player && !claim.get().checkAction(entity.getUUID(), Flags.MINE, Node.registry(BuiltInRegistries.BLOCK, instance))) {
             sendMessage(player, localized("text.itsours.action.disallowed.break_block", player), true);
             return false;
         }

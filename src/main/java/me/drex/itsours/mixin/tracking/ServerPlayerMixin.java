@@ -7,7 +7,7 @@ import me.drex.itsours.claim.AbstractClaim;
 import me.drex.itsours.claim.list.ClaimList;
 import me.drex.itsours.user.ClaimTrackingPlayer;
 import me.drex.itsours.util.ClaimBox;
-import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.protocol.BundlerInfo;
@@ -45,7 +45,7 @@ public abstract class ServerPlayerMixin extends Player implements ClaimTrackingP
         super(world, profile);
     }
 
-    private static final Predicate<BlockState> BLOCKS_MOVEMENT = BlockBehaviour.BlockStateBase::blocksMotion;
+    private static final Predicate<BlockState> BLOCKS_MOVEMENT = state -> state.is(BlockTags.BLOCKS_MOTION_IN_HEIGHTMAP);
 
     @Shadow
     public ServerGamePacketListenerImpl connection;
