@@ -84,6 +84,7 @@ public class DataManager {
         Path data = server.getWorldPath(LevelResource.DATA).resolve("itsours").resolve("claims.dat");
         if (Files.notExists(data)) {
             LOGGER.debug("Claim data file not found.");
+            initialized = true;
         } else {
             try {
                 LOGGER.info("Loading claim data {}kB", Files.size(data) / 1024);
